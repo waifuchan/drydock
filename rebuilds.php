@@ -1,0 +1,428 @@
+<?php
+	//I moved these to their own file to clean up common.  >:[   ~tyam
+	
+	require_once("config.php");
+	require_once("common.php");
+	//functions below are responsible for rebuilding certain files
+	function rebuild_rss()
+	{
+		$sidelinks = fopen("rss.xml", "w") or die("Could not open rss.xml for writing.");
+		fwrite($sidelinks, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+		fwrite($sidelinks, "<rss version=\"2.0\">\n");
+		fwrite($sidelinks, "\t<channel>\n");
+		fwrite($sidelinks, "\t\t<title>".THname."</title>\n");
+		fwrite($sidelinks, "\t\t<description>".THname." drydock RSS feeder - ".THurl."</description>\n");
+		fwrite($sidelinks, "\t\t<language>en</language>\n");
+		fwrite($sidelinks, "\t\t<link>".THurl."</link>\n");
+		fwrite($sidelinks, "\t\t<generator>drydock rss feed generator</generator>\n");
+		fwrite($sidelinks, "\t\t<copyright>tyam/ordog/kchan devs - http://573chan.org</copyright>\n");
+		$db=new ThornDBI();
+		//pull everything from the news page
+		
+		$boardsquery = "SELECT globalid,board,title,name,trip,body,time FROM ".THthreads_table." where board=".THnewsboard." ORDER BY time DESC LIMIT 0,15";
+		$boards=array();
+		$queryresult=$db->myquery($boardsquery);
+		while ($board=mysql_fetch_assoc($queryresult))
+		{
+			$boards[]=$board;
+		}
+		foreach($boards as $boardentry)
+		{
+			//set up our variables so we're not using raws
+			if($boardentry['name'])
+			{
+				if($boardentry['trip'])
+				{
+					$author=$boardentry['name']."!".$boardentry['trip'];
+				} else {
+					$author=$boardentry['name'];
+				}//tripcode check
+			} else {
+				$author = "Anonymous";
+			}//name check
+			$text = $boardentry['body'];  //no filters
+			$subject = $boardentry['title'];
+			$newsboard = getboardname(THnewsboard);  //get the name of the board
+			$link = THurl.$newsboard.'/thread/'.$boardentry['globalid'];
+			$body = replacewedge(nl2br($text)).'&lt;br/&gt;~'.$author;
+			//post template
+			fwrite($sidelinks, "\n");
+			fwrite($sidelinks, "\t\t<item>\n");
+			fwrite($sidelinks, "\t\t<guid>$link</guid>\n");
+			fwrite($sidelinks, "\t\t\t<title>$subject</title>\n");
+			fwrite($sidelinks, "\t\t\t<description>$body</description>\n");
+			fwrite($sidelinks, "\t\t\t<link>$link</link>\n");
+			fwrite($sidelinks, "\t\t\t<pubDate>".date(DATE_RSS, $boardentry['time'])."</pubDate>\n");
+			fwrite($sidelinks, "\t\t</item>\n");
+			fwrite($sidelinks, "\n");	
+		}
+		fwrite($sidelinks, "\t</channel>\n");
+		fwrite($sidelinks, "</rss>\n");
+		fclose($sidelinks);
+	}
+	//rebuild htaccess file
+	function rebuild_htaccess()
+	{
+		$htaccess = fopen(".htaccess", "w") or die("Could not open .htaccess for writing.");
+		fwrite($htaccess, "#drydock htaccess module\n");
+		fwrite($htaccess, "Options -Indexes\n");//disable snooping fuckers
+		fwrite($htaccess, "<Files ~ \"\\.tpl$\">\n");
+		fwrite($htaccess, "Order allow,deny\n");
+		fwrite($htaccess, "Deny from all\n");
+		fwrite($htaccess, "</Files>\n");
+		if (THuserewrite)
+		{
+			fwrite($htaccess, "RewriteEngine on\n");
+			$db=new ThornDBI();
+			$boardsquery = "SELECT * FROM ".THboards_table;
+			$boards=array();
+			$queryresult=$db->myquery($boardsquery);
+			while ($board=mysql_fetch_assoc($queryresult))
+			{
+				$boards[]=$board;
+			}
+			foreach($boards as $boardentry)
+			{
+				fwrite($htaccess, '#  /'.$boardentry['folder'].'/ - '.$boardentry['id']."\n");
+				fwrite($htaccess, 'RewriteRule ^'.$boardentry['folder'].'/?$ '.THpath.'drydock.php?b='.$boardentry['folder']."\n");
+				fwrite($htaccess, 'RewriteRule ^'.$boardentry['folder'].'/([0-9]{1,2})/?$ '.THpath.'drydock.php?g=$1&b='.$boardentry['folder']."\n");
+				fwrite($htaccess, 'RewriteRule ^'.$boardentry['folder'].'/thread/([0-9]{1,6})/?$ '.THpath.'drydock.php?i=$1&b='.$boardentry['folder']."\n");
+				fwrite($htaccess, 'RewriteRule ^'.$boardentry['folder'].'/edit/([0-9]{1,6})/?$ '.THpath.'editpost.php?post=$1&board='.$boardentry['folder']."\n");
+			}
+		}//end block only needed for rewrite
+		fclose($htaccess);
+	}
+	//rebuild link bars
+	function rebuild_linkbars()
+	{
+		$db=new ThornDBI();
+		$boardsquery = "SELECT * FROM ".THboards_table." WHERE hidden = 0 order by folder asc";
+		$showcount = "SELECT COUNT(*) FROM ".THboards_table." WHERE hidden = 0";
+		$showcount=$db->myresult($showcount);	
+		$boards=array();
+		$looper = 1;
+		$queryresult=$db->myquery($boardsquery);
+		while ($board=mysql_fetch_assoc($queryresult))
+		{
+			$boards[]=$board;
+		}
+		$sidelinks = fopen("linkbar.php", "w") or die("Could not open linkbar.php for writing.");
+		fwrite($sidelinks, '<table width=100%><tr><td align=left>[');
+		foreach($boards as $boardentry)
+		{
+			if (THuserewrite)  //compatibility~~~
+			{
+				fwrite($sidelinks, '<a class="info" href="'.THurl);
+			} else {
+				fwrite($sidelinks, '<a class="info" href="'.THurl.'drydock.php?b=');
+			}
+			fwrite($sidelinks, $boardentry['folder'].'">'.$boardentry['folder'].'<span>'.$boardentry['name']." - ".$boardentry['about']."</span></a>\n");  //finish it up
+					
+			if ($looper < $showcount ) { fwrite($sidelinks, '/'); };
+			$looper++;
+		}
+		fwrite($sidelinks, ']</td><td align=right>[');
+		if(THnewsboard>0)
+		{
+			if (THuserewrite)  //compatibility~~~
+			{
+				fwrite($sidelinks, ' <a class=info href="'.THurl);
+			} else {
+				fwrite($sidelinks, ' <a class=info href="'.THurl.'drydock.php?b=');
+			}
+			fwrite($sidelinks, getboardname(THnewsboard).'">'.getboardname(THnewsboard)."</a> /\n");
+					
+		}
+		//uncomment this out if you have the irc stuff installed - we don't ship it ~tyam
+		
+		//THuseirc doesn't exist, it's a placeholder for future integration
+/*
+		if (THnewsboard>0 && THuseirc ) { fwrite($sidelinks, '/'); };
+		if irc {
+			fwrite($sidelinks, ' <a class=info href="'.THurl.'irc/">irc</a> /'."\n");
+		}//if irc
+*/
+		fwrite($sidelinks, ' <a class=info href="'.THurl.'">idx</a> ]</td>');
+		fwrite($sidelinks, '</tr></table>');
+		fclose($sidelinks);
+	}
+    function rebuild_spamlist()
+    {
+        $bannedwords=array();
+        
+        if(THusecURL)
+        {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "http://wakaba.c3.cx/antispam/spam.txt");
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $string = curl_exec($ch);
+            curl_close($ch);
+
+            //echo $string;
+            $bannedwords = explode("\n", $string);
+        } 
+        else 
+        {    
+            /*manual spam filter downloading - parse unlinked/spam.txt*/
+            @$fp_blacklist = fopen(THpath."unlinked/spam.txt", "r") or die("To use the anti spam features of drydock, 
+                            you should enable the cURL functions in the general configuration.  If these do not work, 
+                            you may need to manually download <a href=\"http://wakaba.c3.cx/antispam/spam.txt\">spam.txt</a>
+                            and place it in the unlinked/ directory.");
+                    
+            while (!feof($fp_blacklist)) 
+            {
+                $buffer = fgets($fp_blacklist, 4096);
+                
+                if(rtrim($buffer))
+                {
+                    $bannedwords[] = $buffer;
+                }
+            }
+        }
+
+        $fp_cache = fopen(THpath."cache/blacklist.php", "w");
+        if($fp_cache)
+        {
+			fprintf($fp_cache, "<?php\n".'$spamblacklist'."=array(\n");
+            
+            foreach($bannedwords as $word)
+            {
+                // A legitimate use of addslashes? HOLY SHIT WHAT THE FUCK IS GOING ON
+                // Print to the cache file, it's already in the array.
+				if($word!=null){fprintf($fp_cache, '"'.addslashes(rtrim($word))."\",\n");}     
+            }
+                
+            fprintf($fp_cache, "\n);\n?>");
+        } 
+        else 
+        {
+            die("Could not open blacklist for caching.");
+        }
+        
+        fclose($fp_cache);
+    }
+	//rebuild side links
+	function rebuild_hovermenu()
+	{
+		$db=new ThornDBI();
+		$boardsquery = "SELECT * FROM ".THboards_table." WHERE hidden = 0 order by folder asc";
+		$showcount = "SELECT COUNT(*) FROM ".THboards_table." WHERE hidden = 0";
+		$showcount=$db->myresult($showcount);
+		$boards=array();
+		//$queryresult=$db->myquery($imagequery);
+		$queryresult=$db->myquery($boardsquery);
+		while ($board=mysql_fetch_assoc($queryresult))
+		{
+			$boards[]=$board;
+		}
+		$sidelinks = fopen("menu.php", "w") or die("Could not open menu.php for writing.");
+		//this is all still kind of hackish but we'll wrok on it.
+		fwrite($sidelinks, '<div id="idxmenu">'."\n".
+				'<div id="idxmenuitem">'."\n".
+				'<div class="idxmenutitle">'."\n"); //this is long, is this right?
+		if($showcount>0) {
+			fwrite($sidelinks, "Board Navigation<br>\n");
+			if(THnewsboard!=0)
+			{
+				fwrite($sidelinks, '<a href="'.THurl.'news.php">'."News page</a><br />\n");
+			}
+			foreach($boards as $boardentry)
+			{
+				if($boardentry['hidden']!=1)
+				{
+					if (THuserewrite)  //compatibility~~~
+					{
+						fwrite($sidelinks, '<a href="'.THurl);
+					} else {
+						fwrite($sidelinks, '<a href="'.THurl.'drydock.php?b=');
+					}
+					fwrite($sidelinks, $boardentry['folder'].'">'.$boardentry['folder']."</a><br />\n");  //finish it up
+				}
+			}
+		}//count>0
+
+		//check for admin/mod cookie here
+		fwrite($sidelinks, '<?php if($_SESSION["admin"]){ echo "Administration Menu<br />"; } elseif($_SESSION["moderator"]) { echo "Moderator Menu<br />"; } ?>'."\n");
+		fwrite($sidelinks, '<?php if($_SESSION["admin"]){ echo "'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=g>General Settings</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=b>Board Setup</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=bl>Blotter Posts</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=x>Bans</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=c>Capcodes</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=w>Filters</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=p>Profile Admin</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=hk>Housekeeping</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=t>Recent Pics</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=q>Recent Posts</a><br /><br />";'."\n");
+		fwrite($sidelinks, '} elseif($_SESSION["moderator"]){'."\n");
+		fwrite($sidelinks, 'echo "'."\n");
+		fwrite($sidelinks, '<a href=".THurl."recentpics.php>Recent Pics</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."recentposts.php>Recent Posts</a><br /><br />";'."\n");
+		fwrite($sidelinks, '} ?>'."\n");
+		fwrite($sidelinks, '<a href="'.THurl.'">Site Index</a><br />'."\n");
+		fwrite($sidelinks, '<?php if($_SESSION["username"]) {'."\n".'echo "<a href=".THurl."profiles.php?action=logout>Log Out</a> / <a href=".THurl."profiles.php>Profiles</a>";'."\n".' } else {'."\n");
+		fwrite($sidelinks, 'echo "<a href=".THurl."profiles.php?action=login>Login</a>'."\n".' / '."\n".'<a href=".THurl."profiles.php?action=register>Register</a>";'."\n".'}?>'."\n");
+		fwrite($sidelinks, '</div>');
+		fwrite($sidelinks, '</div>'."\n");
+		fclose($sidelinks);
+	}
+
+	function rebuild_filters()
+	{
+		$db = new ThornDBI();
+
+		$query = "SELECT * FROM ".THfilters_table;
+
+		$to=array();
+		$from=array();
+
+		// Load stuff from the DB
+		$queryresult=$db->myquery($query);
+		while ($row_item=mysql_fetch_assoc($queryresult)) 
+		{
+			$to[]=$row_item['filterto'];
+			$from[]=$row_item['filterfrom'];
+		}
+		
+		// And write it to the wordfilter cache file.
+		$fp_cache = fopen(THpath."cache/filters.php", "w");
+		if($fp_cache)
+		{
+			fprintf($fp_cache, "<?php\n".'$to'." =\n");
+			$string = var_export($to, true);
+			fprintf($fp_cache, "%s;\n\n".'$from'." =\n", $string);
+			$string = var_export($from, true);
+			fprintf($fp_cache, "%s;\n?>", $string);
+		}
+		else
+		{
+			die("Could not open cache/filters.php for writing!");
+		}
+		fclose($fp_cache);
+	}
+	
+	function rebuild_capcodes()
+	{
+		$capcodes = array();
+		$db = new ThornDBI();
+		$query = "SELECT * FROM ".THcapcodes_table;
+		
+		// Load stuff from the DB
+		$queryresult=$db->myquery($query);
+		while ($row_item=mysql_fetch_assoc($queryresult)) 
+		{
+			$capcodes[$row_item['capcodefrom']] = $row_item['capcodeto'];
+		}
+		
+		// And write it to the cache file.
+		$fp_cache = fopen(THpath."cache/capcodes.php", "w");
+		if($fp_cache)
+		{
+			fprintf($fp_cache, "<?php\n".'$capcodes'." =\n");
+			$string = var_export($capcodes, true);
+			fprintf($fp_cache, "%s;\n?>", $string);
+		}
+		else
+		{
+			die("Could not open cache/capcodes.php for writing!");
+		}
+		fclose($fp_cache);
+		
+	}
+	
+	function rebuild_config($configpost)
+	{
+		$config = fopen(THpath."config.php", 'w');
+		fwrite($config, '<?php'."\n");
+		//Stuff that doesn't change
+		fwrite($config, '$configver=4;'."\n");
+		fwrite($config, 'define("THpath","'.THpath.'");'."\n");
+		fwrite($config, 'define("THurl","'.THurl.'");'."\n");
+		fwrite($config, 'define("THcookieid","'.THcookieid.'");'."\n"); //cookie seed
+		//Database stuff that doesn't change
+		fwrite($config, 'define("THdbserver","'.THdbserver.'");'."\n");
+		fwrite($config, 'define("THdbuser","'.THdbuser.'");'."\n");
+		fwrite($config, 'define("THdbpass","'.THdbpass.'");'."\n");
+		fwrite($config, 'define("THdbbase","'.THdbbase.'");'."\n");
+		fwrite($config, 'define("THdbtype","'.THdbtype.'");'."\n");
+		//tables
+		fwrite($config, 'define("THbans_table","'.THbans_table.'");'."\n");
+		fwrite($config, 'define("THblotter_table","'.THblotter_table.'");'."\n");
+		fwrite($config, 'define("THboards_table","'.THboards_table.'");'."\n");
+		fwrite($config, 'define("THcapcodes_table","'.THcapcodes_table.'");'."\n");
+		fwrite($config, 'define("THextrainfo_table","'.THextrainfo_table.'");'."\n");
+		fwrite($config, 'define("THfilters_table","'.THfilters_table.'");'."\n");
+		fwrite($config, 'define("THimages_table","'.THimages_table.'");'."\n");
+		fwrite($config, 'define("THreplies_table","'.THreplies_table.'");'."\n");
+		fwrite($config, 'define("THspamlist_table","'.THspamlist_table.'");'."\n");
+		fwrite($config, 'define("THthreads_table","'.THthreads_table.'");'."\n");
+		fwrite($config, 'define("THusers_table","'.THusers_table.'");'."\n");
+		fwrite($config, "\n");
+
+		//Stuff that might have changed
+		fwrite($config, 'define("THthumbwidth",'.(int)abs($configpost['THthumbwidth']).');'."\n");
+		fwrite($config, 'define("THthumbheight",'.(int)abs($configpost['THthumbheight']).');'."\n");
+		$ppp=(int)abs($configpost['THjpegqual']);
+		if ($ppp>100)  { $ppp=100; } //yeah, let's upsample the jpegs >:[
+		fwrite($config, 'define("THjpegqual",'.$ppp.');'."\n");
+		fwrite($config, 'define("THpixperpost",'.(int)abs($configpost['THpixperpost']).');'."\n");
+		fprintf($config, "define(\"THdupecheck\", %d);\n", ($configpost['THdupecheck']=="on"));
+		fwrite($config, "\n");
+			
+		//Template settings
+		fprintf($config, "define(\"THuserewrite\", %d);\n", ($configpost['THuserewrite']=="on"));
+		//Default template set
+		$newtplset=str_replace('"',"",$configpost['THtplset']);
+		fwrite($config, 'define("THtplset","'.$newtplset.'");'."\n");
+		//fprintf($config, "define(\"THtpltest\", %d);\n", ($configpost['THtpltest']=="on"));  //uh, this needs to be changed for 0.3.0
+		fwrite($config, 'define("THtpltest",1);'."\n");
+		if ($tpltest || $newtplset!=THtplset)
+		{
+			//Frag cache for template testing mode and if template set was changed
+			$sm->clear_all_cache();
+			$sm->clear_compiled_tpl();
+		}
+		fwrite($config, 'define("THvc",'.(int)$configpost['THvc'].');'."\n");
+		fprintf($config, "define(\"THcaptest\", %d);\n", ($configpost['THcaptest']=="on"));
+		fwrite($config, "\n");
+
+		//Time settings
+		fwrite($config, 'define("THtimeoffset",'.(int)$configpost['THtimeoffset'].');'."\n");
+		fwrite($config, 'define("THdatetimestring","'.str_replace('"',"",$configpost['THdatetimestring']).'");'."\n");
+		fwrite($config, "\n");
+
+		//Site settings
+		fwrite($config, 'define("THname","'.str_replace('"',"",$configpost['THname']).'");'."\n");
+		fwrite($config, 'define("THnewsboard",'.(int)$configpost['THnewsboard'].');'."\n");
+		fwrite($config, 'define("THmodboard",'.(int)$configpost['THmodboard'].');'."\n");
+		fwrite($config, 'define("THdefaulttext","'.str_replace('"',"",$configpost['THdefaulttext']).'");'."\n");
+		fwrite($config, 'define("THdefaultname","'.str_replace('"',"",$configpost['THdefaultname']).'");'."\n");
+		fwrite($config, "\n");
+
+		//Utility settings
+		fwrite($config, 'define("THpearpath","'.str_replace('"',"",$configpost['THpearpath']).'");'."\n");
+		fprintf($config, "define(\"THuseSVG\", %d);\n", ($configpost['THuseSVG']=="on"));
+		fprintf($config, "define(\"THSVGthumbnailer\", %d);\n", ($configpost['THSVGthumbnailer']=="on"));
+		fprintf($config, "define(\"THusePDF\", %d);\n", ($configpost['THusePDF']=="on"));
+		fprintf($config, "define(\"THuseSWFmeta\", %d);\n", ($configpost['THuseSWFmeta']=="on"));
+		fprintf($config, "define(\"THusecURL\", %d);\n", ($configpost['THusecURL']=="on"));
+		fwrite($config, "\n");
+
+		//Profile settings
+		fwrite($config, 'define("THprofile_adminlevel",'.THprofile_adminlevel.');'."\n");  //should not need to be changed
+		fwrite($config, 'define("THprofile_userlevel",'.THprofile_userlevel.');'."\n");  //ditto
+		fwrite($config, 'define("THprofile_emailname","'.$configpost['THprofile_emailname'].'");'."\n");
+		fwrite($config, 'define("THprofile_emailaddr","'.$configpost['THprofile_emailaddr'].'");'."\n");
+		fwrite($config, 'define("THprofile_regpolicy",'.(int)$configpost['THprofile_regpolicy'].');'."\n");  //1=manual,  !=1 = auto approve
+		fwrite($config, 'define("THprofile_viewuserpolicy",'.(int)$configpost['THprofile_viewuserpolicy'].');'."\n");//1=logged in only, 2=anyone, 0=mods only
+		fwrite($config, 'define("THprofile_cookietime",'.((int)$configpost['THprofile_cookietime']*3600).');'."\n");  
+		fwrite($config, 'define("THprofile_cookiepath","'.$configpost['THprofile_cookiepath'].'");'."\n");  //should be "/" probably
+		fprintf($config, "define(\"THprofile_emailwelcome\", %d);\n", ($configpost['THprofile_emailwelcome']=="on")); //1=send
+		fprintf($config, "define(\"THprofile_lcnames\", %d);\n", ($configpost['THprofile_lcnames']=="on")); //1 = names are converted to lowercase
+		fwrite($config, 'define("THprofile_maxpicsize",'.$configpost['THprofile_maxpicsize'].');'."\n"); //in bytes
+		fwrite($config, '?>');  //some editors break colors here so <?
+		fclose($config);  //file's closed, fwrites, etc
+	}
+	//end rebuild blocks
+?>
