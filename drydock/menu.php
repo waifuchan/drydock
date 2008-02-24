@@ -18,7 +18,7 @@ echo "
 <a href=".THurl."recentpics.php>Recent Pics</a><br />
 <a href=".THurl."recentposts.php>Recent Posts</a><br /><br />";
 } ?>
-<a href="http://localhost/drydock/">Site Index</a><br />
+<a href=".THurl.">Site Index</a><br />
 <?php if($_SESSION["username"]) {
 echo "<a href=".THurl."profiles.php?action=logout>Log Out</a> / <a href=".THurl."profiles.php>Profiles</a>";
  } else {

@@ -1,1 +1,1 @@
-<table width=100%><tr><td align=left>[]</td><td align=right>[ <a class=info href="http://localhost/drydock/">idx</a> ]</td></tr></table>
+<table width=100%><tr><td align=left>[]</td><td align=right>[ <a class=info href=".THurl.">idx</a> ]</td></tr></table>
