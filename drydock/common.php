@@ -68,7 +68,9 @@
 			if($queryresult['subnet'] == 0)
 			{
 				echo 'Your IP: '.$ip[0].".".$ip[1].".".$ip[2].".".$ip[3].'<br />';
-			} else {
+			} 
+			else 
+			{
 				echo 'Your subnet: '.$ip[0].".".$ip[1].".".$ip[2].".".$ip[3].'<br />';
 			}
 
@@ -77,17 +79,25 @@
 			{
 				echo 'You were banned for making this post:<br />'.$queryresult['postdata'].'<br /><br />';
 			}
+			
 			if(!$queryresult['privatereason'])
 			{
 				$reason=$queryresult['publicreason'];
-			} else {
+			} 
+			else 
+			{
 				$reason=$queryresult['privatereason'];
 			}
+			
 			if(!$reason)
 			{
 				$reason='No reason given';
 			}
-			echo 'Reason given: '.$reason.'<br /><br />';
+			else
+			{
+				echo 'Reason given: '.$reason.'<br /><br />';
+			}
+			
 			//we'll need to know the difference between the ban time and the duration for actually expiring the bans
 			$offset = THtimeoffset*60;
 			$now = time()+$offset;
@@ -101,11 +111,15 @@
 			elseif ($queryresult['duration']=="-1")
 			{
 				echo 'This ban will not expire.<br /><br />';
-			} else {
+			} 
+			else 
+			{
 				if($now>$expiremath)
 				{
 					echo 'Your ban has expired.  Keep in mind that you may be rebanned at any time.<br /><br />';
-				} else {
+				} 
+				else 
+				{
 					echo 'Your ban duration was set to '.$queryresult['duration'].' hours.  The ban will expire '.date("l, m.d.Y: H:i:s",$expiremath).'<br /><br />';
 				}
 			}
@@ -115,24 +129,29 @@
 				$unbanquery = "delete from ".THbans_table." where ip=".$haship;
 				$db->myquery($unbanquery);
 				echo '<a href="'.THurl.'">Continue to the main index</a>';
-			} else {	
+			} 
+			else 
+			{	
 				if($now>$expiremath)
 				{
 					$unbanquery = "delete from ".THbans_table." where ip=".$haship;
 					$db->myquery($unbanquery);
 					echo '<a href="'.THurl.'">Continue to the main index</a>';
-				} else {
+				} 
+				else 
+				{
 					echo "If you feel this ban is in error, please email an administrator.";
 				}
 			}
 			echo '</body>
 			</html>';
-		} else {
+		} 
+		else 
+		{
 			$sm=sminit("error",$err);
 			$sm->assign_by_ref("error",$err);
 			$sm->display("error.tpl",$err);
 			die();
-
 		}
 	}//THdie
 	//Below are functions that are used in various places throughout Thorn.
@@ -173,8 +192,9 @@
 			$smarty->template_dir=THpath."tpl/".$template."/";
 			$smarty->cache_lifetime=-1;
 			$smarty->assign("THtplurl",THurl."tpl/".$template."/");
-
-		} else {
+		} 
+		else 
+		{
 			$smarty->caching=2;
 			$smarty->compile_check=false;
 			$smarty->template_dir=THpath."tpl/".$template."/";
@@ -215,7 +235,7 @@
 		
 		$smarty->register_function("smcount","smcount");
 		//$smarty->register_function("smstrtotime","smstrtotime");
-		$smarty->register_modifier("gtgt","gtgt");
+		//$smarty->register_modifier("gtgt","gtgt");
 		return($smarty);
 	}
 	
@@ -231,21 +251,30 @@
 		}
 	}
 	
-
-
-	function smgetdate($p,&$sm)
+	function smclearcache($board, $page=-1, $thread=-1, $delete_everything=false)
 	{
-		if (isset($p['time'])==true)
+		// Oh, we're actually clearing the cache for a thread
+		if($thread != -1)
 		{
-			$d8=getdate($p['time']);
-		} else {
-			$d8=getdate();
+			$files_to_delete = glob(THpath."cache/t".$board."-".$thread."*");
 		}
-		if (isset($p['assign'])==true)
+		else if($page != -1) // clearing the cache for a page
 		{
-			$sm->assign($p['assign'],$d8);
-		} else {
-			return($d8);
+			$files_to_delete = glob(THpath."cache/b".$board."-".$page."-*");
+		}
+		else if($delete_everything == true) // delete board cache AND ALL thread caches (meant for use ONLY in fragboard)
+		{
+			$files_to_delete = glob(THpath."cache/b".$board."-*");
+			$files_to_delete2 = glob(THpath."cache/t".$board."-*");
+		}
+		else // we're clearing the cache for a whole board.
+		{
+			$files_to_delete = glob(THpath."cache/b".$board."-*");
+		}
+		
+		foreach($files_to_delete as $deletion)
+		{
+			unlink($deletion);
 		}
 	}
 
@@ -316,6 +345,10 @@
 		else if($ext == "swf"){
 			return 16;
 		}
+		else if($ext == "pdf"){
+			return 32;
+		}
+	
 		//not found!  should this error?
 		return 0;
 	}

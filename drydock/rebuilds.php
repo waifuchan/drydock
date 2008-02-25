@@ -358,6 +358,7 @@
 		fwrite($config, 'define("THspamlist_table","'.THspamlist_table.'");'."\n");
 		fwrite($config, 'define("THthreads_table","'.THthreads_table.'");'."\n");
 		fwrite($config, 'define("THusers_table","'.THusers_table.'");'."\n");
+		fwrite($config, 'define("THsecret_salt","'.THsecret_salt.'");'."\n");
 		fwrite($config, "\n");
 
 		//Stuff that might have changed
@@ -377,12 +378,16 @@
 		fwrite($config, 'define("THtplset","'.$newtplset.'");'."\n");
 		//fprintf($config, "define(\"THtpltest\", %d);\n", ($configpost['THtpltest']=="on"));  //uh, this needs to be changed for 0.3.0
 		fwrite($config, 'define("THtpltest",1);'."\n");
-		if ($tpltest || $newtplset!=THtplset)
-		{
+		
+		// I think this code is for when we were restricted to only one template set for the boards.
+		// Ah, the bad old days.
+		//if ($tpltest || $newtplset!=THtplset)
+		//{
 			//Frag cache for template testing mode and if template set was changed
-			$sm->clear_all_cache();
-			$sm->clear_compiled_tpl();
-		}
+			//$sm->clear_all_cache();
+			//$sm->clear_compiled_tpl();
+		//}
+		
 		fwrite($config, 'define("THvc",'.(int)$configpost['THvc'].');'."\n");
 		fprintf($config, "define(\"THcaptest\", %d);\n", ($configpost['THcaptest']=="on"));
 		fwrite($config, "\n");

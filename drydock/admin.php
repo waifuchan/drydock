@@ -30,7 +30,7 @@
 			else { die(); }
 			readfile('./unlinked/'.$_GET['filename']);
 		}
-	 }
+	}
 	$sm=sminit(null,null,null,true);
 	//Admin Smarty setup; no caching (we probably broke this from Thorn :[ ~tyam)
 	if (isset($_GET['a']))
@@ -783,7 +783,7 @@
 			
 			if($errorstring == "") 
 			{ // No errors encountered so far, attempt to register
-				$pass_md5 = md5($password);
+				$pass_md5 = md5(THsecret_salt.$password);
 			
 				$insertquery = "INSERT INTO ".THusers_table.
 				" (username, password, userlevel, email, approved) VALUES ('".

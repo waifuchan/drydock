@@ -15,11 +15,14 @@
 	if ($mod==false)
 	{
 		// This should have the cached version of banned keywords in an array named $spamblacklist.
-		include(THpath.'/cache/blacklist.php');
+		@include(THpath.'/cache/blacklist.php');
 		//You could use any website, or even CENSORED or some other text.  We picked GameFAQs.
-		$_POST['body'] = preg_replace($spamblacklist, "gamefaqs.com", $_POST['body']);
-		$_POST['link'] = preg_replace($spamblacklist, "gamefaqs.com", $_POST['link']);
-		$_POST['name'] = preg_replace($spamblacklist, "gamefaqs.com", $_POST['name']);
+		if(count($spamblacklist) > 0)
+		{
+			$_POST['body'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['body']);
+			$_POST['link'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['link']);
+			$_POST['name'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['name']);
+		}
 		
 		// The email field will have a big "IF YOU ARE HUMAN DO NOT FILL THIS IN" next to it.
 		if(isset($_POST['email']) && $_POST['email'] != "")
@@ -90,7 +93,8 @@
 
 	if ($_POST['todo']=="board")
 	{
-		if (THuserewrite) { $location = THurl.$boardz; } else { $location = THurl."drydock.php?b=$boardz"; }
+		if (THuserewrite) { $location = THurl.$boardz; } 
+		else { $location = THurl."drydock.php?b=$boardz"; }
 		header("Location: ".$location);
 	}
 	elseif ($_POST['todo']=="post") 
@@ -99,7 +103,8 @@
 		$postglobalid=mysql_result($postglobalid,0,"globalid");
 		$threadglobalid=mysql_query("select globalid from ".THthreads_table." where id=".$thread['id']);
 		$threadglobalid=mysql_result($threadglobalid,0,"globalid");
-		if (THuserewrite) { $location = THurl.$boardz."/thread/".$threadglobalid."#".$postglobalid; } else { $location = THurl."drydock.php?b=$boardz&i=$threadglobalid#$postglobalid"; }
+		if (THuserewrite) { $location = THurl.$boardz."/thread/".$threadglobalid."#".$postglobalid; } 
+		else { $location = THurl."drydock.php?b=$boardz&i=$threadglobalid#$postglobalid"; }
 		header("Location: ".$location);
 	} else {
 		header("Location: drydock.php");

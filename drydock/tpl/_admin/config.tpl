@@ -19,6 +19,7 @@ define("THreplies_table", "{$THreplies_table}");
 define("THspamlist_table", "{$THspamlist_table}");
 define("THthreads_table", "{$THthreads_table}");
 define("THusers_table", "{$THusers_table}");
+define("THsecret_salt", "{$THsecret_salt}");
 
 define("THname","{$THname}");
 define("THtplset","{$THtplset}");

@@ -119,7 +119,12 @@ Please see the documentation for more information about these settings.  If you'
 		}
 		if(!empty($_POST['THdbprefix'])) { $prefix = $_POST['THdbprefix']; } else { $prefix = ""; }
 		//keep drydock cookies from being useful on each drydock site
-		$seed = rand(0,100000);
+		$seed = mt_rand(0,100000); // I like the Mersenne Twister random number generation more.
+		// lol.
+		// It's 4:30 AM and I can't think of a better way to generate a random character string (generated via the Mersenne Twister algorithm), to be used for
+		// salting passwords before they're defined in the
+		sprintf($secret_salt, "%c%c%c%c%c%c%c%c", mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
+												  mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126) );
 		$cookieid = "dd".$seed;
 		//Let's make the initial config file
 		$sm=smsimple();
@@ -155,6 +160,7 @@ Please see the documentation for more information about these settings.  If you'
 			fwrite($config, 'define("THspamlist_table","'.$prefix."spam_blacklist".'");'."\n");
 			fwrite($config, 'define("THthreads_table","'.$prefix."threads".'");'."\n");
 			fwrite($config, 'define("THusers_table","'.$prefix."users".'");'."\n");
+			fwrite($config, 'define("THsecret_salt","'.$secret_salt.'");'."\n");  //salt for passwords
 			fwrite($config, 'define("THname","drydock image board");'."\n");
 			fwrite($config, 'define("THtplset","drydock-image");'."\n");
 			fwrite($config, 'define("THcookieid","'.$cookieid.'");'."\n");  //cookie seed
@@ -201,7 +207,7 @@ Please see the documentation for more information about these settings.  If you'
 		//one more ugly hack
 		$admin = fopen($path."admintemp.php", "w");
 		fwrite($admin, "<?php\n");
-		fwrite($admin, 'define("TEMPadminpass", "'.md5($_POST['adminpass']).'");'."\n");
+		fwrite($admin, 'define("TEMPadminpass", "'.md5($secret_salt.$_POST['adminpass']).'");'."\n");
 		fwrite($admin, 'define("TEMPadminname","'.$_POST['adminname'].'");'."\n");
 		fwrite($admin, '?>');
 		fclose($admin);
@@ -424,10 +430,11 @@ There's still some setup you'll need to do on your own. Here is a tasklist for y
 Happy posting!  And don't forget, if you make any neat changes to the code, we'd love to see it.  You can post about it on the <a href=\"http://573chan.org/dry/\">drydock discussion</a> on 573chan.org.
 </body></html>
 ";
-rebuild_hovermenu();
+initial_builds();
 return;
 }
-	function rebuild_hovermenu()
+	// Build menu, empty wordfilters cache, empty capcodes cache, empty spam blacklist cache
+	function initial_builds()
 	{
 		$sidelinks = fopen($_POST['path']."menu.php", "w") or die("Could not open menu.php for writing.");
 		fwrite($sidelinks, '<div id="idxmenu">'."\n".
@@ -442,8 +449,28 @@ return;
 		fwrite($sidelinks, '</div>');
 		fwrite($sidelinks, '</div>'."\n");
 		fclose($sidelinks);
+		
+		$fp_cache = fopen($_POST['path']."cache/filters.php", "w") or die("Could not open cache/filters.php for writing.");
+		fwrite($fp_cache, "<?php\n");
+		fwrite($fp_cache, '$to'."=();\n");
+		fwrite($fp_cache, '$from'."=();\n");
+		fwrite($fp_cache, "?>");
+		fclose($fp_cache);		
+		
+		$fp_cache = fopen($_POST['path']."cache/capcodes.php", "w") or die("Could not open cache/capcodes.php for writing.");
+		fwrite($fp_cache, "<?php\n");
+		fwrite($fp_cache, '$capcodes'."=();\n");
+		fwrite($fp_cache, "?>");
+		fclose($fp_cache);		
+
+		$fp_cache = fopen($_POST['path']."cache/blacklist.php", "w") or die("Could not open cache/blacklist.php for writing.");
+		fwrite($fp_cache, "<?php\n");
+		fwrite($fp_cache, '$spamblacklist'."=();\n");
+		fwrite($fp_cache, "?>");
+		fclose($fp_cache);	
 		return;
 	}
+
 	@header('Content-type: text/html; charset=utf-8');
 	if (function_exists("mb_internal_encoding"))
 	{

@@ -4,7 +4,7 @@
 $capcodes=array();
 function smarty_modifier_capcode($trip)
 {
-	include(THpath.'/cache/capcodes.php');
+	@include(THpath.'/cache/capcodes.php');
 	return($capcodes[$trip]);
 }
 ?>

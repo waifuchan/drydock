@@ -1,6 +1,4 @@
 <?php
-    require_once("config-features.php");
-
     if(THpearpath) // PEAR PEAR LOL
     {
         ini_set( 'include_path', ini_get( 'include_path' ) . PATH_SEPARATOR . THpearpath);
@@ -62,9 +60,6 @@
                 } 
 				else 
 				{  
-                    //Extension verification
-                    //$ext=strtolower(pathinfo($_FILES[$dis]['name'],PHP_PATHINFO_EXTENSION));
-                    //broken zomgwtf (PHP 5?)
                     $dotpos=strrpos($_FILES[$dis]['name'],".");
                     if ($dotpos && $_FILES[$dis]['name']{0}!="." && strpos($_FILES[$dis]['name'],"/")===false)
                     {
@@ -76,45 +71,118 @@
                         }
                         if(bitlookup($ext) & $binfo['allowedformats'])  //LOL BITWISE ARITHMETIC
                         {
+							// Let's verify using MAGIC NUMBERS
+							// my reference for this is:
+							// http://www.garykessler.net/library/file_sigs.html
+							// We'll do this for everything but SVGs.
+							$check_pointer = fopen($_FILES[$dis]['tmp_name'], "rb");
+							
                             if ($ext=="svg" && THuseSVG && THpearpath)
                             {
                                 if( $svgdom = DOMDocument::load($_FILES[$dis]['tmp_name']) ) // ARE YOU AN IMPOSTER?
                                 {
                                     $svgelements=$svgdom->getElementsByTagName("svg");
-                                    if ( $svgelements->item(0) )
-                                    {
-                                        $goodfiles[$x]=$_FILES[$dis];
-                                        //replace certain characters with underscores - tyam
-                                        $badchars = array("?","\"","'",";");
-                                        $goodfiles[$x]['name']=str_replace($badchars,"_",$pin['basename']);
-                                        //do we need to replace them here?
-                                        $goodfiles[$x]['noext']=str_replace($badchars,"_",substr($pin['basename'],0,$dotpos-strlen($pin['basename'])));
-                                        $goodfiles[$x]['type']=$ext;
-                                        $hash=sha1_file($_FILES[$dis]['tmp_name']);
-                                        $goodfiles[$x]['hash']=$hash;
-                                        $hashes[]=$hash;
-                                        $goodfiles[$x]['anim']=false;
-                                    }//svg element
-                                }//domload
-                            }//svg array
-                            else if( in_array( $ext, array("jpeg", "jpg", "gif", "png", "swf", "pdf")))
-                            {
-                                $goodfiles[$x]=$_FILES[$dis];
-                                //replace certain characters with underscores - tyam
-                                $badchars = array("?","\"","'",";");
-                                $goodfiles[$x]['name']=str_replace($badchars,"_",$pin['basename']);
-                                //do we need to replace them here?
-                                $goodfiles[$x]['noext']=str_replace($badchars,"_",substr($pin['basename'],0,$dotpos-strlen($pin['basename'])));
-                                $goodfiles[$x]['type']=$ext;
-                                $hash=sha1_file($_FILES[$dis]['tmp_name']);
-                                $goodfiles[$x]['hash']=$hash;
-                                $hashes[]=$hash;
-                                $goodfiles[$x]['anim']=false;
+                                    if ( $svgelements->item(0) == null )
+									// Didn't find an SVG element, so it's not a valid file.
+									{
+										THdie("Error: attempted to upload malformed SVG file");
+									}
+                                }
                             }
+                            else if( in_array( $ext, array("jpeg", "jpg", "gif", "png")))
+                            {
+								if ($ext=="jpeg" || $ext=="jpg") 
+						        {
+						            $theimg=imagecreatefromjpeg($_FILES[$dis]['tmp_name']);
+									
+									if($check_pointer == true)
+									{
+										// It starts differing after 3 characters, but let's see if this will work for now.
+										if(fread($check_pointer, 3) != "\xFF\xD8\xFF")
+										{
+											THdie("Error: attempted to upload malformed JPG file");
+										}
+									}
+						        }
+						        elseif ($fyle['type']=="png" && is_callable("imagecreatefrompng")) 
+						        {
+						            $theimg=imagecreatefrompng($_FILES[$dis]['tmp_name']);
+									
+									if($check_pointer == true)
+									{
+										if(fread($check_pointer, 8) != "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
+										{
+											THdie("Error: attempted to upload malformed PNG file");
+										}
+									}
+						        }
+						        elseif ($fyle['type']=="gif" && is_callable("imagecreatefromgif")) 
+						        {
+						            $theimg=imagecreatefromgif($_FILES[$dis]['tmp_name']);
+									
+									if($check_pointer == true)
+									{
+										// It starts differing after 3 characters, but let's see if this will work for now.
+										if(fread($check_pointer, 3) != "GIF")
+										{
+											THdie("Error: attempted to upload malformed GIF file");
+										}
+									}
+						        }
+								
+								// TODO: put in comparisons here
+								/*$width=imagesx($theimg);
+								$height=imagesy($theimg);
+								
+								if($width > ????? or $height > ?????)
+								{
+									THdie("Error: image exceeds acceptable dimensions");
+								} */
+							}
+							else if( $ext=="swf" )
+							{
+								if($check_pointer == true)
+								{
+									if(fread($check_pointer, 3) != "CWS")
+									{
+										THdie("Error: attempted to upload malformed SWF file");
+									}
+								}
+							}
+							else if( $ext=="pdf" )
+							{
+								if($check_pointer == true)
+								{
+									if(fread($check_pointer, 4) != "%PDF")
+									{
+										THdie("Error: attempted to upload malformed PDF file");
+									}
+								}
+							}
                             else
                             {
                                 THdie("Sorry! The filetype ".$ext." is not currently supported.");
                             }
+							
+							fclose($check_pointer);
+
+							// If we got this far, then it's a valid file.
+							// (we would have THdied beforehand)
+							$goodfiles[$x]=$_FILES[$dis];
+							//replace certain characters with underscores - tyam
+							$badchars = array("?","\"","'",";");
+							$goodfiles[$x]['name']=
+								str_replace($badchars,"_",$pin['basename']);
+
+							$goodfiles[$x]['noext']=
+								str_replace($badchars,"_",substr($pin['basename'],0,$dotpos-strlen($pin['basename'])));
+								
+							$goodfiles[$x]['type']=$ext;
+							$hash=sha1_file($_FILES[$dis]['tmp_name']);
+							$goodfiles[$x]['hash']=$hash;
+							$hashes[]=$hash;
+							$goodfiles[$x]['anim']=false;
+							
                         } // bitlookup
                         else 
                         {
@@ -469,7 +537,7 @@
 	            $ex_inf_result = $db->myquery($query);
 	            if($ex_inf_result)
 	            {
-	                $fyle['extra_info'] = $db->myresult("SELECT LAST_INSERT_ID()");
+	                $fyle['extra_info'] = mysql_insert_id();
 	            }
 
 	        }//end if flash
@@ -498,6 +566,13 @@
 		if(THusePDF>2)
 		{
 			// welp,
+			$db = new ThornDBI();
+			$query="INSERT INTO ".THextrainfo_table." SET extra_info='".mysql_real_escape_string($extrainfo)."'";
+			$ex_inf_result = $db->myquery($query);
+			if($ex_inf_result)
+			{
+				$fyle['extra_info'] = mysql_insert_id();
+			}		
 		}
 
         $fyle['twidth']=100;
@@ -656,7 +731,7 @@
                     $ex_inf_result = $db->myquery($query);
                     if($ex_inf_result)
                     {
-                    $fyle['extra_info'] = $db->myresult("SELECT LAST_INSERT_ID()"); //tricksy internal mysql function
+                    $fyle['extra_info'] = mysql_insert_id();
                     }
                 }
             }

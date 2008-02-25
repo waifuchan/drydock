@@ -23,12 +23,15 @@
 	if ($mod==false)
 	{
 		// This should have the cached version of banned keywords in an array named $spamblacklist.
-		include(THpath.'/cache/blacklist.php');
+		@include(THpath.'/cache/blacklist.php');
 		//You could use any website, or even CENSORED or some other text.  We picked GameFAQs.
-		$_POST['subj'] = preg_replace($spamblacklist, "gamefaqs.com", $_POST['subj']);
-		$_POST['body'] = preg_replace($spamblacklist, "gamefaqs.com", $_POST['body']);
-		$_POST['link'] = preg_replace($spamblacklist, "gamefaqs.com", $_POST['link']);
-		$_POST['name'] = preg_replace($spamblacklist, "gamefaqs.com", $_POST['name']);
+		if(count($spamblacklist) > 0)
+		{
+			$_POST['subj'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['subj']);
+			$_POST['body'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['body']);
+			$_POST['link'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['link']);
+			$_POST['name'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['name']);
+		}
 		
 		// The email field will have a big "IF YOU ARE HUMAN DO NOT FILL THIS IN" next to it.
 		if(isset($_POST['email']) && $_POST['email'] != "")
@@ -71,18 +74,14 @@
 
 	$tnum=$db->putthread(
 	$usethese['nombre'],$usethese['trip'],(int)$_POST['board'],$_POST['subj'],
-	$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage
+	$_POST['body'],$_POST['link'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage
 	);
 
 	movefiles($goodfiles,$tnum,true,$db);  //safe-mode?
 
 	$sm=smsimple();
 	$sm->clear_cache(null,"b".$_POST['board']);
-	$sm->clear_cache(null,date("\dd|m|Y|").$_POST['board']);
-	$sm->clear_cache(null,date("\mm|Y|").$_POST['board']);
-	$sm->clear_cache(null,date("\yY|").$_POST['board']);
-	$sm->clear_cache(null,"cal|".$thread['board']);
-	$sm->clear_cache(null,"idx");
+	//$sm->clear_cache(null,"idx"); what
 	if (isset($_POST['tedit'])==true)
 	{
 		$sm->clear_cache(null,"t".$_POST['tedit']);

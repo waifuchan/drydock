@@ -225,13 +225,14 @@
 			if($threadquery == NULL)
 			{
 				$db->myquery("update ".THreplies_table." set name='".mysql_real_escape_string($name)."', trip='".mysql_real_escape_string($trip)."', title='".mysql_real_escape_string($title)."', body='".mysql_real_escape_string($body)."', visible=".$visible.", unvisibletime=".$unvisibletime.", link='".mysql_real_escape_string($link)."' where globalid=".$post." AND board=".$board);
-			$actionstring = "Edit\tpid:".$post."\tb:".$board;	
+				$actionstring = "Edit\tpid:".$post."\tb:".$board;
 			} 
 			else 
 			{
 				$db->myquery("update ".THthreads_table." set name='".mysql_real_escape_string($name)."', trip='".mysql_real_escape_string($trip)."', title='".mysql_real_escape_string($title)."', body='".mysql_real_escape_string($body)."', visible=".$visible.", unvisibletime=".$unvisibletime.", link='".mysql_real_escape_string($link)."' where globalid=".$post." AND board=".$board);
-			$actionstring = "Edit\ttid:".$post."\tb:".$board;	
+				$actionstring = "Edit\ttid:".$post."\tb:".$board;	
 			}
+			smclearcache($board, -1, $thread); // clear the associated cache for this thread
 			writelog($actionstring,"moderator");
 		}
 
@@ -325,6 +326,8 @@
 			{
 				if ($_POST['moddo']=="killpost") 
 				{
+					smclearcache($board, -1, $thread); // clear the associated cache for this thread
+					smclearcache($board, -1, -1); // AND the board
 					delimgs($moddb->delpost($suckid,$suckisthread));
 				}
 				elseif ($_POST['moddo']=="killip") 

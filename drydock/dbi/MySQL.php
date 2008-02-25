@@ -264,7 +264,7 @@ class ThornPostDBI extends ThornDBI
 		*/
         return($this->myassoc("select * from ".THboards_table." where id=".$b));
         }
-    function putthread($name,$tpass,$board,$title,$body,$ip,$mod,$pin,$lock,$permasage,$tyme=false) {
+    function putthread($name,$tpass,$board,$title,$body,$link,$ip,$mod,$pin,$lock,$permasage,$tyme=false) {
 		/*
 			Posts a new thread, and updates the respective board's last post time. Note that the storing of image information is done in a separate function, putimgs().
 			Parameters:
@@ -278,6 +278,8 @@ class ThornPostDBI extends ThornDBI
 			The title of this new thread.
 				string $body
 			The body text of this new thread.
+				string $link
+			The link field of this new thread
 				int $ip
 			The ip2long()'d IP of the poster.
 				bool $mod
@@ -313,6 +315,11 @@ class ThornPostDBI extends ThornDBI
             $q.=", trip='".$tpass."'";
             //Not cleaning trip since it should be encoded.
         }
+		if ($link!=null)
+		{
+			if(!preg_match("/^(http:|https:|ftp:|mailto:|aim:)/",$link)){ $link = "mailto:".$link; }
+            $q.=", link='".$this->clean($link)."'";
+        }
         //echo($q.", time=".$tyme);
 		//echo $q;
 		if ($link!=null)
@@ -321,31 +328,11 @@ class ThornPostDBI extends ThornDBI
         }
 		$this->myquery($q) or THdie("DBpost");
 		if ($board == THnewsboard) { rebuild_news(); } 
+		smclearcache($board, -1, -1); // clear the cache for this board
         $tnum=mysql_insert_id();
         $this->myquery("update ".THboards_table." set lasttime=".$tyme." where id=".$board) or THdie("DBpost");
         return($tnum);
     }
-
-    function updatethread($id,$name,$title,$body,$link)
-	{
-		/*
-			Edits a thread head's name, title and body settings.
-			Parameters:
-				string $name
-			The poster's name.
-				string $title
-			The title of this new thread.
-				string $body
-			The body text. Really.
-		*/
-		
-		$myquery="update ".THthreads_table." set name='".$this->clean($name)."', title='".$this->clean($title)."', body='".$this->clean($body)."', link='".$this->clean($link)."' where id=".$id;
-		echo $myquery;
-//        $this->myquery($myquery);
-//        return($id);
-die();
-    }
-
     
     function putpost($name,$tpass,$link,$board,$thread,$body,$ip,$mod,$bump,$tyme=false)
 	{
@@ -356,6 +343,8 @@ die();
 			The poster's name.
 				string $tpass
 			The poster's encoded tripcode.
+				string $link
+			The poster's link (could be mailto, could be something similar, who knows!)
 				int $board
 			The board to which this post's thread belongs.
 				int $thread
@@ -407,23 +396,10 @@ die();
             $this->myquery("update ".THthreads_table." set bump=".$tyme." where id=".$thread." and permasage = 0");
         }
         $this->myquery("update ".THboards_table." set lasttime=".$tyme." where id=".$board) or THdie("DBpost");
+		smclearcache($board, -1, -1); // clear cache for the board
+		smclearcache($board, -1, $thread); // and for the thread
         return($pnum);
     }
-    
-    function pinlock($thread,$pin,$lock)
-	{
-		/*
-		A simple function for changing the pin or lock state of the thread. Thorn should only call this function if the poster is a mod.
-		Parameters:
-			int $thread
-		The thread we're working with.
-			bool $pin
-		Pin the thread?
-			bool $lock
-		Lock the thread?
-		*/
-		$this->myquery("update ".THthreads_table." set pin=".$pin.", lawk=".$lock." where id=".$thread);
-	}
     
     function putimgs($num,$isthread,$files)
 	{
@@ -534,6 +510,7 @@ die();
                     $badimgs[]=$del['imgidx'];
                 }
                 $badths[]=$del['id'];
+				smclearcache($board['id'], -1, $del['id']); // clear the associated cache for this thread
             }
             $this->myquery("delete from ".THthreads_table." where bump<".$last['bump']." && pin=0");
             $badthstr=implode(",",$badths);
@@ -788,6 +765,7 @@ function banbody($id,$isthread,$publicbanreason)
 				
                 $this->myquery("delete from ".THimages_table." where id in (".implode(",",$affimg).")");
             }
+			
         } else {
             $duck=$this->myresult("select imgidx from ".THreplies_table." where id=".$id);
             //echo($duck);
@@ -829,17 +807,18 @@ function banbody($id,$isthread,$publicbanreason)
             $submax=$sub+255;
             $q1=$this->myquery("select distinct imgidx from ".THreplies_table." where ip between ".$sub." and ".$submax." && imgidx!=0");
             $q2=$this->myquery("select distinct imgidx from ".THthreads_table." where ip between ".$sub." and ".$submax." && imgidx!=0");
-            $q3=$this->myquery("select id from ".THthreads_table." where ip between ".$sub." and ".$submax);
+            $q3=$this->myquery("select id, board from ".THthreads_table." where ip between ".$sub." and ".$submax);
             $this->myquery("delete from ".THreplies_table." where ip between ".$sub." and ".$submax);
             $this->myquery("delete from ".THthreads_table." where ip between ".$sub." and ".$submax);
         } else {
             //echo($ip);
             $q1=$this->myquery("select distinct imgidx from ".THreplies_table." where ip=".$ip." && imgidx!=0");
             $q2=$this->myquery("select distinct imgidx from ".THthreads_table." where ip=".$ip." && imgidx!=0");
-            $q3=$this->myquery("select id from ".THthreads_table." where ip=".$ip);
+            $q3=$this->myquery("select id, board from ".THthreads_table." where ip=".$ip);
             $this->myquery("delete from ".THreplies_table." where ip=".$ip);
             $this->myquery("delete from ".THthreads_table." where ip=".$ip);
         }
+		
         $affimgs=array();
         while($rez=mysql_fetch_assoc($q1))
 		{
@@ -853,6 +832,8 @@ function banbody($id,$isthread,$publicbanreason)
         while($rez=mysql_fetch_assoc($q3))
 		{
             $affthreads[]=$rez['id'];
+			smclearcache($rez['board'], -1, $rez['id']); // clear the associated cache for this thread
+			smclearcache($rez['board'], -1, -1); // AND this board
         }
         if (count($affthreads)>0)
 		{
@@ -947,6 +928,7 @@ function banbody($id,$isthread,$publicbanreason)
 		{
             $this->myquery("delete from ".THimages_table." where id in (".implode(",",$imgidxes).")");
         }
+		smclearcache($board, -1, -1, true); // clear EVERYTHING in the cache associated with this board
         return($imgidxes);
     }
 

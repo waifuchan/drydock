@@ -40,7 +40,7 @@ function smarty_modifier_filters_new($filt)
 		$from[]=$row_item['filterfrom'];
     }
 */
-	include(THpath.'cache/filters.php');
+	@include(THpath.'cache/filters.php');
 	return nl2br(preg_replace($from, $to, $filt));
 
 }

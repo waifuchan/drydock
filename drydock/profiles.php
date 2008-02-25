@@ -29,7 +29,7 @@ if($_GET['action']=="login")
 	if(isset($_POST['name']) && isset($_POST['password']))
 	{
 		$query = "SELECT * FROM ".THusers_table." WHERE username=\"".mysql_real_escape_string($_POST['name']).
-		"\" AND password=\"".mysql_real_escape_string(md5($_POST['password']))."\" AND approved=1";
+		"\" AND password=\"".mysql_real_escape_string(md5(THsecret_salt.$_POST['password']))."\" AND approved=1";
 		$userresult = $db->myquery($query);
 		$userdata=mysql_fetch_assoc($userresult);
 
@@ -372,7 +372,7 @@ else if($_GET['action']=="edit")
 		$update_string .= ",";
 		}
 		
-		$update_string .= "password='".mysql_real_escape_string(md5($password))."'";
+		$update_string .= "password='".mysql_real_escape_string(md5(THsecret_salt.$password))."'";
 		}
 
 	}
@@ -687,7 +687,7 @@ else if($_GET['action']=="register")
 		}
 		
 		if($errorstring == "") { // No errors encountered so far, attempt to register
-			$pass_md5 = md5($password);
+			$pass_md5 = md5(THsecret_salt.$password);
 		
 			if(THprofile_regpolicy == 1) {
 			$insertquery = "INSERT INTO ".THusers_table.

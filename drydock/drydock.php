@@ -6,7 +6,9 @@
 		if(file_exists("config.php"))
 		{
 			die("This script cannot be run with the configuration utility still sitting here!  Please delete the configuration script!");
-		} else {
+		} 
+		else 
+		{
 			header("Location: configure.php");
 		}
 	}
@@ -15,16 +17,19 @@
 	//Drop them out right now if they are banned! - tyam
 	if ($db->checkban())
 	{
-		THdie("PObanned");   //redo this function soon
-	} else { //whole file
+		THdie("PObanned");
+	} 
+	else 
+	{ //whole file
 		if (isset($_GET['b'])==true) //Check a board by its name
 		{
-			//Does the board even exist?  This query is not safe.
+			//Does the board even exist?
 			if($db->myresult("select count(*) from ".THboards_table." where folder='".mysql_real_escape_string($_GET['b'])."'")=="0")
 			{
 				THdie("Board not found.");
 			}
 			$boardid = $db->myresult("select id from ".THboards_table." where folder='".mysql_real_escape_string($_GET['b'])."'");   //Welp, let's get the board's ID number.
+
 			$template = $db->myresult("select boardlayout from ".THboards_table." where id=".$boardid); //what is our template
 			if ($boardid==getboardname(THmodboard)) //check for mod access
 			{
@@ -40,10 +45,11 @@
 					THdie("You must register to view this board.");
 				}
 			}
+			
 			if (isset($_GET['i'])==true) //Looking for a bento box.
 			{
 				$threadtpl = "thread.tpl";  //oh boy let's split it up more
-				$cid="i".(int)$_GET['i']."|".$template;
+				$cid="t".$boardid."-".(int)$_GET['i']."-".$template;
 				$sm=sminit($threadtpl,$cid,$template);
 				$sm->assign('boardmode',$boardmode);
 				$sm->assign('template', $template);
@@ -68,11 +74,13 @@
 			{
 				//This page of the board...
 				$page=abs((int)$_GET['g']);
-			} else {
+			} 
+			else 
+			{
 				$page=0;
 			}
 			$tpl="board.tpl";
-			$cid="b".$boardid."|".$page."|".$template;
+			$cid="b".$boardid."-".$page."-".$template;
 			$sm=sminit($tpl,$cid,$template);
 
 			//var_dump($obj);
@@ -93,7 +101,8 @@
 			$sm->display($tpl,$cid);
 			die();    
 		} //get=b
-		else { 
+		else 
+		{ 
 			include("news.php");
 		}//no argument given after index
 	}//ban check ends here
