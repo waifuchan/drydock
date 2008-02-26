@@ -1,4 +1,14 @@
 <?php
+ /*
+        drydock imageboard script (http://code.573chan.org/)
+        File:           admin.php
+        Description:    Administrative functions
+        
+        Unless otherwise stated, this code is copyright 2008 
+        by the drydock developers and is released under the
+        Artistic License 2.0:
+        http://www.opensource.org/licenses/artistic-license-2.0.php
+    */
 	require_once("config.php");
 	require_once("common.php");
 	checkadmin(); //make sure the person trying to access this file is allowed to
@@ -375,9 +385,9 @@
 						rebuild_htaccess();
 						rebuild_hovermenu();
 						rebuild_linkbars();
-						rebuild_spamlist();
 						rebuild_filters();
 						rebuild_capcodes();
+						rebuild_spamlist();
 					}
 			header("Location: ".THurl."admin.php?a=hk");
 		}
@@ -413,7 +423,6 @@
 			$sm->assign("THthumbwidth",THthumbwidth);
 			$sm->assign("THthumbheight",THthumbheight);
 			$sm->assign("THjpegqual",THjpegqual);
-			$sm->assign("THpixperpost",THpixperpost);
 			$sm->assign("THtplset",THtplset);
 			$sm->assign("THtpltest",THtpltest);
 			$sm->assign("THdupecheck",THdupecheck);
@@ -555,6 +564,8 @@
 				$allowedformats=intval($_POST['allowedformats'.$oldid]);
 				$forced_anon=($_POST['forced_anon'.$oldid]=="on");
 				$maxfilesize=intval($_POST['maxfilesize'.$oldid]);
+				$maxres=intval($_POST['maxres'.$oldid]);
+				$pixperpost=intval($_POST['pixperpost'.$oldid]);
 				$allowvids=($_POST['allowvids'.$oldid]=="on");
 				$customcss=($_POST['customcss'.$oldid]=="on");
 				$filter=($_POST['filter'.$oldid]=="on");
@@ -565,7 +576,7 @@
 				$tpix=intval($_POST['tpix'.$oldid]);
 				$rpix=intval($_POST['rpix'.$oldid]);
 				$tmax=intval($_POST['tmax'.$oldid]);
-				$updatequery = "UPDATE ".THboards_table." set id=".$db->clean($id).",globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."' WHERE id=".$oldid;
+				$updatequery = "UPDATE ".THboards_table." set id=".$db->clean($id).",globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
 				//print_r($updatequery);
 				$db->myquery($updatequery);
 			}
@@ -593,8 +604,10 @@
 				$rlock=1;
 				$tpix=1;
 				$rpix=1;
+				$pixperpost=8;
+				$maxres=3000;
 				$tmax=100;
-				$query="insert into ".THboards_table." set id=".$db->clean($id).",globalid=".$globalid.",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$db->clean($about)."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$allowedformats."',forced_anon='".$forced_anon."',maxfilesize='".$maxfilesize."',allowvids='".$allowvids."',customcss='".$customcss."',filter='".$filter."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."'";
+				$query="insert into ".THboards_table." set id=".$db->clean($id).",globalid=".$globalid.",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$db->clean($about)."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$allowedformats."',forced_anon='".$forced_anon."',maxfilesize='".$maxfilesize."',allowvids='".$allowvids."',customcss='".$customcss."',filter='".$filter."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', pixperpost ='".$pixperpost."'";
 				$db->myquery($query);
 				//print_r($query);
 			}

@@ -18,7 +18,6 @@
 		Image thumbnail width: <input type="text" name="THthumbwidth" size="4" value="{$THthumbwidth}" /><br />
 		Image thumbnail height: <input type="text" name="THthumbheight" size="4" value="{$THthumbheight}" /><br />
 		Image thumbnail JPEG quality: <input type="text" name="THjpegqual"  size="3" value="{$THjpegqual}" />%<br />
-		Maximum images per post: <input type="text" name="THpixperpost" size="4" value="{$THpixperpost}" /><br />
 		Don't allow upload of duplicate images: <input type="checkbox" name="THdupecheck"{if $THdupecheck} checked="checked"{/if} /><br />
 		<br />
         <div class="pgtitle">

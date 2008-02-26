@@ -157,7 +157,6 @@ Please see the documentation for more information about these settings.  If you'
 			fwrite($config, 'define("THfilters_table","'.$prefix."filters".'");'."\n");
 			fwrite($config, 'define("THimages_table","'.$prefix."imgs".'");'."\n");
 			fwrite($config, 'define("THreplies_table","'.$prefix."posts".'");'."\n");
-			fwrite($config, 'define("THspamlist_table","'.$prefix."spam_blacklist".'");'."\n");
 			fwrite($config, 'define("THthreads_table","'.$prefix."threads".'");'."\n");
 			fwrite($config, 'define("THusers_table","'.$prefix."users".'");'."\n");
 			fwrite($config, 'define("THsecret_salt","'.$secret_salt.'");'."\n");  //salt for passwords
@@ -278,6 +277,8 @@ Please see the documentation for more information about these settings.  If you'
 	`allowedformats` tinyint(3) unsigned NOT NULL default '7',
 	`forced_anon` tinyint(1) NOT NULL default '0',
 	`maxfilesize` int(11) NOT NULL default '2097152',
+	`maxres` int(5) NOT NULL default '3000',
+	`pixperpost` int(2) NOT NULL default '8',
 	`allowvids` tinyint(1) NOT NULL default '0',
 	`customcss` tinyint(1) NOT NULL default '0',
 	`filter` tinyint(1) NOT NULL default '1',
@@ -468,6 +469,12 @@ return;
 		fwrite($fp_cache, '$spamblacklist'."=();\n");
 		fwrite($fp_cache, "?>");
 		fclose($fp_cache);	
+
+		$htaccess = fopen($_POST['path']."unlinked/.htaccess", "w") or die("Could not open unlinked/htaccess for writing.");
+		fwrite($htaccess, "#drydock htaccess module\n");
+		fwrite($htaccess, "Deny from all\n");
+		fclose($htaccess);
+
 		return;
 	}
 

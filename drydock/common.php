@@ -225,17 +225,7 @@
 		$smarty->assign("THuserewrite",THuserewrite);
 		$smarty->assign("GET",$_GET);
 		$smarty->assign("THcookieid", THcookieid);
-		//Smarty workaround
-		for ($x=0;$x<THpixperpost;$x++)
-		{
-			$fcount[$x]=$x;
-		}
-		$smarty->assign("THfilecount",$fcount);
-		//$smarty->register_object("dater",new dater);  //NOT NEEDED ANYMORE SO BYE
-		
 		$smarty->register_function("smcount","smcount");
-		//$smarty->register_function("smstrtotime","smstrtotime");
-		//$smarty->register_modifier("gtgt","gtgt");
 		return($smarty);
 	}
 	

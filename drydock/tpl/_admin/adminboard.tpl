@@ -67,8 +67,6 @@ More options are available after creating the board. After creating this board y
 <tr><td>Board description</td><td><input type="text" name="about{$board.id}" size="60" value="{$board.about}" /><br /> <i>Supports these HTML tags:
 &lt;i>&lt;b>&lt;u>&lt;strike>&lt;br>&lt;font>&lt;a>&lt;ul>&lt;ol>&lt;li></i></td></tr>
 <tr><td>Board rules</td><td><input type="text" name="rules{$board.id}" size="60" value='{$board.rules}' /></td></tr>
-<tr><td>Threads per page</td><td><input type="text" name="perpg{$board.id}" size="3" value="{$board.perpg}" /></td></tr>
-<tr><td>Replies per thread</td><td><input type="text" name="perth{$board.id}" size="3" value="{$board.perth}" /></td></tr>
 <tr><td>Hide from index/linkbar?</td><td><input type="checkbox" name="hidden{$board.id}"{if $board.hidden==1} checked="checked"{/if} /></td></tr>
 <tr><td>forced_anon</td><td><input type="checkbox" name="forced_anon{$board.id}"{if $board.forced_anon==1} checked="checked"{/if} /></td></tr>
 <tr><td>Apply wordfilters?</td><td><input type="checkbox" name="filter{$board.id}"{if $board.filter==1} checked="checked"{/if} /></td></tr>
@@ -85,6 +83,10 @@ More options are available after creating the board. After creating this board y
 
 <tr><td>Thread lock</td><td><input type="checkbox" name="tlock{$board.id}"{if $board.tlock==1} checked="checked"{/if} /></td></tr>
 <tr><td>Reply lock</td><td><input type="checkbox" name="rlock{$board.id}"{if $board.rlock==1} checked="checked"{/if} /></td></tr>
+<tr><td>Max threads</td><td><input type="text" name="tmax{$board.id}" size="5" value="{$board.tmax}" /></td></tr>
+<tr><td>Threads per page</td><td><input type="text" name="perpg{$board.id}" size="3" value="{$board.perpg}" /></td></tr>
+<tr><td>Replies per thread</td><td><input type="text" name="perth{$board.id}" size="3" value="{$board.perth}" /></td></tr>
+<tr><td>Maximum images per post:</td><td><input type="text" name="pixperpost{$board.id}" size="4" value="{$board.pixperpost}" /></td></tr>
 <tr><td>Images in threads</td><td><select name="tpix{$board.id}">
 	<option value="0"{if $board.tpix==0} selected="selected"{/if}>Not allowed</option>
 	<option value="1"{if $board.tpix==1} selected="selected"{/if}>Allowed</option>
@@ -97,8 +99,8 @@ More options are available after creating the board. After creating this board y
 	<option value="2"{if $board.rpix==2} selected="selected"{/if}>Required</option>
 </select>
 </td></tr>
-<tr><td>Max threads</td><td><input type="text" name="tmax{$board.id}" size="5" value="{$board.tmax}" /></td></tr>
 <tr><td>Max image file size</td><td><input type="text" name="maxfilesize{$board.id}" size="12" value="{$board.maxfilesize}" />bytes</td></tr>
+<tr><td>Max image resolution</td><td><input type="text" name="maxfilesize{$board.maxres}" size="5" value="{$board.maxres}" />pixels</td></tr>
 <tr><td>Allowed image formats</td><td>
 <input type="checkbox" name="fileformat"{if $board.allowedformats &  1} checked="checked"{/if} onclick="CalcAllowed(this.form)"/> JPG 
 <input type="checkbox" name="fileformat"{if $board.allowedformats &  2} checked="checked"{/if} onclick="CalcAllowed(this.form)"/> GIF 

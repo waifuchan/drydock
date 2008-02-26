@@ -5,7 +5,6 @@ a:link {text-decoration: none}
 a:visited {text-decoration: none}
 a:active {text-decoration: none}
 
-/* adds hover-over web2.0 crap, looks shitty but jews made it so whatev - tyam */
 a.info{ position:relative; /*this is the key*/ z-index:24; color:#FF6600; text-decoration:none }
 a.info:hover{ z-index:25; background-color:#EEEEEE }
 a.info span{ display: none }
@@ -67,6 +66,4 @@ form { margin-bottom: 0px }
 .box { padding-left:10px; margin-bottom:10px; border-style:none; border-color:black; border-width:1px; }
 .bline { font-family:sans-serif; font-size:xx-small; text-align:center; }
 .bottomAdTitle { font-family: arial,helvetica, sans-serif; background: #EEEEEE; color: #333333; }
-ban {
-	color:red;
-	}
+.ban { color:red; }

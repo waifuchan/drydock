@@ -12,7 +12,7 @@
 		</div>
 		</center><br />
 {if $binfo.about}{$binfo.about}<br />{/if}
-{if $binfo.rules}{$binfo.rules}<br />{/if}
+{include file=rules.tpl}
 {if $binfo.tlock}Only moderators and administrators are allowed to create new threads.<br />{/if}</br>
 <a name="tlist"></a>
 <hr />

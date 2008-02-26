@@ -42,7 +42,6 @@ echo '
 			<a href="dump.php?table=filters">Wordfilters table</a><br />
 			<a href="dump.php?table=images">Images table</a><br />
 			<a href="dump.php?table=replies">Replies table</a><br />
-			<a href="dump.php?table=spam">Spam list table</a><br />
 			<a href="dump.php?table=threads">Threads table</a><br />
 			<a href="dump.php?table=users">Users table</a><br />
 			<a href="dump.php?table=all">All tables</a><br />

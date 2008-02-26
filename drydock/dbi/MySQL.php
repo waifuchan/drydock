@@ -1,4 +1,14 @@
 <?php
+ /*
+        drydock imageboard script (http://code.573chan.org/)
+        File:           dbi/MySQL.php
+        Description:    Handles interface between database and board functions.
+        
+        Unless otherwise stated, this code is copyright 2008 
+        by the drydock developers and is released under the
+        Artistic License 2.0:
+        http://www.opensource.org/licenses/artistic-license-2.0.php
+    */
 require_once("config.php");
 require_once("common.php");
 
@@ -602,7 +612,7 @@ class ThornModDBI extends ThornDBI
         return(true);
     }
 
-function banbody($id,$isthread,$publicbanreason)
+function banbody($id,$isthread,$publicbanreason="USER HAS BEEN BANNED FOR THIS POST")
 {
   //adds (USER HAS BEEN BANNED FOR THIS POST) in big red text
   
@@ -640,8 +650,7 @@ function banbody($id,$isthread,$publicbanreason)
 		post banned for
 */
         if($publicbanreason) {
-//	        $publicbanreason="<br \><br \><b><font color=\"red\">(".$publicbanreason.")</font></b>";
-        $publicbanreason="<br /><br /><b><span class=\"ban\">(".$publicbanreason.")</span></b>";
+        $publicbanreason='<br /><br /><b><span class=ban>('.$publicbanreason.')</span></b>';
         } else {
                 return;
         }

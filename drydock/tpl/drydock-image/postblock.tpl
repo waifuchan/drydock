@@ -46,20 +46,19 @@
 				<tr>
 					<td class="postblock">{if (($binfo.tpix==1 and $comingfrom == "board") or ($binfo.rpix==1 and $comingfrom == "thread"))}File{else}Files{/if}</td>
 					<td>
-						<script type="text/javascript">
-							<!--
-								document.write('\
-{							foreach from=$THfilecount item=lastfile}
-								<div id="file{$lastfile}"{if $lastfile!=0} style="display:none;"{/if}><input type="file" name="file{$lastfile}" onchange="visfile({$lastfile})" /><br /></div>\
-{							/foreach}
-								');
-							// /-->
-						</script>
-						<noscript>
-{						foreach from=$THfilecount item=lastfile}
-							<div id="file{$lastfile}">File {$lastfile+1}: <input type="file" name="file{$lastfile}" /><br /></div>
-{						/foreach}
-						</noscript>     
+				<script type="text/javascript">
+					<!--
+						document.write('\
+{section name=filelist loop=$binfo.pixperpost}
+<div id="file{$smarty.section.filelist.index}"{if $smarty.section.filelist.index!=0} style="display:none;"{/if}><input type="file" name="file{$smarty.section.filelist.index}" onchange="visfile({$smarty.section.filelist.index})" /><br /></div>
+{/section}');
+					// /-->
+				</script>
+				<noscript>
+{section name=filelistnojs loop=$binfo.pixperpost}
+<div id="file{$smarty.section.filelistnojs.index}"><input type="file" name="file{$smarty.section.filelistnojs.index}" /><br /></div>
+{/section}
+				</noscript>        
 					</td>
 				</tr>
 			{/if} {* if pix>0*}

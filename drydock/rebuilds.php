@@ -161,16 +161,17 @@
 
             //echo $string;
             $bannedwords = explode("\n", $string);
-        } 
-        else 
-        {    
-            /*manual spam filter downloading - parse unlinked/spam.txt*/
-            @$fp_blacklist = fopen(THpath."unlinked/spam.txt", "r") or die("To use the anti spam features of drydock, 
+        } else { /*manual spam filter downloading - parse unlinked/spam.txt*/
+		$spamfile = THpath."unlinked/spam.txt";
+		if (!file_exists($spamfile)) {
+			die("To use the anti spam features of drydock, 
                             you should enable the cURL functions in the general configuration.  If these do not work, 
                             you may need to manually download <a href=\"http://wakaba.c3.cx/antispam/spam.txt\">spam.txt</a>
-                            and place it in the unlinked/ directory.");
-                    
-            while (!feof($fp_blacklist)) 
+                            and place it in the unlinked/ directory.  You should then rebuild.");
+			    
+		}
+            @$fp_blacklist = fopen($spamfile, "r") or die();
+             while (!feof($fp_blacklist)) 
             {
                 $buffer = fgets($fp_blacklist, 4096);
                 
@@ -201,6 +202,7 @@
         }
         
         fclose($fp_cache);
+	return;
     }
 	//rebuild side links
 	function rebuild_hovermenu()
@@ -355,7 +357,6 @@
 		fwrite($config, 'define("THfilters_table","'.THfilters_table.'");'."\n");
 		fwrite($config, 'define("THimages_table","'.THimages_table.'");'."\n");
 		fwrite($config, 'define("THreplies_table","'.THreplies_table.'");'."\n");
-		fwrite($config, 'define("THspamlist_table","'.THspamlist_table.'");'."\n");
 		fwrite($config, 'define("THthreads_table","'.THthreads_table.'");'."\n");
 		fwrite($config, 'define("THusers_table","'.THusers_table.'");'."\n");
 		fwrite($config, 'define("THsecret_salt","'.THsecret_salt.'");'."\n");
@@ -367,7 +368,6 @@
 		$ppp=(int)abs($configpost['THjpegqual']);
 		if ($ppp>100)  { $ppp=100; } //yeah, let's upsample the jpegs >:[
 		fwrite($config, 'define("THjpegqual",'.$ppp.');'."\n");
-		fwrite($config, 'define("THpixperpost",'.(int)abs($configpost['THpixperpost']).');'."\n");
 		fprintf($config, "define(\"THdupecheck\", %d);\n", ($configpost['THdupecheck']=="on"));
 		fwrite($config, "\n");
 			

@@ -82,9 +82,6 @@
 		case "replies":
 			dumptable(THreplies_table);
 			break;
-		case "spam":
-			dumptable(THspamlist_table);
-			break;
 		case "threads":
 			dumptable(THthreads_table);
 			break;
@@ -100,7 +97,6 @@
 			dumptable(THfilters_table);
 			dumptable(THimages_table);
 			dumptable(THreplies_table);
-			dumptable(THspamlist_table);
 			dumptable(THthreads_table);
 			dumptable(THusers_table);
 			break;
