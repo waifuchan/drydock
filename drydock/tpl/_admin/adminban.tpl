@@ -6,9 +6,9 @@
         <div class="pgtitle">
             Ban Settings
         </div>
-{if !$banselect}
 	<br />
         <div class="sslarge">
+{if !$banselect}
     {if $bans==null}
             There are currently no banned IPs.
     {else}
@@ -47,7 +47,7 @@
                                 {$ban.privatereason}
                             </td>
                             <td>
-								{if $ban.duration=="-1"}Permanent{else}{$ban.duration}{/if}
+								{if $ban.duration=="-1"}Permanent{elseif $ban.duration=="0"}Warning{else}{$ban.duration}{/if}
                             </td>
                             <td>
                                 {$ban.bantime|date_format:$THdatetimestring}

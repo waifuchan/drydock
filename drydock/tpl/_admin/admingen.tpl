@@ -4,7 +4,7 @@
 <div id="main">
     <div class="box">
         <div class="pgtitle">
-            General Settings
+            Global Settings
         </div>
 	<div class="sslarge">
 		<form method="post" enctype="multipart/form-data" action="admin.php?t=g">
@@ -15,9 +15,7 @@
 	  Image Settings
 	</div>
 	<br />
-		Image thumbnail width: <input type="text" name="THthumbwidth" size="4" value="{$THthumbwidth}" /><br />
-		Image thumbnail height: <input type="text" name="THthumbheight" size="4" value="{$THthumbheight}" /><br />
-		Image thumbnail JPEG quality: <input type="text" name="THjpegqual"  size="3" value="{$THjpegqual}" />%<br />
+		Image thumbnail JPEG quality: <input type="text" name="THjpegqual" size="3" value="{$THjpegqual}" />%<br />
 		Don't allow upload of duplicate images: <input type="checkbox" name="THdupecheck"{if $THdupecheck} checked="checked"{/if} /><br />
 		<br />
         <div class="pgtitle">

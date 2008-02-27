@@ -1,5 +1,17 @@
 <?php
-	//I moved these to their own file to clean up common.  >:[   ~tyam
+ /*
+        drydock imageboard script (http://code.573chan.org/)
+        File:           rebuilds.php
+        Description:    Functions for rebuilding files from db contents
+
+				I moved these to their own file to clean up common.  >:[   ~tyam
+
+        
+        Unless otherwise stated, this code is copyright 2008 
+        by the drydock developers and is released under the
+        Artistic License 2.0:
+        http://www.opensource.org/licenses/artistic-license-2.0.php
+    */
 	
 	require_once("config.php");
 	require_once("common.php");
@@ -162,14 +174,14 @@
             //echo $string;
             $bannedwords = explode("\n", $string);
         } else { /*manual spam filter downloading - parse unlinked/spam.txt*/
-		$spamfile = THpath."unlinked/spam.txt";
-		if (!file_exists($spamfile)) {
-			die("To use the anti spam features of drydock, 
+			$spamfile = THpath."unlinked/spam.txt";
+			if (!file_exists($spamfile))
+			{
+				die("To use the anti spam features of drydock, 
                             you should enable the cURL functions in the general configuration.  If these do not work, 
                             you may need to manually download <a href=\"http://wakaba.c3.cx/antispam/spam.txt\">spam.txt</a>
                             and place it in the unlinked/ directory.  You should then rebuild.");
-			    
-		}
+			}
             @$fp_blacklist = fopen($spamfile, "r") or die();
              while (!feof($fp_blacklist)) 
             {
@@ -247,7 +259,7 @@
 		//check for admin/mod cookie here
 		fwrite($sidelinks, '<?php if($_SESSION["admin"]){ echo "Administration Menu<br />"; } elseif($_SESSION["moderator"]) { echo "Moderator Menu<br />"; } ?>'."\n");
 		fwrite($sidelinks, '<?php if($_SESSION["admin"]){ echo "'."\n");
-		fwrite($sidelinks, '<a href=".THurl."admin.php?a=g>General Settings</a><br />'."\n");
+		fwrite($sidelinks, '<a href=".THurl."admin.php?a=g>Global Settings</a><br />'."\n");
 		fwrite($sidelinks, '<a href=".THurl."admin.php?a=b>Board Setup</a><br />'."\n");
 		fwrite($sidelinks, '<a href=".THurl."admin.php?a=bl>Blotter Posts</a><br />'."\n");
 		fwrite($sidelinks, '<a href=".THurl."admin.php?a=x>Bans</a><br />'."\n");
@@ -341,7 +353,8 @@
 		fwrite($config, '$configver=4;'."\n");
 		fwrite($config, 'define("THpath","'.THpath.'");'."\n");
 		fwrite($config, 'define("THurl","'.THurl.'");'."\n");
-		fwrite($config, 'define("THcookieid","'.THcookieid.'");'."\n"); //cookie seed
+		fwrite($config, 'define("THcookieid","'.THcookieid.'");'."\n"); //cookie seed.
+		fwrite($config, 'define("THsecret_salt","'.THsecret_salt.'");'."\n");
 		//Database stuff that doesn't change
 		fwrite($config, 'define("THdbserver","'.THdbserver.'");'."\n");
 		fwrite($config, 'define("THdbuser","'.THdbuser.'");'."\n");
@@ -359,7 +372,6 @@
 		fwrite($config, 'define("THreplies_table","'.THreplies_table.'");'."\n");
 		fwrite($config, 'define("THthreads_table","'.THthreads_table.'");'."\n");
 		fwrite($config, 'define("THusers_table","'.THusers_table.'");'."\n");
-		fwrite($config, 'define("THsecret_salt","'.THsecret_salt.'");'."\n");
 		fwrite($config, "\n");
 
 		//Stuff that might have changed
@@ -408,7 +420,8 @@
 		//Utility settings
 		fwrite($config, 'define("THpearpath","'.str_replace('"',"",$configpost['THpearpath']).'");'."\n");
 		fprintf($config, "define(\"THuseSVG\", %d);\n", ($configpost['THuseSVG']=="on"));
-		fprintf($config, "define(\"THSVGthumbnailer\", %d);\n", ($configpost['THSVGthumbnailer']=="on"));
+		fwrite($config, 'define("THSVGthumbnailer",'.(int)$configpost['THSVGthumbnailer'].');'."\n");
+		//fprintf($config, "define(\"THSVGthumbnailer\", %d);\n", ($configpost['THSVGthumbnailer']=="on"));
 		fprintf($config, "define(\"THusePDF\", %d);\n", ($configpost['THusePDF']=="on"));
 		fprintf($config, "define(\"THuseSWFmeta\", %d);\n", ($configpost['THuseSWFmeta']=="on"));
 		fprintf($config, "define(\"THusecURL\", %d);\n", ($configpost['THusecURL']=="on"));

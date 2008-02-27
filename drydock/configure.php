@@ -1,4 +1,17 @@
 <?php
+ /*
+        drydock imageboard script (http://code.573chan.org/)
+        File:           configure.php
+        Description:    Handles installation of the script.
+
+			Probably some more work could be done to reduce the size of this file.
+
+        
+        Unless otherwise stated, this code is copyright 2008 r
+        by the drydock developers and is released under the
+        Artistic License 2.0:
+        http://www.opensource.org/licenses/artistic-license-2.0.php
+    */
 	include("version.php");
 	function promptsetup()
 	{
@@ -99,7 +112,7 @@ Please see the documentation for more information about these settings.  If you'
 		//Attempt to touch a file in the directories that need to be chmodded.
 		$chmod=array();
 		//List of places that must be writable at least by the server
-		$paths=array($path,$path."compd/",$path."cache/",$path."captchas/",$path."images/",$path."unlinked/",$path."menu.php",$path."linkbar.php",$path."rss.xml");
+		$paths=array($path,$path."compd/",$path."cache/",$path."captchas/",$path."images/",$path."unlinked/",$path."menu.php",$path."linkbar.php",$path."rss.xml"$path.".htaccess",$path."unlinked/.htaccess");
 		foreach ($paths as $pith)
 		{
 			if (touch($pith."test")==false)
@@ -114,7 +127,7 @@ Please see the documentation for more information about these settings.  If you'
 			die("<h2>Oh no!</h2>Please change the permissions mode on the following directories/folders to 777.<br />
 				See the documentation for more information.<br /><br />".implode("<br />",$chmod)."<br />
 				You can try the following command to do it all in one go:<br />chmod 0777 ".implode(" ",$chmod)."<br />
-				Basically the server needs to be able to read and write these dirs.");
+				Basically the server (specifically the <b>user</b> that the http server runs as) needs to be able to read and write these.");
 				//please let them not screw this up, I don't want to deal with it
 		}
 		if(!empty($_POST['THdbprefix'])) { $prefix = $_POST['THdbprefix']; } else { $prefix = ""; }
@@ -165,7 +178,6 @@ Please see the documentation for more information about these settings.  If you'
 			fwrite($config, 'define("THcookieid","'.$cookieid.'");'."\n");  //cookie seed
 			fwrite($config, 'define("THcaptest", 0);'."\n");
 			fwrite($config, 'define("THtpltest",1);'."\n");  //cannot turn off until we fix cache
-			fwrite($config, 'define("THpixperpost",8);'."\n");
 			fwrite($config, 'define("THthumbheight",100);'."\n");
 			fwrite($config, 'define("THthumbwidth",150);'."\n");
 			fwrite($config, 'define("THjpegqual",65);'."\n");
@@ -208,7 +220,7 @@ Please see the documentation for more information about these settings.  If you'
 		fwrite($admin, "<?php\n");
 		fwrite($admin, 'define("TEMPadminpass", "'.md5($secret_salt.$_POST['adminpass']).'");'."\n");
 		fwrite($admin, 'define("TEMPadminname","'.$_POST['adminname'].'");'."\n");
-		fwrite($admin, '?>');
+		fwrite($admin, '?>'); //<? breaks colors sometimes here
 		fclose($admin);
 		//dump them out to the next part
 		parttwo($_POST['path']);
@@ -278,6 +290,7 @@ Please see the documentation for more information about these settings.  If you'
 	`forced_anon` tinyint(1) NOT NULL default '0',
 	`maxfilesize` int(11) NOT NULL default '2097152',
 	`maxres` int(5) NOT NULL default '3000',
+	`thumbres` int(5) NOT NULL default '150',
 	`pixperpost` int(2) NOT NULL default '8',
 	`allowvids` tinyint(1) NOT NULL default '0',
 	`customcss` tinyint(1) NOT NULL default '0',

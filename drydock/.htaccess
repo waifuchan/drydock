@@ -1,6 +1,0 @@
-#drydock htaccess module
-Options -Indexes
-<Files ~ "\.tpl$">
-Order allow,deny
-Deny from all
-</Files>

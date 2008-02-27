@@ -100,14 +100,16 @@ More options are available after creating the board. After creating this board y
 </select>
 </td></tr>
 <tr><td>Max image file size</td><td><input type="text" name="maxfilesize{$board.id}" size="12" value="{$board.maxfilesize}" />bytes</td></tr>
-<tr><td>Max image resolution</td><td><input type="text" name="maxfilesize{$board.maxres}" size="5" value="{$board.maxres}" />pixels</td></tr>
+<tr><td>Max image resolution</td><td><input type="text" name="maxres{$board.id}" size="5" value="{$board.maxres}" />pixels</td></tr>
+<tr><td>Thumbnail resolution</td><td><input type="text" name="thumbres{$board.id}" size="5" value="{$board.thumbres}" />pixels</td></tr>
 <tr><td>Allowed image formats</td><td>
 <input type="checkbox" name="fileformat"{if $board.allowedformats &  1} checked="checked"{/if} onclick="CalcAllowed(this.form)"/> JPG 
 <input type="checkbox" name="fileformat"{if $board.allowedformats &  2} checked="checked"{/if} onclick="CalcAllowed(this.form)"/> GIF 
 <input type="checkbox" name="fileformat"{if $board.allowedformats &  4} checked="checked"{/if} onclick="CalcAllowed(this.form)"/> PNG 
-<input type="checkbox" name="fileformat"{if $board.allowedformats &  8} checked="checked"{/if} {if !$THenableSVG}disabled {/if} onclick="CalcAllowed(this.form)"/> SVG 
-<input type="checkbox" name="fileformat"{if $board.allowedformats & 16} checked="checked"{/if} onclick="CalcAllowed(this.form)"/> SWF <br />
-Raw: <input type="text" name="allowedformats{$board.id}" size="3" value="{$board.allowedformats}" /></td></tr>
+<input type="checkbox" name="fileformat"{if $board.allowedformats &  8} checked="checked"{/if} {if !$THuseSVG}disabled {/if} onclick="CalcAllowed(this.form)"/> SVG 
+<input type="checkbox" name="fileformat"{if $board.allowedformats & 16} checked="checked"{/if} onclick="CalcAllowed(this.form)"/> SWF
+<input type="checkbox" name="fileformat"{if $board.allowedformats & 32} checked="checked"{/if} {if !$THusePDF}disabled {/if} onclick="CalcAllowed(this.form)"/> PDF
+<br />Raw: <input type="text" name="allowedformats{$board.id}" size="3" value="{$board.allowedformats}" /></td></tr>
 <tr><td>Delete</td><td><input type="checkbox" name="delete{$board.id}" /></td></tr>
 </table>
 {/if}

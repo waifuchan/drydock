@@ -121,7 +121,7 @@
 	  Manually Add (and auto-approve) User Account
 	</div>
 	<br />
-		Name: <input type="text" name="name"/> Password:<input type="password" name="password"> 
+		Name: <input type="text" name="user"/> Password:<input type="password" name="password"> 
 		Email address: <input type="text" name="email" /> <input type="submit" value="Submit" /><br />
 		</div>
 	</form>

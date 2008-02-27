@@ -1,4 +1,7 @@
 <?php
+
+//print_r($_POST); die();
+
  /*
         drydock imageboard script (http://code.573chan.org/)
         File:           admin.php
@@ -111,7 +114,7 @@
 				$sm->assign("ip2",$ipdata[1],$sm);
 				$sm->assign("ip3",$ipdata[2],$sm);
 				$sm->assign("ip4",$ipdata[3],$sm);
-				$sm->assign("iplong",$ippull,$sm);
+				$sm->assign("longip",$ippull,$sm);
 			} else {
 				if (THdbtype==null)
 				{
@@ -420,8 +423,6 @@
 			//Assume general options
 			//Assign settings
 			$sm->assign("THname",THname);
-			$sm->assign("THthumbwidth",THthumbwidth);
-			$sm->assign("THthumbheight",THthumbheight);
 			$sm->assign("THjpegqual",THjpegqual);
 			$sm->assign("THtplset",THtplset);
 			$sm->assign("THtpltest",THtpltest);
@@ -564,6 +565,7 @@
 				$allowedformats=intval($_POST['allowedformats'.$oldid]);
 				$forced_anon=($_POST['forced_anon'.$oldid]=="on");
 				$maxfilesize=intval($_POST['maxfilesize'.$oldid]);
+				$thumbres=intval($_POST['thumbres'.$oldid]);
 				$maxres=intval($_POST['maxres'.$oldid]);
 				$pixperpost=intval($_POST['pixperpost'.$oldid]);
 				$allowvids=($_POST['allowvids'.$oldid]=="on");
@@ -576,7 +578,7 @@
 				$tpix=intval($_POST['tpix'.$oldid]);
 				$rpix=intval($_POST['rpix'.$oldid]);
 				$tmax=intval($_POST['tmax'.$oldid]);
-				$updatequery = "UPDATE ".THboards_table." set id=".$db->clean($id).",globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
+				$updatequery = "UPDATE ".THboards_table." set id=".$db->clean($id).",globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
 				//print_r($updatequery);
 				$db->myquery($updatequery);
 			}
@@ -606,8 +608,9 @@
 				$rpix=1;
 				$pixperpost=8;
 				$maxres=3000;
+				$thumbres=150;
 				$tmax=100;
-				$query="insert into ".THboards_table." set id=".$db->clean($id).",globalid=".$globalid.",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$db->clean($about)."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$allowedformats."',forced_anon='".$forced_anon."',maxfilesize='".$maxfilesize."',allowvids='".$allowvids."',customcss='".$customcss."',filter='".$filter."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', pixperpost ='".$pixperpost."'";
+				$query="insert into ".THboards_table." set id=".$db->clean($id).",globalid=".$globalid.",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$db->clean($about)."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$allowedformats."',forced_anon='".$forced_anon."',maxfilesize='".$maxfilesize."',allowvids='".$allowvids."',customcss='".$customcss."',filter='".$filter."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."'";
 				$db->myquery($query);
 				//print_r($query);
 			}
@@ -645,7 +648,9 @@
 		{
 			THdie("ADbanbadip");
 		}
-		$db->banip($ip,($_POST['ipsub']=="on"),$_POST['adminreason'],'admin ban',$_POST['adminreason'],'This is an admin ban, you were not banned for any one post.',$_POST['duration'],'admin');
+		$banreason = 'This is an admin ban, you were not banned for a specific post.';
+		$postdata = $_SESSION['username']." via admin ban panel";
+		$db->banip($ip,($_POST['ipsub']=="on"),$_POST['adminreason'],'admin ban',$_POST['adminreason'],$postdata,$_POST['duration'],$bannedby);
 		header("Location: ".THurl."admin.php?a=x");
 	}
 	elseif ($_GET['t']=="ux") //Remove ban
@@ -748,9 +753,8 @@
 			$username = trim($_POST['user']);
 			$password = trim($_POST['password']);
 			$email = trim($_POST['email']);
-				
-			$nameexists = $db->myresult(
-			"SELECT COUNT(*) FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'");
+
+			$nameexists = $db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'");
 			
 			if($nameexists)
 			{
@@ -802,13 +806,13 @@
 				" (username, password, userlevel, email, approved) VALUES ('".
 				mysql_real_escape_string($username)."','".mysql_real_escape_string($pass_md5)."',".THprofile_userlevel.
 				",'".mysql_real_escape_string($email)."',1)";
-				
-				$db->myresult($insertquery);
+				$db->myquery($insertquery);
 				header("Location: ".THurl."admin.php?a=p");
 			}
 	
 			// <chopperdave> UHHHHHH OOOOOOHHHHHH </chopperdave>
 			THdie($errorstring);
 		}
+			THdie("Username field must not be blank.");
 	}
 ?>

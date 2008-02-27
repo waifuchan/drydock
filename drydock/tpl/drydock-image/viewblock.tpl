@@ -56,7 +56,7 @@
 				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.extra_info|extra_info}</span>
 			</a>
 		</td>
-{		if ($imgcount == 3)}</tr><tr>{/if}{* tyam - let's avoid more template breaking *}
+{		if ($imgcount mod 4 == 3)}</tr><tr>{/if}{* tyam - let's avoid more template breaking *}
 {counter name="imgcount"}
 {	/foreach}
 	</tr>
@@ -66,7 +66,6 @@
 {if not $thread.body}
 {	$THdefaulttext}
 {else}
-
 {if $comingfrom=="board"}{assign value=$thread.body|THtrunc:2000 var=bodeycheck}
 <blockquote>
 {assign value=$bodeycheck.text var=bodey}{else}{assign value=$thread.body var=bodey}{/if}
@@ -74,7 +73,7 @@
 {		if $binfo.allowvids == 1} 
 {			$bodey|vids|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {		else}
-{		$bodey|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
+{			$bodey|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {		/if}
 {	else}
 {		if $binfo.allowvids == 1} 

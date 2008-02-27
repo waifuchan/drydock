@@ -3,7 +3,7 @@
 <div class="idxmenutitle">
 <?php if($_SESSION["admin"]){ echo "Administration Menu<br />"; } elseif($_SESSION["moderator"]) { echo "Moderator Menu<br />"; } ?>
 <?php if($_SESSION["admin"]){ echo "
-<a href=".THurl."admin.php?a=g>General Settings</a><br />
+<a href=".THurl."admin.php?a=g>Global Settings</a><br />
 <a href=".THurl."admin.php?a=b>Board Setup</a><br />
 <a href=".THurl."admin.php?a=bl>Blotter Posts</a><br />
 <a href=".THurl."admin.php?a=x>Bans</a><br />
@@ -18,7 +18,7 @@ echo "
 <a href=".THurl."recentpics.php>Recent Pics</a><br />
 <a href=".THurl."recentposts.php>Recent Posts</a><br /><br />";
 } ?>
-<a href=".THurl.">Site Index</a><br />
+<a href="http://localhost/dry/drydock/">Site Index</a><br />
 <?php if($_SESSION["username"]) {
 echo "<a href=".THurl."profiles.php?action=logout>Log Out</a> / <a href=".THurl."profiles.php>Profiles</a>";
  } else {

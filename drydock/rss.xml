@@ -2,9 +2,9 @@
 <rss version="2.0">
 	<channel>
 		<title>drydock image board</title>
-		<description>drydock image board drydock RSS feeder - http://localhost/drydock/</description>
+		<description>drydock image board drydock RSS feeder - http://localhost/dry/drydock/</description>
 		<language>en</language>
-		<link>http://localhost/drydock/</link>
+		<link>http://localhost/dry/drydock/</link>
 		<generator>drydock rss feed generator</generator>
 		<copyright>tyam/ordog/kchan devs - http://573chan.org</copyright>
 	</channel>
