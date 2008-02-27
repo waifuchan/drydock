@@ -1,0 +1,16 @@
+#summary Required Libraries
+=Overall functionality=
+  * PHP5 is suggested, although we have run the script with few hiccups under PHP4.4.  However it is recommended you use the most recent stable version.
+  * MySQL is currently the only supported DBI.
+  * The GD image library (typically part of PHP) is required to thumbnail images.
+
+=Admin functions=
+  * PHP with libcurl enabled is currently required to automate [http://wakaba.c3.cx/antispam/ the blacklisting of certain keywords].  A workaround is available by placing the black list file in the unlinked/ directory.
+=Posting functions=
+  * Certain PEAR modules are required for SWF metadata and SVG support.
+  * ImageMagick is required for SVG support (but in the future rsvg will be an acceptable alternative)
+=PEAR modules required==
+  * For SWF metadata functionality, [http://www.sephiroth.it/swfreader.php File_SWF] is required and must be installed in *<PEAR path>/File/*.
+  * For SVG functionality, two PEAR modules are required:
+    * [http://pear.php.net/package/XML_HTMLSax3 XML_HTMLSax3] must be installed in *<PEAR path>/XML/*.
+    * [http://pear.php.net/package/HTML_Safe HTML_Safe] must be installed in *<PEAR path>/HTML/HTML_Safe/*.
