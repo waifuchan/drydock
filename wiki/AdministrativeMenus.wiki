@@ -1,0 +1,140 @@
+#summary Description of administrative functions
+
+=General Settings=
+===Site name===
+The name of the image board installation.  Please try to make this something other than (something)chan.
+
+===Image thumbnail width===
+Maximum width of a thumbnail image.  Default is 150
+
+===Image thumbnail height===
+Maximum height of a thumbnail image.  Default is 100
+
+===Image thumbnail JPEG quality===
+All images are by default thumbnailed to JPEG.  This setting adjusts the quality of the thumbnail.  Default is 65%
+
+===Don't allow upload of duplicate images===
+When enabled, this disallows the uploading of files with the same hash.  It is suggested you do not disable this.  Default is on (duplicates disabled).
+
+===Template set===
+Configures the layout of the boards.  Partially per-board overridable.  Default is common.
+
+===Template Testing Mode===
+Bypasses cache functions for some things.  Slows down processing slightly as parts pages must be built each time they are accessed.  This functionality is broken in 0.2.9 and must be left enabled.
+
+===Delete cache===
+If for some reason your cache file is messed up, or if you have made template changes with testing mode disabled, use this to clear the cache files.
+
+===User verification codes===
+Enables CAPTCHA.  Please use this only if your board is experiencing heavy spam as CAPTCHA discourages posting by forcing users to read a scrambled image.  Default is off.
+
+===Time offset===
+If your webserver's time is not accurate or you would rather use a different timezone (GMT for example) you may adjust it here.  Default is 0 min.
+
+===Date formatting string===
+Changes the way date strings are displayed throughout the script.  Default is %m/%d/%y(%a)%H:%M:%S, which appears as 07/14/07(Sat)05:23:53
+
+===News board/moderator board===
+Setting a board as newsboard causes it to be fed to the front page (if the news page script is installed.  Moderator board causes the selected board to be used for moderator discussion.  Defaults to none for both.
+
+===Default text/name===
+Allows you to select what will display when a user does not enter text into the name field or text field.  Name will not display on a forced anonymous board.
+-----
+
+=Board Settings=
+==Creating a new board==
+
+===Board Index===
+Internal number for the database queries.  Default value is suggested.
+
+===Board name===
+Name of the board.  Example:  Cats, Random, Photography
+
+===Board folder===
+The directory location of the board.  Example:  /c/, /b/, /photo/.  Maximum value of 5 characters in 0.2.9.  Future versions will not be limited.
+
+===Board description===
+A brief summary of the board.  Example:  A board to post pictures of cats
+
+===Board rules===
+Per-board rules.  Appears as text under the posting block.  Example:  Please keep this board work safe and post pictures of cats enjoying a day in the sun.
+
+==Editing an existing board==
+===Global thread index===
+Internal number for post tracking.  Probably not a good idea to edit this number lower than it is.  Raising it higher should not be an issue.  It is suggested that you lock posting on the board and save changes before editing this number so as to avoid duplicate post ids.  *Advanced users only*
+
+===Threads per page===
+How many threads will show up on each page?  Default 20
+
+===Replies per thread===
+How many replies will be shown on the board view?  Does not change the maximum replies a thread can have, nor does it change the thread view.  This only changes the number displayed on board view.  Default 4.
+
+===Hide from index/linkbar===
+Will mark a board as secret.  This is on by default when you create a new board to give you time to set it up before users post.  When you are finished making changes, it is suggested you uncheck this box.  Should be used for moderator/secret boards.
+
+===forced_anon===
+Disables use of names and subject fields.  Defaults to off.
+
+===Allow embedded video===
+Allows the use of video embedding tags.
+
+===Require registration===
+Require a user be logged in to a registered user account to view this board.  Should not be used in most cases, but is suggested for use on moderator boards.
+
+===Use custom css===
+Allows you to override certain css settings.
+
+===Thread lock===
+Only admins/moderators can post new threads
+
+===Reply lock===
+Only admins/moderators can reply to threads
+
+===Images in threads/replies===
+Allowed setting allows images to be posted.  Not allowed will disable image posting.  Required will reject the post if an image is not included
+
+===Max threads===
+Number of threads to allow on the board before older/less popular threads are deleted
+
+===Max image size===
+Maximum file size in bytes.
+
+===Allowed image formats===
+SVG and SWF posting requires an addon.  See [[Main.Libs]] for info.  It is suggested only advanced users use the raw edit box.
+
+===Delete===
+Will permanently and completely delete the board from the database
+
+----
+
+=CAPCODE Settings=
+===Setting capcodes===
+  *The first box should include the user's hashed tripcode.  This means the !RTV242.ddt value, not the #passphrase value.
+  *The second box should contain valid HTML.  There is no requirement that you use any HTML tags, however.  Anything you put in this box will be displayed in place of the user's name and tripcode.
+  *The last box is for notes.  This can be anything to who the tripcode belongs to, to the last date it was changed.
+
+===Using CAPCODEs===
+For a user to use a CAPCODE, they must type CAPCODE#[their normal tripcode].  This will trigger the replacement code and display the user's CAPCODE in place of their name/tripcode.
+
+----
+
+=Filter Settings=
+===Setting filters===
+  *The first box should include the search text, what you want to replace.  Accepts Perl regexes.
+  *The second box should contain the replace value, whatever you want the seach value to be replaced with.
+  *The last box is for notes.
+
+----
+
+=Housekeeping functions=
+===Rebuilds===
+From time to time you may need to force a rebuild of a file.  There is no progress indicator, so generally once your browser stops loading, the job is done.
+
+===Database dumps===
+These will dump your database.  Please do not share these dumps without checking first to make sure that is a good idea.
+
+----
+
+=Recent Pics & Recent Posts=
+===What is this?===
+Added to emulate futabalite from 4chan, ThornLight pulls the most recently posted images.  ThornQuasilight does a similar function, but will display the text and other information as well.
