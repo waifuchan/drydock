@@ -109,9 +109,9 @@ Will permanently and completely delete the board from the database
 
 =CAPCODE Settings=
 ===Setting capcodes===
-  *The first box should include the user's hashed tripcode.  This means the !RTV242.ddt value, not the #passphrase value.
-  *The second box should contain valid HTML.  There is no requirement that you use any HTML tags, however.  Anything you put in this box will be displayed in place of the user's name and tripcode.
-  *The last box is for notes.  This can be anything to who the tripcode belongs to, to the last date it was changed.
+  * The first box should include the user's hashed tripcode.  This means the !RTV242.ddt value, not the #passphrase value.
+  * The second box should contain valid HTML.  There is no requirement that you use any HTML tags, however.  Anything you put in this box will be displayed in place of the user's name and tripcode.
+  * The last box is for notes.  This can be anything to who the tripcode belongs to, to the last date it was changed.
 
 ===Using CAPCODEs===
 For a user to use a CAPCODE, they must type CAPCODE#[their normal tripcode].  This will trigger the replacement code and display the user's CAPCODE in place of their name/tripcode.
@@ -120,9 +120,9 @@ For a user to use a CAPCODE, they must type CAPCODE#[their normal tripcode].  Th
 
 =Filter Settings=
 ===Setting filters===
-  *The first box should include the search text, what you want to replace.  Accepts Perl regexes.
-  *The second box should contain the replace value, whatever you want the seach value to be replaced with.
-  *The last box is for notes.
+  * The first box should include the search text, what you want to replace.  Accepts Perl regexes.
+  * The second box should contain the replace value, whatever you want the seach value to be replaced with.
+  * The last box is for notes.
 
 ----
 
@@ -137,4 +137,4 @@ These will dump your database.  Please do not share these dumps without checking
 
 =Recent Pics & Recent Posts=
 ===What is this?===
-Added to emulate futabalite from 4chan, ThornLight pulls the most recently posted images.  ThornQuasilight does a similar function, but will display the text and other information as well.
+Added to emulate futabalite from 4chan, recentpics pulls the most recently posted images.  recentposts does a similar function, but will display the text and other information as well.
