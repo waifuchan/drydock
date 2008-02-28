@@ -1,4 +1,15 @@
 <?php
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:			post-common.php
+		Description:	Common functions for posting.
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
+	
     if(THpearpath) // PEAR PEAR LOL
     {
         ini_set( 'include_path', ini_get( 'include_path' ) . PATH_SEPARATOR . THpearpath);
@@ -14,11 +25,10 @@
 		}
 		if(THusePDF > 2)
 		{
-			// TODO: Add in require when we add in the metadata parsing
+			require_once('unlinked/pdf/fpdf.php');
 		}
     }    
         
-    //Common functions for posting.
     function checkvc()
     {
         //Disabling VCs at code level - probably need to do this from inside config :[[[
@@ -49,7 +59,7 @@
         //Ug. I hate using global.
         $goodfiles=array();
         $hashes=array();
-        for ($x=0;$x<THpixperpost;$x++)
+        for ($x=0;$x<$binfo['pixperpost'];$x++)
         {
             $dis="file".$x;
             if ($_FILES[$dis]>0)
@@ -130,14 +140,13 @@
 									}
 						        }
 								
-								// TODO: put in comparisons here
-								/*$width=imagesx($theimg);
+								$width=imagesx($theimg);
 								$height=imagesy($theimg);
 								
-								if($width > ????? or $height > ?????)
+								if($width > $binfo['maxres'] or $height > $binfo['maxres'])
 								{
 									THdie("Error: image exceeds acceptable dimensions");
-								} */
+								}
 							}
 							else if( $ext=="swf" )
 							{
@@ -182,6 +191,7 @@
 							$goodfiles[$x]['hash']=$hash;
 							$hashes[]=$hash;
 							$goodfiles[$x]['anim']=false;
+							$goodfiles[$x]['extra_info']=0;
 							
                         } // bitlookup
                         else 
@@ -264,13 +274,11 @@
         }
     }//function
 
-    function movefiles(&$goodfiles, $tpnum, $isthread)
+    function movefiles(&$goodfiles, $tpnum, $isthread, &$binfo)
     {
         //Process the uploaded files.
         global $db;
-        //we don't use this functionality (yet) so we need to define it for the db or we can't post! ~tyam
-        $fyle['extra_info'] = 0;
-        //Ug. I hate using global.
+       
         if (count($goodfiles)>0)
         {
             if ($isthread)
@@ -290,19 +298,19 @@
                 move_uploaded_file($fyle['tmp_name'],$fyle['path']) or THdie("POmoveimg");
                 if(in_array($fyle['type'],array("jpeg","png","gif")))
                 {
-                    $fyle = handleimage($fyle, $thedir);
+                    $fyle = handleimage($fyle, $thedir, $binfo);
                 }
                 elseif($fyle['type']=="svg")
                 {
-                    $fyle = handlesvg($fyle, $thedir);
+                    $fyle = handlesvg($fyle, $thedir, $binfo);
                 }
                 elseif($fyle['type']=="swf")
                 {
-                    $fyle = handleswf($fyle, $thedir);
+                    $fyle = handleswf($fyle, $thedir, $binfo);
                 }
 				elseif($fyle['type']=="pdf")
 				{
-					$fyle = handlepdf($fyle, $thedir);
+					$fyle = handlepdf($fyle, $thedir, $binfo);
 				}
 
                 $yayimgs[]=$fyle;
@@ -339,8 +347,11 @@
     }
 
 
-    function handlesvg($fyle, $thedir)
+    function handlesvg($fyle, $thedir, &$binfo)
     {
+        //Since movefiles calls this, I think it's safe to use.
+        global $db;
+		
         $fyle['fsize']=ceil(filesize($fyle['path'])/1024);
         $fyle['extra_info']=0;
 
@@ -398,7 +409,7 @@
             //I feel so dirty after writing this code. :(
         } // DOM document load else
 
-        if ($fyle['width']<=THthumbwidth && $fyle['height']<=THthumbheight)
+        if ($fyle['width']<=$binfo['thumbres'] && $fyle['height']<=$binfo['thumbres'])
         {
             $targw=$fyle['width'];
             $targh=$fyle['height'];
@@ -409,23 +420,23 @@
             //Man, this code is a female canine.
             if ($fyle['width']>$fyle['height'])
             {
-                $targh=THthumbheight;
-                $targw=(THthumbheight/$fyle['height'])*$fyle['width'];
-                if ($targw>THthumbwidth)
+                $targh=$binfo['thumbres'];
+                $targw=($binfo['thumbres']/$fyle['height'])*$fyle['width'];
+                if ($targw>$binfo['thumbres'])
                 {
-                    $ratio=THthumbwidth/$targw;
-                    $targw=THthumbwidth;
+                    $ratio=$binfo['thumbres']/$targw;
+                    $targw=$binfo['thumbres'];
                     $targh=$targh*$ratio;
                 }
             } 
 			else 
 			{
-                $targw=THthumbwidth;
-                $targh=(THthumbwidth/$fyle['width'])*$fyle['height'];
-                if ($targh>THthumbheight)
+                $targw=$binfo['thumbres'];
+                $targh=($binfo['thumbres']/$fyle['width'])*$fyle['height'];
+                if ($targh>$binfo['thumbres'])
                 {
-                    $ratio=THthumbheight/$targh;
-                    $targh=THthumbheight;
+                    $ratio=$binfo['thumbres']/$targh;
+                    $targh=$binfo['thumbres'];
                     $targw=$targw*$ratio;
                 }
             }//if width>height
@@ -480,8 +491,11 @@
         return $fyle;
     }//end function
 
-    function handleswf($fyle, $thedir)
+    function handleswf($fyle, $thedir, &$binfo)
     {
+        //Since movefiles calls this, I think it's safe to use.
+        global $db;
+		
         $fyle['fsize']=ceil(filesize($fyle['path'])/1024);
         $fyle['extra_info']=0;
         $fyle['width']=0;
@@ -532,7 +546,7 @@
 	            {
 	                $extrainfo = $extrainfo . "<br>Zlib compression";
 	            }
-	            $db = new ThornDBI();
+				
 	            $query="INSERT INTO ".THextrainfo_table." SET extra_info='".mysql_real_escape_string($extrainfo)."'";
 	            $ex_inf_result = $db->myquery($query);
 	            if($ex_inf_result)
@@ -555,8 +569,11 @@
         return $fyle;
     }//end function
 	
-    function handlepdf($fyle, $thedir)
+    function handlepdf($fyle, $thedir, &$binfo)
     {
+        //Since movefiles calls this, I think it's safe to use.
+        global $db;
+		
         $fyle['fsize']=ceil(filesize($fyle['path'])/1024);
         $fyle['extra_info']=0;
         $fyle['width']=0;
@@ -565,8 +582,10 @@
 		// Is metadata enabled?
 		if(THusePDF>2)
 		{
-			// welp,
-			$db = new ThornDBI();
+			$pdf =& new FPDI(); 
+			$pagecount = $pdf->setSourceFile($fyle['path']);
+			$extrainfo = intval($pagecount)." pages";
+			
 			$query="INSERT INTO ".THextrainfo_table." SET extra_info='".mysql_real_escape_string($extrainfo)."'";
 			$ex_inf_result = $db->myquery($query);
 			if($ex_inf_result)
@@ -584,7 +603,9 @@
 		// Is thumbnailing (through ImageMagick) enabled?
 		if(THusePDF == 1 || THusePDF == 3)
 		{
-			$commandstring = "convert \"".$fyle['path']."\"[0] -resize 100x100 -background #000 -extent 100x100 \"".$thumbpath."\"";
+			$commandstring = "convert \"".$fyle['path']."\"[0] -resize ".$binfo['thumbres']."x".$binfo['thumbres']." -background #000 -extent 100x100 \"".$thumbpath."\"";
+			$fyle['twidth']=$binfo['thumbres'];
+			$fyle['theight']=$binfo['thumbres'];
 		}
 		else
 		{
@@ -595,8 +616,11 @@
         return $fyle;
     }//end function
 
-    function handleimage($fyle, $thedir)
+    function handleimage($fyle, $thedir, &$binfo)
     {
+        //Since movefiles calls this, I think it's safe to use.
+        global $db;
+		
         $theimg=null;
         $fyle['extra_info']=0;
         if ($fyle['type']=="jpeg") 
@@ -632,7 +656,7 @@
             $fyle['width']=imagesx($theimg);
             $fyle['height']=imagesy($theimg);
 
-            if ($fyle['width']<=THthumbwidth && $fyle['height']<=THthumbheight)
+            if ($fyle['width']<=$binfo['thumbres'] && $fyle['height']<=$binfo['thumbres'])
             {
                 $targw=$fyle['width'];
                 $targh=$fyle['height'];
@@ -643,23 +667,23 @@
                 //Man, this code is a female canine.
                 if ($fyle['width']>$fyle['height'])
                 {
-                    $targh=THthumbheight;
-                    $targw=(THthumbheight/$fyle['height'])*$fyle['width'];
-                    if ($targw>THthumbwidth)
+                    $targh=$binfo['thumbres'];
+                    $targw=($binfo['thumbres']/$fyle['height'])*$fyle['width'];
+                    if ($targw>$binfo['thumbres'])
                     {
-                        $ratio=THthumbwidth/$targw;
-                        $targw=THthumbwidth;
+                        $ratio=$binfo['thumbres']/$targw;
+                        $targw=$binfo['thumbres'];
                         $targh=$targh*$ratio;
                     }
                 }
 				else 
 				{
-                    $targw=THthumbwidth;
-                    $targh=(THthumbwidth/$fyle['width'])*$fyle['height'];
-                    if ($targh>THthumbheight)
+                    $targw=$binfo['thumbres'];
+                    $targh=($binfo['thumbres']/$fyle['width'])*$fyle['height'];
+                    if ($targh>$binfo['thumbres'])
                     {
-                        $ratio=THthumbheight/$targh;
-                        $targh=THthumbheight;
+                        $ratio=$binfo['thumbres']/$targh;
+                        $targh=$binfo['thumbres'];
                         $targw=$targw*$ratio;
                     }
                 }//if width>height
@@ -686,7 +710,6 @@
             $exif = exif_read_data($fyle['path'], 'IFD0,COMMENT', TRUE);
             if($exif)
             {
-                $db = new ThornDBI();
                 $extrainfo = "";
                 foreach ($exif as $key => $section)
                 {

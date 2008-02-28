@@ -6,10 +6,10 @@
 {			if !$thread.title}
 		No subject
 {			else}
-		<span class="filetitle">{$thread.title|escape}</span>
+		<span class="filetitle">{$thread.title|escape:'html':'UTF-8'}</span>
 {			/if} {* if no title *}
 </a>
-{if $mod_admin =="1" or $mod_global =="1"}[<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/edit/{else}editpost.php?board={$binfo.folder}&post={/if}{$thread.globalid}">Edit</a>]{/if}
+<a name="jsmod" style="display:none;">{$binfo.folder},{$thread.globalid}</a>
 {if $thread.pin}
 		<img src="{$THurl}static/sticky.png" alt="HOLY CRAP STICKY">
 {/if}
@@ -21,15 +21,15 @@
 {/if}
 	
 		</td><td>
-<a href="{$THurl}profiles.php?action=viewprofile&user={$thread.name|escape}">
+<a href="{$THurl}profiles.php?action=viewprofile&user={$thread.name|escape:'html':'UTF-8'}">
 {				if !$thread.trip}
 {					if !$thread.name}
 		<span class="postername">{$THdefaultname}</span>
 {					else}
-		<span class="postername">{$thread.name|escape}</span>
+		<span class="postername">{$thread.name|escape:'html':'UTF-8'}</span>
 {					/if} {* name used? *}
 {				else}
-		<span class="postername">{$thread.name|escape|default:""}</span><span class="postertrip">!{$thread.trip}</span>
+		<span class="postername">{$thread.name|escape:'html':'UTF-8'|default:""}</span><span class="postertrip">!{$thread.trip}</span>
 {				/if} {* trip used? *}
 {		/if} {* end forced_anon *}
 		</a></td><td align=center><a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}"><span class="timedate">{$thread.time|date_format:$THdatetimestring}</span></a></td>
@@ -74,19 +74,18 @@
 			<td class="reply" id="{$post.globalid}">
 				<a name="{$post.globalid}"></a>
 				<label>&nbsp;&nbsp;
-<a href="{$THurl}profiles.php?action=viewprofile&user={$post.name|escape}">
+<a href="{$THurl}profiles.php?action=viewprofile&user={$post.name|escape:'html':'UTF-8'}">
 {		if !$post.trip}
 {			if !$post.name}
 				<span class="postername">{$THdefaultname}</span>
 {			else}
-				<span class="postername">{$post.name|escape}</span>
+				<span class="postername">{$post.name|escape:'html':'UTF-8'}</span>
 {			/if}
 {		else}
-				<span class="postername">{$post.name|escape|default:""}</span><span class="postertrip">!{$post.trip}</span>
+				<span class="postername">{$post.name|escape:'html':'UTF-8'|default:""}</span><span class="postertrip">!{$post.trip}</span>
 {		/if}
 </a>
-				<span class="timedate">{$post.time|date_format:$THdatetimestring}</label></span>
-{if $mod_admin =="1" or $mod_global =="1"}[<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/edit/{else}editpost.php?board={$binfo.folder}&post={/if}{$thread.globalid}">Edit</a>]{/if}
+				<span class="timedate">{$post.time|date_format:$THdatetimestring}</label></span><a name="jsmod" style="display:none;">{$binfo.folder},{$thread.globalid}</a><br />
 {* replies *}
 				{if $comingfrom=="thread"}<blockquote>{/if}
 {if not $post.body}  {* no text,admin configable, THdefaulttext *}

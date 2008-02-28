@@ -1,4 +1,14 @@
 <?php
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:			common.php
+		Description:	Contains many functions for general use.
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
 	require_once("version.php");
 	session_start();
 	checklogin(); // Update session variables if needed (needed meaning: HAY WE HAVE A COOKIE)
@@ -13,7 +23,9 @@
 	if (file_exists("config.php"))
 	{
 		require_once("config.php");
-	} else {
+	} 
+	else 
+	{
 //		die("Please run the configuration utility.");
 	}
 	//error_reporting(E_ALL);
@@ -29,7 +41,9 @@
 		if (file_exists($findpath))
 		{
 			require_once($findpath);
-		} else {
+		} 
+		else 
+		{
 			THdie("DBcode");
 		}
 	}
@@ -158,7 +172,6 @@
 	
 	function ipsub($ip)
 	{
-		//This can be moved to post-common.php...?
 		$sub=explode(".",long2ip($ip));
 		return(ip2long(implode(".",array($sub[0],$sub[1],$sub[2],0))));
 	}
@@ -317,9 +330,10 @@
 			return false;
 		}
 	}
-	//restrict filetypes - really hackish :[
+
 	function bitlookup($ext)
 	{
+		// OH YEAH BITFLAGS
 		if($ext == "jpg" || $ext == "jpeg"){
 			return 1;
 		}
@@ -342,11 +356,13 @@
 		//not found!  should this error?
 		return 0;
 	}
-	//well here's a question for you:  should we stick this in auth-common?
-	function canmodboard($board, $csl) // CSL STANDS FOR COMMA SEPARATED LIST (LOL LIEK CSV)
+	
+	function is_in_csl($item, $csl)
+	// CSL stands for comma separated list.  It's not
+	// very complicated.
 	{
-		$boards = explode(",",$csl);
-		return in_array($board, $boards);
+		$items = explode(",",$csl);
+		return in_array($item, $item);
 	}
 	//minor annoyance
 	function replacewedge($input)
@@ -358,6 +374,7 @@
 	
 	//profile related functions follow
 	function generateRandID()
+	
 	{
 		return md5(generateRandStr(16));
 	}

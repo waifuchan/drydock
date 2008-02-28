@@ -1,4 +1,15 @@
 <?php
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:           		dump.php
+		Description:	This is used to do raw SQL dumps of tables,
+					in case someone doesn't have phpmyadmin.
+
+		Unless otherwise stated, this code is copyright 2008
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
 	require_once("config.php");
 	require_once("common.php");
 	checkadmin();
@@ -58,6 +69,9 @@
 
 	switch ($_GET['table'])
 	{
+		$actionstring = "Dump\ttable:".$_GET['table'];
+		writelog($actionstring,"admin");		
+		
 		case "bans":
 			dumptable(THbans_table);
 			break;

@@ -1,4 +1,15 @@
 <?php
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:			reply.php
+		Description:	Script that receives form input for replies.
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
+	
 	require_once("common.php");
 	require_once("post-common.php");
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
@@ -68,7 +79,7 @@
 	{
 		$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
 		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],$thread['board'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$_POST['bump']=="on");
-		movefiles($goodfiles, $pnum, false, $db);
+		movefiles($goodfiles, $pnum, false, $binfo, $db);
 	}
 
 	if ($_POST['mem']=="on") 

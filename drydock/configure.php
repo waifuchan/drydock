@@ -1,17 +1,17 @@
 <?php
- /*
-        drydock imageboard script (http://code.573chan.org/)
-        File:           configure.php
-        Description:    Handles installation of the script.
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:           		configure.php
+		Description:	Handles installation of the script.
 
 			Probably some more work could be done to reduce the size of this file.
 
-        
-        Unless otherwise stated, this code is copyright 2008 r
-        by the drydock developers and is released under the
-        Artistic License 2.0:
-        http://www.opensource.org/licenses/artistic-license-2.0.php
-    */
+		
+		Unless otherwise stated, this code is copyright 2008
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
 	include("version.php");
 	function promptsetup()
 	{
@@ -135,7 +135,7 @@ Please see the documentation for more information about these settings.  If you'
 		$seed = mt_rand(0,100000); // I like the Mersenne Twister random number generation more.
 		// lol.
 		// It's 4:30 AM and I can't think of a better way to generate a random character string (generated via the Mersenne Twister algorithm), to be used for
-		// salting passwords before they're defined in the
+		// salting passwords before they're hashed and entered into the DB
 		sprintf($secret_salt, "%c%c%c%c%c%c%c%c", mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
 												  mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126) );
 		$cookieid = "dd".$seed;

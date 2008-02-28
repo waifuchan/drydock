@@ -1,17 +1,14 @@
 <?php
-
-//print_r($_POST); die();
-
- /*
-        drydock imageboard script (http://code.573chan.org/)
-        File:           admin.php
-        Description:    Administrative functions
-        
-        Unless otherwise stated, this code is copyright 2008 
-        by the drydock developers and is released under the
-        Artistic License 2.0:
-        http://www.opensource.org/licenses/artistic-license-2.0.php
-    */
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:			admin.php
+		Description:	Administrative functions
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
 	require_once("config.php");
 	require_once("common.php");
 	checkadmin(); //make sure the person trying to access this file is allowed to
@@ -380,7 +377,7 @@
 			if($_POST['sl']) { rebuild_hovermenu(); }
 			if($_POST['lb']) { rebuild_linkbars(); }
 			if($_POST['sp']) { rebuild_spamlist(); }
-			if($_POST['fl']) {  rebuild_filters(); }
+			if($_POST['fl']) { rebuild_filters(); }
 			if($_POST['cp']) { rebuild_capcodes(); }
 			if($_POST['all'])
 					{
@@ -392,6 +389,8 @@
 						rebuild_capcodes();
 						rebuild_spamlist();
 					}
+			$actionstring = "Housekeeping";
+			writelog($actionstring,"admin");		
 			header("Location: ".THurl."admin.php?a=hk");
 		}
 
@@ -493,16 +492,6 @@
 		header("Location: ".THurl."admin.php?a=g");
 		die();
 	}
-	elseif($_GET['t']=="p") // get it?  change profile settings ~tyam
-	{
-		$config = fopen(THpath."config-features.php", 'w');
-		fwrite($config, '<?php'."\n");
-
-		fwrite($config, '?>');  //some editors break colors here so <?
-		//print_r($_POST);
-		header("Location: ".THurl."admin.php?a=p");
-		die();
-	}
 	elseif ($_GET['t']=="bl") //Update blotter
 	{
 		$entry = mysql_real_escape_string($_POST['post']);
@@ -510,6 +499,8 @@
 		$time = time();
 		$query = 'INSERT INTO '.THblotter_table.' SET entry="'.$entry.'",board="'.$board.'",time="'.$time.'"';
 		$db->myquery($query);
+		$actionstring = "Blotter post";
+		writelog($actionstring,"admin");
 		header("Location: ".THurl."admin.php?a=bl");
 	}
 	elseif ($_GET['t']=="ble") //Edit blotter
@@ -527,8 +518,11 @@
 				if ($_POST['del'.$blot['id']])
 				{
 					$db->myquery("delete from ".THblotter_table." where id=".$blot['id']);
+					$actionstring = "Blotter delete\tid:".$blot['id'];
+					writelog($actionstring,"admin");
 				} 
-				else {
+				else 
+				{
 					$blotter_entry=array(
 						'id'=>(int)$_POST['id'.$blot['id']],
 						'text'=>mysql_real_escape_string($_POST['post'.$blot['id']]),
@@ -551,7 +545,11 @@
 			{
 				delimgs($db->fragboard($_POST['boardselect']));
 				$db->myquery("DELETE from ".THboards_table." WHERE id=".intval($_POST['boardselect']));
-			} else {
+				$actionstring = "Board delete\tid:".$id;
+				writelog($actionstring,"admin");
+			} 
+			else 
+			{
 				$oldid=intval($_POST['boardselect']);
 				$id=intval($_POST['id'.$oldid]);
 				$globalid=intval($_POST['globalid'.$oldid]);
@@ -581,6 +579,9 @@
 				$updatequery = "UPDATE ".THboards_table." set id=".$db->clean($id).",globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
 				//print_r($updatequery);
 				$db->myquery($updatequery);
+				
+				$actionstring = "Board edit\tid:".$id;
+				writelog($actionstring,"admin");
 			}
 		} else {
 			if ($_POST['namenew']!=null)  //Adding a new board
@@ -612,6 +613,9 @@
 				$tmax=100;
 				$query="insert into ".THboards_table." set id=".$db->clean($id).",globalid=".$globalid.",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$db->clean($about)."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$allowedformats."',forced_anon='".$forced_anon."',maxfilesize='".$maxfilesize."',allowvids='".$allowvids."',customcss='".$customcss."',filter='".$filter."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."'";
 				$db->myquery($query);
+				
+				$actionstring = "Board add\tid:".$id;
+				writelog($actionstring,"admin");
 				//print_r($query);
 			}
 			//CHECK FOR DUPE IDs
@@ -713,6 +717,8 @@
 		}
 		$query = 'INSERT INTO '.THfilters_table.' SET filterfrom="'.mysql_real_escape_string($_POST['filterfrom']).'",filterto="'.mysql_real_escape_string($_POST['filterto']).'",notes="'.mysql_real_escape_string($_POST['notes']).'"';
 		$db->myquery($query);
+		$actionstring = "WF add\tfrom:".$_POST['filterfrom']."\tto:".$_POST['filterto'];
+		writelog($actionstring,"admin");
 		header("Location: ".THurl."admin.php?a=w");
 	}
 	elseif ($_GET['t']=="ew") //Edit filter
@@ -730,6 +736,8 @@
 				if ($_POST['del'.$filt['id']])
 				{
 					$db->myquery("delete from ".THfilters_table." where id=".$filt['id']);
+					$actionstring = "WF delete\tid:".$filt['id'];
+					writelog($actionstring,"admin");
 				} else {
 					$filter=array(
 						'id'=>(int)$_POST['id'.$filt['id']],
@@ -807,6 +815,8 @@
 				mysql_real_escape_string($username)."','".mysql_real_escape_string($pass_md5)."',".THprofile_userlevel.
 				",'".mysql_real_escape_string($email)."',1)";
 				$db->myquery($insertquery);
+				$actionstring = "Add user\tname:".$username;
+				writelog($actionstring,"admin");
 				header("Location: ".THurl."admin.php?a=p");
 			}
 	

@@ -1,12 +1,34 @@
 <?php
-	//print_r($_POST);
 	/*
-		EDIT POSTS AND SHIT v0.arbitrary.4 by tyam and Ordog163 (mostly ordog)
-		NO WARRANTY LOL
+		drydock imageboard script (http://code.573chan.org/)
+		File:			editpost.php
+		Description:	Edit and perform moderation actions upon posts.
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
+
 	require_once("config.php");
 	require_once("common.php");
 	
+	/*
+		OKAY HERE COMES THE HUGE LIST OF PARAMETERS THAT CAN BE PASSED TO THIS FUNCTION (aka: documentation)
+		post - 		The global ID of the post (can't change this, but it's still necessary)
+		name - 		The name of the poster
+		trip - 			The tripcode of the poster
+		link -			Sage goes in the link field :o/saggy goes in da emo
+		title - 		The subject (if this post begins a thread)
+		body - 		The text of the post
+		visible-		Hide/unhide the post	
+		pin-			STICKY DIS SHIT
+		lock-			LOCK DIS SHIT	
+		permasage- 		THE SAGE OF DEATH
+		remimage____ - 	Remove the image with the hash matching whatever's in the blank.
+
+		Was it good for you too?
+	*/
 	
 	$db=new ThornPostDBI();
 	/*
@@ -14,8 +36,8 @@
 		Unrestricted access to post editing is reserved for admins only.
 		Moderators have the ability to sticky, lock, permasage, ban, and hide/unhide posts.  No editing functions are available.
 	*/
-//	print_r($_SESSION);
-		if((canmodboard(intval($_GET['board']), $_SESSION['mod_array'])!=1) && ($_SESSION['admin'] !=1) && ($_SESSION['mod_global'] !=1))
+
+		if((is_in_csl(intval($_GET['board']), $_SESSION['mod_array'])!=1) && ($_SESSION['admin'] !=1) && ($_SESSION['mod_global'] !=1))
 		{
 			THdie("You are not permitted to edit posts on this board");
 		}
@@ -53,22 +75,7 @@
 			}
 		}
 		//print_r($posttoedit);
-		/*
-			OKAY HERE COMES THE HUGE LIST OF PARAMETERS THAT CAN BE PASSED TO THIS FUNCTION (aka: documentation)
-			post - 		The global ID of the post (can't change this, but it's still necessary)
-			name - 		The name of the poster
-			trip - 			The tripcode of the poster
-			link -			Sage goes in the link field :o/saggy goes in da emo
-			title - 		The subject (if this post begins a thread)
-			body - 		The text of the post
-			visible-		Hide/unhide the post	
-			pin-			STICKY DIS SHIT
-			lock-			LOCK DIS SHIT	
-			permasage- 		THE SAGE OF DEATH
-			remimage____ - 	Remove the image with the hash matching whatever's in the blank.
 
-			Was it good for you too?
-		*/
 
 		$isanythingchanged = 0;
 
@@ -205,8 +212,9 @@
 		$images = $db->getimgs($imgidx);
 		foreach($images as $img)
 		{
-			if($_POST['remimage'.$img['hash']] > 0 && $adminpowers > 0) //This is iffy, do we want to make image removal admin-only?
+			if($_POST['remimage'.strval($img['hash'])] != 0 && isset($_POST['remimage'.strval($img['hash'])]) )
 			{
+				
 				if($img['extra_info']>0)
 				{
 					$db->myquery("delete from ".THextrainfo_table." where id=".$img['extra_info']); // delete any associated extra_info
@@ -214,7 +222,7 @@
 				$path=THpath."images/".$posttoedit['imgidx']."/";
 				unlink($path.$img['name']);
 				unlink($path.$img['tname']);
-				$db->myquery("update imgs set hash=\"deleted\" where id=".$posttoedit['imgidx']." and hash=.\"".mysql_real_escape_string($img['hash'])."\""); //"this fixes stupd syntax highlighting in my editor >:[
+				$db->myquery("update imgs set hash='deleted' where id=".$posttoedit['imgidx']." and hash='".mysql_real_escape_string($img['hash'])."'"); //"this fixes stupd syntax highlighting in my editor >:[
 				$actionstring = "Delete img\timgidx:".$posttoedit['imgidx']."\tn:".$img['name'];
 				writelog($actionstring,"moderator");				
 			}
@@ -530,7 +538,7 @@
 	foreach($images as $img)
 	{
 		$imgiterator++;
-		echo '<input type="checkbox" name="remimage'.$img['hash'].'" value="1">';
+		echo '<input type="checkbox" name="remimage'.strval($img['hash']).'" value="1">';
 		echo '<a href="'.THurl.'images/'.$imgidx.'/'.$img['name'].'">'.$imgiterator.'</a> ';
 		if( $imgiterator%2 == 0)
 		{

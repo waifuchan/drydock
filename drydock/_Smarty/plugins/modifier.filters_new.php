@@ -1,4 +1,16 @@
 <?php
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:			modifier_filters_new.php
+		Description:	Wordfilter Smarty modifier based on preg_replace.
+					Plus, it does spoiler tags!
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
+
 // Here's something interesting.  If we declare these here, we make sure
 // that $from and $to will always be defined as SOMETHING (avoiding possible
 // issues if someone does something stupid like define register_globals, and has
@@ -41,7 +53,7 @@ function smarty_modifier_filters_new($filt)
     }
 */
 	@include(THpath.'cache/filters.php');
-	return nl2br(preg_replace($from, $to, $filt));
+	return @nl2br(preg_replace($from, $to, $filt));
 
 }
 ?>

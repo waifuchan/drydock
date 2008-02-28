@@ -22,7 +22,7 @@
 {foreach from=$bthreads item=th}
 {counter name="upto"}
 {*<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$th.globalid}">*}
-<a href="#{$th.globalid}">{$th.globalid}: {if $th.title}{$th.title|escape}{else}No Subject{/if} ({$thread.rcount+1})</a> &nbsp;&nbsp;
+<a href="#{$th.globalid}">{$th.globalid}: {if $th.title}{$th.title|escape:'html':'UTF-8'}{else}No Subject{/if} ({$thread.rcount+1})</a> &nbsp;&nbsp;
 {foreachelse}
 (no threads)
 {/foreach}
@@ -64,7 +64,9 @@
 {/foreach}{*For each thread*}
 <div class="box">
 
-		<div class="pgtitle">			New Thread		</div>
+		<div class="pgtitle">
+			New Thread
+		</div>
 {include file=postblock.tpl comingfrom=$comingfrom}
  </div>
 </div>

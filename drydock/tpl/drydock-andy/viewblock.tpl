@@ -14,7 +14,7 @@
 
 <a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">
 {if $binfo.forced_anon == "0"}
-{$thread.title|escape|default:"No Subject"}
+{$thread.title|escape:'html':'UTF-8'|default:"No Subject"}
 {else}
 No Subject
 {/if}
@@ -38,10 +38,10 @@ No Subject
 {					if !$thread.name}
 		<span class="postername">{$THdefaultname}</span>
 {					else}
-		<span class="postername">{$thread.name|escape}</span>
+		<span class="postername">{$thread.name|escape:'html':'UTF-8'}</span>
 {					/if} {* name used? *}
 {				else}
-		<span class="postername">{$thread.name|escape|default:""}</span><span class="postertrip">!{$thread.trip}</span>
+		<span class="postername">{$thread.name|escape:'html':'UTF-8'|default:""}</span><span class="postertrip">!{$thread.trip}</span>
 {				/if} {* trip used? *}
 {			/if} {* name not capcode? *}
 
@@ -87,10 +87,10 @@ No Subject
 {					if !$post.name}
 		<span class="postername">{$THdefaultname}</span>
 {					else}
-		<span class="postername">{$post.name|escape}</span>
+		<span class="postername">{$post.name|escape:'html':'UTF-8'}</span>
 {					/if} {* name used? *}
 {				else}
-		<span class="postername">{$post.name|escape|default:""}</span><span class="postertrip">!{$post.trip}</span>
+		<span class="postername">{$post.name|escape:'html':'UTF-8'|default:""}</span><span class="postertrip">!{$post.trip}</span>
 {				/if} {* trip used? *}
 {			/if} {* name not capcode? *}
 

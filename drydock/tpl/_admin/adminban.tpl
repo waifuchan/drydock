@@ -86,7 +86,7 @@
                                 Admin Reason</td><td>{$ban.adminreason}
                             </td></tr>
                             <tr><td>
-                                Post data</td><td>{$ban.postdata}
+                                Post data</td><td>{$ban.postdata|escape:'html':'UTF-8'}
                             </td></tr>
 							<tr><td>
                                 Duration</td><td>{if $ban.duration=="-1"}Permanent{else}{$ban.duration}{/if}

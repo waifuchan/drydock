@@ -1,5 +1,15 @@
 <?php
-
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:			thread.php
+		Description:	Script that receives form input for new threads.
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
+	
 	require_once("common.php");
 	require_once("post-common.php");
 
@@ -13,7 +23,8 @@
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
 
 	$db=new ThornPostDBI;
-	if ($db->checkban()) {
+	if ($db->checkban()) 
+	{
 		THdie("PObanned");
 	}
 	$binfo=$db->getbinfo((int)$_POST['board']);
@@ -77,17 +88,17 @@
 	$_POST['body'],$_POST['link'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage
 	);
 
-	movefiles($goodfiles,$tnum,true,$db);  //safe-mode?
+	movefiles($goodfiles,$tnum,true,$binfo,$db);
 
 	$sm=smsimple();
 	$sm->clear_cache(null,"b".$_POST['board']);
 	//$sm->clear_cache(null,"idx"); what
-	if (isset($_POST['tedit'])==true)
+/* 	if (isset($_POST['tedit'])==true)
 	{
 		$sm->clear_cache(null,"t".$_POST['tedit']);
-	}
+	} */
 
-	if ($binfo['tmax']!=0 && isset($_POST['tedit'])==false) //Don't purge if max threads is set to 0
+	if ($binfo['tmax']!=0 /*&& isset($_POST['tedit'])==false*/) //Don't purge if max threads is set to 0
 	{
 		delimgs($db->purge($binfo['id']));
 	}

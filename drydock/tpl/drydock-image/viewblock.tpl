@@ -6,7 +6,7 @@
 {			if !$thread.title}
 		&nbsp;&nbsp;
 {			else}
-		<span class="filetitle">{$thread.title|escape}</span>
+		<span class="filetitle">{$thread.title|escape:'html':'UTF-8'}</span>
 {			/if} {* if no title *}
 {			if $thread.link}<a href="{$thread.link}">{/if}
 {			if $thread.name == "CAPCODE"}
@@ -17,10 +17,10 @@
 {					if !$thread.name}
 		<span class="postername">{$THdefaultname}</span>
 {					else}
-		<span class="postername">{$thread.name|escape}</span>
+		<span class="postername">{$thread.name|escape:'html':'UTF-8'}</span>
 {					/if} {* name used? *}
 {				else}
-		<span class="postername">{$thread.name|escape|default:""}</span><span class="postertrip">!{$thread.trip}</span>
+		<span class="postername">{$thread.name|escape:'html':'UTF-8'|default:""}</span><span class="postertrip">!{$thread.trip}</span>
 {				/if} {* trip used? *}
 {			/if} {* name not capcode? *}
 {		/if} {* end forced_anon *}
@@ -28,7 +28,7 @@
 {			if $thread.link}</a>{/if}
 		<span class="reflink"><a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">No.{$thread.globalid}</a></span>
 {if $comingfrom=="board"}&nbsp;[<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">Reply</a>]{/if}
-{if $mod_admin =="1" or $mod_global =="1"}[<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/edit/{else}editpost.php?board={$binfo.folder}&post={/if}{$thread.globalid}">Edit</a>]{/if}
+<a name="jsmod" style="display:none;">{$binfo.folder},{$thread.globalid}</a>
 
 {if $thread.pin}
 		<img src="{$THurl}static/sticky.png" alt="HOLY CRAP STICKY">
@@ -114,16 +114,16 @@
 {			if !$post.name}
 				<span class="postername">{$THdefaultname}</span>
 {			else}
-				<span class="postername">{$post.name|escape}</span>
+				<span class="postername">{$post.name|escape:'html':'UTF-8'}</span>
 {			/if}
 {		else}
-				<span class="postername">{$post.name|escape|default:""}</span><span class="postertrip">!{$post.trip}</span>
+				<span class="postername">{$post.name|escape:'html':'UTF-8'|default:""}</span><span class="postertrip">!{$post.trip}</span>
 {		/if}
 {	/if}
 				<span class="timedate">{$post.time|date_format:$THdatetimestring}</label></span>
 {	if $post.link}</a>{/if}
 				<span class="reflink">No.{$post.globalid}</span>
-{if $mod_admin==1 or $mod_global==1} [<a href="{$THurl}editpost.php?post={$post.globalid}&board={$binfo.id}">Edit</a>]{/if}<br />
+<a name="jsmod" style="display:none;">{$binfo.folder},{$post.globalid}</a><br />
 {if $post.images}
 				<table>
 					<tr>

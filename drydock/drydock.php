@@ -1,4 +1,15 @@
 <?php
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:           		drydock.php
+		Description:	This is used to access the site.
+
+		Unless otherwise stated, this code is copyright 2008
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
+	
 	session_start();
 	//Configure script still here?  Crap, this isn't good, let's deny access, just in case someone didn't read the directions
 	if (file_exists("configure.php"))
@@ -57,7 +68,7 @@
 				$sm->assign('username',$_SESSION['username']);
 				$sm->assign('mod_global',$_SESSION['moderator']);
 				$sm->assign('mod_admin',$_SESSION['admin']);
-				$modvar = canmodboard($boardid, $_SESSION['mod_array']);
+				$modvar = is_in_csl($boardid, $_SESSION['mod_array']);
 				$sm->assign('mod_thisboard', $modvar);
 				$sm->assign('comingfrom',"thread");
 				//OOPS!  This will let us pull the thread we WANT not the thread we ASKED FOR.  -tyam
@@ -89,7 +100,7 @@
 			$sm->assign('template', $template);
 			//here we go with a bunch of retarded variables that later we can turn into an array  (looks like i kopiped this)
                         $sm->assign('username',$_SESSION['username']);
-                        $modvar = canmodboard($boardid, $_SESSION['mod_array']);
+                        $modvar = is_in_csl($boardid, $_SESSION['mod_array']);
                         $sm->assign('mod_thisboard', $modvar);
                         $sm->assign('mod_global',$_SESSION['moderator']);
                         $sm->assign('mod_admin',$_SESSION['admin']);

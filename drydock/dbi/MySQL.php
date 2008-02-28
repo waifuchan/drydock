@@ -1,14 +1,15 @@
 <?php
- /*
-        drydock imageboard script (http://code.573chan.org/)
-        File:           dbi/MySQL.php
-        Description:    Handles interface between database and board functions.
-        
-        Unless otherwise stated, this code is copyright 2008 
-        by the drydock developers and is released under the
-        Artistic License 2.0:
-        http://www.opensource.org/licenses/artistic-license-2.0.php
-    */
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:           dbi/MySQL.php
+		Description:    Handles interface between database and board functions.
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
+	
 require_once("config.php");
 require_once("common.php");
 
@@ -136,20 +137,27 @@ class ThornDBI {
 	
     function getblotter($board)
 	{
+		/*
+		Get the latest blotter entries perhaps associated with a certain board
+		Parameters:
+			int $board
+		The board for which the entries are being retrieved
+			Returns: array $entries (blank array if none)
+		*/
         $entries=array();
 		$count = 0;
-        $blotter=$this->myquery("select * from ".THblotter_table);
+        $blotter=$this->myquery("select * from ".THblotter_table." ORDER BY time ASC");
         while ($entry=mysql_fetch_assoc($blotter))
 		{
-			if($entry['board'] == "0" || canmodboard($board, $entry['board']))
+			if($entry['board'] == "0" || is_in_csl($board, $entry['board']))
 			{
-            $entries[]=$entry;
-			$count++;
+	            $entries[]=$entry;
+				$count++;
 			}
 			
 			if($count >= 5)
 			{
-			break;
+				break;
 			}
         }
         return($entries);
@@ -157,7 +165,6 @@ class ThornDBI {
 
     function getindex($p, &$sm)
 	{
-        //echo("ZOMTG");
 		/*
 			Returns an index of the boards.
 			Parameters:

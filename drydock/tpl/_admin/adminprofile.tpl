@@ -103,7 +103,7 @@
                                 {$pend_cap.username}
                             </td>
                             <td>
-                                {$pend_cap.proposed_capcode|escape:"htmlall"}
+                                {$pend_cap.proposed_capcode|escape:"htmlall":'UTF-8'}
                             </td>
 							<td>
 							<a href="admin.php?a=p&action=capyes&username={$pend_cap.username}">Approve</a>&nbsp;
