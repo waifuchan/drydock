@@ -69,5 +69,3 @@
 </script>
 {/literal}
 {* include_php file="linkbar.php" *} {* tyam - gives us quicklinks - take the asterisks out if you want them*}{include file=bottombar.tpl}
-</body>
-</html>

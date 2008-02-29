@@ -180,7 +180,9 @@
 				die("To use the anti spam features of drydock, 
                             you should enable the cURL functions in the general configuration.  If these do not work, 
                             you may need to manually download <a href=\"http://wakaba.c3.cx/antispam/spam.txt\">spam.txt</a>
-                            and place it in the unlinked/ directory.  You should then rebuild.");
+                            and place it in the unlinked/ directory.  You should then rebuild.  While this message will appear
+							each time you rebuild without fixing either of these, all items except the spam list have been rebuilt.
+							Click <a href=".$THpath."admin.php?a=hk>here</a> to return to the housekeeping menu.");
 			}
             @$fp_blacklist = fopen($spamfile, "r") or die();
              while (!feof($fp_blacklist)) 

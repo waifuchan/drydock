@@ -70,6 +70,5 @@
 </script>
 {/literal}
 {include_php file="linkbar.php"} {* tyam - gives us quicklinks *}
-{include file=bottombar.tpl}
-</body>
-</html>
+
+

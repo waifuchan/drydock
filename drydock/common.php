@@ -180,7 +180,7 @@
 	{
 		require_once("_Smarty/Smarty.class.php");
 		$sm=new Smarty;
-//		$sm->debugging=true;
+		//$sm->debugging=true;
 		return($sm);
 	}
 	
@@ -362,7 +362,7 @@
 	// very complicated.
 	{
 		$items = explode(",",$csl);
-		return in_array($item, $item);
+		return in_array($item, $items);
 	}
 	//minor annoyance
 	function replacewedge($input)

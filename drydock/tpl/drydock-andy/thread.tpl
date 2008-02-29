@@ -30,39 +30,6 @@
 	//-->
 </script>
 {/literal}
-
-
 {include file="viewblock.tpl"}
-
-
-    </div>
-
-
-
-    <div class="bline">
-        Powered by Thorn {$THversion}<br />
-        Andy template &#8212; {if $THcname}Cache file generated {$smarty.now|date_format:"%d %b %y %k:%M:%S"} as {$THcname}{else}This page is not cached{/if}{if $THtpltest}<br />
-        TEMPLATE TESTING MODE ON
-{/if}
     </div>
 </div>
-<div id="idxmenu">
-    <a href="javascript:toggmenu()">{$THname} &darr;</a>
-    <div id="idxmenuitem">
-        <div class="idxmenutitle">
-            <a href="{$THurl}index.php" title="Go to index page">Board Index</a>
-        </div>
-{it->getindex assign="idx"}
-{foreach from=$idx item=bb}
-        <a href="{$THurl}index.php?b={$bb.id}" title="{$bb.name} &#8212; {$bb.about|default:"(no description)"}">{$bb.name}</a><br />
-{/foreach}
-        <div class="idxmenutitle">
-            Posts in this thread
-        </div>
-        <a href="#t{$thread.id}" title="by {if $thread.name || $thread.trip}{$thread.name} {if $thread.trip}({$thread.trip}){/if}{else}Anonymous{/if}">{$thread.time|date_format:"%d %b %y %k:%M"}</a><br />
-{foreach from=$posts item="me"}
-        <a href="#p{$me.id}" title="by {if $me.name || $me.trip}{$me.name} {if $me.trip}({$me.trip}){/if}{else}Anonymous{/if}">{$me.time|date_format:"%d %b %y %k:%M"}</a><br />
-{/foreach}
-    </div>
-</div>
-{include file=foot.tpl from="thread"}

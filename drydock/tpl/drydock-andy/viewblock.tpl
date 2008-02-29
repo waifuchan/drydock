@@ -52,9 +52,6 @@ No Subject
     </div>
     <div class="postbody"><blockquote>
         {assign value=$thread.body|THtrunc:2000 var=bodey}
-
-
-
 {	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
 {		$bodey.text|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {	else}

@@ -70,14 +70,3 @@
 {include file=postblock.tpl comingfrom=$comingfrom}
  </div>
 </div>
-
-
-
-
-
-
-    </div>
-</div>
-
-
-{include file=foot.tpl from="board"}
