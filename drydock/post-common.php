@@ -453,17 +453,17 @@
         if (THsvgthumbnailer == 1) // imagemagick
         {
             $commandstring = "convert \"".$fyle['path']."\" -resize ".$targw."x".$targh." \"".$thumbpath."\"";
+			exec($commandstring);
         }
         else if (THsvgthumbnailer == 2) // rsvg
         {
             $commandstring = "rsvg --width ".$targw." --height ".$targh." \"".$fyle['path']."\" \"".$thumbpath."\"";
+			exec($commandstring);
         }
         else // no thumbnailer, just make a "HAY THIS IS AN SVG" image
         { 
-            $commandstring = "cp ".THpath."static/svg.png \"".$thumbpath."\"";
+			copy(THpath."static/svg.png", $thumbpath);
         }
-        
-        exec($commandstring);
         
         // Okay.... now let's safe everything.
         $svgdata = file_get_contents($fyle['path']);
@@ -530,7 +530,6 @@
 	                $extrainfo = $extrainfo . "Frame count: 1 frame<br>";
 	            }
 
-
 	            $bg = $flash->getBackgroundColor();
 	            if($bg)
 	            {
@@ -563,8 +562,7 @@
         $fyle['tname']="_t".$fyle['name'].".png"; //this is different from the others- it will have a .swf.png ext
         $thumbpath = $thedir.$fyle['tname'];
     
-        $commandstring = "cp ".THpath."static/flash.png \"".$thumbpath."\"";
-        exec($commandstring);
+		copy(THpath."static/flash.png", $thumbpath);
 
         return $fyle;
     }//end function
@@ -606,12 +604,13 @@
 			$commandstring = "convert \"".$fyle['path']."\"[0] -resize ".$binfo['thumbres']."x".$binfo['thumbres']." -background #000 -extent 100x100 \"".$thumbpath."\"";
 			$fyle['twidth']=$binfo['thumbres'];
 			$fyle['theight']=$binfo['thumbres'];
+			exec($commandstring);
 		}
 		else
 		{
-			$commandstring = "cp ".THpath."static/pdf.png \"".$thumbpath."\"";
+			copy(THpath."static/pdf.png", $thumbpath);
 		}
-        exec($commandstring);
+        
 
         return $fyle;
     }//end function
