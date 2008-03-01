@@ -10,6 +10,6 @@
 		Artistic License 2.0:
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
-	define("THversion", "0.3.0 aplha 1");
+	define("THversion", "0.3.0 alpha 1");
 	define("THcodename", "hiphopapotamus");
 ?>

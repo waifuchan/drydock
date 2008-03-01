@@ -112,7 +112,7 @@ Please see the documentation for more information about these settings.  If you'
 		//Attempt to touch a file in the directories that need to be chmodded.
 		$chmod=array();
 		//List of places that must be writable at least by the server
-		$paths=array($path,$path."compd/",$path."cache/",$path."captchas/",$path."images/",$path."unlinked/",$path."menu.php",$path."linkbar.php",$path."rss.xml"$path.".htaccess",$path."unlinked/.htaccess");
+		$paths=array($path,$path."compd/",$path."cache/",$path."captchas/",$path."images/",$path."unlinked/");
 		foreach ($paths as $pith)
 		{
 			if (touch($pith."test")==false)
@@ -122,12 +122,22 @@ Please see the documentation for more information about these settings.  If you'
 				unlink($pith."test");
 			}
 		}
+		//Attempt to touch single files that need to be written in
+		$files=array($path."menu.php",$path."linkbar.php",$path."rss.xml",$path.".htaccess",$path."unlinked/.htaccess");
+		foreach ($files as $file)
+		{
+			if (touch($file)==false)
+			{
+				$chmod[]=$file;
+			}
+		}
+		//Did it all work?
 		if (count($chmod)>0)
 		{
 			die("<h2>Oh no!</h2>Please change the permissions mode on the following directories/folders to 777.<br />
 				See the documentation for more information.<br /><br />".implode("<br />",$chmod)."<br />
 				You can try the following command to do it all in one go:<br />chmod 0777 ".implode(" ",$chmod)."<br />
-				Basically the server (specifically the <b>user</b> that the http server runs as) needs to be able to read and write these.");
+				The server (specifically the <b>user</b> that the http server runs as) needs to be able to read and write these.");
 				//please let them not screw this up, I don't want to deal with it
 		}
 		if(!empty($_POST['THdbprefix'])) { $prefix = $_POST['THdbprefix']; } else { $prefix = ""; }
@@ -177,13 +187,11 @@ Please see the documentation for more information about these settings.  If you'
 			fwrite($config, 'define("THtplset","drydock-image");'."\n");
 			fwrite($config, 'define("THcookieid","'.$cookieid.'");'."\n");  //cookie seed
 			fwrite($config, 'define("THcaptest", 0);'."\n");
-			fwrite($config, 'define("THtpltest",1);'."\n");  //cannot turn off until we fix cache
-			fwrite($config, 'define("THthumbheight",100);'."\n");
-			fwrite($config, 'define("THthumbwidth",150);'."\n");
+			fwrite($config, 'define("THtpltest",0);'."\n");
 			fwrite($config, 'define("THjpegqual",65);'."\n");
 			fwrite($config, 'define("THdupecheck", 1);'."\n");
 			fwrite($config, 'define("THtimeoffset",0);'."\n");
-			fwrite($config, 'define("THvc", 0);'."\n");
+			fwrite($config, 'define("THvc", 2);'."\n");
 			fwrite($config, 'define("THnewsboard",0);'."\n");
 			fwrite($config, 'define("THmodboard",0);'."\n");
 			fwrite($config, 'define("THdefaulttext","No text entered");'."\n");
@@ -212,7 +220,7 @@ Please see the documentation for more information about these settings.  If you'
 			fwrite($config, 'define("THprofile_maxpicsize",512000);'."\n");
 			fwrite($config, 'define("THprofile_regpolicy",1);'."\n");
 			fwrite($config, 'define("THprofile_viewuserpolicy",1);'."\n");
-			fwrite($config, '?>');
+			fwrite($config, '?>'); //<? fix colors :[
 			fclose($config);  //file's closed, fwrites, etc
 		}
 		//one more ugly hack
@@ -228,6 +236,7 @@ Please see the documentation for more information about these settings.  If you'
 	
 	function parttwo($path)
 	{
+		//do all the work here okay
 		require_once($path."config.php");
 		require_once($path."admintemp.php");  //hack hack hack ~tyam
 		//Initial DB setup - oh god
@@ -236,7 +245,9 @@ Please see the documentation for more information about these settings.  If you'
 		writedb();
 		makeuser($path);
 		mysql_close($link);
-		partthree();
+		initial_builds($path);
+		unlink_placeholders($path);
+		partthree($path);
 	}
 	function diestring()
 	{
@@ -280,7 +291,7 @@ Please see the documentation for more information about these settings.  If you'
 	`id` smallint(5) unsigned NOT NULL auto_increment,
 	`globalid` mediumint(9) NOT NULL default '0',
 	`name` text  NOT NULL,
-	`folder` varchar(5)  NOT NULL,
+	`folder` varchar(50)  NOT NULL,
 	`about` text  NOT NULL,
 	`rules` text  NOT NULL,
 	`perpg` tinyint(3) unsigned NOT NULL default '20',
@@ -415,9 +426,9 @@ Please see the documentation for more information about these settings.  If you'
 		unlink($path."admintemp.php");  //hack hack hack ~tyam
 	}
 
-function partthree()
-{
-echo "
+	function partthree($path)
+	{
+		echo "
 <html><head><style type=\"text/css\">
 body {
 background-image:url('static/watermark.png');
@@ -443,14 +454,13 @@ There's still some setup you'll need to do on your own. Here is a tasklist for y
 </ol>
 Happy posting!  And don't forget, if you make any neat changes to the code, we'd love to see it.  You can post about it on the <a href=\"http://573chan.org/dry/\">drydock discussion</a> on 573chan.org.
 </body></html>
-";
-initial_builds();
-return;
-}
+		";
+		return;
+	}
 	// Build menu, empty wordfilters cache, empty capcodes cache, empty spam blacklist cache
-	function initial_builds()
+	function initial_builds($path)
 	{
-		$sidelinks = fopen($_POST['path']."menu.php", "w") or die("Could not open menu.php for writing.");
+		$sidelinks = fopen($path."menu.php", "w") or die("Could not open menu.php for writing.");
 		fwrite($sidelinks, '<div id="idxmenu">'."\n".
 				'<div id="idxmenuitem">'."\n".
 				'<div class="idxmenutitle">'."\n");
@@ -464,26 +474,26 @@ return;
 		fwrite($sidelinks, '</div>'."\n");
 		fclose($sidelinks);
 		
-		$fp_cache = fopen($_POST['path']."cache/filters.php", "w") or die("Could not open cache/filters.php for writing.");
+		$fp_cache = fopen($path."cache/filters.php", "w") or die("Could not open cache/filters.php for writing.");
 		fwrite($fp_cache, "<?php\n");
 		fwrite($fp_cache, '$to'."=();\n");
 		fwrite($fp_cache, '$from'."=();\n");
 		fwrite($fp_cache, "?>");
 		fclose($fp_cache);		
 		
-		$fp_cache = fopen($_POST['path']."cache/capcodes.php", "w") or die("Could not open cache/capcodes.php for writing.");
+		$fp_cache = fopen($path."cache/capcodes.php", "w") or die("Could not open cache/capcodes.php for writing.");
 		fwrite($fp_cache, "<?php\n");
 		fwrite($fp_cache, '$capcodes'."=();\n");
 		fwrite($fp_cache, "?>");
 		fclose($fp_cache);		
 
-		$fp_cache = fopen($_POST['path']."cache/blacklist.php", "w") or die("Could not open cache/blacklist.php for writing.");
+		$fp_cache = fopen($path."cache/blacklist.php", "w") or die("Could not open cache/blacklist.php for writing.");
 		fwrite($fp_cache, "<?php\n");
 		fwrite($fp_cache, '$spamblacklist'."=();\n");
 		fwrite($fp_cache, "?>");
 		fclose($fp_cache);	
 
-		$htaccess = fopen($_POST['path']."unlinked/.htaccess", "w") or die("Could not open unlinked/htaccess for writing.");
+		$htaccess = fopen($path."unlinked/.htaccess", "w") or die("Could not open unlinked/htaccess for writing.");
 		fwrite($htaccess, "#drydock htaccess module\n");
 		fwrite($htaccess, "Deny from all\n");
 		fclose($htaccess);
@@ -491,6 +501,16 @@ return;
 		return;
 	}
 
+	function unlink_placeholders($path)
+	{
+		//don't report errors here, it's confusing
+		@unlink($path."cache/placeholder.txt");
+		@unlink($path."catchas/placeholder.txt");
+		@unlink($path."compd/placeholder.txt");
+		@unlink($path."images/profiles/placeholder.txt");
+		@unlink($path."unlinked/placeholder.txt");
+		return;
+	}
 	@header('Content-type: text/html; charset=utf-8');
 	if (function_exists("mb_internal_encoding"))
 	{

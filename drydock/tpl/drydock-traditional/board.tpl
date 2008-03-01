@@ -16,7 +16,6 @@
 {* we don't get replies here *}
 {include file=whereami.tpl comingfrom=$comingfrom}
 {* we're at top, no return possible *}
-<div class="theader">{if $binfo.tlock and $mod_thisboard !="1" and $mod_global !="1" and $mod_admin !="1"}(Board is locked, no more posts allowed){else}Posting mode: New thread{/if}</div>
 {include file=postblock.tpl comingfrom=$comingfrom}
 <hr />
 {literal}
@@ -68,4 +67,4 @@
 	-->
 </script>
 {/literal}
-{* include_php file="linkbar.php" *} {* tyam - gives us quicklinks - take the asterisks out if you want them*}{include file=bottombar.tpl}
+{* include_php file="linkbar.php" *} {* tyam - gives us quicklinks - take the asterisks out if you want them*}

@@ -7,7 +7,7 @@
 	{if $binfo.rpix==2}Replies <b>must</b> include at least one image.<br />{/if}
 	{if $binfo.allowedformats >  0}Max image size {$binfo.maxfilesize} bytes.<br />{/if}
 	{if $binfo.pixperpost >  	 0}{$binfo.pixperpost} pictures allowed per post.<br />{/if}
-	{if $binfo.maxres > 	 	 0}Images larger than {$binfo.maxres} will be rejected.<br />{/if}
+	{if $binfo.maxres > 	 	 0}Images larger than {$binfo.maxres} px will be rejected.<br />{/if}
 	{if $binfo.allowedformats >  0}Allowed image formats:{/if}
 	{if $binfo.allowedformats &  1}JPG {/if}
 	{if $binfo.allowedformats &  2}GIF {/if}

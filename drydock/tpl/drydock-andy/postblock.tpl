@@ -1,5 +1,21 @@
+<div class="theader">
+{if $comingfrom=="board"}
+	{if $binfo.tlock}
+		(Board is locked, no more posts allowed)
+	{else}
+		Posting mode: New thread
+	{/if}
+{elseif $comingfrom=="thread"}
+	{if $thread.lawk}
+		(Thread is locked, no more posts allowed)
+	{else}
+		Posting mode: Reply
+	{/if}
+{else}
+	huh
+{/if}
+</div>
         <div id="showit" class="sslarge">
-{if $binfo.tlock and $mod_thisboard !="1" and $mod_global !="1" and $mod_admin !="1"}(Board is locked, no more posts allowed){else}
 			<form method="post" enctype="multipart/form-data" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" id="postform">
                 <div>
                     Name: <input type="text" name="nombre" size="20" /> Link: <input type="text" name="link" size="20" /><br />
@@ -24,15 +40,10 @@
                     <noscript>
                     <input type="submit" value="Post" />
                     </noscript> 
-{if $comingfrom == "board" and (!$binfo.tlock or $mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1")}
-		<input type="hidden" name="board" value="{$binfo.id}" />
-{else if $comingfrom == "thread" and ((!$thread.lawk and !$binfo.rlock) or ($mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1"))}
-		<input type="hidden" name="thread" value="{$thread.id}" />
-{/if} {* board not locked / logged in *}
-  
+{if $comingfrom == "board"}<input type="hidden" name="board" value="{$binfo.id}" />
+{else if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.id}" />{/if}
                 </div>
             </form>
-{/if}{*locked*}
         </div>
     <div class="ssmed">
         <span class="name">

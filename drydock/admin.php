@@ -59,20 +59,20 @@
 			$it=opendir(THpath."tpl/");
 			while (($set=readdir($it))!==false)
 			{
-				//echo($set);
-				if (in_array($set,array(".","..","_admin","_compd"))==false && is_dir(THpath."tpl/".$set)) //Should mebbe do a better test here... versions, etc
+				if (in_array($set,array(".","..","_admin",".svn","_compd"))==false && is_dir(THpath."tpl/".$set))
 				{
 					$sets[]=$set;
 				}
 			}
 			$sm->assign_by_ref("tplsets",$sets);
-
 			if ($_GET['boardselect'])
 			{
 				//Configure options for a specific board
 				$sm->assign("boardselect",$_GET['boardselect']);
 				$sm->assign("board",mysql_fetch_array($db->myquery("select * from ".THboards_table." where id=".intval($_GET['boardselect']))),$sm);
-			} else {
+			}
+			else
+			{
 				//Board list
 				if (THdbtype==null)
 				{
@@ -112,7 +112,9 @@
 				$sm->assign("ip3",$ipdata[2],$sm);
 				$sm->assign("ip4",$ipdata[3],$sm);
 				$sm->assign("longip",$ippull,$sm);
-			} else {
+			}
+			else
+			{
 				if (THdbtype==null)
 				{
 					//Can't access this unless the database is set up.
@@ -145,7 +147,9 @@
 							"bannedby"=>$ban['bannedby'],
 							);
 					}
-				} else {
+				}
+				else
+				{
 					$bans=null;
 				}
 				$sm->assign("bans",$bans);
@@ -176,7 +180,9 @@
 				{
 					$capcodes[]=$capcode;
 				}
-			} else {
+			}
+			else
+			{
 				$capcodes=null;
 			}
 			//print_r($capcodes);
@@ -184,7 +190,6 @@
 			$sm->assign("capcodes",$capcodes);
 			$sm->display("admincapcodes.tpl");
 		}
-	
 		//this block is a copy pasta from ordog's capcodes block with no changes other than a=?? ~tyam
 		elseif ($_GET['a']=="w") //wordfilters
 		{
@@ -200,7 +205,9 @@
 				{
 					$filters[]=replacequote($filter);
 				}
-			} else {
+			}
+			else
+			{
 				$filters=null;
 			}
 			//print_r($filters);
@@ -208,41 +215,39 @@
 			$sm->assign("filters",$filters);
 			$sm->display("adminfilters.tpl");
 		}
-
 		elseif ($_GET['a']=="p") //Profiles
 		{
 			if (THdbtype==null) //Can't access this unless the database is set up.
 			{
 				THdie("ADdbfirst");
 			}
-			
 			//move this over to t=p eventually - tyam
-			if((isset($_GET['action']) && $_GET['action']=="regyes") && isset($_GET['username'])){
-			
+			if((isset($_GET['action']) && $_GET['action']=="regyes") && isset($_GET['username']))
+			{
 				$db->myquery("UPDATE ".THusers_table.
-				" SET approved=1 WHERE username='".mysql_real_escape_string($_GET['username'])."'");
-			
-				if(THprofile_emailwelcome){
-				$email = $db->myresult("SELECT email FROM ".
-				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
-				
-				sendWelcome($username, $email);
+					" SET approved=1 WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				if(THprofile_emailwelcome)
+				{
+					$email = $db->myresult("SELECT email FROM ".
+					THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+					sendWelcome($username, $email);
 				}
 			}
 
-			if((isset($_GET['action']) && $_GET['action']=="regno") && isset($_GET['username'])){
+			if((isset($_GET['action']) && $_GET['action']=="regno") && isset($_GET['username']))
+			{
 				$query = "UPDATE ".THusers_table.
 				" SET approved='-1' WHERE username='".mysql_real_escape_string($_GET['username'])."'";
 				$db->myquery($query);
-				if(THprofile_emailwelcome){
-				$email = $db->myresult("SELECT email FROM ".
-				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
-				
-				sendFuckOff($username, $email);
+				if(THprofile_emailwelcome)
+				{
+					$email = $db->myresult("SELECT email FROM ".
+					THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+					sendFuckOff($username, $email);
 				}
 			}
-
-			if((isset($_GET['action']) && $_GET['action']=="capyes") && isset($_GET['username'])){
+			if((isset($_GET['action']) && $_GET['action']=="capyes") && isset($_GET['username']))
+			{
 				//update or insert capcode
 				/*
 					check capcode table for match of existing capcode
@@ -257,29 +262,30 @@
 				$already_there = $db->myresult("SELECT capcode_to FROM ".THcapcodes_table.
 				" WHERE capcode_from='".mysql_real_escape_string($user_hash)."'");
 				
-				if($already_there != null){
-				$db->myquery("UPDATE ".THcapcodes_table.
-				" SET proposed_capcode='".mysql_real_escape_string($new_capcode).
-				"' WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				if($already_there != null)
+				{
+					$db->myquery("UPDATE ".THcapcodes_table.
+					" SET proposed_capcode='".mysql_real_escape_string($new_capcode).
+					"' WHERE username='".mysql_real_escape_string($_GET['username'])."'");
 				}
-				else{
-				$db->myquery("INSERT INTO ".THcapcodes_table.
-				" (capcode_from, capcode_to) VALUES('".mysql_real_escape_string($user_hash)."','".mysql_real_escape_string($new_capcode)."')");
+				else
+				{
+					$db->myquery("INSERT INTO ".THcapcodes_table.
+					" (capcode_from, capcode_to) VALUES('".mysql_real_escape_string($user_hash)."','".mysql_real_escape_string($new_capcode)."')");
 				}
-				
 				// We don't need this anymore since it's no longer proposed
 				$db->myquery("UPDATE ".THusers_table.
 				" SET proposed_capcode=\"\" WHERE username='".mysql_real_escape_string($_GET['username'])."'");
 			}
-
-			if((isset($_GET['action']) && $_GET['action']=="capno") && isset($_GET['username'])){
+			if((isset($_GET['action']) && $_GET['action']=="capno") && isset($_GET['username']))
+			{
 				//this capcode isn't going to work for whatever reason, deny it
 				
 				$db->myquery("UPDATE ".THusers_table.
 				" SET proposed_capcode='' WHERE username='".mysql_real_escape_string($_GET['username'])."'");
 			}
-			
-			if((isset($_GET['action']) && $_GET['action']=="picyes") && isset($_GET['username'])){
+			if((isset($_GET['action']) && $_GET['action']=="picyes") && isset($_GET['username']))
+			{
 				// Get the file extension of the wanted picture
 				$desired_picture = $db->myresult("SELECT pic_pending FROM ".
 				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
@@ -301,7 +307,8 @@
 				"' WHERE username='".mysql_real_escape_string($_GET['username'])."'");
 			}
 			
-			if((isset($_GET['action']) && $_GET['action']=="picno") && isset($_GET['username'])){
+			if((isset($_GET['action']) && $_GET['action']=="picno") && isset($_GET['username']))
+			{
 				// Get the file extension
 				$desired_picture = $db->myresult("SELECT pic_pending FROM ".
 				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
@@ -325,25 +332,26 @@
 				{
 					if($user['approved'] == 0)
 					{
-					$pend_regs[]=array("username" => $user['username'],
+						$pend_regs[]=array("username" => $user['username'],
 									   "email" => $user['email']);
 					}
 					
 					if($user['proposed_capcode'])
 					{
-					$pend_caps[]=array("username" => $user['username'],
+						$pend_caps[]=array("username" => $user['username'],
 									   "proposed_capcode" => $user['proposed_capcode']);
 					}
 					
 					if($user['pic_pending'])
 					{
-					$pend_pics[]=array("username" => $user['username'],
+						$pend_pics[]=array("username" => $user['username'],
 									   "pic_pending" => $user['pic_pending']);
 					}
 					
 				}
-			} else {
-				
+			}
+			else
+			{
 				$pend_caps=null;
 				$pend_pics=null;
 				$pend_regs=null;
@@ -359,10 +367,14 @@
 				{
 					$sm->assign("binfo",$boardarray,$sm);
 					$sm->display("adminpost.tpl");
-				} else {
+				}
+				else
+				{
 					THdie("Invalid board ID provided.");
 				}
-			} else {
+			}
+			else
+			{
 				THdie("No board ID provided!");
 			}
 		}
@@ -380,20 +392,19 @@
 			if($_POST['fl']) { rebuild_filters(); }
 			if($_POST['cp']) { rebuild_capcodes(); }
 			if($_POST['all'])
-					{
-						rebuild_rss();
-						rebuild_htaccess();
-						rebuild_hovermenu();
-						rebuild_linkbars();
-						rebuild_filters();
-						rebuild_capcodes();
-						rebuild_spamlist();
-					}
+			{
+				rebuild_rss();
+				rebuild_htaccess();
+				rebuild_hovermenu();
+				rebuild_linkbars();
+				rebuild_filters();
+				rebuild_capcodes();
+				rebuild_spamlist();
+			}
 			$actionstring = "Housekeeping";
 			writelog($actionstring,"admin");		
 			header("Location: ".THurl."admin.php?a=hk");
 		}
-
 		elseif ($_GET['a']=="bl") //blotter
 		{
 			if (THdbtype==null) //Can't access this unless the database is set up.
@@ -408,7 +419,9 @@
 				{
 					$blotter[]=replacequote($blot);
 				}
-			} else {
+			}
+			else
+			{
 				$blotter=null;
 			}
 			//print_r($filters);
@@ -469,7 +482,9 @@
 			$sm->assign_by_ref("tplsets",$sets);
 			$sm->assign("boards",$db->getindex(array('full'=>true),$sm));
 			$sm->display("admingen.tpl");
-		} else {
+		}
+		else
+		{
 			THdie("Where are you going?");
 		}
 		die();
@@ -484,7 +499,15 @@
 			//Frag the cache. Don't do anything else.
 			$sm->clear_all_cache();
 			$sm->clear_compiled_tpl();
-		} else {
+			rebuild_htaccess();
+			rebuild_linkbars();
+			rebuild_hovermenu();
+			rebuild_filters();
+			rebuild_capcodes();
+			rebuild_spamlist();
+		}
+		else
+		{
 			rebuild_config($_POST); //hope
 			header("Location: ".THurl."admin.php?rebuild");  //fucking hack >:[
 			die();
@@ -583,7 +606,9 @@
 				$actionstring = "Board edit\tid:".$id;
 				writelog($actionstring,"admin");
 			}
-		} else {
+		}
+		else
+		{
 			if ($_POST['namenew']!=null)  //Adding a new board
 			{
 				$id=(int)$_POST['idnew'];
@@ -613,16 +638,9 @@
 				$tmax=100;
 				$query="insert into ".THboards_table." set id=".$db->clean($id).",globalid=".$globalid.",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$db->clean($about)."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$allowedformats."',forced_anon='".$forced_anon."',maxfilesize='".$maxfilesize."',allowvids='".$allowvids."',customcss='".$customcss."',filter='".$filter."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."'";
 				$db->myquery($query);
-				
 				$actionstring = "Board add\tid:".$id;
 				writelog($actionstring,"admin");
 				//print_r($query);
-			}
-			//CHECK FOR DUPE IDs
-			$max=count($boards);
-			for ($x=0;$x<$max;$x++)
-			{
-				$boreds[]=$boards[$x]['id'];
 			}
 		}
 		//print_r($boards);
@@ -631,6 +649,9 @@
 		rebuild_htaccess();
 		rebuild_linkbars();
 		rebuild_hovermenu();
+		rebuild_filters();
+		rebuild_capcodes();
+		rebuild_spamlist();
 		header("Location: ".THurl."admin.php?a=b");
 		die();
 	}
@@ -639,11 +660,15 @@
 		if ($_POST['ip4']=="")
 		{
 			$ip4="0";
-		} else {
+		}
+		else
+		{
 			if ($_POST['ipsub'])
 			{
 				$ip4="0";
-			} else {
+			}
+			else
+			{
 				$ip4=$_POST['ip4'];
 			}
 		}
@@ -694,7 +719,9 @@
 				if ($_POST['del'.$cap['id']])
 				{
 					$db->myquery("delete from ".THcapcodes_table." where id=".$cap['id']);
-				} else {
+				}
+				else
+				{
 					$capcode=array(
 						'id'=>(int)$_POST['id'.$cap['id']],
 						'from'=>mysql_real_escape_string($_POST['from'.$cap['id']]),
@@ -738,7 +765,9 @@
 					$db->myquery("delete from ".THfilters_table." where id=".$filt['id']);
 					$actionstring = "WF delete\tid:".$filt['id'];
 					writelog($actionstring,"admin");
-				} else {
+				}
+				else
+				{
 					$filter=array(
 						'id'=>(int)$_POST['id'.$filt['id']],
 						'from'=>mysql_real_escape_string($_POST['from'.$filt['id']]),
@@ -761,20 +790,15 @@
 			$username = trim($_POST['user']);
 			$password = trim($_POST['password']);
 			$email = trim($_POST['email']);
-
 			$nameexists = $db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'");
-			
 			if($nameexists)
 			{
 			$errorstring .= "Sorry, an account with this name already exists.<br>\n";
 			}
-			
 			if(!eregi("^([0-9a-z\.-_])+$", $username))
 			{
 	        $errorstring .= "Sorry, your name must be alphanumeric and contain no spaces.<br>\n";
 	        }
-			
-			
 			if($password)
 			{
 				$passlength = strlen($password);
@@ -787,7 +811,6 @@
 			{
 				$errorstring .= "You must provide a password!<br>\n";
 			}
-			
 			if(isset($_POST['email']) && strlen($email))
 			{
 		         /* Check if valid email address */
@@ -795,7 +818,6 @@
 				{
 					$errorstring .= "You must provide a valid email address!<br>\n";
 				}
-				
 				if($db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE email='".mysql_real_escape_string($email)."'"))
 				{
 					$errorstring .= "That email has already been used to register an account!<br>\n";
@@ -805,7 +827,6 @@
 			{
 				$errorstring .= "You must provide an email address!<br>\n";
 			}
-			
 			if($errorstring == "") 
 			{ // No errors encountered so far, attempt to register
 				$pass_md5 = md5(THsecret_salt.$password);
@@ -819,7 +840,6 @@
 				writelog($actionstring,"admin");
 				header("Location: ".THurl."admin.php?a=p");
 			}
-	
 			// <chopperdave> UHHHHHH OOOOOOHHHHHH </chopperdave>
 			THdie($errorstring);
 		}

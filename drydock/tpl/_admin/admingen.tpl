@@ -31,7 +31,7 @@
 		<option value="{$set}"{if $set==$THtplset} selected="selected"{/if}>{$set}</option>
 	{/foreach}
 		</select> <i>Does not apply to admin pages</i><br />
-		Template Testing Mode: <input type="checkbox" name="THtpltest"{if $THtpltest} checked="checked"{/if} /> <i>This is currently broken so don't mess with it</i><br />
+		Template Testing Mode: <input type="checkbox" name="THtpltest"{if $THtpltest} checked="checked"{/if} /> <i>Useful for template editing</i><br />
 		Anti spam methods:
  		<select name="THvc">
 			<option value="0"{if $THvc==0} selected="selected"{/if}>None</option>

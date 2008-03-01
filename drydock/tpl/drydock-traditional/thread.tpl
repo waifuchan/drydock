@@ -16,8 +16,7 @@
 {it->head assign="thread"}{* Workaround *}
 {it->getreplies assign="posts"}
 {include file=whereami.tpl comingfrom=$comingfrom}
-[<a href="{$THurl}{$binfo.folder}/">Return</a>]
-<div class="theader">{if ($thread.lawk or $binfo.rlock) and $mod_thisboard !="1" and $mod_global !="1" and $mod_admin !="1"}(Thread is locked, no more posts allowed){else}Posting mode: Reply{/if}</div>
+[<a href="{$THurl}{if !$THuserewrite}drydock.php?b={/if}{$binfo.folder}">Return</a>]
 {include file=postblock.tpl comingfrom=$comingfrom}
 <hr />
 {literal}
@@ -70,5 +69,4 @@
 </script>
 {/literal}
 {include_php file="linkbar.php"} {* tyam - gives us quicklinks *}
-
 

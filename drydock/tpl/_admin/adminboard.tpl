@@ -46,7 +46,7 @@ There are currently no boards set up.
             <form method="post" name="boardedit" enctype="multipart/form-data" action="admin.php?t=b">
                 <div>
                     <table>
-<tr><td>Board index</td><td><input type="text" name="idnew" size="3" value="{$board.id+1}" /></td></tr>
+<input type="hidden" name="idnew" size="3" value="{$board.id+1}" />
 <tr><td>Board name</td><td><input type="text" name="namenew" size="60" /></td></tr>
 <tr><td>Board folder</td><td><input type="text" name="foldernew" size="5" /></td></tr>
 <tr><td>Board description</td><td><input type="text" name="aboutnew" size="60" /></td></tr>
@@ -60,7 +60,7 @@ More options are available after creating the board. After creating this board y
                 <div>
                     <table>
 <input type="hidden" name="boardselect" value="{$boardselect}" />
-<tr><td>Board index</td><td><input type="text" name="id{$board.id}" size="3" value="{$board.id}" /></td></tr>
+<input type="hidden" name="id{$board.id}" value="{$board.id}" />
 <tr><td>Global thread index</td><td><input type="text" name="globalid{$board.id}" size="3" value="{$board.globalid}" /></td></tr>
 <tr><td>Board name</td><td><input type="text" name="name{$board.id}" size="60" value="{$board.name}" /></td></tr>
 <tr><td>Board folder</td><td><input type="text" name="folder{$board.id}" size="5" value="{$board.folder}" /></td></tr>

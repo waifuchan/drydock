@@ -48,13 +48,26 @@
 	if(isset($_GET['showhidden']) && $_GET['showhidden'] == true)
 	{
 		if($boardquery != "")
-			$boardquery .= ", visible=1";
+			$boardquery .= " and visible=0";
 		else
-			$boardquery = "WHERE visible=1";
-		
-		$boardlink .= "&showhidden=1"; // this means we'll append show hidden on the end of offset links
+			$boardquery = " WHERE visible=0";
+		if($_GET['type'] == "posts")
+		{
+			$boardlink .= "&showhidden=1"; // this means we'll append show hidden on the end of offset links
+		} else {
+			$boardlink .= "?showhidden=1";
+		}
 	}
-	
+/*
+	else //it's 4am and i have a wedding to go to and a midterm, i shouldn't be doing else blocks right now :[
+	{
+		if($boardquery != "")
+			$boardquery .= " and visible=1";
+		else
+			$boardquery = " WHERE visible=1";
+	}
+*/
+
 	//print "Posts Count:".$count;
 	if($_GET['type'] == "posts")
 	{
@@ -101,7 +114,7 @@
 	
 	if( $queryresult==false ) 
 	{
-	echo "<font size=3 color=\"#FF0000\"><b>Error ".mysql_errno().": ".mysql_error()."</b></font><br>\n";
+	echo "<font size=3 color=\"#FF0000\"><b>Error ".mysql_errno().": ".mysql_error()."</b><br />$postquery</font><br>\n";
 	}
 
 	while ($post=mysql_fetch_assoc($queryresult))
@@ -207,7 +220,7 @@
 	{
 		if($_GET['type'] == "posts")
 		{
-			echo '- Pull posts + <a href="recentposts.php&showhidden=1">Pull threads</a> + <a href="recentposts.php?type=posts">Show all posts</a> -';
+			echo '- Pull posts + <a href="recentposts.php?showhidden=1">Pull threads</a> + <a href="recentposts.php?type=posts">Show all posts</a> -';
 			echo ' Filter by board: ';
 			echo "<select name=\"board\">\n";
 			echo "<option value=\"0\" onclick=\"window.location='recentposts.php?type=posts&showhidden=1'\">All boards</option>";
@@ -223,7 +236,7 @@
 			echo '- <a href="recentposts.php?type=posts&showhidden=1">Pull posts</a> + Pull threads + <a href="recentposts.php">Show all posts</a> -';
 			echo ' Filter by board: ';
 			echo "<select name=\"board\">\n";
-			echo "<option value=\"0\" onclick=\"window.location='recentposts.php&showhidden=1'\">All boards</option>";
+			echo "<option value=\"0\" onclick=\"window.location='recentposts.php?showhidden=1'\">All boards</option>";
 			while ($board=mysql_fetch_assoc($bqueryresult))
 			{
 				echo "<option value=\"".$board[folder].
@@ -250,7 +263,7 @@
 		}
 		else
 		{
-			echo '- <a href="recentposts.php?type=posts">Pull posts</a> + Pull threads + <a href="recentposts.php&showhidden=1">Show only hidden</a> -';
+			echo '- <a href="recentposts.php?type=posts">Pull posts</a> + Pull threads + <a href="recentposts.php?showhidden=1">Show only hidden</a> -';
 			echo ' Filter by board: ';
 			echo "<select name=\"board\">\n";
 			echo "<option value=\"0\" onclick=\"window.location='recentposts.php'\">All boards</option>";
@@ -369,10 +382,9 @@
 			}
 			
 			echo strftime("     ".THdatetimestring, $thispost['time']);
-			
 			if( $thispost['visible'] == 0)
 			{
-			echo '<img src="'.THurl.'static/notvisible.gif" alt="INVISIBLE" border="0">';
+			echo '<img src="'.THurl.'static/invisible.png" alt="INVISIBLE" border="0">';
 			}
 			echo '</label>';
 						

@@ -1,7 +1,24 @@
+<div class="theader">
+{if $comingfrom=="board"}
+	{if $binfo.tlock}
+		(Board is locked, no more posts allowed)
+	{else}
+		Posting mode: New thread
+	{/if}
+{elseif $comingfrom=="thread"}
+	{if $thread.lawk}
+		(Thread is locked, no more posts allowed)
+	{else}
+		Posting mode: Reply
+	{/if}
+{else}
+	huh
+{/if}
+</div>
+
 <div class="postarea">
 	<table>
 		<tbody>
-{if ($comingfrom=="thread" and (!$thread.lawk and !$binfo.rlock) or ($mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1")) or ($comingfrom=="board" and (!$binfo.tlock or $mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1"))}
 			<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
 {				if $binfo.forced_anon == "0"} {* begin forced_anon *}
 				<tr>
@@ -75,7 +92,6 @@
 					<td class="postblock">Rules</td>
 					<td><div class="rules">{include file=rules.tpl}</div></td>
 				</tr>
-{/if} {* locked *}
 {if $comingfrom == "board" and (!$binfo.tlock or $mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1")}
 		<input type="hidden" name="board" value="{$binfo.id}" />
 {else if $comingfrom == "thread" and ((!$thread.lawk and !$binfo.rlock) or ($mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1"))}

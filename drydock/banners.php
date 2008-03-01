@@ -1,11 +1,21 @@
 <?php
 	/*
-		Random banner script (based on work by Matt Mullenweg)
+		drydock imageboard script (http://code.573chan.org/)
+		File:          banners.php
+		Description:	Random banner script (based on work by Matt Mullenweg)
 
-		This basically will pull a single random banner file from the folder defined
-		("banderole" by default as per konamichan dev team sense of humor) and "push"
-		the image to the user, rather than just "pulling" it to the script.
+						This basically will pull a single random banner file from the
+						folder defined ("banderole" by default as per drydock dev team
+						sense of humor) and "push" the image to the user, rather than
+						just "pulling" it to the script.
+
+		Unless otherwise stated, this code is copyright 2008
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
+
+
 	require_once("config.php");
 	$folder = 'banderole/';
 	$exts = 'jpg jpeg png gif';
