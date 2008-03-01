@@ -46,7 +46,7 @@
 			while (($file = readdir($handle)) !== false) 
 			{
 				// If it's a file and it ends in .log, WE CAN READ IT
-				if(is_file($file) == true and preg_match('/\.log$/i', $file))
+				if(/*is_file($file) && */preg_match('/\.log$/i', $file))
 				{
 					$valid_logs[] = basename($file, '.log');
 				}
@@ -57,14 +57,14 @@
 		echo "<ul>\n";
 		foreach( $valid_logs as $logchoice )
 		{
-			echo '<li><a href="'.THurl.'logviewer.php?log='.$logchoice.'">'.$logchoice."</a></li>\n"
+			echo '<li><a href="'.THurl.'logviewer.php?log='.$logchoice.'">'.$logchoice."</a></li>\n";
 		}
 		echo "</ul>\n";
 		
 	}
 	else
 	{
-		$logname = THpath.trim($_GET['log']).".log";
+		$logname = THpath."unlinked/".trim($_GET['log']).".log";
 		$logcontents = array();
 		$logentries = array();
 		$count = 0;			
@@ -75,7 +75,7 @@
 			$count = sizeof($logcontents);
 			$logentries = array_chunk( array_reverse($logcontents), 40, true);
 			
-			if(isset($_GET['offset'])
+			if(isset($_GET['offset']))
 			{
 				$chunk_to_use = intval($_GET['offset']) / 40;
 			}
@@ -120,7 +120,7 @@
 			
 			if( sizeof($logentries[$chunk_to_use]) == 0 )
 			{
-				echo "No log entries on record."
+				echo "No log entries on record.";
 			}
 			else
 			{
