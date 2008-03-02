@@ -150,7 +150,7 @@
 		if($threadquery == NULL) //we are editing a reply
 		{
 			$thread = $posttoedit['thread'];
-			if($_POST) 
+			if(isset($_POST['editsub'])) 
 			{
 				$pin = intval($_POST['pin']);
 				if($pin != $db->myresult("SELECT pin FROM ".THthreads_table." WHERE id=".$thread))
@@ -176,7 +176,7 @@
 		} 
 		else 
 		{ // we are editing the OP of a thread
-			if ($_POST) 
+			if (isset($_POST['editsub'])) 
 			{
 				$pin = intval($_POST['pin']);
 				if($posttoedit['pin'] != $pin);
@@ -366,6 +366,11 @@
 			die("You can't move a thread to a board that doesn't exist!");
 		}
 	
+		// Clear the relevant caches
+		smclearcache($board, -1, $thread); // clear the associated cache for this thread
+		smclearcache($board, -1, -1); // clear the associated cache for the original board
+		smclearcache($destboard, -1, -1); // clear the associated cache for the target board
+		
 		$newthreadspot = $db->getglobalid($destboard);
 		$db->myquery("update ".THthreads_table." set globalid=".$newthreadspot.", board=".$destboard." where id=".$thread);
 		
@@ -388,23 +393,15 @@
 		}
 	}
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">';
-	echo '<html>';
-	echo "\n";
-	echo '<head>';
-	echo "\n";
-	echo ' <meta http-equiv="content-type" content="text/html; charset=UTF-8">';
-	echo "\n";
-	echo ' <title>'.THname.' Moderator Window</title>';
-	echo "\n";
-	echo ' <link rel="stylesheet" type="text/css" href="'.THurl.'tpl/'.THtplset.'/futaba.css" title="Futaba-ish Stylesheet" />';
-	echo "\n";
-	echo '</head>';
-	echo "\n";
-	echo '<body>';
-	echo "\n";
-	echo '<form name="postedit" action="'.THurl.'editpost.php?post='.$post.'&board='.getboardname($board).'" method="post">';
-	echo "\n";
+	echo '<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN">';
+	echo "<html>\n";
+	echo "<head>\n";
+	echo " <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n";
+	echo " <title>".THname." Moderator Window</title>\n";
+	echo " <link rel=\"stylesheet\" type=\"text/css\" href=\"".THurl."tpl/".THtplset."/futaba.css\" title=\"Futaba-ish Stylesheet\" />\n";
+	echo "</head>\n";
+	echo "<body>\n";
+	echo "<form name=\"postedit\" action=\"".THurl."editpost.php?post=".$post."&board=".getboardname($board)."\" method=\"post\">\n";
 
 	echo '<font size="+1">';
 	echo 'Currently editing <a href="'.THurl;
@@ -417,20 +414,14 @@
 		echo 'drydock.php?b='.getboardname($board).'&i=';
 	}
 	echo $threadid.'#'.$post.'">p.'.$post.'</a> in thread '.$threadid.' in /'.getboardname($board).'/';
-	echo '</font><hr width="70%" align="left"/>';
-
-	echo "\n";
-	echo '<table width="80%">';
-	echo '<tbody>';
-	echo '<tr>';
+	
+	echo "</font><hr width=\"70%\" align=\"left\"/>\n";
+	
+	echo "<table width=\"80%\"><tbody>\n<tr>";
 	echo '<td><b>Public ID:</b> '.$_GET['post'].'</td>';
 	echo '<td><b>Poster time:</b> '.strftime(THdatetimestring,$time).'</td>';
-	echo '</tr><tr>';
-	echo '<td><b>Private ID:</b> '.$id.'</td>';
-	echo '<td><b>Poster IP:</b> '.long2ip($ip).'</td>';
-	echo '</tr>';
-
-	echo "\n";
+	echo "</tr><tr>\n";
+	echo '<td><b>Private ID:</b> '.$id.'</td><td><b>Poster IP:</b> '.long2ip($ip)."</td></tr>\n";
 
 	echo '<tr>';
 	echo '<td><b>Poster name:</b><br> <input name="name" ';
@@ -439,7 +430,7 @@
 	echo '<td><b>Poster trip:</b><br> <input name="trip" ';
 	if($adminpowers == 0){ echo 'disabled '; }
 	echo 'type="text" value="'.$trip.'"></td>';
-	echo '</tr><tr>';
+	echo "</tr><tr>\n";
 	echo '<td><b>Poster link:</b><br> <input name="link" ';
 	if($adminpowers == 0){ echo 'disabled '; }
 	echo 'type="text" value="'.$link.'"></td>';
@@ -456,14 +447,10 @@
 	echo '<td><textarea ';
 	if($adminpowers == 0){ echo 'disabled '; }
 	echo 'name="body" cols="48" rows="6" >'.$body.'</textarea></td>';
-	echo '</tr></tbody></table>';
-	echo "\n";
-	echo '<table width="90%"><tbody>';
-	echo '<tr><td>';
+	echo "</tr></tbody></table>\n";
+	echo "<table width=\"90%\"><tbody><tr><td>\n";
 
-	echo '<table><tbody><tr>';
-	echo '<td><b>Modify thread:</b><br></td>';
-	echo '<td><b>Visibility:</b><br></td></tr>';
+	echo "<table><tbody><tr>\n<td><b>Modify thread:</b><br></td>\n<td><b>Visibility:</b><br></td></tr>\n";
 
 	echo '<tr><td>';
 	if($lock)
@@ -484,7 +471,7 @@
 	{
 		echo '<input type="radio" name="visible" value="1"> Visible';
 	}
-	echo '</td></tr><tr><td>';
+	echo "</td></tr>\n<tr><td>";
 	
 	
 	if($pin)
@@ -505,7 +492,7 @@
 	{
 		echo '<input type="radio" name="visible" checked="1" value="0"> Invisible';
 	}
-	echo '</td></tr><tr><td>';
+	echo "</td></tr>\n<tr><td>";
 	
 	
 	if($psage)
@@ -550,34 +537,31 @@
 		echo "No images<br>\n";
 	}
 	
-	echo '</td>';
+	echo "</td></tr>\n<tr>";
 	
-	echo '</tr>';
-	echo "\n";
+	if($adminpowers > 0)
+	{ 
+		echo "<td><b>Delete:</b><br>\n";
+		echo "<select name=\"moddo\">\n";
+		echo "<option value=\"nil\" selected=\"selected\">&#8212;</option>\n";
+		echo "<option value=\"killpost\">Delete this post</option>\n";
+		echo "<option value=\"killip\">Delete all posts from this poster's IP</option>\n";
+		echo "<option value=\"killsub\">Delete all posts from this poster's subnet</option>\n";
+		echo "</select><br>\n";
+	} 
+	else 
+	{
+		echo "<td>Deletion functions are not available at your access level.<br>Please use the hide functions instead</td>\n";
+	}
+		
+	echo "<b>Ban:</b><br>\n";
+	echo "<select name=\"modban\">\n";
+	echo "<option value=\"nil\" selected=\"selected\">&#8212;</option>\n";
+	echo "<option value=\"banip\">Ban this poster's IP</option>\n";
+	echo "<option value=\"bansub\">Ban this poster's subnet</option>\n";
+	if($adminpowers > 0 && !$posttoedit['thread']){ echo "<option value=\"banthread\">Ban this thread</option>\n"; }
 	
-	echo '<tr>';
-	
-		if($adminpowers > 0)
-		{ 
-			echo '<td><b>Delete:</b><br>';
-			echo '<select name="moddo">';
-			echo "<option value=\"nil\" selected=\"selected\">&#8212;</option>";
-			echo "<option value=\"killpost\">Delete this post</option>";
-			echo "<option value=\"killip\">Delete all posts from this poster's IP</option>";
-			echo "<option value=\"killsub\">Delete all posts from this poster's subnet</option>";
-			echo '</select><br>';
-		} 
-		else 
-		{
-			echo '<td>Deletion functions are not available at your access level.<br>Please use the hide functions instead</td>';
-		}
-	echo '<b>Ban:</b><br>';
-	echo '<select name="modban">';
-	echo "<option value=\"nil\" selected=\"selected\">&#8212;</option>";
-	echo "<option value=\"banip\">Ban this poster's IP</option>";
-	echo "<option value=\"bansub\">Ban this poster's subnet</option>";
-	if($adminpowers > 0 && !$posttoedit['thread']){ echo "<option value=\"banthread\">Ban this thread</option>"; }
-	echo '</select>';
+	echo "</select>\n";
 	
 	if(!$posttoedit['thread'] && $adminpowers > 0)
 	{
@@ -598,27 +582,23 @@
 	
 	echo '</td>';
 	
-	echo '<td><b>Ban options:</b><br>';
-	echo '<table><tbody><tr>';
-	echo '<td>Public ban reason:</td>';
-	echo '<td><input type="text" name="publicbanreason" size="20" /></td></tr>';
-	echo '<tr><td>Private ban reason:</td>';
-	echo '<td><input type="text" name="privatebanreason" size="20" /></td></tr>';
-	echo '<tr><td>Admin ban reason:';
-	echo '<td><input type="text" name="adminbanreason" size="20" /></td></tr>';
-	echo '<tr><td>Duration:';
-	echo '<td><input type="text" name="banduration" size="20" /> hrs</td>';
-	echo '</tr></tbody></table>';
-	echo '</td>';
+	echo '<td><b>Ban options:</b><br>
+		<table><tbody><tr>
+		<td>Public ban reason:</td>
+		<td><input type="text" name="publicbanreason" size="20" /></td></tr>
+		<tr><td>Private ban reason:</td>
+		<td><input type="text" name="privatebanreason" size="20" /></td></tr>
+		<tr><td>Admin ban reason:
+		<td><input type="text" name="adminbanreason" size="20" /></td></tr>
+		<tr><td>Duration:
+		<td><input type="text" name="banduration" size="20" /> hrs</td>
+		</tr></tbody></table>
+		</td></tr>';
 	
-	echo '</tr>';
 	
 	echo '</tbody>';
-	echo '</table></div>';
-	echo "\n";
-	echo '<INPUT type="submit" value="Edit"> <INPUT type="reset">';
-	echo '</form>';
-	echo "\n";
-	echo '</body>';
-	echo '</html>';
+	echo "</table></div>\n";
+	echo "<input type=\"hidden\" name=\"editsub\" value=\"1\">\n";
+	echo "<INPUT type=\"submit\" value=\"Edit\"> <INPUT type=\"reset\"></form>\n";
+	echo "</body></html>\n";
 ?>
