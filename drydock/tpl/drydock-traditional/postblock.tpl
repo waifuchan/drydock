@@ -60,6 +60,26 @@
 					<td class="postblock">Comment</td>
 					<td><textarea name="body" cols="48" rows="4" id="cont"></textarea></td>
 				</tr>
+{			if (($binfo.tpix > 0 and $comingfrom == "board") or ($binfo.rpix > 0 and $comingfrom == "thread"))} {* are there images? *}
+				<tr>
+					<td class="postblock">File</td>
+					<td>
+				<script type="text/javascript">
+					<!--
+						document.write('\
+{section name=filelist loop=$binfo.pixperpost}
+<div id="file{$smarty.section.filelist.index}"{if $smarty.section.filelist.index!=0} style="display:none;"{/if}><input type="file" name="file{$smarty.section.filelist.index}" onchange="visfile({$smarty.section.filelist.index})" /><br /></div>\
+{/section}');
+					// /-->
+				</script>
+				<noscript>
+{section name=filelistnojs loop=$binfo.pixperpost}
+<div id="file{$smarty.section.filelistnojs.index}"><input type="file" name="file{$smarty.section.filelistnojs.index}" /><br /></div>
+{/section}
+				</noscript>        
+					</td>
+				</tr>
+			{/if} {* if pix>0*}
 				<tr>
 					<td class="postblock">Then</td>
 					<td>

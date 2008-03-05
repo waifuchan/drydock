@@ -1,18 +1,16 @@
-<div class="theader">
+<div class="pgtitle">
 {if $comingfrom=="board"}
 	{if $binfo.tlock}
-		(Board is locked, no more posts allowed)
+		Board is locked, no more posts allowed.
 	{else}
-		Posting mode: New thread
+		New thread
 	{/if}
 {elseif $comingfrom=="thread"}
 	{if $thread.lawk}
-		(Thread is locked, no more posts allowed)
+		Thread is locked, no more posts allowed.
 	{else}
-		Posting mode: Reply
+		Reply
 	{/if}
-{else}
-	huh
 {/if}
 </div>
         <div id="showit" class="sslarge">
@@ -21,6 +19,24 @@
                     Name: <input type="text" name="nombre" size="20" /> Link: <input type="text" name="link" size="20" /><br />
                     {if $comingfrom == "board"}Subject: <input type="text" name="subj" size="45" /><br />{/if}
                     <textarea name="body" cols="51" rows="8" id="cont"></textarea><br />
+{			if (($binfo.tpix > 0 and $comingfrom == "board") or ($binfo.rpix > 0 and $comingfrom == "thread"))} {* are there images? *}
+<table><tr><td class="postblock">File</td><td>
+				<script type="text/javascript">
+					<!--
+						document.write('\
+{section name=filelist loop=$binfo.pixperpost}
+<div id="file{$smarty.section.filelist.index}"{if $smarty.section.filelist.index!=0} style="display:none;"{/if}><input type="file" name="file{$smarty.section.filelist.index}" onchange="visfile({$smarty.section.filelist.index})" /><br /></div>\
+{/section}');
+					// /-->
+				</script>
+				<noscript>
+{section name=filelistnojs loop=$binfo.pixperpost}
+<div id="file{$smarty.section.filelistnojs.index}"><input type="file" name="file{$smarty.section.filelistnojs.index}" /><br /></div>
+{/section}
+				</noscript>
+</td></tr></table>        
+			{/if} {* if pix>0*}
+
                     After submission, go to the:
                     <select name="todo">
                         <option value="board">Return to board</option>
@@ -48,3 +64,4 @@
     <div class="ssmed">
         <span class="name">
 <a href="{$THurl}{if $THuserewrite}{$binfo.folder}{else}drydock.php?b={$binfo.folder}{/if}#tlist">Thread List</a>
+

@@ -1,6 +1,5 @@
 
         <a name="{$thread.globalid}">
-    <div class="box">
     <div class="medtitle">
 {if $thread.pin}
 		<img src="{$THurl}static/sticky.png" alt="HOLY CRAP STICKY">
@@ -50,6 +49,24 @@ No Subject
 		<span class="timedate">{$thread.time|date_format:$THdatetimestring}</span>
 {			if $thread.link}</a>{/if}
     </div>
+{if $thread.images}
+<table>
+	<tr>
+{counter name="imgcount" assign="imgcount" start="0"}
+{	foreach from=$thread.images item=it}
+		<td align=center>
+			<div class="filesize">File: <a href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">{$it.name|filetrunc}</a></div>
+			<a class="info" href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">
+				<img src="{$THurl}images/{$thread.imgidx}/{$it.tname}" width="{$it.twidth}" height="{$it.theight}" alt="{$it.name}" class="thumb" />
+				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.extra_info|extra_info}</span>
+			</a>
+		</td>
+{		if ($imgcount mod 4 == 3)}</tr><tr>{/if}{* tyam - let's avoid more template breaking *}
+{counter name="imgcount"}
+{	/foreach}
+	</tr>
+</table>
+{/if}
     <div class="postbody"><blockquote>
         {assign value=$thread.body|THtrunc:2000 var=bodey}
 {	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
@@ -113,8 +130,7 @@ No Subject
 
 {include file="postblock.tpl" comingfrom="thread"}
 {if $comingfrom=="board"}
- <a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">View thread</a>
+&nbsp;&bull;&nbsp;<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">View thread</a>&nbsp;&bull;&nbsp;
 {$thread.rcount+1}</span> total post{if $thread.rcount==1}{else}s{/if}.{if $thread.scount>0} Last <span class="name">{$thread.scount}</span> {if $thread.scount==1}reply{else}replies{/if} shown.{/if}
 {/if}
- </div>
 </div>

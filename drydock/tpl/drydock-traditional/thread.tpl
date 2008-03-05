@@ -10,7 +10,7 @@
 {include file=heady.tpl comingfrom=$comingfrom}
 {it->binfo assign=binfo}
 {it->blotterentries assign=blotter}
-{include_php file="linkbar.php"} {* tyam - this way we have a list of boards to quicklink to *}
+{*include_php file="linkbar.php"*} {* tyam - this way we have a list of boards to quicklink to *}
 {* no pages for thread view *}
 <br clear="all" />
 {it->head assign="thread"}{* Workaround *}
@@ -22,33 +22,29 @@
 {literal}
 <script type="text/javascript">
 	<!--
-		var n=readCookie("USIJC-name");
-		var t=readCookie("USIJC-tpass");
-		var d=readCookie("USIJC-re-goto");
-		var l=readCookie("USIJC-link");
+		var n=readCookie("{/literal}{$THcookieid}{literal}-name");
+		var t=readCookie("{/literal}{$THcookieid}{literal}-tpass");
+		var d=readCookie("{/literal}{$THcookieid}{literal}-th-goto");
+		var l=readCookie("{/literal}{$THcookieid}{literal}-link");
 		if (n!=null)
 		{
 			document.forms['postform'].elements['nombre'].value=unescape(n).replace(/\+/g," ");
-		}
+        }
 		if (t!=null)
 		{
 			document.forms['postform'].elements['tpass'].value=unescape(t).replace(/\+/g," ");
-		}
+        }
 		if (d!=null)
 		{
 			document.forms['postform'].elements['todo'].value=d;
-		}
+        }
 		if (l!=null)
 		{
 			document.forms['postform'].elements['link'].value=unescape(l).replace(/\+/g," ");
 		}
 	//-->
 </script>
-{/literal}
-<table width="100%">
-<tr width="100%">
-<th width=55% align=left>Subject</th><th with=20% align=left>Poster</th><th width=15% align=center>Timestamp</th><th width=10% align=center></th>
-</tr>
+{/literal}<table width="100%">
 {*		we don't need to get each thread here so we don't need a 
 		for each for it here, but here is a place keeper for numbering *}
 {include file=viewblock.tpl comingfrom=$comingfrom}
@@ -68,5 +64,5 @@
 	-->
 </script>
 {/literal}
-{include_php file="linkbar.php"} {* tyam - gives us quicklinks *}
+{*include_php file="linkbar.php"*} {* tyam - gives us quicklinks *}
 

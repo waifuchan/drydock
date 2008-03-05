@@ -26,4 +26,9 @@
 {else}
 <body>
 {/if}
-{include_php file="banners.php"}
+<div id="main">
+	<div class="box">
+		<div class="pgtitle">
+			{$THname} - /{$binfo.folder}/
+		</div>
+		<div>

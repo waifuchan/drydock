@@ -4,11 +4,10 @@
 {it->blotterentries assign=blotter}
 {* include_php file="linkbar.php" *} {* tyam - this way we have a list of boards to quicklink to - take the asterisks out if you want them*}
 <br clear="all" />
-<div id="main">
-    <div class="box">
-		<center>
+		<center>{include_php file="banners.php"}
 		<div class="pgtitle">
 			{$binfo.name}<br \>
+			<font color="red" size="-2">Last post: {if $binfo.lasttime>0}{$binfo.lasttime|date_format:$THdatetimestring}{else}unavailable{/if}</font><br />
 		</div>
 		</center><br />
 {if $binfo.about}{$binfo.about}<br />{/if}
@@ -27,9 +26,6 @@
 (no threads)
 {/foreach}
 	</div><br />
-	</div>
-
-
 {literal}
 <script type="text/javascript">
 	<!--
@@ -56,17 +52,16 @@
 	//-->
 </script>
 {/literal}
+</div>
 {it->getsthreads assign="sthreads"}
 {foreach from=$sthreads item=thread}
+</div><div class="box">
 {include file="viewblock.tpl" comingfrom=$comingfrom}
 {foreachelse}
-    <div class="box"><div class="medtitle">(No threads on this board)</div></div>
+<div class="medtitle">(No threads on this board)</div></div>
 {/foreach}{*For each thread*}
+</div>
 <div class="box">
-
-		<div class="pgtitle">
-			New Thread
-		</div>
 {include file=postblock.tpl comingfrom=$comingfrom}
  </div>
 </div>
