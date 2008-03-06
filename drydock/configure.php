@@ -141,13 +141,20 @@ Please see the documentation for more information about these settings.  If you'
 				//please let them not screw this up, I don't want to deal with it
 		}
 		if(!empty($_POST['THdbprefix'])) { $prefix = $_POST['THdbprefix']; } else { $prefix = ""; }
+		
 		//keep drydock cookies from being useful on each drydock site
 		$seed = mt_rand(0,100000); // I like the Mersenne Twister random number generation more.
+		
 		// lol.
 		// It's 4:30 AM and I can't think of a better way to generate a random character string (generated via the Mersenne Twister algorithm), to be used for
-		// salting passwords before they're hashed and entered into the DB
-		sprintf($secret_salt, "%c%c%c%c%c%c%c%c", mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
-												  mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126) );
+		// salting passwords before they're hashed and entered into the DB.
+		// so uh, this is pretty kludgy.  but it works.  16-character salt.
+		sprintf($secret_salt, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126),		
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126) );
+				
 		$cookieid = "dd".$seed;
 		//Let's make the initial config file
 		$sm=smsimple();
