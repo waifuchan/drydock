@@ -772,17 +772,23 @@ function banbody($id,$isthread,$publicbanreason="USER HAS BEEN BANNED FOR THIS P
             $this->myquery("delete from ".THthreads_table." where id=".$id);
             if (count($affimg)>0)
 			{
-				$extra_info_entries = $this->myquery("select extra_info from ".THimages_table." where id in (".implode(",",$affimg).")"); // Remove extra_info sections
+				$EXIFquery = $this->myquery("select extra_info from ".THimages_table." where id in (".implode(",",$affimg).")"); // Remove extra_info sections
+				while ($exif=mysql_fetch_assoc($EXIFquery))
+				{
+					$extra_info_entries[]=$exif['extrainfo'];
+				}
 				
 				if( count($extra_info_entries)>0)
 				{
-				@$this->myquery("delete from ".THextrainfo_table." where id in (".implode(",",$extra_info_entries).")");
+					$this->myquery("delete from ".THextrainfo_table." where id in (".implode(",",$extra_info_entries).")");
 				}
 				
                 $this->myquery("delete from ".THimages_table." where id in (".implode(",",$affimg).")");
             }
 			
-        } else {
+        } 
+		else 
+		{
             $duck=$this->myresult("select imgidx from ".THreplies_table." where id=".$id);
             //echo($duck);
             if ($duck!=0)
@@ -796,7 +802,9 @@ function banbody($id,$isthread,$publicbanreason="USER HAS BEEN BANNED FOR THIS P
 				}
 				
                 $this->myquery("delete from ".THimages_table." where id=".$duck);
-            } else {
+            } 
+			else 
+			{
                 $affimg=array();
             }
 			$this->myquery("delete from ".THreplies_table." where id=".$id);
@@ -826,7 +834,9 @@ function banbody($id,$isthread,$publicbanreason="USER HAS BEEN BANNED FOR THIS P
             $q3=$this->myquery("select id, board from ".THthreads_table." where ip between ".$sub." and ".$submax);
             $this->myquery("delete from ".THreplies_table." where ip between ".$sub." and ".$submax);
             $this->myquery("delete from ".THthreads_table." where ip between ".$sub." and ".$submax);
-        } else {
+        } 
+		else 
+		{
             //echo($ip);
             $q1=$this->myquery("select distinct imgidx from ".THreplies_table." where ip=".$ip." && imgidx!=0");
             $q2=$this->myquery("select distinct imgidx from ".THthreads_table." where ip=".$ip." && imgidx!=0");
@@ -863,6 +873,17 @@ function banbody($id,$isthread,$publicbanreason="USER HAS BEEN BANNED FOR THIS P
         }
         if (count($affimgs)>0)
 		{
+			$EXIFquery = $this->myquery("select extra_info from ".THimages_table." where id in (".implode(",",$affimgs).")"); // Remove extra_info sections
+			while ($exif=mysql_fetch_assoc($EXIFquery))
+			{
+				$extra_info_entries[]=$exif['extrainfo'];
+			}
+			
+			if( count($extra_info_entries)>0)
+			{
+				$this->myquery("delete from ".THextrainfo_table." where id in (".implode(",",$extra_info_entries).")");
+			}
+				
             $this->myquery("delete from ".THimages_table." where id in (".implode(",",$affimgs).")");
         }
         return($affimgs);
