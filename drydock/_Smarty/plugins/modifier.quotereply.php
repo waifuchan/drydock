@@ -1,8 +1,10 @@
 <?php
 	/*
-				KCHAN BRAND QUOTEREPLY	
+		drydock imageboard script (http://code.573chan.org/)
+		File:			modifier.quotereply.php
+		Description:	Provides >>1 quote reply features
 
-		okay so since i (tyam) fucked up before, here's the new method of doing this
+
 		step 1:	parse the incoming text (expected format /&gt;&gt;\040?([0-9]{1,6})/)
 				split the >> from the [numbers] (this is done with the subexpression in the regexp)
 		step 2:	look up that number in posts&board.
@@ -12,9 +14,14 @@
 					if that exists, link it
 				if neither of those are true, it's a nonexistant >>quotereply
 		step 3:	link formation:
-					if op kchan/board/thread/[numbers]
-					if reply kchan/board/thread/op#[numbers]
+					if op drydock/board/thread/[numbers]
+					if reply drydock/board/thread/op#[numbers]
 	
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
 
 function lookup_qr_link($bid, $bfold, $threadid, $threadglob, $pulledvalue)

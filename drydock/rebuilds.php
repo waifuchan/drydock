@@ -337,6 +337,7 @@
 		fwrite($sidelinks, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 		fwrite($sidelinks, "<rss version=\"2.0\">\n");
 		fwrite($sidelinks, "\t<channel>\n");
+		fwrite($sidelinks, '<atom:link href="'.THpath.'/rss.xml" rel="self" type="application/rss+xml" />');
 		fwrite($sidelinks, "\t\t<title>".THname."</title>\n");
 		fwrite($sidelinks, "\t\t<description>".THname." drydock RSS feeder - ".THurl."</description>\n");
 		fwrite($sidelinks, "\t\t<language>en</language>\n");
@@ -368,7 +369,7 @@
 				$author = "Anonymous";
 			}//name check
 			$text = $boardentry['body'];  //no filters
-			$subject = $boardentry['title'];
+			if($boardentry['title'] != NULL) { $subject = $boardentry['title']; } else { $subject= "News post"; }
 			$newsboard = getboardname(THnewsboard);  //get the name of the board
 			$link = THurl.$newsboard.'/thread/'.$boardentry['globalid'];
 			$body = replacewedge(nl2br($text)).'&lt;br/&gt;~'.$author;

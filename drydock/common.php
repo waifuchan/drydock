@@ -180,7 +180,7 @@
 	{
 		require_once("_Smarty/Smarty.class.php");
 		$sm=new Smarty;
-		//$sm->debugging=true;  //uncomment to enable debugging window for smarty
+		$sm->debugging=true;  //uncomment to enable debugging window for smarty
 		return($sm);
 	}
 	
@@ -217,7 +217,10 @@
 		$smarty->compile_dir=THpath."compd/";
 		if ($id!=null && $admin==false && $smarty->is_cached($tpl,$id))
 		{
-			$smarty->display($tpl,$id);
+			//$smarty->display($tpl,$id);
+			echo $smarty->display($tpl,$id);
+			if(($_SESSION['admin']) || ($_SESSION['moderator']) || ($modvar)) { $smarty->display("modscript.tpl",$id); }
+			echo $smarty->display("bottombar.tpl",$id);
 			die("<!-- Loaded from cache /-->");
 		}
 		$smarty->assign_by_ref("THcname",$id);
@@ -227,8 +230,6 @@
 		$smarty->assign("THversion",THversion);
 		$smarty->assign("THcodename",THcodename);  //we're trendy now right?
 		$smarty->assign("THvc",THvc);
-
-		//kchan changes
 		$smarty->assign("THnewsboard",THnewsboard);
 		$smarty->assign("THmodboard",THmodboard);
 		$smarty->assign("THmaxfilesize",THmaxfilesize);
