@@ -1,8 +1,8 @@
 <?php
 	/*
 		drydock imageboard script (http://code.573chan.org/)
-		File:           		dump.php
-		Description:	This is used to do raw SQL dumps of tables,
+		File:           		dump-mysql.php
+		Description:	This is used to do raw MySQL dumps of tables,
 					in case someone doesn't have phpmyadmin.
 
 		Unless otherwise stated, this code is copyright 2008
@@ -13,6 +13,28 @@
 	require_once("config.php");
 	require_once("common.php");
 	checkadmin();
+	if(!$_GET['table'])
+	{
+	echo '
+        <div class="pgtitle">
+	  SQL Dumps - MySQL
+	</div>
+	<br />
+			SQL dumps can be generated with the following links.  Please be careful with these since they could be used to gain access to your administration area or other registered profiles if posted to a public forum.  If you are using these dumps for support on the drydock discussion board, please edit out any important information (password hashes, contact info, etc) before posting publicly.<br/>
+			<b>To disable this function, delete the file '.THpath.'dump-mysql.php</b><br/><br/>  These may take a while to process, depending on how active your site is.<br />
+			<a href="'.THurl.'dump-mysql.php?table=bans">Bans table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=blotter">Blotter table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=boards">Boards table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=capcodes">Capcodes table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=extra">Extra info table (metadata)</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=filters">Wordfilters table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=images">Images table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=replies">Replies table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=threads">Threads table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=users">Users table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=all">All tables</a><br /><br />
+	';
+}
 	function dumptable($table)
 	{
 		/*
@@ -33,7 +55,8 @@
 							Rev. ordog
 
 		*/
-
+		$actionstring = "Dump\ttable:".$table;
+		writelog($actionstring,"admin");
 		//Since the dbi we're using doesn't know what to do with these commands, and I see no reason to add them just for this one function, let's just bypass ThornDBI entirely here.
 		$link = mysql_connect( THdbserver, THdbuser, THdbpass)  or  die( "Unable  to  connect  to  SQL  server.  >:["); 
 		mysql_select_db(THdbbase, $link)  or  die ( "Unable  to  select  database.  >:["); 
@@ -69,9 +92,6 @@
 
 	switch ($_GET['table'])
 	{
-		$actionstring = "Dump\ttable:".$_GET['table'];
-		writelog($actionstring,"admin");		
-		
 		case "bans":
 			dumptable(THbans_table);
 			break;
@@ -115,7 +135,7 @@
 			dumptable(THusers_table);
 			break;
 	}
-	echo "<a href=".THurl."admin.php?a=hk>Return to housekeeping page</a>";
+	if($_GET['table']) { 	echo "<a href=".THurl."admin.php?a=hk>Return to housekeeping page</a>"; }
 
 
 ?>

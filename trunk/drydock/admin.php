@@ -13,7 +13,6 @@
 	require_once("common.php");
 	checkadmin(); //make sure the person trying to access this file is allowed to
 	$db=new ThornModDBI();
-	include("rebuilds.php");  //frown
 	if(isset($_GET['rebuild']))
 	{
 		//all of these could have just changed
@@ -380,10 +379,19 @@
 		}
 		elseif ($_GET['a']=="hk")  //housekeeping~
 		{
+			$sm->assign("THdbtype",THdbtype);
 			$sm->display("adminhouse.tpl");
 		}
 		elseif ($_GET['a']=="hkc") //housekeeping functions are actually called here
 		{
+			if ($_POST['fc'])
+			{
+				$sm->clear_all_cache();
+				$sm->clear_compiled_tpl();
+				rebuild_filters();
+				rebuild_capcodes();
+				rebuild_spamlist();
+			}
 			if($_POST['rs']) { rebuild_rss(); }
 			if($_POST['ht']) { rebuild_htaccess(); }
 			if($_POST['sl']) { rebuild_hovermenu(); }
@@ -391,16 +399,6 @@
 			if($_POST['sp']) { rebuild_spamlist(); }
 			if($_POST['fl']) { rebuild_filters(); }
 			if($_POST['cp']) { rebuild_capcodes(); }
-			if($_POST['all'])
-			{
-				rebuild_rss();
-				rebuild_htaccess();
-				rebuild_hovermenu();
-				rebuild_linkbars();
-				rebuild_filters();
-				rebuild_capcodes();
-				rebuild_spamlist();
-			}
 			$actionstring = "Housekeeping";
 			writelog($actionstring,"admin");		
 			header("Location: ".THurl."admin.php?a=hk");
@@ -440,7 +438,7 @@
 			$sm->assign("THtpltest",THtpltest);
 			$sm->assign("THdupecheck",THdupecheck);
 			$sm->assign("THtimeoffset",THtimeoffset);
-			$sm->assign("THvc",THvc);	
+			$sm->assign("THvc",THvc);
 			$sm->assign("THnewsboard",THnewsboard);
 			$sm->assign("THmodboard",THmodboard);
 			$sm->assign("THdefaulttext",THdefaulttext);
@@ -493,20 +491,7 @@
 	//If still alive here, assume $_GET['t'] is set.
 	if ($_GET['t']=="g")
 	{
-		//General settings.
-		if ($_POST['fragcache']=="on")
-		{
-			//Frag the cache. Don't do anything else.
-			$sm->clear_all_cache();
-			$sm->clear_compiled_tpl();
-			rebuild_htaccess();
-			rebuild_linkbars();
-			rebuild_hovermenu();
-			rebuild_filters();
-			rebuild_capcodes();
-			rebuild_spamlist();
-		}
-		else
+		if($_POST)
 		{
 			rebuild_config($_POST); //hope
 			header("Location: ".THurl."admin.php?rebuild");  //fucking hack >:[
@@ -649,9 +634,6 @@
 		rebuild_htaccess();
 		rebuild_linkbars();
 		rebuild_hovermenu();
-		rebuild_filters();
-		rebuild_capcodes();
-		rebuild_spamlist();
 		header("Location: ".THurl."admin.php?a=b");
 		die();
 	}

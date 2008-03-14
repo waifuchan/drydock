@@ -92,9 +92,8 @@
 					<td class="postblock">Rules</td>
 					<td><div class="rules">{include file=rules.tpl}</div></td>
 				</tr>
-{if $comingfrom == "board" and (!$binfo.tlock or $mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1")}
 		<input type="hidden" name="board" value="{$binfo.id}" />
-{else if $comingfrom == "thread" and ((!$thread.lawk and !$binfo.rlock) or ($mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1"))}
+{if $comingfrom == "thread"}
 		<input type="hidden" name="thread" value="{$thread.id}" />
 {/if} {* board not locked / logged in *}
 {if $blotter}

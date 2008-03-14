@@ -344,7 +344,7 @@ class ThornPostDBI extends ThornDBI
             $q.=", link='".$this->clean($link)."'";
         }
 		$this->myquery($q) or THdie("DBpost");
-		if ($board == THnewsboard) { rebuild_news(); } 
+		if ($board == THnewsboard) { rebuild_rss(); } 
 		smclearcache($board, -1, -1); // clear the cache for this board
         $tnum=mysql_insert_id();
         $this->myquery("update ".THboards_table." set lasttime=".$tyme." where id=".$board) or THdie("DBpost");

@@ -12,7 +12,7 @@
 		</center><br />
 {if $binfo.about}{$binfo.about}<br />{/if}
 {include file=rules.tpl}
-{if $binfo.tlock}Only moderators and administrators are allowed to create new threads.<br />{/if}</br>
+<br/>{if $binfo.tlock}Only moderators and administrators are allowed to create new threads.<br />{/if}</br>
 <a name="tlist"></a>
 <hr />
     <div class="medtitle">
@@ -65,3 +65,16 @@
 {include file=postblock.tpl comingfrom=$comingfrom}
  </div>
 </div>
+{literal}
+<script type="text/javascript" defer="defer">
+	<!--
+		function visfile(thisone)
+		{
+			if (document.getElementById("file"+(thisone+1)))
+			{
+				document.getElementById("file"+(thisone+1)).style.display="block";
+			}
+		}
+	-->
+</script>
+{/literal}
