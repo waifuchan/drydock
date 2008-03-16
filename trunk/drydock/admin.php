@@ -503,8 +503,8 @@
 	elseif ($_GET['t']=="bl") //Update blotter
 	{
 		$entry = mysql_real_escape_string($_POST['post']);
-		$board = $_POST['postto'];
-		$time = time();
+		$board = intval($_POST['postto']);
+		$time = (THtimeoffset*60) + time();
 		$query = 'INSERT INTO '.THblotter_table.' SET entry="'.$entry.'",board="'.$board.'",time="'.$time.'"';
 		$db->myquery($query);
 		$actionstring = "Blotter post";
