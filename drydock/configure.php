@@ -276,20 +276,20 @@ Please see the documentation for more information about these settings.  If you'
 	
 		//set up the schema from scratch
 	mysql_query("CREATE TABLE `".THbans_table."` (
-	`ip` int(11) NOT NULL default '0',
+	`ip` int unsigned NOT NULL,
 	`subnet` tinyint(3) unsigned NOT NULL default '0',
-	`publicreason` longtext  NOT NULL,
-	`privatereason` longtext  NOT NULL,
-	`adminreason` longtext  NOT NULL,
+	`publicreason` text  NOT NULL,
+	`privatereason` text  NOT NULL,
+	`adminreason` text  NOT NULL,
 	`postdata` longtext  NOT NULL,
 	`duration` int(11) NOT NULL default '-1',
 	`bantime` int(11) unsigned NOT NULL,
-	`bannedby` varchar(255)  NOT NULL,
+	`bannedby` varchar(100)  NOT NULL,
 	PRIMARY KEY  (`ip`)
 	) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci") or diestring();
 	mysql_query("CREATE TABLE `".THblotter_table."` (
-	`id` mediumint(8) unsigned NOT NULL auto_increment,
-	`time` int(10) NOT NULL,
+	`id` int unsigned NOT NULL auto_increment,
+	`time` int(11) NOT NULL,
 	`entry` text collate utf8_unicode_ci NOT NULL,
 	`board` text collate utf8_unicode_ci NOT NULL,
 	PRIMARY KEY  (`id`)
@@ -303,7 +303,7 @@ Please see the documentation for more information about these settings.  If you'
 	`rules` text  NOT NULL,
 	`perpg` tinyint(3) unsigned NOT NULL default '20',
 	`perth` tinyint(3) unsigned NOT NULL default '4',
-	`hidden` tinyint(3) unsigned NOT NULL default '0',
+	`hidden` tinyint(1) unsigned NOT NULL default '0',
 	`allowedformats` tinyint(3) unsigned NOT NULL default '7',
 	`forced_anon` tinyint(1) NOT NULL default '0',
 	`maxfilesize` int(11) NOT NULL default '2097152',
@@ -315,35 +315,35 @@ Please see the documentation for more information about these settings.  If you'
 	`filter` tinyint(1) NOT NULL default '1',
 	`boardlayout` char(255) NOT NULL default 'drydock-image',
 	`requireregistration` tinyint(1) NOT NULL default '0',
-	`tlock` tinyint(3) unsigned NOT NULL default '0',
-	`rlock` tinyint(3) unsigned NOT NULL default '0',
-	`tpix` tinyint(3) unsigned NOT NULL default '0',
-	`rpix` tinyint(3) unsigned NOT NULL default '0',
+	`tlock` tinyint(1) unsigned NOT NULL default '0',
+	`rlock` tinyint(1) unsigned NOT NULL default '0',
+	`tpix` tinyint(1) unsigned NOT NULL default '0',
+	`rpix` tinyint(1) unsigned NOT NULL default '0',
 	`tmax` smallint(5) unsigned NOT NULL default '100',
-	`lasttime` int(10) unsigned NOT NULL default '0',
+	`lasttime` int(11) unsigned NOT NULL default '0',
 	PRIMARY KEY  (`id`)
 	) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci") or diestring();
 	mysql_query("CREATE TABLE `".THcapcodes_table."` (
-	`id` int(11) NOT NULL auto_increment,
+	`id` smallint(5) unsigned NOT NULL auto_increment,
 	`capcodefrom` varchar(11)  NOT NULL,
 	`capcodeto` text  NOT NULL,
 	`notes` text  NOT NULL,
 	PRIMARY KEY  (`id`)
 	) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci") or diestring();
 	mysql_query("CREATE TABLE `".THextrainfo_table."` (
-	`id` int(11) NOT NULL auto_increment,
+	`id` int unsigned NOT NULL auto_increment,
 	`extra_info` longtext  NOT NULL,
 	PRIMARY KEY  (`id`)
 	) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci") or diestring();
 	mysql_query("CREATE TABLE `".THfilters_table."` (
-	`id` int(11) NOT NULL auto_increment,
+	`id` int unsigned NOT NULL auto_increment,
 	`filterfrom` text collate utf8_unicode_ci NOT NULL,
 	`filterto` text collate utf8_unicode_ci NOT NULL,
 	`notes` text collate utf8_unicode_ci NOT NULL,
 	PRIMARY KEY  (`id`)
 	) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci") or diestring();
 	mysql_query("CREATE TABLE `".THimages_table."` (
-	`id` mediumint(8) unsigned NOT NULL,
+	`id` int unsigned NOT NULL,
 	`hash` varchar(40) NOT NULL default '',
 	`name` tinyblob NOT NULL,
 	`width` smallint(5) unsigned NOT NULL default '0',
@@ -352,7 +352,7 @@ Please see the documentation for more information about these settings.  If you'
 	`twidth` smallint(5) unsigned NOT NULL default '0',
 	`theight` smallint(5) unsigned NOT NULL default '0',
 	`fsize` smallint(5) unsigned NOT NULL default '0',
-	`anim` tinyint(4) default '0',
+	`anim` tinyint(1) default '0',
 	`extra_info` int(11) unsigned NOT NULL default '0',
 	KEY `id` (`id`)
 	) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci") or diestring();
@@ -366,7 +366,7 @@ Please see the documentation for more information about these settings.  If you'
 	`mod_global` tinyint(1) NOT NULL default '0',
 	`mod_admin` tinyint(1) NOT NULL default '0',
 	`timestamp` int(11) unsigned NOT NULL default '0',
-	`age` varchar(3)  default NULL,
+	`age` tinyint(3)  default NULL,
 	`gender` varchar(1)  default NULL,
 	`location` text ,
 	`contact` longtext ,
@@ -379,43 +379,43 @@ Please see the documentation for more information about these settings.  If you'
 	PRIMARY KEY  (`username`)
 	) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci") or diestring();
 	mysql_query("CREATE TABLE `".THreplies_table."` (
-	`id` mediumint(8) unsigned NOT NULL auto_increment,
-	`globalid` mediumint(9) NOT NULL default '0',
-	`board` tinyint(3) unsigned NOT NULL default '0',
-	`thread` mediumint(8) unsigned NOT NULL default '0',
+	`id` int unsigned NOT NULL auto_increment,
+	`globalid` int NOT NULL default '0',
+	`board` smallint(5) unsigned NOT NULL default '0',
+	`thread` int unsigned NOT NULL default '0',
 	`title` text,
 	`name` text  NOT NULL,
 	`trip` varchar(11) NOT NULL default '',
 	`body` longtext  NOT NULL,
-	`time` int(10) unsigned NOT NULL default '0',
+	`time` int(11) unsigned NOT NULL default '0',
 	`ip` int(11) NOT NULL default '0',
-	`pin` tinyint(3) NOT NULL,
-	`lawk` tinyint(3) NOT NULL,
-	`bump` tinyint(3) unsigned NOT NULL default '1',
+	`pin` tinyint(1) NOT NULL,
+	`lawk` tinyint(1) NOT NULL,
+	`bump` tinyint(1) unsigned NOT NULL default '1',
 	`imgidx` mediumint(8) unsigned NOT NULL default '0',
 	`visible` tinyint(1) NOT NULL default '1',
-	`unvisibletime` int(10) NOT NULL default '0',
+	`unvisibletime` int(11) NOT NULL default '0',
 	`permasage` tinyint(1) unsigned NOT NULL default '0',
 	`link` text  NOT NULL,
 	PRIMARY KEY  (`id`)
 	) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci") or diestring();
 	mysql_query("CREATE TABLE `".THthreads_table."` (
-	`id` mediumint(8) unsigned NOT NULL auto_increment,
-	`globalid` mediumint(9) NOT NULL default '0',
-	`board` tinyint(3) unsigned NOT NULL default '0',
-	`thread` mediumint(8) default NULL,
+	`id` int unsigned NOT NULL auto_increment,
+	`globalid` int NOT NULL default '0',
+	`board` smallint(5) unsigned NOT NULL default '0',
+	`thread` int default NULL,
 	`title` text  NOT NULL,
 	`name` text  NOT NULL,
 	`trip` varchar(11) NOT NULL default '',
 	`body` longtext  NOT NULL,
-	`time` int(10) unsigned NOT NULL default '0',
+	`time` int(11) unsigned NOT NULL default '0',
 	`ip` int(11) NOT NULL default '0',
-	`pin` tinyint(3) unsigned NOT NULL default '0',
-	`lawk` tinyint(3) unsigned NOT NULL default '0',
-	`bump` int(10) unsigned NOT NULL default '0',
+	`pin` tinyint(1) unsigned NOT NULL default '0',
+	`lawk` tinyint(1) unsigned NOT NULL default '0',
+	`bump` int(11) unsigned NOT NULL default '0',
 	`imgidx` mediumint(8) unsigned NOT NULL default '0',
 	`visible` tinyint(1) NOT NULL default '1',
-	`unvisibletime` int(10) NOT NULL default '0',
+	`unvisibletime` int(11) NOT NULL default '0',
 	`permasage` tinyint(1) unsigned NOT NULL default '0',
 	`link` text  NOT NULL,
 	PRIMARY KEY  (`id`)
