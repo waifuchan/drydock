@@ -10,8 +10,10 @@
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
 	
-require_once("config.php");
-require_once("common.php");
+	require_once("config.php");
+	require_once("common.php");
+
+	function escape_string($string) { return(mysql_real_escape_string($string)); }
 
 class ThornDBI {
     function ThornDBI($server=THdbserver,$user=THdbuser,$pass=THdbpass,$base=THdbbase)
@@ -29,7 +31,7 @@ class ThornDBI {
 	{
       $call=htmlspecialchars($call);
       if (get_magic_quotes_gpc()==0) {
-        $call=mysql_real_escape_string($call);
+        $call=escape_string($call);
       }
       $call=trim($call); 
       return($call);
@@ -316,7 +318,7 @@ class ThornPostDBI extends ThornDBI
         $q="insert into ".THthreads_table." set board=".$board.", title='".$this->clean($title)."', body='";
 		if($board==THnewsboard || $board==THmodboard)  //don't filter the news board nor the mod board
 		{	
-			$q.=mysql_real_escape_string($body);
+			$q.=escape_string($body);
 		} else {
 			$q.=$this->clean($body);
 		}
@@ -379,7 +381,7 @@ class ThornPostDBI extends ThornDBI
 		$q="insert into ".THreplies_table." set thread=".$thread.", board=".$board.", body='";
 		if($board==THmodboard)  //don't filter the mod board since it should be all locked up anyway
 		{
-			$q.=mysql_real_escape_string($body);
+			$q.=escape_string($body);
 		} else {
 			$q.=$this->clean($body);
 		}
@@ -569,11 +571,10 @@ class ThornPostDBI extends ThornDBI
 			threads and replies.
 		*/
 		$sql = "select globalid from ".THboards_table." where id=".$board;
-		$globalid = mysql_query($sql);
-		$globalid=mysql_result($globalid,0,"globalid");
+		$this->myresult($sql,0,"globalid");
 		$globalid++;
 		$newsql = "update ".THboards_table." set globalid=".$globalid." where id=".$board;
-		$sql = mysql_query($newsql);
+		$this->myquery($newsql);
 		return($globalid);
 		}
     } //ThornPostDBI
@@ -664,17 +665,17 @@ function banbody($id,$isthread,$publicbanreason="USER HAS BEEN BANNED FOR THIS P
   if($isthread)
   {
     $thebody=$this->myresult("select body from ".THthreads_table." where id=".$id);
-	//$thebody = mysql_real_escape_string($thebody);
+	//$thebody = escape_string($thebody);
 	//$thebody.=' (USER HAS BEEN BANNED FOR THIS POST)';
 	$thebody.=$publicbanreason;
-	$updatequery="update ".THthreads_table." set body='".mysql_real_escape_string(nl2br($thebody))."' where id=".$id;
+	$updatequery="update ".THthreads_table." set body='".escape_string(nl2br($thebody))."' where id=".$id;
         $myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
   } else {
     $thebody=$this->myresult("select body from ".THreplies_table." where id=".$id);
-	//$thebody = mysql_real_escape_string($thebody);
+	//$thebody = escape_string($thebody);
 	//$thebody.=' (USER HAS BEEN BANNED FOR THIS POST)';
 	$thebody.=$publicbanreason;
-	$updatequery="update ".THreplies_table." set body='".mysql_escape_string(nl2br($thebody))."' where id=".$id;
+	$updatequery="update ".THreplies_table." set body='".escape_string(nl2br($thebody))."' where id=".$id;
 	$myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
   }
   return;
@@ -1221,97 +1222,7 @@ class ThornBoardDBI extends ThornDBI
 
 class ThornThreadDBI extends ThornDBI
 {
-    function ThornThreadDBI($th)
-	{
-        $this->ThornDBI();
-        $this->head=$this->myassoc("select * from ".THthreads_table." where id=".$th);
-        unset($this->head['ip']);
-        $this->head['images']=$this->getimgs($this->head['imgidx']);
-        $this->binfo=$this->myassoc("select * from ".THboards_table." where id=".$this->head['board']);
-		$this->blotterentries=$this->getblotter($binfo['id']);
-    }
-    
-    function getreplies($p, &$sm)
-	{
-		/*
-		Returns the replies for this thread.
-		Parameters:
-			string $p['sortmethod']="time"
-		If "time", posts will be sorted by post time. If "id", they will be sorted by ID number. (Theoretically, each of these will yield the same result.)
-			bool $p['desc']=false
-		If true, posts will be sorted in descending order.
-			bool $p['withhead']=false
-		If true, the thread head will be included in the results. The thread head will be put at the beginning of the array if $p['desc']==false and at the end if $p['desc']==true.
-			bool $p['full']=true
-		If true, the full information from each post is retrieved, including images. If false, only the ID, name, trip and time will be returned.
-			Returns: array $posts
-		*/
-        if (isset($p['sortmethod'])==false)
-		{
-            $p['sortmethod']="time";
-        }
-        if (isset($p['desc'])==false)
-		{
-            $p['desc']=false;
-        }
-        if (isset($p['withhead'])==false)
-		{
-            $p['withhead']=false;
-        }
-        if (isset($p['full'])==false)
-		{
-            $p['full']=true;
-        }
-
-		if ($p['full']) 
-		{
-            $q="select * from ".THreplies_table." where thread=".$this->head['id']." order by ";
-        } else {
-            $q="select id, name, trip, link, time from ".THreplies_table." where thread=".$this->head['id']." order by ";
-        }
-        
-        if ($p['sortmethod']=="time")
-		{
-            $q.="time";
-        }
-        elseif ($p['sortmethod']="id")
-		{
-            $q.="id";
-        }
-        
-        if ($p['desc'])
-		{
-            $q.=" desc";
-        }
-        $tadpole=$this->myquery($q);
-        
-        $replies=array();
-        if ($p['withhead'] && $p['desc']==false)
-		{
-            $replies[]=$this->head;
-        }
-        while ($reply=mysql_fetch_assoc($tadpole))
-		{
-            unset($reply['ip']);
-            if ($p['full'])
-			{
-                $reply['images']=$this->getimgs($reply['imgidx']);
-            }
-            $replies[]=$reply;
-        }
-        if ($p['withhead'] && $p['desc'])
-		{
-            $replies[]=$this->head;
-        }
-
-        return($replies);
-    }
-}//class ThornThreadDBI
-
-//copy pasta of above but with kchan global threads code
-class ThornGlobalThreadDBI extends ThornDBI
-{
-    function ThornGlobalThreadDBI($th, $brd)
+    function ThornThreadDBI($th, $brd)
 	{
         $this->ThornDBI();
 		//this should fix it!

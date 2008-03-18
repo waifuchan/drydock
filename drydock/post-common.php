@@ -9,7 +9,7 @@
 		Artistic License 2.0:
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
-	
+
     if(THpearpath) // PEAR PEAR LOL
     {
         ini_set( 'include_path', ini_get( 'include_path' ) . PATH_SEPARATOR . THpearpath);
@@ -114,7 +114,7 @@
 										}
 									}
 						        }
-						        elseif ($fyle['type']=="png" && is_callable("imagecreatefrompng")) 
+						        elseif ($ext=="png" && is_callable("imagecreatefrompng")) 
 						        {
 						            $theimg=imagecreatefrompng($_FILES[$dis]['tmp_name']);
 									
@@ -126,7 +126,7 @@
 										}
 									}
 						        }
-						        elseif ($fyle['type']=="gif" && is_callable("imagecreatefromgif")) 
+						        elseif ($ext=="gif" && is_callable("imagecreatefromgif")) 
 						        {
 						            $theimg=imagecreatefromgif($_FILES[$dis]['tmp_name']);
 									
@@ -346,7 +346,6 @@
         return(array("nombre"=>$nombre,"trip"=>$trip));
     }
 
-
     function handlesvg($fyle, $thedir, &$binfo)
     {
         //Since movefiles calls this, I think it's safe to use.
@@ -546,7 +545,7 @@
 	                $extrainfo = $extrainfo . "<br>Zlib compression";
 	            }
 				
-	            $query="INSERT INTO ".THextrainfo_table." SET extra_info='".mysql_real_escape_string($extrainfo)."'";
+	            $query="INSERT INTO ".THextrainfo_table." SET extra_info='".escape_string($extrainfo)."'";
 	            $ex_inf_result = $db->myquery($query);
 	            if($ex_inf_result)
 	            {
@@ -584,7 +583,7 @@
 			$pagecount = $pdf->setSourceFile($fyle['path']);
 			$extrainfo = intval($pagecount)." pages";
 			
-			$query="INSERT INTO ".THextrainfo_table." SET extra_info='".mysql_real_escape_string($extrainfo)."'";
+			$query="INSERT INTO ".THextrainfo_table." SET extra_info='".escape_string($extrainfo)."'";
 			$ex_inf_result = $db->myquery($query);
 			if($ex_inf_result)
 			{
@@ -619,7 +618,6 @@
     {
         //Since movefiles calls this, I think it's safe to use.
         global $db;
-		
         $theimg=null;
         $fyle['extra_info']=0;
         if ($fyle['type']=="jpeg") 
@@ -695,18 +693,31 @@
 
             $targ=imagecreatetruecolor($targw,$targh);
             imagecopyresampled($targ,$theimg,0,0,0,0,$targw,$targh,$fyle['width'],$fyle['height']);
-            if ($fyle['type']=="png" || $fyle['type']=="gif")
+            if ($fyle['type']=="png")
             {
                 $fyle['tname']="_t".$fyle['noext'].".png";
                 imagepng($targ,$thedir.$fyle['tname']);
-            } 
+            }
+			else if ($fyle['type']=="gif")
+			{
+				if(($fyle['width']<=$binfo['thumbres']) && ($fyle['height']<=$binfo['thumbres']))
+				{
+					$fyle['tname']="_t".$fyle['name'];
+					copy($fyle['path'],$thedir.$fyle['tname']);
+				}
+				else
+				{
+					$fyle['tname']="_t".$fyle['noext'].".png";
+					imagepng($targ,$thedir.$fyle['tname']);
+				}
+			
+			}
 			else 
 			{
-                $fyle['tname']="_t".$fyle['noext'].".jpeg";
+                $fyle['tname']="_t".$fyle['noext'].".jpg";
                 imagejpeg($targ,$thedir.$fyle['tname'],THjpegqual);
+                $exif = exif_read_data($fyle['path'], 'IFD0,COMMENT', TRUE);
             }
-
-            $exif = exif_read_data($fyle['path'], 'IFD0,COMMENT', TRUE);
             if($exif)
             {
                 $extrainfo = "";
@@ -749,7 +760,7 @@
 
                 if($extrainfo)
                 {
-                    $query="INSERT INTO ".THextrainfo_table." SET extra_info='".mysql_real_escape_string($extrainfo)."'";
+                    $query="INSERT INTO ".THextrainfo_table." SET extra_info='".escape_string($extrainfo)."'";
                     $ex_inf_result = $db->myquery($query);
                     if($ex_inf_result)
                     {

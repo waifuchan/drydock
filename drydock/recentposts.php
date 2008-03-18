@@ -31,7 +31,7 @@
 
 	// SELECT COUNT(*) FROM 'img'
 	
-	$board = mysql_real_escape_string($_GET['board']); //clean the board name from get
+	$board = escape_string($_GET['board']); //clean the board name from get
 	
 	// We just append this to the end of all the SQL queries/links.  Makes things simpler because we only have to do it once.
 	if(isset($_GET['board']) && getboardnumber($_GET['board']) )

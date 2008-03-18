@@ -222,7 +222,7 @@
 				$path=THpath."images/".$posttoedit['imgidx']."/";
 				unlink($path.$img['name']);
 				unlink($path.$img['tname']);
-				$db->myquery("update imgs set hash='deleted' where id=".$posttoedit['imgidx']." and hash='".mysql_real_escape_string($img['hash'])."'"); //"this fixes stupd syntax highlighting in my editor >:[
+				$db->myquery("update imgs set hash='deleted' where id=".$posttoedit['imgidx']." and hash='".escape_string($img['hash'])."'"); //"this fixes stupd syntax highlighting in my editor >:[
 				$actionstring = "Delete img\timgidx:".$posttoedit['imgidx']."\tn:".$img['name'];
 				writelog($actionstring,"moderator");				
 			}
@@ -232,12 +232,12 @@
 		{
 			if($threadquery == NULL)
 			{
-				$db->myquery("update ".THreplies_table." set name='".mysql_real_escape_string($name)."', trip='".mysql_real_escape_string($trip)."', title='".mysql_real_escape_string($title)."', body='".mysql_real_escape_string($body)."', visible=".$visible.", unvisibletime=".$unvisibletime.", link='".mysql_real_escape_string($link)."' where globalid=".$post." AND board=".$board);
+				$db->myquery("update ".THreplies_table." set name='".escape_string($name)."', trip='".escape_string($trip)."', title='".escape_string($title)."', body='".escape_string($body)."', visible=".$visible.", unvisibletime=".$unvisibletime.", link='".escape_string($link)."' where globalid=".$post." AND board=".$board);
 				$actionstring = "Edit\tpid:".$post."\tb:".$board;
 			} 
 			else 
 			{
-				$db->myquery("update ".THthreads_table." set name='".mysql_real_escape_string($name)."', trip='".mysql_real_escape_string($trip)."', title='".mysql_real_escape_string($title)."', body='".mysql_real_escape_string($body)."', visible=".$visible.", unvisibletime=".$unvisibletime.", link='".mysql_real_escape_string($link)."' where globalid=".$post." AND board=".$board);
+				$db->myquery("update ".THthreads_table." set name='".escape_string($name)."', trip='".escape_string($trip)."', title='".escape_string($title)."', body='".escape_string($body)."', visible=".$visible.", unvisibletime=".$unvisibletime.", link='".escape_string($link)."' where globalid=".$post." AND board=".$board);
 				$actionstring = "Edit\ttid:".$post."\tb:".$board;	
 			}
 			smclearcache($board, -1, $thread); // clear the associated cache for this thread

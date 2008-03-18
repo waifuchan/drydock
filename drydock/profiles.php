@@ -39,10 +39,10 @@
 
 		if(isset($_POST['name']) && isset($_POST['password']))
 		{
-			$query = "SELECT * FROM ".THusers_table." WHERE username=\"".mysql_real_escape_string($_POST['name']).
-			"\" AND password=\"".mysql_real_escape_string(md5(THsecret_salt.$_POST['password']))."\" AND approved=1";
+			$query = "SELECT * FROM ".THusers_table." WHERE username=\"".escape_string($_POST['name']).
+			"\" AND password=\"".escape_string(md5(THsecret_salt.$_POST['password']))."\" AND approved=1";
 			$userresult = $db->myquery($query);
-			$userdata=mysql_fetch_assoc($userresult);
+			$userdata=$db-> myassoc($userresult);
 
 			if($userdata != NULL)
 			{
@@ -59,8 +59,8 @@
 				}
 
 				// Update userid field
-				$db->myquery("UPDATE ".THusers_table." SET userid=\"".mysql_real_escape_string($_SESSION['userid'])."\", timestamp=".time().
-				"WHERE username=\"".mysql_real_escape_string($_POST['name'])."\"");
+				$db->myquery("UPDATE ".THusers_table." SET userid=\"".escape_string($_SESSION['userid'])."\", timestamp=".time().
+				"WHERE username=\"".escape_string($_POST['name'])."\"");
 			} 
 			else 
 			{ // invalid login?
@@ -175,10 +175,10 @@
 		
 		if(THprofile_lcnames)
 		{
-			$username = mysql_real_escape_string(strtolower($_GET['user']));
+			$username = escape_string(strtolower($_GET['user']));
 		}
 		else {
-			$username = mysql_real_escape_string($_GET['user']);
+			$username = escape_string($_GET['user']);
 		}
 		
 		$user = mysql_fetch_array(
@@ -320,7 +320,7 @@
 			$username = $_GET['user'];
 		}
 
-		if(!$db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'"))
+		if(!$db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".escape_string($username)."'"))
 		{
 			die("Invalid user specified!");
 		}
@@ -341,8 +341,8 @@
 				// First 128 characters, if they want more they'll have to use the admin panel :]
 				// This is here to prevent the remote possibility of someone proposing a capcode, and then in between the time the admin views the proposed capcodes page
 				// and clicks the "Approve" link, someone changes it to something malicious.
-				if(!$db->myresult("SELECT proposed_capbode FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'"))
-					$update_string .= "proposed_capcode='".mysql_real_escape_string(substr($_POST['capcode'],0,128))."'";
+				if(!$db->myresult("SELECT proposed_capbode FROM ".THusers_table." WHERE username='".escape_string($username)."'"))
+					$update_string .= "proposed_capcode='".escape_string(substr($_POST['capcode'],0,128))."'";
 			}
 		}
 		
@@ -354,7 +354,7 @@
 				$update_string .= ",";
 			}
 		
-			$update_string .= "age='".mysql_real_escape_string(substr(trim($_POST['age']), 0, 3))."'";
+			$update_string .= "age='".escape_string(substr(trim($_POST['age']), 0, 3))."'";
 		}
 		
 		if(isset($_POST['gender']))
@@ -364,7 +364,7 @@
 				$update_string .= ",";
 			}
 		
-			$update_string .= "gender='".mysql_real_escape_string(substr(trim($_POST['gender']), 0, 1))."'";
+			$update_string .= "gender='".escape_string(substr(trim($_POST['gender']), 0, 1))."'";
 		}
 		
 		if(isset($_POST['location']))
@@ -374,7 +374,7 @@
 				$update_string .= ",";
 			}
 		
-			$update_string .= "location='".mysql_real_escape_string(trim($_POST['location']))."'";
+			$update_string .= "location='".escape_string(trim($_POST['location']))."'";
 		}
 		
 		if(isset($_POST['contact']))
@@ -384,7 +384,7 @@
 				$update_string .= ",";
 			}
 		
-			$update_string .= "contact='".mysql_real_escape_string(trim($_POST['contact']))."'";
+			$update_string .= "contact='".escape_string(trim($_POST['contact']))."'";
 		}
 		
 		if(isset($_POST['description']))
@@ -394,7 +394,7 @@
 				$update_string .= ",";
 			}
 		
-			$update_string .= "description='".mysql_real_escape_string(trim($_POST['description']))."'";
+			$update_string .= "description='".escape_string(trim($_POST['description']))."'";
 		}
 		
 		$passErrString = ""; // This only gets set if there is a problem with the password
@@ -417,7 +417,7 @@
 					$update_string .= ",";
 				}
 				
-				$update_string .= "password='".mysql_real_escape_string(md5(THsecret_salt.$password))."'";
+				$update_string .= "password='".escape_string(md5(THsecret_salt.$password))."'";
 			}
 		}
 		
@@ -425,7 +425,7 @@
 		{
 		
 			$ext = $db->myresult(
-			"SELECT has_picture FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'"
+			"SELECT has_picture FROM ".THusers_table." WHERE username='".escape_string($username)."'"
 			);
 			
 			if($ext != null)
@@ -447,7 +447,7 @@
 		{
 			//print_r($_FILES['picture']);
 			$pending = $db->myresult(
-			"SELECT pic_pending FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'"
+			"SELECT pic_pending FROM ".THusers_table." WHERE username='".escape_string($username)."'"
 			);
 			
 			if($pending){
@@ -559,7 +559,7 @@
 		if($update_string != "")
 		{
 			$updatequery = 
-			"UPDATE ".THusers_table." SET ".$update_string." WHERE username='".mysql_real_escape_string($username)."'";
+			"UPDATE ".THusers_table." SET ".$update_string." WHERE username='".escape_string($username)."'";
 			$db->myquery($updatequery);
 								
 			$actionstring = "Profile edit\tprofile:".$username;
@@ -567,7 +567,7 @@
 		}
 		
 		$user = mysql_fetch_array(
-		$db->myquery("SELECT * FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'")
+		$db->myquery("SELECT * FROM ".THusers_table." WHERE username='".escape_string($username)."'")
 		);
 		
 		echo "<title>".THname."&#8212; Editing profile of ".$user['username']."</title>\n";
@@ -714,7 +714,7 @@
 			"admin","guest","root","banned","moderator","mod","administrator","trendster","trendy");
 			
 			$nameexists = $db->myresult(
-			"SELECT COUNT(*) FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'");
+			"SELECT COUNT(*) FROM ".THusers_table." WHERE username='".escape_string($username)."'");
 			
 			if($nameexists || in_array(strtolower($username),$reserved_words))
 			{
@@ -755,7 +755,7 @@
 					$errorstring .= "You must provide a valid email address!<br>\n";
 				}
 				
-				if($db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE email='".mysql_real_escape_string($email)."'"))
+				if($db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE email='".escape_string($email)."'"))
 				{
 					$errorstring .= "That email has already been used to register an account!<br>\n";
 				}
@@ -773,15 +773,15 @@
 				{
 					$insertquery = "INSERT INTO ".THusers_table.
 					" (username, password, userlevel, email, approved) VALUES ('".
-					mysql_real_escape_string($username)."','".mysql_real_escape_string($pass_md5)."',".THprofile_userlevel.
-					",'".mysql_real_escape_string($email)."',0)";
+					escape_string($username)."','".escape_string($pass_md5)."',".THprofile_userlevel.
+					",'".escape_string($email)."',0)";
 				}
 				else
 				{ // THprofile_regpolicy == 2
 					$insertquery = "INSERT INTO ".THusers_table.
 					" (username, password, userlevel, email, approved) VALUES ('".
-					mysql_real_escape_string($username)."','".mysql_real_escape_string($pass_md5)."',".THprofile_userlevel.
-					",'".mysql_real_escape_string($email)."',1)";
+					escape_string($username)."','".escape_string($pass_md5)."',".THprofile_userlevel.
+					",'".escape_string($email)."',1)";
 				}
 				
 				$actionstring = "Register\tname:".$username;
@@ -874,11 +874,11 @@
 		
 			if(THprofile_lcnames)
 			{
-				$username = mysql_real_escape_string(strtolower($_POST['user']));
+				$username = escape_string(strtolower($_POST['user']));
 			}
 			else
 			{
-				$username = mysql_real_escape_string($_POST['user']);
+				$username = escape_string($_POST['user']);
 			}
 			
 			if(!$db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".$username."'"))
@@ -889,7 +889,7 @@
 			$user = mysql_fetch_array($db->myquery("SELECT * FROM ".THusers_table." WHERE username='".$username."'"));
 			$pass = generateRandStr(8);
 			
-			$updatestring = "UPDATE ".THusers_table. " SET password='".mysql_real_escape_string(md5($pass)).
+			$updatestring = "UPDATE ".THusers_table. " SET password='".escape_string(md5($pass)).
 			"' WHERE username='".$username."'";
 			
 			$actionstring = "Forgot pass\tprofile:".$username;
@@ -926,7 +926,7 @@
 			$username = $_GET['user'];
 		}
 
-		if(!$db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'"))
+		if(!$db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".escape_string($username)."'"))
 		{
 			die("Invalid user specified!");
 		}
@@ -996,7 +996,7 @@
 			}
 			else if($_POST['capcode'])
 			{
-				$otherstuff = ",capcode='".mysql_real_escape_string($_POST['capcode'])."'"; 
+				$otherstuff = ",capcode='".escape_string($_POST['capcode'])."'"; 
 			}
 			
 			if($_POST['userlevel'])
@@ -1009,7 +1009,7 @@
 			}
 			
 			$query = "UPDATE ".THusers_table." SET ".$admin.$moderator." mod_array='"
-			.mysql_real_escape_string($mod_array)."'".$otherstuff." WHERE username='".mysql_real_escape_string($username)."'";
+			.escape_string($mod_array)."'".$otherstuff." WHERE username='".escape_string($username)."'";
 			$db->myquery($query);
 			
 			$actionstring = "Permissions\tprofile:".$username;
@@ -1018,7 +1018,7 @@
 		}
 		
 		$user = mysql_fetch_array(
-		$db->myquery("SELECT * FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'"));
+		$db->myquery("SELECT * FROM ".THusers_table." WHERE username='".escape_string($username)."'"));
 		
 		$boards=array();
 		$queryresult=$db->myquery("SELECT * FROM ".THboards_table);
@@ -1112,19 +1112,19 @@
 			$username = $_GET['user']; 
 		}
 		
-		if(!$db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'"))
+		if(!$db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".escape_string($username)."'"))
 		{
 			die("Invalid user specified!");
 		}
 		// Only admins can do this.
 		if(!$_SESSION['admin']){ die("You cannot do this!"); }
 		
-		//$db->myquery("DELETE FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'");
+		//$db->myquery("DELETE FROM ".THusers_table." WHERE username='".escape_string($username)."'");
 		//how about instead of deleting, we just disable them so they can't just simply rereg and if something goes wrong, we can
 		//fix them.  This also allows us to just temporarily suspend their account - tyam
 
 		$db->myquery("UPDATE ".THusers_table." SET approved = '-2' "
-			."WHERE username='".mysql_real_escape_string($username)."'");
+			."WHERE username='".escape_string($username)."'");
 			
 		$actionstring = "Remove\tprofile:".$username;
 		writelog($actionstring,"profiles");		

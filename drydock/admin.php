@@ -621,7 +621,13 @@
 				$maxres=3000;
 				$thumbres=150;
 				$tmax=100;
-				$query="insert into ".THboards_table." set id=".$db->clean($id).",globalid=".$globalid.",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$db->clean($about)."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$allowedformats."',forced_anon='".$forced_anon."',maxfilesize='".$maxfilesize."',allowvids='".$allowvids."',customcss='".$customcss."',filter='".$filter."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."'";
+
+$query = "INSERT INTO ".THboards_table." ( id , globalid , name , folder , about , rules , perpg , perth , hidden , allowedformats , forced_anon , maxfilesize ,
+ maxres , thumbres , pixperpost , customcss , allowvids , filter , boardlayout , requireregistration , tlock , rlock , tpix , rpix , tmax , lasttime )
+VALUES (
+".$db->clean($id).",".$globalid.",'".$db->clean($name)."','".$db->clean($folder)."','".$db->clean($about)."','".$db->clean($rules)."','".$perpg."','".$perth."','"
+.$hidden."','".$allowedformats."','".$forced_anon."','".$maxfilesize."','".$maxres."','".$thumbres."','".$pixperpost."','".$customcss."','".$allowvids."','"
+.$filter."','".$boardlayout."','".$requireregistration."','".$tlock."','".$rlock."','".$tpix."','".$rpix."','".$tmax."', NULL );";
 				$db->myquery($query);
 				$actionstring = "Board add\tid:".$id;
 				writelog($actionstring,"admin");
