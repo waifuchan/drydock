@@ -7,24 +7,30 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
-<link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml" />
+<?php if(THnewsboard != 0) echo '<link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml" />'; ?>
 <title><?php echo THname;?> &#8212; News Page</title></head>
 <link rel="stylesheet" type="text/css" href="<?php echo THurl.'tpl/'.THtplset;?>/futaba.css" title="Stylesheet" />
 <body>	
 <div id="main">
 	<div class="box">
 		<div class="pgtitle">
-			News Page <a href="<?php echo THurl; ?>rss.xml"><img src="<?php echo THurl; ?>static/rss.png" border="0"></a>
+			News Page <?php if(THnewsboard != 0) echo '<a href="'.THurl.'rss.xml"><img src="'.THurl.'static/rss.png" border="0"></a>'; ?>
 		</div>
 		<div>
 <?php
 	if ((THnewsboard!=0)&&(file_exists("rss2html.php")))  //uh i think this is okay?  incompatible licenses :[
 	{ 
 		include("rss2html.php");
-		 $archivelink = '<a href="'.THurl.getboardname(THnewsboard).'">Full News Archive</a>';  //make our link
+			if (THuserewrite)  //compatibility~~~
+			{
+				$archivelink = '<a class="info" href="'.THurl;
+			} else {
+				$archivelink = '<a class="info" href="'.THurl.'drydock.php?b=';
+			}			
+		 $archivelink = .getboardname(THnewsboard).'">Full News Archive</a>';  //make our link
 		echo '<div align="center" style="font-family:verdana,century;font-size:10px">- '.$archivelink." -<br></div>\n";
 	} else {
-		echo "<br />HARDER BETTER FASTER STRONGER KANYE KANYE KANYE KANYE<br /><br /><br />i need you right now :[";
+		echo "<br />This site is powered by the drydock image board script.";
 	}
 ?>
 		</div>

@@ -28,7 +28,7 @@
 		
 		// Load stuff from the DB
 		$queryresult=$db->myquery($query);
-		while ($row_item=mysql_fetch_assoc($queryresult)) 
+		while ($row_item=$db->myassoc($queryresult)) 
 		{
 			$capcodes[$row_item['capcodefrom']] = $row_item['capcodeto'];
 		}
@@ -157,7 +157,7 @@
 
 		// Load stuff from the DB
 		$queryresult=$db->myquery($query);
-		while ($row_item=mysql_fetch_assoc($queryresult)) 
+		while ($row_item=$db->myassoc($queryresult)) 
 		{
 			$to[]=$row_item['filterto'];
 			$from[]=$row_item['filterfrom'];
@@ -189,7 +189,7 @@
 		$boards=array();
 		//$queryresult=$db->myquery($imagequery);
 		$queryresult=$db->myquery($boardsquery);
-		while ($board=mysql_fetch_assoc($queryresult))
+		while ($board=$db->myassoc($queryresult))
 		{
 			$boards[]=$board;
 		}
@@ -261,7 +261,7 @@
 			$boardsquery = "SELECT * FROM ".THboards_table;
 			$boards=array();
 			$queryresult=$db->myquery($boardsquery);
-			while ($board=mysql_fetch_assoc($queryresult))
+			while ($board=$db->myassoc($queryresult))
 			{
 				$boards[]=$board;
 			}
@@ -286,7 +286,7 @@
 		$boards=array();
 		$looper = 1;
 		$queryresult=$db->myquery($boardsquery);
-		while ($board=mysql_fetch_assoc($queryresult))
+		while ($board=$db->myassoc($queryresult))
 		{
 			$boards[]=$board;
 		}
@@ -350,7 +350,7 @@
 		$boardsquery = "SELECT globalid,board,title,name,trip,body,time FROM ".THthreads_table." where board=".THnewsboard." ORDER BY time DESC LIMIT 0,15";
 		$boards=array();
 		$queryresult=$db->myquery($boardsquery);
-		while ($board=mysql_fetch_assoc($queryresult))
+		while ($board=$db->myassoc($queryresult))
 		{
 			$boards[]=$board;
 		}

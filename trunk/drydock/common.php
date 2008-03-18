@@ -419,7 +419,7 @@
 		}
 		$db=new ThornDBI();
 		// We assume $user is a valid username, so any functions should make that check beforehand
-		$userlevel = $db->myresult("SELECT userlevel FROM ".THusers_table." WHERE username='".mysql_real_escape_string($user)."'");
+		$userlevel = $db->myresult("SELECT userlevel FROM ".THusers_table." WHERE username='".escape_string($user)."'");
 		if($userlevel >= $_SESSION['userlevel'] || $userlevel==null)
 		{
 			return false;
@@ -510,8 +510,8 @@
 		{
 			$db=new ThornDBI();
 			$query = "SELECT approved FROM ".THusers_table.
-				" WHERE username='".mysql_real_escape_string($_COOKIE[THcookieid."-uname"]).
-				"' AND userid='".mysql_real_escape_string($_COOKIE[THcookieid."-id"])."'";
+				" WHERE username='".escape_string($_COOKIE[THcookieid."-uname"]).
+				"' AND userid='".escape_string($_COOKIE[THcookieid."-id"])."'";
 			$userresult = $db->myresult($query);
 			
 			if($userresult != 1)
@@ -528,14 +528,14 @@
 				unset($_SESSION['mod_array']);
 				
 				$db->myquery("UPDATE ".THusers_table.
-					" SET userid=NULL WHERE username='".mysql_real_escape_string($_COOKIE[THcookieid."-uname"])."'");
+					" SET userid=NULL WHERE username='".escape_string($_COOKIE[THcookieid."-uname"])."'");
 			}
 			else if( !isset($_SESSION['username']) )
 			{
 				// Okay, they have a valid ID for a login, but no session data.  Let's rectify that.
 				$query = "SELECT * FROM ".THusers_table.
-				" WHERE username='".mysql_real_escape_string($_COOKIE[THcookieid."-uname"]).
-				"' AND userid='".mysql_real_escape_string($_COOKIE[THcookieid."-id"])."'";
+				" WHERE username='".escape_string($_COOKIE[THcookieid."-uname"]).
+				"' AND userid='".escape_string($_COOKIE[THcookieid."-id"])."'";
 				$userresult = $db->myquery($query);
 				$userdata=mysql_fetch_assoc($userresult);
 
