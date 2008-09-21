@@ -1,0 +1,429 @@
+<?php
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:           		configure.php
+		Description:	Handles installation of the script.
+
+			Probably some more work could be done to reduce the size of this file.
+
+		
+		Unless otherwise stated, this code is copyright 2008
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
+	//	define(THdbtype,"MySQL");
+	//define(THdbtype,"SQLite");
+	include("version.php");
+	
+	//START HUGE FUNCTION BLOCK THIS IS A HUGE HACK OH MY GOD WHAT HAVE I DONE THIS USED TO BE SO CLEAN ;-;
+	function diestring() {
+		die("Database settings do not seem to be correct.");  //this doesn't always do what we need
+	}
+	function smsimple() {
+		require_once($_POST['path']."_Smarty/Smarty.class.php");
+		$sm=new Smarty;
+		//$sm->debugging=true;
+		return($sm);
+	}
+	function makeuser ($path, $link) {
+		//shove in some defaults for our new database, should be standard SQL so it should work with all future expansions without editing.
+		$query = "INSERT INTO ".THusers_table." ( username , password , userid , userlevel , email , mod_array , mod_global , mod_admin , timestamp , age , gender , location , contact , description , capcode , has_picture , approved , pic_pending , proposed_capcode ) VALUES 
+			('".TEMPadminname."', '".TEMPadminpass."', '".TEMPadminpass."', '9', NULL , '0', '0', '1', '0', NULL , NULL , NULL , NULL , NULL , NULL , NULL , '1', NULL , NULL)";
+		if(THdbtype=="MySQL") { mysql_query($query) or diestring(); } else { sqlite_query($link, $query) or diestring(); }
+		unlink($path."admintemp.php");  //hack hack hack ~tyam
+	}
+	function unlink_placeholders($path) {
+		//don't report errors here, it's confusing
+		@unlink($path."cache/placeholder.txt");
+		@unlink($path."catchas/placeholder.txt");
+		@unlink($path."compd/placeholder.txt");
+		@unlink($path."images/profiles/placeholder.txt");
+		@unlink($path."unlinked/placeholder.txt");
+		return;
+	}
+	function writedb($link, $file) {
+		//God, where did I get this?  I think the original idea came from like phpscripts.org or something, and then I just gutted it and changed what I needed to get it working.
+	
+		//Get $file from $file.  That makes sense.  $file comes in as THdbtype, goes out as (THdbtype).sql.  At least, that's the idea.  ~tyam
+		$file=$file.".sql";
+		// Getting the SQL file content        
+		$content = file_get_contents($file);
+		// Processing the SQL file content            
+		$file_content = explode("\n",$content);            
+		$query = "";
+		// Parsing the SQL file content            
+		foreach($file_content as $sql_line)
+		{        
+			if(trim($sql_line) != "" && strpos($sql_line, "--") === false)
+			{            
+				$query .= $sql_line;
+				// Checking whether the line is a valid statement
+				if(preg_match("/(.*);/", $sql_line))
+				{
+					$query = substr($query, 0, strlen($query)-1);  
+//echo $query."<br \><br \>";
+//$THbans_table = THbanstable;
+$prefix = "branch031_";
+$THthis_table = "TH\\1_table";
+$$THthis_table = $prefix."\\1";  //closer..
+$query = preg_replace("/~TH(.*)_table~/",${"TH"."\\1"."_table"},$query);
+					//Executing the parsed string, returns the error code in failure
+					//$result = mysql_query($query)or die(mysql_error());
+					if($file=="MySQL.sql")
+					{
+						$result = mysql_query($query);
+						//echo $query;
+					}
+					elseif($file=="SQLite.sql")
+					{
+						$result = sqlite_query($link, $query);
+						//echo $query."<br \>";
+					}
+					$query = "";
+				}
+			}
+		} //End of foreach
+		return;
+		//die("parse over: ".$file);
+	} //End of function	
+	function parttwo($path) {
+		//do all the work here okay
+		require_once($path."config.php");
+		require_once($path."admintemp.php");  //hack hack hack ~tyam
+		//Initial DB setup - oh god
+		if(THdbtype=="MySQL")
+		{
+			$link = mysql_connect(THdbserver,THdbuser,THdbpass);
+			@mysql_select_db(THdbbase) or diestring();
+		} else {
+			$link = sqlite_open(str_replace("/configure.php", "", $_SERVER['SCRIPT_FILENAME'])."/unlinked/drydock.sqlite", 0666, $sqliteerror);
+		}
+		writedb($link, "SQLite");
+		makeuser($path, $link);
+		if(THdbtype=="MySQL") { mysql_close($link); } else { sqlite_close($link); }
+		initial_builds($path);
+		unlink_placeholders($path);
+		partthree($path);
+	}
+	function partthree($path) {
+		echo "
+<html><head><style type=\"text/css\">
+body {
+background-image:url('static/watermark.png');
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: bottom right; 
+#main { margin-right:154px; }
+.box { padding-left:10px; margin-bottom:10px; border-style:none; border-color:black; border-width:1px; }
+.pgtitle { text-decoration:none; color:#2266AA; font-family:sans-serif; font-size:x-large; border-width:0px 0px 2px 0px; border-color:#FF6600; border-style:solid; margin-right:10px; margin-top:5px; }
+}
+</style></head><body>
+If you're reading this and there are no crazy errors anywhere around here, it looks like everything went through okay.  But you might want to check out everything for yourself.<br>
+<br>
+There's still some setup you'll need to do on your own. Here is a tasklist for you to follow:<br>
+<li>Delete the configuration.php script (or move it) for security reasons.  The script will not allow visitors while this area exists.
+<li><a href=\"".THurl."profiles.php?action=login\">Log in</a> with the username/password you created.<br/>
+<li>Under housekeeping functions, rebuild all items.
+<li>Configure the rest of the settings in the general administration area.
+<li>Set up boards.
+<li>Run \"REBUILD ALL\" under <a href=\"".THurl."admin.php?a=hk\">housekeeping</a> in the admin area.
+<li>?????
+<li>PROFIT!
+</ol>
+Happy posting!  And don't forget, if you make any neat changes to the code, we'd love to see it.  You can post about it on the <a href=\"http://573chan.org/dry/\">drydock discussion</a> on 573chan.org.
+</body></html>
+		";
+		return;
+	}
+	function initial_builds($path) {
+	// Build menu, empty wordfilters cache, empty capcodes cache, empty spam blacklist cache
+		$sidelinks = fopen($path."menu.php", "w") or die("Could not open menu.php for writing.");
+		fwrite($sidelinks, '<div id="idxmenu">'."\n".
+				'<div id="idxmenuitem">'."\n".
+				'<div class="idxmenutitle">'."\n");
+		fwrite($sidelinks, '<?php if($_SESSION["admin"]){ echo "'."\n");
+		fwrite($sidelinks, "<a href=".THurl."admin.php?a=hk>Housekeeping Functions</a><br />\";\n");
+		fwrite($sidelinks, '} ?>'."\n");
+		fwrite($sidelinks, '<a href="'.THurl.'">Site Index</a><br />'."\n");
+		fwrite($sidelinks, '<?php if($_SESSION["username"]) {'."\n".'echo "<a href=".THurl."profiles.php?action=logout>Log Out</a> / <a href=".THurl."profiles.php>Profiles</a>";'."\n".' } else {'."\n");
+		fwrite($sidelinks, 'echo "<a href=".THurl."profiles.php?action=login>Login</a>'."\n".' / '."\n".'<a href=".THurl."profiles.php?action=register>Register</a>";'."\n".'}?>'."\n");
+		fwrite($sidelinks, '</div>');
+		fwrite($sidelinks, '</div>'."\n");
+		fclose($sidelinks);
+		
+		$fp_cache = fopen($path."cache/filters.php", "w") or die("Could not open cache/filters.php for writing.");
+		fwrite($fp_cache, "<?php\n");
+		fwrite($fp_cache, '$to'."=();\n");
+		fwrite($fp_cache, '$from'."=();\n");
+		fwrite($fp_cache, "?>");
+		fclose($fp_cache);		
+		
+		$fp_cache = fopen($path."cache/capcodes.php", "w") or die("Could not open cache/capcodes.php for writing.");
+		fwrite($fp_cache, "<?php\n");
+		fwrite($fp_cache, '$capcodes'."=();\n");
+		fwrite($fp_cache, "?>");
+		fclose($fp_cache);		
+
+		$fp_cache = fopen($path."cache/blacklist.php", "w") or die("Could not open cache/blacklist.php for writing.");
+		fwrite($fp_cache, "<?php\n");
+		fwrite($fp_cache, '$spamblacklist'."=();\n");
+		fwrite($fp_cache, "?>");
+		fclose($fp_cache);	
+
+		$htaccess = fopen($path."unlinked/.htaccess", "w") or die("Could not open unlinked/htaccess for writing.");
+		fwrite($htaccess, "#drydock htaccess module\n");
+		fwrite($htaccess, "Deny from all\n");
+		fclose($htaccess);
+
+		return;
+	}
+	function veryfirstinit() {
+		//here goes - this is mostly albright's code with our own stuff tacked on to it ~tyam
+		//We're just now setting up the board.
+		$path=$_POST['path'];
+		if ($path{strlen($path)-1}!="/") { $path.="/"; }
+		$url=$_POST['url'];
+		if ($url{strlen($url)-1}!="/") { $url.="/"; }
+		//Attempt to touch a file in the directories that need to be chmodded.
+		$chmod=array();
+		//List of places that must be writable at least by the server
+		$paths=array($path,$path."compd/",$path."cache/",$path."captchas/",$path."images/",$path."unlinked/");
+		foreach ($paths as $pith) {
+			if (touch($pith."test")==false){
+				$chmod[]=$pith;
+			} else {
+				unlink($pith."test");
+			}
+		}
+		//Attempt to touch single files that need to be written in
+		$files=array($path."menu.php",$path."linkbar.php",$path."rss.xml",$path.".htaccess",$path."unlinked/.htaccess");
+		foreach ($files as $file){
+			if (touch($file)==false){
+				$chmod[]=$file;
+			}
+		}
+		//Did it all work?
+		if (count($chmod)>0) {
+			die("<h2>Oh no!</h2>Please change the permissions mode on the following directories/folders to 777.<br />
+				See the documentation for more information.<br /><br />".implode("<br />",$chmod)."<br />
+				You can try the following command to do it all in one go:<br />chmod 0777 ".implode(" ",$chmod)."<br />
+				The server (specifically the <b>user</b> that the http server runs as) needs to be able to read and write these.");
+				//please let them not screw this up, I don't want to deal with it
+		} //} lol folding functions in phpide
+		if(!empty($_POST['THdbprefix'])) { $prefix = $_POST['THdbprefix']; } else { $prefix = ""; }
+		
+		//keep drydock cookies from being useful on each drydock site
+		$seed = mt_rand(0,100000); // I like the Mersenne Twister random number generation more.
+		
+		// lol.
+		// It's 4:30 AM and I can't think of a better way to generate a random character string (generated via the Mersenne Twister algorithm), to be used for
+		// salting passwords before they're hashed and entered into the DB.
+		// so uh, this is pretty kludgy.  but it works.  16-character salt.
+		
+		
+		//WELL IT DIDN'T WORK SO GUESS WHO HAD TO COME TO THE RESCUE THAT'S RIGHT IT WAS TYAM  :[
+		$secret_salt = sprintf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126),		
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126) );
+		$secret_salt="/1@(OI>.6`A9.37u";
+		$cookieid = "dd".$seed;
+		//Let's make the initial config file
+		$sm=smsimple();
+		$sm->caching=0;
+		$sm->compile_dir=$path."compd/";
+		$sm->template_dir=$path."tpl/_admin/";
+		$sm->cache_lifetime=0;
+		$sm->assign("THtplurl",$url."tpl/_admin/");
+		//let's write to config
+		if(touch($_POST['path']."config.php")==false) {
+			die($_POST['path']."config.php cannot be written");
+		} else {
+			//write a quick config, this format isn't good, but hopefully they'll change something in the regular config and trigger a rewrite
+			$config = fopen($_POST['path']."config.php", 'w');
+			fwrite($config, '<?php'."\n");
+			fwrite($config, '$configver=4;'."\n");
+			fwrite($config, 'define("THpath","'.$path.'");'."\n");
+			fwrite($config, 'define("THurl","'.$url.'");'."\n");
+			fwrite($config, 'define("THdbtype","'.THdbtype.'");'."\n");
+			fwrite($config, 'define("THdbserver","'.$_POST['THdbserver'].'");'."\n");
+			fwrite($config, 'define("THdbuser","'.$_POST['THdbuser'].'");'."\n");
+			fwrite($config, 'define("THdbpass","'.$_POST['THdbpass'].'");'."\n");
+			fwrite($config, 'define("THdbbase","'.$_POST['THdbbase'].'");'."\n");
+			//oh god, i spent like 3 hours trying to set up a regex to match these, dont change them
+			fwrite($config, 'define("THbans_table","'.$prefix."bans".'");'."\n");
+			fwrite($config, 'define("THblotter_table","'.$prefix."blotter".'");'."\n");
+			fwrite($config, 'define("THboards_table","'.$prefix."boards".'");'."\n");
+			fwrite($config, 'define("THcapcodes_table","'.$prefix."capcodes".'");'."\n");
+			fwrite($config, 'define("THextrainfo_table","'.$prefix."extrainfo".'");'."\n");
+			fwrite($config, 'define("THfilters_table","'.$prefix."filters".'");'."\n");
+			fwrite($config, 'define("THimages_table","'.$prefix."imgs".'");'."\n");
+			fwrite($config, 'define("THreplies_table","'.$prefix."replies".'");'."\n");
+			fwrite($config, 'define("THthreads_table","'.$prefix."threads".'");'."\n");
+			fwrite($config, 'define("THusers_table","'.$prefix."users".'");'."\n");
+			fwrite($config, 'define("THsecret_salt","'.$secret_salt.'");'."\n");  //salt for passwords
+			fwrite($config, 'define("THname","drydock image board");'."\n");
+			fwrite($config, 'define("THtplset","drydock-image");'."\n");
+			fwrite($config, 'define("THcookieid","'.$cookieid.'");'."\n");  //cookie seed
+			fwrite($config, 'define("THcaptest", 0);'."\n");
+			fwrite($config, 'define("THtpltest",0);'."\n");
+			fwrite($config, 'define("THjpegqual",65);'."\n");
+			fwrite($config, 'define("THdupecheck", 1);'."\n");
+			fwrite($config, 'define("THtimeoffset",0);'."\n");
+			fwrite($config, 'define("THvc", 2);'."\n");
+			fwrite($config, 'define("THnewsboard",0);'."\n");
+			fwrite($config, 'define("THmodboard",0);'."\n");
+			fwrite($config, 'define("THdefaulttext","No text entered");'."\n");
+			fwrite($config, 'define("THdefaultname","Anonymous");'."\n");
+			fwrite($config, 'define("THdatetimestring","%m/%d/%y(%a)%H:%M:%S");'."\n");
+			fwrite($config, 'define("THSVGthumbnailer",0);'."\n");
+			//this is a mess, i won't fix it later so i won't promise to   ~tyam :]
+			fwrite($config, "define(\"THuserewrite\", 0);\ndefine(\"THpearpath\",");
+			fwrite($config, "\"".$_POST['THpearpath']."\"");
+			fwrite($config, ");\ndefine(\"THuseSWFmeta\",");
+			if($_POST['THuseSWFmeta']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
+			fwrite($config, ");\ndefine(\"THuseSVG\",");
+			if($_POST['THuseSVG']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
+			fwrite($config, ");\ndefine(\"THusePDF\",0);");
+			fwrite($config, "\ndefine(\"THusecURL\",");
+			if($_POST['THusecURL']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
+			fwrite($config, ");\ndefine(\"THSVGthumbnailer\",0);");
+			fwrite($config, 'define("THprofile_adminlevel",9);'."\n");
+			fwrite($config, 'define("THprofile_userlevel",1);'."\n");
+			fwrite($config, 'define("THprofile_emailname","CHANGE THIS");'."\n");
+			fwrite($config, 'define("THprofile_emailaddr","THIS IS NOT AN EMAIL");'."\n");
+			fwrite($config, 'define("THprofile_emailwelcome",0);'."\n");
+			fwrite($config, 'define("THprofile_cookietime",8640000);'."\n");
+			fwrite($config, 'define("THprofile_cookiepath","/");'."\n");
+			fwrite($config, 'define("THprofile_lcnames",0);'."\n");
+			fwrite($config, 'define("THprofile_maxpicsize",512000);'."\n");
+			fwrite($config, 'define("THprofile_regpolicy",1);'."\n");
+			fwrite($config, 'define("THprofile_viewuserpolicy",1);'."\n");
+			fwrite($config, '?>');
+			fclose($config);  //file's closed, fwrites, etc
+		} //} FOLDING IS FUN
+		//one more ugly hack
+		$admin = fopen($path."admintemp.php", "w");
+		fwrite($admin, "<?php\n");
+		fwrite($admin, 'define("TEMPadminpass", "'.md5($secret_salt.$_POST['adminpass']).'");'."\n");
+		fwrite($admin, 'define("TEMPadminname","'.$_POST['adminname'].'");'."\n");
+		fwrite($admin, '?>');
+		fclose($admin);
+		//dump them out to the next part
+		parttwo($_POST['path']);
+	}
+	function promptsetup() 	{
+		$path=str_replace("/configure.php", "", $_SERVER['SCRIPT_FILENAME']);
+		$url=str_replace("/configure.php", "", $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+		echo "
+<html><head>
+<title>drydock ".THversion." installer<style type=\"text/css\">
+body {
+background-image:url('static/watermark.png');
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: bottom right; 
+}
+#main { margin-right:154px; }
+.box { padding-left:10px; margin-bottom:10px; border-style:none; border-color:black; border-width:1px; }
+.pgtitle { text-decoration:none; color:#2266AA; font-family:sans-serif; font-size:x-large; border-width:0px 0px 2px 0px; border-color:#FF6600; border-style:solid; margin-right:10px; margin-top:5px; }
+</style></head><body>
+<div id=\"main\">
+    <div class=\"box\">
+        <div class=\"pgtitle\">
+            Drydock Installation Script
+        </div>
+	<br>
+Welcome to the drydock configuration script.  First, thank you for your choice to set sail with us.  If you have not already done so, please read as much of the documentation as you can.  While we will not help you set up drydock on your own server (as in, we will not do it for you), we will be more than happy to answer any questions you might have.<br /><br />
+Fill out the following boxes and checkmarks.  If you did it wrong, you'll get some errors and possible solutions on the next page.  If you don't know what something means, either look it up in the documentation, or leave it at the default value (usually blank).  All of these settings may be changed later.<br />
+        <div class=\"pgtitle\">
+            Location Settings
+        </div>
+	<br>
+The script will attempt to guess these values, but often times you will need to correct them yourself.<br />
+<b>IF THESE VALUES ARE NOT RIGHT, THIS SCRIPT WILL NOT WORK.</b>  If you are installing on a Windows system, forward slashes may not work (but you should try them first).  Be sure to double check your path before assuming the script is correct.<br />
+<form method=\"post\" enctype=\"multipart/form-data\" action=\"configure.php?initialsetup\">
+Your image board file path (<b>with trailing slash</b>):<br />
+<input type=\"text\" name=\"path\" size=\"40\" value=\"".$path."/\" /><br />
+Your image board URL:<br />
+<input type=\"text\" name=\"url\" size=\"40\" value=\"http://".$url."/\" /><br />
+        <div class=\"pgtitle\">
+            Admin Settings
+        </div>
+	<br>
+In order to access the admin panel and do various moderation related tasks, you must set up a super user account.  This will be your main administrative account.<br/>
+	Admin name: <input type=\"text\" name=\"adminname\" size=\"12\" /><br />
+	Admin pass: <input type=\"password\" name=\"adminpass\" size=\"12\" /><br />
+	Verify pass: <input type=\"password\" name=\"adminpassver\" size=\"12\" /><br />
+        <div class=\"pgtitle\">
+            Database Settings
+        </div>
+	<br>
+Now it gets tricky.  The only thing that is supported (at this time) is MySQL databases.  
+Hopefully you have access to this and know your information.  Otherwise, ask your hosting provider for the details.<br />
+If you have a database set up, there is a change you could encounter some errors.  
+If possible, install drydock to its own database.  You must do this manually due to different server configurations.<br />
+<br />
+This script will delete ALL existing data from the database tables the script uses.<br />
+It is therefore suggested that you install the script on its own database.  However if this is not possible for you due to hosting constraints, you should define a prefix
+for all database tables.  If you seet the prefix as blank and your database is wiped, this is not our fault.  By default, tables are prefixed with drydock_.
+This should prevent any issues you may have, except when installing multiple copies of drydock, and a few other rare issues we've encountered.<br />
+<br /><b>This is your warning.  If you are reinstalling drydock and these tables exist, they will be deleted.</b><br /><br />
+	Database table prefix: <input type=\"text\" name=\"THdbprefix\" size=\"12\" value=\"drydock_\"/><br />
+";
+if(THdbtype!="SQLite"){
+echo"
+	Database server: <input type=\"text\" name=\"THdbserver\" size=\"12\" /><br />
+	Database username: <input type=\"text\" name=\"THdbuser\" size=\"12\" /><br />
+	Database password: <input type=\"password\" name=\"THdbpass\" size=\"12\" /><br />
+	Database name: <input type=\"text\" name=\"THdbbase\" size=\"12\" /><br />";
+}
+echo "        <div class=\"pgtitle\">
+            Extra Settings
+        </div>
+	<br>
+Everything should work just fine if you leave these defaults in place, but in certain situations it may be
+better for you to change it.  	<br /><br />
+The following features require external libraries that we do not distribute or control. SVG support is
+currently limited to ImageMagick.  The next release should allow you to select different programs (such as rsvg).<br />
+Please see the documentation for more information about these settings.  If you're not sure, leave them blank.<br />
+	Path to PEAR <input type=\"text\" name=\"THpearpath\" size=\"12\" /><br />
+	Enable SWF metatag support (requires PEAR libraries) <input type=\"checkbox\" name=\"THuseSWFmeta\" ><br />
+	Enable SVG support (requires PEAR libraries and rsvg, ImageMagick, or other external library) <input type=\"checkbox\" name=\"THuseSVG\" ><br />
+<input type=\"submit\" value=\"Submit\" />
+</div></div>
+</form></body></html>
+		";
+	}
+	//End functions, now to start doing stuff.
+	
+	@header('Content-type: text/html; charset=utf-8');
+	if (function_exists("mb_internal_encoding")) {
+		//Unicode support :]
+		mb_internal_encoding("UTF-8");
+		mb_language("uni");
+		mb_http_output("UTF-8");
+	}
+	if (file_exists("config.php")) {
+		//uh oh, looks like we've already tried to set up
+		die("The configuration file already exists.  If you are trying to reinstall, please delete config.php");
+	}
+	elseif (isset($_GET['initialsetup'])) {
+		if ($_POST['adminpassver'] == $_POST['adminpass']) {
+			if(isset($_POST['adminpassver'])) {
+				//we started our installer
+				veryfirstinit();
+			} else {
+				die("Admin password is not set.");
+			}
+		} else {
+			die("Passwords do not match.");
+		}
+	} else {
+		//nothing has been started hopefully
+		promptsetup();
+		die();
+	}
+	?>
