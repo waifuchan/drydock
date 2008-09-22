@@ -285,7 +285,7 @@ In order to access the admin panel and do various moderation related tasks, you 
 
 //pass our current info on to the next page
 $configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
-$post = array('adminpass' => md5($secret_salt.$_POST['adminpass']), 'adminname' => $_POST['adminname']);
+$post = array('adminpass' => $_POST['adminpass'], 'adminname' => $_POST['adminname']);
 $configarray = array_merge($post,$configarray);
 $configarray = serialize($configarray);
 $check = unserialize($configarray);
@@ -353,7 +353,6 @@ $check = unserialize($configarray);
 	//Time to finish up with everything.
 	$configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
 
-
 		$seed = mt_rand(0,100000); // I like the Mersenne Twister random number generation more.
 
 		// lol.
@@ -366,8 +365,8 @@ $check = unserialize($configarray);
 				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126),
 				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126),
 				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126) );
-		//$secret_salt="/1@(OI>.6`A9.37u";
 		$cookieid = "dd".$seed;
+		$configarray['adminpass'] = md5($secret_salt.$configarray['adminpass']);
 		//Let's make the initial config file
 		$sm=smsimple();
 		$sm->caching=0;
@@ -453,9 +452,8 @@ $check = unserialize($configarray);
 		writedb($link, $configarray['THdbtype'], $configarray['THdbprefix']);
 		makeuser($path, $link, $configarray);
 		if($configarray['THdbtype']=="MySQL") { mysql_close($link); } else { sqlite_close($link); }
-		initial_builds($path, $configarray['THurl']);
+		initial_builds($path, $configarray);
 		unlink_placeholders($path);
-		print_r($configarray);
 }//p=7
  elseif($_GET['p']==1) { 
 echo 'done';
