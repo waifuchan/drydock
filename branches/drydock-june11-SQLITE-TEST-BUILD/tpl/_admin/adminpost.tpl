@@ -4,7 +4,7 @@
 <div id="main">
     <div class="box">
         <div class="pgtitle">
-            Board Settings
+            Manager Post
         </div>
 <form name="postform" id="postform" action="{$THurl}thread.php" method="post" enctype="multipart/form-data">
 <table>

@@ -30,8 +30,8 @@
 <table>	
 	{foreach from=$boards item=board}
 <tr><td>{$board.name} - /{$board.folder}/</td>
-<td>[<a href="admin.php?a=b&boardselect={$board.id}">Edit this board</a>]</td>
-<td>[<a href="admin.php?a=mp&board={$board.id}">Make a manager post</a>]</td>
+<td>[<a href="admin.php?a=b&boardselect={$board.folder}">Edit this board</a>]</td>
+<td>[<a href="admin.php?a=mp&board={$board.folder}">Make a manager post</a>]</td>
 <td>[<a href="{$THurl}{if !$THuserewrite}drydock.php?b={/if}{$board.folder}">Visit</a>]</td></tr>
 	{/foreach}
 </table>	

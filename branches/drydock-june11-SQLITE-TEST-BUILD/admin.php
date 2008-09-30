@@ -41,7 +41,6 @@
 		}
 	}
 	$sm=sminit(null,null,null,true);
-	//Admin Smarty setup; no caching (we probably broke this from Thorn :[ ~tyam)
 	if (isset($_GET['a']))
 	{
 		if ($_GET['a']=="b")  //Board stuff
@@ -64,11 +63,20 @@
 				}
 			}
 			$sm->assign_by_ref("tplsets",$sets);
+
 			if ($_GET['boardselect'])
 			{
 				//Configure options for a specific board
-				$sm->assign("boardselect",$_GET['boardselect']);
-				$sm->assign("board",$db->myarray($db->myquery("select * from ".THboards_table." where id=".intval($_GET['boardselect']))),$sm);
+				$boardselect = $db->myarray("select * from ".THboards_table." where folder='".$db->clean($_GET['boardselect'])."'");
+				if($boardselect)
+				{
+					$sm->assign("boardselect",$db->clean($_GET['boardselect']));
+					$sm->assign("board",$boardselect,$sm);
+				}
+				else
+				{
+					THdie("Invalid board ID provided.");
+				}
 			}
 			else
 			{
@@ -365,7 +373,7 @@
 		{
 			if ($_GET['board'])
 			{
-				$boardarray = $db->myarray($db->myquery("select * from ".THboards_table." where id=".intval($_GET['board'])));
+				$boardarray = $db->myarray("select * from ".THboards_table." where folder='".$db->clean($_GET['board'])."'");
 				if($boardarray)
 				{
 					$sm->assign("binfo",$boardarray,$sm);
@@ -556,14 +564,13 @@
 			if ($_POST['delete'.$_POST['boardselect']]==true) //Delete images on that board; nuke it from db
 			{
 				delimgs($db->fragboard($_POST['boardselect']));
-				$db->myquery("DELETE from ".THboards_table." WHERE id=".intval($_POST['boardselect']));
+				$db->myquery("DELETE from ".THboards_table." WHERE folder=".intval($_POST['boardselect']));
 				$actionstring = "Board delete\tid:".$id;
 				writelog($actionstring,"admin");
 			} 
 			else 
 			{
-				$oldid=intval($_POST['boardselect']);
-				$id=intval($_POST['id'.$oldid]);
+				$oldid=getboardnumber($db->clean($_POST['boardselect']));
 				$globalid=intval($_POST['globalid'.$oldid]);
 				$name=$db->clean($_POST['name'.$oldid]);
 				$folder=$db->clean($_POST['folder'.$oldid]);
@@ -588,10 +595,9 @@
 				$tpix=intval($_POST['tpix'.$oldid]);
 				$rpix=intval($_POST['rpix'.$oldid]);
 				$tmax=intval($_POST['tmax'.$oldid]);
-				$updatequery = "UPDATE ".THboards_table." set id=".$db->clean($id).",globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
-				//print_r($updatequery);
+				$updatequery = "UPDATE ".THboards_table." set globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
+				//print_r($updatequery); echo "<br/>"; var_dump($_POST);
 				$db->myquery($updatequery);
-				
 				$actionstring = "Board edit\tid:".$id;
 				writelog($actionstring,"admin");
 			}

@@ -352,7 +352,6 @@ $check = unserialize($configarray);
 <?php } elseif($_GET['p']==7) {
 	//Time to finish up with everything.
 	$configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
-
 		$seed = mt_rand(0,100000); // I like the Mersenne Twister random number generation more.
 
 		// lol.
@@ -444,8 +443,8 @@ $check = unserialize($configarray);
 		
 		if($configarray['THdbtype']=="MySQL")
 		{
-			$link = mysql_connect(THdbserver,THdbuser,THdbpass);
-			@mysql_select_db(THdbbase) or diestring();
+			$link = mysql_connect($configarray['THdbserver'],$configarray['THdbuser'],$configarray['THdbpass']);
+			@mysql_select_db($configarray['THdbbase']) or die;
 		} else {
 			$link = sqlite_open(str_replace("/configure.php", "", $_SERVER['SCRIPT_FILENAME'])."/unlinked/drydock.sqlite", 0666, $sqliteerror);
 		}
