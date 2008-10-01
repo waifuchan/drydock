@@ -23,12 +23,10 @@
 	function rebuild_capcodes()
 	{
 		$capcodes = array();
-		$db = new ThornDBI();
-		$query = "SELECT * FROM ".THcapcodes_table;
 		
-		// Load stuff from the DB
-		$queryresult=$db->myquery($query);
-		while ($row_item=$db->myarray($queryresult)) 
+		$db = new ThornDBI();
+		$db_capcodes = $db->fetchBCW(THbcw_capcode);
+		foreach( $db_capcodes as $row_item )
 		{
 			$capcodes[$row_item['capcodefrom']] = $row_item['capcodeto'];
 		}
@@ -147,17 +145,15 @@
 	}
 
 	function rebuild_filters()
-	{
-		$db = new ThornDBI();
-
-		$query = "SELECT * FROM ".THfilters_table;
-
+	{	
 		$to=array();
 		$from=array();
 
 		// Load stuff from the DB
-		$queryresult=$db->myquery($query);
-		while ($row_item=$db->myarray($queryresult)) 
+		$db = new ThornDBI();
+
+		$db_filters = $db->fetchBCW(THbcw_filter);
+		foreach( $db_filters as $row_item )
 		{
 			$to[]=$row_item['filterto'];
 			$from[]=$row_item['filterfrom'];

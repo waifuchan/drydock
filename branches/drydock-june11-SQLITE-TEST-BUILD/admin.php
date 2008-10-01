@@ -512,49 +512,40 @@
 		header("Location: ".THurl."admin.php?a=g");
 		die();
 	}
-	elseif ($_GET['t']=="bl") //Update blotter
-	{
-		$entry = escape_string($_POST['post']);
-		$board = intval($_POST['postto']);
-		$time = (THtimeoffset*60) + time();
-		$query = 'INSERT INTO '.THblotter_table.' ( entry,board,time) VALUES ("'.$entry.'","'.$board.'","'.$time.'")';
-		$db->myquery($query);
+	elseif ($_GET['t']=="bl") //Update (add) blotter
+	{		
+		$db->insertBCW(THbcw_blotter, $_POST['post'], $_POST['postto']);
+		
 		$actionstring = "Blotter post";
 		writelog($actionstring,"admin");
+		
 		header("Location: ".THurl."admin.php?a=bl");
 	}
 	elseif ($_GET['t']=="ble") //Edit blotter
 	{
-		$queryresult = $db->myquery("SELECT * FROM ".THblotter_table);
-		if ($queryresult!=null)
+		$blotter = $db->fetchBCW(THbcw_blotter);
+		
+		foreach ($blotter as $blot)
 		{
-			$blotter=array();
-			while ($blot=$db->myarray($queryresult))
+			if ($_POST['del'.$blot['id']])
 			{
-				$blotter[]=$blot;
-			}
-			foreach ($blotter as $blot)
+				$db->deleteBCW(THbcw_blotter, $blot['id']);
+				
+				$actionstring = "Blotter delete\tid:".$blot['id'];
+				writelog($actionstring,"admin");
+			} 
+			else 
 			{
-				if ($_POST['del'.$blot['id']])
-				{
-					$db->myquery("delete from ".THblotter_table." where id=".$blot['id']);
-					$actionstring = "Blotter delete\tid:".$blot['id'];
-					writelog($actionstring,"admin");
-				} 
-				else 
-				{
-					$blotter_entry=array(
-						'id'=>(int)$_POST['id'.$blot['id']],
-						'text'=>escape_string($_POST['post'.$blot['id']]),
-						'board'=>escape_string($_POST['postto'.$blot['id']])
-					);
-					//print_r($filter);
-					$query='update '.THblotter_table.' set entry="'.$blotter_entry['text'].'", board="'.$blotter_entry['board'].
-						'" where id='.$blotter_entry['id'];
-					$db->myquery($query);
-				}
+				$blotter_entry=array(
+					'id'=>(int)$_POST['id'.$blot['id']],
+					'text'=>escape_string($_POST['post'.$blot['id']]),
+					'board'=>escape_string($_POST['postto'.$blot['id']])
+				);
+				
+				$db->updateBCW(THbcw_blotter, $blotter_entry['id'], $blotter_entry['text'], $blotter_entry['board']);
 			}
 		}
+		
 		header("Location: ".THurl."admin.php?a=bl");
 	}
 	elseif ($_GET['t']=="b")  //edit boards
@@ -700,41 +691,43 @@ VALUES (
 		{
 			THdie('Invalid field provided.'); // don't know if this is right
 		}
-		$query = 'INSERT INTO '.THcapcodes_table.' ( capcodefrom,capcodeto,notes ) VALUES ("'.escape_string($_POST['capcodefrom']).'","'.escape_string($_POST['capcodeto']).'","'.escape_string($_POST['notes']).'");';
-		$db->myquery($query);
+		
+		// insertBCW takes care of the rest.
+		$db->insertBCW(THbcw_capcode, $_POST['capcodefrom'], $_POST['capcodeto'], $_POST['notes']);
+
 		rebuild_capcodes();
+		
+		$actionstring = "CP add\tfrom:".$_POST['capcodefrom']."\tto:".$_POST['capcodeto'];
+		writelog($actionstring,"admin");
+		
 		header("Location: ".THurl."admin.php?a=c");
 	}
 	elseif ($_GET['t']=="rc") //Edit capcode
 	{
-		$queryresult = $db->myquery("SELECT * FROM ".THcapcodes_table);
-		if ($queryresult!=null)
+		$capcodes = $db->fetchBCW(THbcw_capcode);
+		
+		foreach ($capcodes as $cap)
 		{
-			$capcodes=array();
-			while ($capcode=$db->myarray($queryresult))
-			{
-				$capcodes[]=$capcode;
+			if ($_POST['del'.$cap['id']])
+			{			
+				$db->deleteBCW(THbcw_capcode, $cap['id']);
+				
+				$actionstring = "CP delete\tid:".$cap['id'];
+				writelog($actionstring,"admin");
 			}
-			foreach ($capcodes as $cap)
+			else
 			{
-				if ($_POST['del'.$cap['id']])
-				{
-					$db->myquery("delete from ".THcapcodes_table." where id=".$cap['id']);
-				}
-				else
-				{
-					$capcode=array(
-						'id'=>(int)$_POST['id'.$cap['id']],
-						'from'=>escape_string($_POST['from'.$cap['id']]),
-						'to'=>escape_string($_POST['to'.$cap['id']]),
-						'notes'=>escape_string($_POST['notes'.$cap['id']])
-					);
-					//print_r($capcode);
-					$query='update '.THcapcodes_table.' set capcodefrom="'.$capcode['from'].'", capcodeto="'.$capcode['to'].'", notes="'.$capcode['notes'].'" where id='.$capcode['id'];
-					$db->myquery($query);
-				}
+				$capcode=array(
+					'id'=>(int)$_POST['id'.$cap['id']],
+					'from'=>escape_string($_POST['from'.$cap['id']]),
+					'to'=>escape_string($_POST['to'.$cap['id']]),
+					'notes'=>escape_string($_POST['notes'.$cap['id']])
+				);
+
+				$db->updateBCW(THbcw_capcode, $capcode['id'], $capcode['from'], $capcode['to'], $capcode['notes']);
 			}
 		}
+
 		header("Location: ".THurl."admin.php?a=c");
 	}
 	elseif ($_GET['t']=="aw") //Add wordfilter
@@ -743,44 +736,43 @@ VALUES (
 		{
 			THdie('Invalid field provided.'); // don't know if this is right
 		}
-		$query = 'INSERT INTO '.THfilters_table.' ( filterfrom,filterto,notes ) VALUES ("'.escape_string($_POST['filterfrom']).'","'.escape_string($_POST['filterto']).'","'.escape_string($_POST['notes']).'");';
-		$db->myquery($query);
+		
+		// insertBCW takes care of the rest.
+		$db->insertBCW(THbcw_filter, $_POST['filterfrom'], $_POST['filterto'], $_POST['notes']);
+		
+		rebuild_filters();
+		
 		$actionstring = "WF add\tfrom:".$_POST['filterfrom']."\tto:".$_POST['filterto'];
 		writelog($actionstring,"admin");
+		
 		header("Location: ".THurl."admin.php?a=w");
 	}
 	elseif ($_GET['t']=="ew") //Edit filter
 	{
-		$queryresult = $db->myquery("SELECT * FROM ".THfilters_table);
-		if ($queryresult!=null)
+		$filters = $db->fetchBCW(THbcw_filter);
+		
+		foreach ($filters as $filt)
 		{
-			$filters=array();
-			while ($filter=$db->myarray($queryresult))
+			if ($_POST['del'.$filt['id']])
 			{
-				$filters[]=$filter;
+				$db->deleteBCW(THbcw_filter, $filt['id']);
+				
+				$actionstring = "WF delete\tid:".$filt['id'];
+				writelog($actionstring,"admin");
 			}
-			foreach ($filters as $filt)
+			else
 			{
-				if ($_POST['del'.$filt['id']])
-				{
-					$db->myquery("delete from ".THfilters_table." where id=".$filt['id']);
-					$actionstring = "WF delete\tid:".$filt['id'];
-					writelog($actionstring,"admin");
-				}
-				else
-				{
-					$filter=array(
-						'id'=>(int)$_POST['id'.$filt['id']],
-						'from'=>escape_string($_POST['from'.$filt['id']]),
-						'to'=>escape_string($_POST['to'.$filt['id']]),
-						'notes'=>escape_string($_POST['notes'.$filt['id']])
-					);
-					//print_r($filter);
-					$query='update '.THfilters_table.' set filterfrom="'.$filter['from'].'", filterto="'.$filter['to'].'", notes="'.$filter['notes'].'" where id='.$filter['id'];
-					$db->myquery($query);
-				}
+				$filter=array(
+					'id'=>(int)$_POST['id'.$filt['id']],
+					'from'=>escape_string($_POST['from'.$filt['id']]),
+					'to'=>escape_string($_POST['to'.$filt['id']]),
+					'notes'=>escape_string($_POST['notes'.$filt['id']])
+				);
+				
+				$db->updateBCW(THbcw_filter, $filter['id'], $filter['from'], $filter['to'], $filter['notes']);
 			}
 		}
+		
 		rebuild_filters();
 		header("Location: ".THurl."admin.php?a=w");
 	}

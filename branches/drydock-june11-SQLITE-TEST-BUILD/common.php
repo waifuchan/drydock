@@ -40,6 +40,11 @@
 		}
 	}
 	require_once("rebuilds.php");  //frown
+	
+	define("THbcw_blotter", 1);
+	define("THbcw_capcode", 2);
+	define("THbcw_filter", 3);
+	
 	function THdie($err)
 	{
 		//die($err);

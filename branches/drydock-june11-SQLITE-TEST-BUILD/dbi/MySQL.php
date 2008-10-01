@@ -2,7 +2,7 @@
 	/*
 		drydock imageboard script (http://code.573chan.org/)
 		File:           dbi/MySQL.php
-		Description:    Handles interface between database and board functions.
+		Description:    Handles interface between database and board functions using a MySQL database.
 		
 		Unless otherwise stated, this code is copyright 2008 
 		by the drydock developers and is released under the
@@ -25,13 +25,12 @@ class ThornDBI {
         }
     }
 
-
 	/*  provided by Mell03d0ut from anonib */
     function clean($call)
 	{
       $call=htmlspecialchars($call);
       if (get_magic_quotes_gpc()==0) {
-        $call=escape_string($call);
+        $call=mysql_real_escape_string($call);
       }
       $call=trim($call); 
       return($call);
@@ -80,6 +79,32 @@ class ThornDBI {
         }
 		return($dog);
     }
+	
+	function mymultiarray($call)
+	{	
+		/*
+		Encapsulate executing a query and iteratively calling myarray on the result.
+		
+		Parameters:
+			string call
+		The SQL query to execute
+		
+		Returns:
+			An array of associative arrays (can be size 0)
+		*/
+		
+		$multi=array();
+		
+		$queryresult = $db->myquery($call);
+		if ($queryresult!=null)
+		{
+			while ($entry=$db->myarray($queryresult))
+			{
+				$multi[]=$entry;
+			}
+		}
+		return $multi;
+	}
 
 	function timecount($start,$end)
 	{
@@ -125,7 +150,6 @@ class ThornDBI {
         return($wows);
     }
 
-	// What follows are functions used by some, but not all, subclasses. Darn it, it'd be nice if PHP would let classes have more than one parent...
     function getimgs($imgidx)
 	{
 		/*
@@ -243,7 +267,9 @@ class ThornDBI {
 			Parameters:
 				int $ip=ip2long($_SERVER['REMOTE_ADDR']);
 			The ip2long'd IP address. If blank, it checks the user's IP address. ("function checkban($ip=ip2long($_SERVER['REMOTE_ADDR']))" makes PHP cwy.)
-				Returns: bool $banned
+			
+			Returns:
+				bool $banned
 		*/
         if ($ip==null)
 		{
@@ -259,6 +285,216 @@ class ThornDBI {
             return(false);
         }
     }
+	
+	function getboard($id=0, $folder="")
+	{
+		/*
+			Get board information, will optionally filter by id and/or folder
+			Parameters:
+				int id 
+			The board ID to optionally filter by
+				string folder
+			The board filter to optionally filter by
+			
+			Returns:
+				array containing board info
+		*/
+		
+		$querystring = "select * from ".THboards_table." where ";
+		$id = intval($id); // Make it explicitly an integer
+		
+		// No filtering at all
+		if( $id == 0 and $folder == "")
+		{
+			$querystring = $querystring . "1";
+		}
+		else if( $id != 0 and $folder != "" ) // Filtering by both folder AND ID
+		{
+			$querystring = $querystring . "id=".$id." AND folder='".$this->clean($folder)."'";
+		}
+		else if( $id != 0 ) // Filtering by only ID
+		{
+			$querystring = $querystring . "id=".$id;
+		}
+		else // Filtering by only folder
+		{
+			$querystring = $querystring . "folder='".$this->clean($folder)."'";
+		}
+		
+		return $db->myarray($querystring);
+	}
+	
+	function insertBCW($type = -1, $field1="", $field2="", $field3="")
+	{
+		/*
+			Insert either a blotter post, capcode, or wordfilter, based upon the passed type parameter
+			Parameters:
+				int type
+			What to insert.  1 for blotter posts, 2 for capcodes, 3 for wordfilters.
+				string field1, field2, field3
+			Different fields to insert- the usage of which differs between types.  Look at the comments
+			in the switch structure to determine what each parameter should be.
+			
+			Returns:
+				The resulting insertion ID.
+		*/
+		
+		$type = intval($type);
+		switch( $type )
+		{
+			case 1: // Blotter posts
+				// FIELD 1: The entry (string)
+				// FIELD 2: The target board (integer)
+				$query = 'INSERT INTO '.THblotter_table.' ( entry, board, time ) VALUES ("'.
+					$this->clean($field1).'","'.intval($field2).'","'.(THtimeoffset*60) + time().'")';
+			break;
+			
+			case 2: // Capcodes
+				// FIELD 1: Capcode from (string)
+				// FIELD 2: Capcode to (string)
+				// FIELD 3: Notes (string)
+				$query = 'INSERT INTO '.THcapcodes_table.' ( capcodefrom, capcodeto, notes ) VALUES ("'.
+					$this->clean($field1).'","'.$this->clean($field2).'","'.$this->clean($field3).'");';
+			break;
+			
+			case 3: // Wordfilters
+				// FIELD 1: Filter from (string)
+				// FIELD 2: Filter to (string)
+				// FIELD 3: Notes (string)
+				$query = 'INSERT INTO '.THfilters_table.' ( filterfrom, filterto, notes ) VALUES ("'.
+					$this->clean($field1).'","'.$this->clean($field2).'","'.$this->clean($field3).'");';
+			break;
+			
+			default:
+				die("BCW error: Invalid type provided!");
+			break;
+		}
+		
+		$db->myquery($query);
+		return mysql_insert_id($this->cxn); // Return the insertion ID.
+	}
+	
+	function updateBCW($type = -1, $id, $field1="", $field2="", $field3="")
+	{
+		/*
+			Update either a blotter post, capcode, or wordfilter, based upon the passed type parameter
+			Parameters:
+				int type
+			What to insert.  1 for blotter posts, 2 for capcodes, 3 for wordfilters.
+				int id
+			The ID corresponding with the item to update.
+				string field1, field2, field3
+			Different fields to update- the usage of which differs between types.  Look at the comments
+			in the switch structure to determine what each parameter should be.
+			
+			Returns:
+				Nothing
+		*/
+		$type = intval($type);
+		
+		// It is assumed that all of these will have some sort of ID by which to identify what to update, therefore it is not listed in the FIELD comments.
+		switch( $type )
+		{
+			case 1: // Blotter posts
+				// FIELD 1: The entry (string)
+				// FIELD 2: The target board (integer)
+				$query = 'UPDATE '.THblotter_table." SET entry = '".$this->clean($field1)."', board=".intval($field2)." WHERE id=".intval($id);
+			break;
+			
+			case 2: // Capcodes
+				// FIELD 1: Capcode from (string)
+				// FIELD 2: Capcode to (string)
+				// FIELD 3: Notes (string)
+				$query = 'UPDATE '.THcapcodes_table." SET capcodefrom='".
+					$this->clean($field1)."', capcodeto='".$this->clean($field2)."', notes='".$this->clean($field3)."' WHERE id=".intval($id);
+			break;
+			
+			case 3: // Wordfilters
+				// FIELD 1: Filter from (string)
+				// FIELD 2: Filter to (string)
+				// FIELD 3: Notes (string)
+				$query = 'UPDATE '.THfilters_table." SET filterfrom='".
+					$this->clean($field1)."', filterto='".$this->clean($field2)."', notes='".$this->clean($field3)."' WHERE id=".intval($id);
+			break;
+			
+			default:
+				die("BCW error: Invalid type provided!");
+			break;
+		}
+		
+		$db->myquery($query);
+	}
+	
+	function deleteBCW($type = -1, $id)
+	{
+		/*
+			Delete either a blotter post, capcode, or wordfilter, based upon the passed type parameter
+			Parameters:
+				int type
+			What type of item to delete.  1 for blotter posts, 2 for capcodes, 3 for wordfilters.
+				int id
+			The ID corresponding with the item to delete.
+			
+			Returns:
+				Nothing
+		*/
+		$type = intval($type);
+		switch( $type )
+		{
+			case 1: // Blotter posts
+				$query = "DELETE FROM ".THblotter_table." WHERE id=".intval($id);
+			break;
+			
+			case 2: // Capcodes
+				$query = "DELETE FROM ".THcapcodes_table." WHERE id=".intval($id);
+			break;
+			
+			case 3: // Wordfilters
+				$query = "DELETE FROM ".THfilters_table." WHERE id=".intval($id);
+			break;
+			
+			default:
+				die("BCW error: Invalid type provided!");
+			break;
+		}
+		
+		$db->myquery($query);	
+	}
+	
+	function fetchBCW($type = -1)
+	{
+		/*
+			Retrieve either all blotter posts, capcodes, or wordfilters, based upon the passed type parameter
+			Parameters:
+				int type
+			What type of items to select.  1 for blotter posts, 2 for capcodes, 3 for wordfilters.
+			
+			Returns:
+				An array of items
+		*/
+		$type = intval($type);
+		switch( $type )
+		{
+			case 1: // Blotter posts
+				$query = "SELECT * FROM ".THblotter_table;
+			break;
+			
+			case 2: // Capcodes
+				$query = "SELECT * FROM ".THcapcodes_table;
+			break;
+			
+			case 3: // Wordfilters
+				$query = "SELECT * FROM ".THfilters_table;
+			break;
+			
+			default:
+				die("BCW error: Invalid type provided!");
+			break;
+		}	
+	
+		return $db->mymultiarray($query);
+	}
+	
 }//ThornDBI
 
 //===========================================================================================
