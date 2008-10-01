@@ -53,6 +53,6 @@
 		</tr>
 	</tbody>
 </table>
-<input type="hidden" name="board" value="{$binfo.id}" />
+<input type="hidden" name="board" value="{$binfo.folder}" />
 </form>
 {include file=admin-foot.tpl}

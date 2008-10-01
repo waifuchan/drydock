@@ -1,11 +1,4 @@
-{* 
-	DRYDOCK THREAD TEMPLATE					last update: 2007.08.28
-	
-	Provides the view for individual threads and allows replies to threads.
-	
-	Last updated by:		ordog
-
-*}
+<!-- thread -->
 {include file=heady.tpl comingfrom=$comingfrom}
 {it->binfo assign=binfo}
 {it->blotterentries assign=blotter}

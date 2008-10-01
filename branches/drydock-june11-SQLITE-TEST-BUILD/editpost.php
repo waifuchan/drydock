@@ -66,8 +66,7 @@
 			if( !$posttoedit )
 			{
 				$qstring = "SELECT * FROM ".THthreads_table." WHERE globalid=".$post." AND board=".$board;
-				$threadquery = $db->myquery($qstring);
-				$posttoedit=$db->myarray($threadquery);
+				$posttoedit=$db->myarray($qstring);
 				if( !$posttoedit )
 				{
 					THdie("Post with global ID of ".$_GET['post']." and board ".$_GET['board']." does not exist. :(");

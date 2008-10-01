@@ -1,3 +1,4 @@
+<!-- mod -->
 {literal}
 <script type="text/javascript">
 	// oh god I hate you javascript this took way too long to debug

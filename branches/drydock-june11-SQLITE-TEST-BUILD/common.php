@@ -177,7 +177,7 @@
 	{
 		require_once("_Smarty/Smarty.class.php");
 		$sm=new Smarty;
-		//$sm->debugging=true;  //uncomment to enable debugging window for smarty
+		$sm->debugging=true;  //uncomment to enable debugging window for smarty
 		return($sm);
 	}
 	

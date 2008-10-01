@@ -4,7 +4,6 @@
 				if($db->myresult("select count(*) from ".THthreads_table." where globalid=".intval($_GET['i'])." and board=".$boardid." and visible=1")=="0")				{					THdie("Sorry, this thread does not exist.");				}
 				$sm->register_object("it",$db,array("getreplies","getindex","binfo","head","blotterentries"));				//$sm->display($threadtpl,$cid);
 				$sm->display($threadtpl,$cid);
-print_r($_SESSION);
 				if(($_SESSION['admin'] ==1) || ($_SESSION['moderator'] ==1) || ($modvar)) { $sm->display("modscript.tpl",$cid); }
 				$sm->display("bottombar.tpl",$cid);				die();			}			elseif (isset($_GET['g'])==true)			{				//This page of the board...				$page=abs((int)$_GET['g']);			} 			else 			{				$page=0;			}			$tpl="board.tpl";			$cid="b".$boardid."-".$page."-".$template;			$sm=sminit($tpl,$cid,$template);			//var_dump($obj);			$db=new ThornBoardDBI($boardid,$page,$on);			$sm->register_object("it",$db,array("getallthreads","getsthreads","getindex","binfo","page","allthreadscalmerge","blotterentries"));			$sm->assign('template', $template);			//here we go with a bunch of retarded variables that later we can turn into an array  (looks like i kopiped this)            $sm->assign('username',$_SESSION['username']);            $modvar = is_in_csl($boardid, $_SESSION['mod_array']);			$sm->assign('comingfrom',"board");			if (isset($ogd)==true)			{				$sm->assign("on",$ogd);			}
 

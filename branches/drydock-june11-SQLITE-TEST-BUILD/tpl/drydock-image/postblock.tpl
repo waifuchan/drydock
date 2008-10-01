@@ -1,3 +1,4 @@
+<!-- postblock -->
 <div class="theader">
 {if $comingfrom=="board"}
 	{if $binfo.tlock}

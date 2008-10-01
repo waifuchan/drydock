@@ -23,10 +23,12 @@
 	function rebuild_capcodes()
 	{
 		$capcodes = array();
-		
 		$db = new ThornDBI();
-		$db_capcodes = $db->fetchBCW(THbcw_capcode);
-		foreach( $db_capcodes as $row_item )
+		$query = "SELECT * FROM ".THcapcodes_table;
+		
+		// Load stuff from the DB
+		$queryresult=$db->myquery($query);
+		while ($row_item=$db->myarray($queryresult)) 
 		{
 			$capcodes[$row_item['capcodefrom']] = $row_item['capcodeto'];
 		}
@@ -145,15 +147,17 @@
 	}
 
 	function rebuild_filters()
-	{	
+	{
+		$db = new ThornDBI();
+
+		$query = "SELECT * FROM ".THfilters_table;
+
 		$to=array();
 		$from=array();
 
 		// Load stuff from the DB
-		$db = new ThornDBI();
-
-		$db_filters = $db->fetchBCW(THbcw_filter);
-		foreach( $db_filters as $row_item )
+		$queryresult=$db->myquery($query);
+		while ($row_item=$db->myarray($queryresult)) 
 		{
 			$to[]=$row_item['filterto'];
 			$from[]=$row_item['filterfrom'];
@@ -331,9 +335,9 @@
 	{
 		$sidelinks = fopen("rss.xml", "w") or die("Could not open rss.xml for writing.");
 		fwrite($sidelinks, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
-		fwrite($sidelinks, "<rss version=\"2.0\">\n");
+		fwrite($sidelinks, "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n");
 		fwrite($sidelinks, "\t<channel>\n");
-		fwrite($sidelinks, '<atom:link href="'.THpath.'/rss.xml" rel="self" type="application/rss+xml" />');
+		fwrite($sidelinks, '<atom:link href="'.THurl.'rss.xml" rel="self" type="application/rss+xml" />'."\n");
 		fwrite($sidelinks, "\t\t<title>".THname."</title>\n");
 		fwrite($sidelinks, "\t\t<description>".THname." drydock RSS feeder - ".THurl."</description>\n");
 		fwrite($sidelinks, "\t\t<language>en</language>\n");
@@ -344,13 +348,8 @@
 		//pull everything from the news page
 		
 		$boardsquery = "SELECT globalid,board,title,name,trip,body,time FROM ".THthreads_table." where board=".THnewsboard." ORDER BY time DESC LIMIT 0,15";
-		$boards=array();
-		$queryresult=$db->myquery($boardsquery);
-		while ($board=$db->myarray($queryresult))
-		{
-			$boards[]=$board;
-		}
-		foreach($boards as $boardentry)
+		$board=$db->mymultiarray($boardsquery);
+		foreach($board as $boardentry)
 		{
 			//set up our variables so we're not using raws
 			if($boardentry['name'])
@@ -367,12 +366,17 @@
 			$text = $boardentry['body'];  //no filters
 			if($boardentry['title'] != NULL) { $subject = $boardentry['title']; } else { $subject= "News post"; }
 			$newsboard = getboardname(THnewsboard);  //get the name of the board
-			$link = THurl.$newsboard.'/thread/'.$boardentry['globalid'];
+			if(THuserewrite) {
+				$link = THurl.$newsboard.'/thread/'.$boardentry['globalid'];
+			} else {
+				$link = THurl.'drydock.php?b='.$newsboard.'&amp;i='.$boardentry['globalid'];
+			}
+			$guid = $boardentry['globalid'];
 			$body = replacewedge(nl2br($text)).'&lt;br/&gt;~'.$author;
 			//post template
 			fwrite($sidelinks, "\n");
 			fwrite($sidelinks, "\t\t<item>\n");
-			fwrite($sidelinks, "\t\t<guid>$link</guid>\n");
+			fwrite($sidelinks, "\t\t<guid isPermaLink=\"false\">news $guid</guid>\n");
 			fwrite($sidelinks, "\t\t\t<title>$subject</title>\n");
 			fwrite($sidelinks, "\t\t\t<description>$body</description>\n");
 			fwrite($sidelinks, "\t\t\t<link>$link</link>\n");

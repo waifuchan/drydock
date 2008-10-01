@@ -1,3 +1,4 @@
+<!-- viewblock -->
 {if $thread.visible == "1"} {* deleting threads sets this to 0 to hide for review *}
 <div class="damnopera">
 	<a name="{$thread.globalid}"></a>

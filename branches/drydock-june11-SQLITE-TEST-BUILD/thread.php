@@ -21,7 +21,7 @@
 	}
 */
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
-
+var_dump($_POST);
 	$db=new ThornPostDBI;
 	if ($db->checkban()) 
 	{
@@ -49,7 +49,7 @@
 		{
 			// get out spambot >:[
 			$redhammer = new ThornModDBI();
-			$redhammer->banip(ip2long($_SERVER['REMOTE_ADDR']),0,"Suspected bot.","","Suspected bot.",$_POST['body'], -1, "autoban");
+			$redhammer->banip(ip2long($_SERVER['REMOTE_ADDR']),0,"Suspected bot.","","Suspected bot.",$_POST['body'], 4, "autoban");
 		}
 	}
 

@@ -1418,7 +1418,7 @@ class ThornBoardDBI extends ThornDBI
         $orderby.=" limit ".($this->page*$this->binfo['perpg']).",".$this->binfo['perpg'];
 
         $sthreads = array();
-		$sthreads = $this->mymultiarray$this->mymultiarray("select * from ".THthreads_table." where board=".$this->binfo['id'].$orderby);
+		$sthreads = $this->mymultiarray("select * from ".THthreads_table." where board=".$this->binfo['id'].$orderby);
 		
         foreach ($sthreads as $th)
 		{

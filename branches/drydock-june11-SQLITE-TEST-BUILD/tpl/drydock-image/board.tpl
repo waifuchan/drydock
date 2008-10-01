@@ -1,11 +1,4 @@
-{* 
-	DRYDOCK BOARD TEMPLATE					last update: 2007.08.28
-	
-	Provides the view for a board and allows posting of new threads.
-	
-	Last updated by:		ordog
-	
-*}
+<!-- board -->
 {include file=heady.tpl comingfrom=$comingfrom}
 {it->binfo assign=binfo}
 {it->blotterentries assign=blotter}
@@ -44,6 +37,7 @@
 	//-->
 </script>
 {/literal}
+<!-- threads -->
 {it->getsthreads assign="sthreads"}
 {foreach from=$sthreads item=thread}
 {include file=viewblock.tpl comingfrom=$comingfrom}
