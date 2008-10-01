@@ -95,10 +95,10 @@ class ThornDBI {
 		
 		$multi=array();
 		
-		$queryresult = $db->myquery($call);
+		$queryresult = $this->myquery($call);
 		if ($queryresult!=null)
 		{
-			while ($entry=$db->myarray($queryresult))
+			while ($entry=sqlite_fetch_array($queryresult))
 			{
 				$multi[]=$entry;
 			}
@@ -318,7 +318,7 @@ class ThornDBI {
 			$querystring = $querystring . "folder='".$this->clean($folder)."'";
 		}
 		
-		return $db->myarray($querystring);
+		return $this->myarray($querystring);
 	}
 	
 	function insertBCW($type = -1, $field1="", $field2="", $field3="")
@@ -367,7 +367,7 @@ class ThornDBI {
 			break;
 		}
 		
-		$db->myquery($query);
+		$this->myquery($query);
 		return sqlite_last_insert_rowid($this->cxn); // Return the insertion ID.
 	}
 	
@@ -419,7 +419,7 @@ class ThornDBI {
 			break;
 		}
 		
-		$db->myquery($query);
+		$this->myquery($query);
 	}
 	
 	function deleteBCW($type = -1, $id)
@@ -455,7 +455,7 @@ class ThornDBI {
 			break;
 		}
 		
-		$db->myquery($query);	
+		$this->myquery($query);	
 	}
 	
 	function fetchBCW($type = -1)
@@ -489,7 +489,7 @@ class ThornDBI {
 			break;
 		}	
 	
-		return $db->mymultiarray($query);
+		return $this->mymultiarray($query);
 	}
 	
 }//ThornDBI
@@ -995,12 +995,12 @@ function banbody($id,$isthread,$publicbanreason="USER HAS BEEN BANNED FOR THIS P
 		Simply returns all ban information. Intended for use to render the ban management admin page.
 		No parameters.
 		*/
-        $rows=$this->myquery("select * from ".THbans_table);
-        $baddies=array();
-        while ($row=sqlite_fetch_array($rows))  //help
+		$baddies = array();
+        $baddies = $this->mymultiarray("select * from ".THbans_table);
+		
+        foreach ($baddies as $row)
 		{
 			$row['subnet']=(bool)$row['subnet'];
-                $baddies[]=$row;
         }
         return($baddies);
     }

@@ -95,10 +95,10 @@ class ThornDBI {
 		
 		$multi=array();
 		
-		$queryresult = $db->myquery($call);
+		$queryresult = $this->myquery($call);
 		if ($queryresult!=null)
 		{
-			while ($entry=$db->myarray($queryresult))
+			while ($entry=mysql_fetch_array($queryresult))
 			{
 				$multi[]=$entry;
 			}
@@ -321,7 +321,7 @@ class ThornDBI {
 			$querystring = $querystring . "folder='".$this->clean($folder)."'";
 		}
 		
-		return $db->myarray($querystring);
+		return $this->myarray($querystring);
 	}
 	
 	function insertBCW($type = -1, $field1="", $field2="", $field3="")
@@ -370,7 +370,7 @@ class ThornDBI {
 			break;
 		}
 		
-		$db->myquery($query);
+		$this->myquery($query);
 		return mysql_insert_id($this->cxn); // Return the insertion ID.
 	}
 	
@@ -422,7 +422,7 @@ class ThornDBI {
 			break;
 		}
 		
-		$db->myquery($query);
+		$this->myquery($query);
 	}
 	
 	function deleteBCW($type = -1, $id)
@@ -458,7 +458,7 @@ class ThornDBI {
 			break;
 		}
 		
-		$db->myquery($query);	
+		$this->myquery($query);	
 	}
 	
 	function fetchBCW($type = -1)
@@ -492,7 +492,7 @@ class ThornDBI {
 			break;
 		}	
 	
-		return $db->mymultiarray($query);
+		return $this->mymultiarray($query);
 	}
 	
 }//ThornDBI
@@ -978,12 +978,12 @@ function banbody($id,$isthread,$publicbanreason="USER HAS BEEN BANNED FOR THIS P
 		Simply returns all ban information. Intended for use to render the ban management admin page.
 		No parameters.
 		*/
-        $rows=$this->myquery("select * from ".THbans_table);
-        $baddies=array();
-        while ($row=mysql_fetch_assoc($rows))
+		$baddies = array();
+        $baddies=$this->mymultiarray("select * from ".THbans_table);
+		
+        foreach ($baddies as $row)
 		{
 			$row['subnet']=(bool)$row['subnet'];
-                $baddies[]=$row;
         }
         return($baddies);
     }
@@ -1349,9 +1349,7 @@ class ThornBoardDBI extends ThornDBI
         
         return($threads);
     }
-    
-
-    
+        
     function getsthreads($p, &$sm)
 	{
 		/*
@@ -1378,10 +1376,6 @@ class ThornBoardDBI extends ThornDBI
             $p['rdesc']=false;
         }
         
-        //What the frick is this crap?
-        //var_dump($this->on);
-        //var_dump($p);
-        //die("here");
         if (isset($this->on['year']))
 		{
             if (isset($this->on['month']))
@@ -1422,11 +1416,11 @@ class ThornBoardDBI extends ThornDBI
         }
         
         $orderby.=" limit ".($this->page*$this->binfo['perpg']).",".$this->binfo['perpg'];
-        
-        $frog=$this->myquery("select * from ".THthreads_table." where board=".$this->binfo['id'].$orderby);
 
-        $sthreads=array();
-        while ($th=mysql_fetch_assoc($frog))
+        $sthreads = array();
+		$sthreads = $this->mymultiarray$this->mymultiarray("select * from ".THthreads_table." where board=".$this->binfo['id'].$orderby);
+		
+        foreach ($sthreads as $th)
 		{
             unset($th['ip']);
             $th['images']=$this->getimgs($th['imgidx']);
@@ -1435,7 +1429,9 @@ class ThornBoardDBI extends ThornDBI
 			{
                 $th['reps']=null;
                 $th['scount']=0;
-            } else {
+            } 
+			else 
+			{
                 $start=$th['rcount']-$this->binfo['perth'];
                 if ($start<0)
 				{
@@ -1445,11 +1441,14 @@ class ThornBoardDBI extends ThornDBI
                 if ($p['rdesc'])
 				{
                     $orderby=" order by time desc limit ".$start.",".$this->binfo['perth'];
-                } else {
+                } 
+				else
+				{
                     $orderby=" order by time limit ".$start.",".$this->binfo['perth'];
                 }
-                $toad=$this->myquery("select * from ".THreplies_table." where thread=".$th['id'].$orderby);
-                while ($reply=mysql_fetch_assoc($toad))
+				
+                $thread_replies = $this->mymultiarray("select * from ".THreplies_table." where thread=".$th['id'].$orderby);
+                foreach ($thread_replies as $reply)
 				{
                     unset($reply['ip']);
                     $reply['images']=$this->getimgs($reply['imgidx']);
@@ -1457,8 +1456,8 @@ class ThornBoardDBI extends ThornDBI
                 }
                 $th['scount']=count($th['reps']);
             }
+			
             //var_dump($th);
-            $sthreads[]=$th;
         }
         return($sthreads);
     }//getsthreads
