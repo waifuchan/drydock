@@ -376,6 +376,7 @@
 	{
 		return md5(generateRandStr(16));
 	}
+	
 	/*
 		generateRandStr - Generates a string made up of randomized
 		letters (lower and upper case) and digits, the length
@@ -400,29 +401,7 @@
 		}
 		return $randstr;
 	}
-	function canEditProfile($user)
-	{
-		if(!isset($_SESSION['username']))
-		{
-			return false;
-		}
-		if($_SESSION['username'] == $user)
-		{
-			return true;
-		}
-		if(!$_SESSION['admin'])
-		{
-			return false;
-		}
-		$db=new ThornDBI();
-		// We assume $user is a valid username, so any functions should make that check beforehand
-		$userlevel = $db->myresult("SELECT userlevel FROM ".THusers_table." WHERE username='".escape_string($user)."'");
-		if($userlevel >= $_SESSION['userlevel'] || $userlevel==null)
-		{
-			return false;
-		}
-		return true;
-	}
+
 	function sendWelcome($user, $email, $pass)
 	{
 		$from = "From: ".THprofile_emailname." <".THprofile_emailaddr.">";
@@ -505,14 +484,13 @@
 	{
 		if(isset($_COOKIE[THcookieid."-uname"]) && isset($_COOKIE[THcookieid."-id"]))
 		{
-			$db=new ThornDBI();
-			$query = "SELECT approved FROM ".THusers_table.
-				" WHERE username='".escape_string($_COOKIE[THcookieid."-uname"]).
-				"' AND userid='".escape_string($_COOKIE[THcookieid."-id"])."'";
-			$userresult = $db->myresult($query);
+			// verify login information
+			$db=new ThornProfileDBI();
+			$userdata  = $db->getuserdata_cookielogin($_COOKIE[THcookieid."-uname"], $_COOKIE[THcookieid."-id"]);
 			
-			if($userresult != 1)
+			if($userdata == null)
 			{
+				// No dice.
 				setcookie(THcookieid."-uname", "", time()-THprofile_cookietime, THprofile_cookiepath);
 				setcookie(THcookieid."-id",   "", time()-THprofile_cookietime, THprofile_cookiepath);
 
@@ -524,31 +502,31 @@
 				unset($_SESSION['moderator']);
 				unset($_SESSION['mod_array']);
 				
-				$db->myquery("UPDATE ".THusers_table.
-					" SET userid=NULL WHERE username='".escape_string($_COOKIE[THcookieid."-uname"])."'");
 			}
-			else if( !isset($_SESSION['username']) )
+			elseif( !isset($_SESSION['username']) )
 			{
 				// Okay, they have a valid ID for a login, but no session data.  Let's rectify that.
-				$query = "SELECT * FROM ".THusers_table.
-				" WHERE username='".escape_string($_COOKIE[THcookieid."-uname"]).
-				"' AND userid='".escape_string($_COOKIE[THcookieid."-id"])."'";
-				$userresult = $db->myquery($query);
-				$userdata=mysql_fetch_assoc($userresult);
-
-				if($userdata != NULL)
-				{
-					$_SESSION['username'] 	= $userdata['username'];
-					$_SESSION['userlevel'] 	= $userdata['userlevel'];
-					$_SESSION['admin'] 		= $userdata['mod_admin'];
-					$_SESSION['mod_array'] 	= $userdata['mod_array'];
-					$_SESSION['mod_global'] = $userdata['mod_global'];
-				}
+				$_SESSION['username'] 	= $userdata['username'];
+				$_SESSION['userlevel'] 	= $userdata['userlevel'];
+				$_SESSION['admin'] 		= $userdata['mod_admin'];
+				$_SESSION['mod_array'] 	= $userdata['mod_array'];
+				$_SESSION['mod_global'] = $userdata['mod_global'];
+					
 				if ($userdata['mod_global'] || $userdata['mod_array'])
 				{
 					$_SESSION['moderator']=true;
-				}			
-			}
+				}
+			}			
+		}
+		elseif (isset($_SESSION['username']))
+		{
+			/* Unset PHP session variables */
+			unset($_SESSION['username']);
+			unset($_SESSION['userid']);
+			unset($_SESSION['userlevel']);
+			unset($_SESSION['admin']);
+			unset($_SESSION['moderator']);
+			unset($_SESSION['mod_array']);
 		}
 	}
 ?>
