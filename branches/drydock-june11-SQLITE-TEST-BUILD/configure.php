@@ -42,10 +42,8 @@
 	function writedb($link, $file, $prefix) {
 		//God, where did I get this?  I think the original idea came from like phpscripts.org or something, and then I just gutted it and changed what I needed to get it working.
 	
-		//Get $file from $file.  That makes sense.  $file comes in as THdbtype, goes out as (THdbtype).sql.  At least, that's the idea.  ~tyam
-		$file=$file.".sql";
 		// Getting the SQL file content        
-		$content = file_get_contents($file);
+		$content = file_get_contents("dbi/".$file."-setup.sql");  //Opens the DBI we've specified
 		// Processing the SQL file content            
 		$file_content = explode("\n",$content);            
 		$query = "";
@@ -65,12 +63,12 @@
 					$query = preg_replace("/~TH(.*)_table~/",${"TH"."\\1"."_table"},$query);
 					//Executing the parsed string, returns the error code in failure
 					//$result = mysql_query($query)or die(mysql_error());
-					if($file=="MySQL.sql")
+					if($file=="MySQL")
 					{
 						$result = mysql_query($query);
 						//echo $query;
 					}
-					elseif($file=="SQLite.sql")
+					elseif($file=="SQLite")
 					{
 						$result = sqlite_query($link, $query);
 						//echo $query."<br \>";

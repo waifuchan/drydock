@@ -28,9 +28,13 @@ Housekeeping Functions
 {if THnewsboard!=0}<td><input type="submit" name="rs" style="width:20em;" value="Rebuild news page RSS feed"></td>{/if}
             </tr></table>
 			</form>
+{*  //we need to support dumping of both dbis here
 {if $THdbtype=="MySQL"}
-{php} if(file_exists("dump-mysql.php")) { include("dump-mysql.php"); } {/php}
+{php} if(file_exists("dbi/MySQL-dump.php")) { include("dbi/MySQL-dump.php"); } {/php}
+{elseif $THdbtype=="SQLite"}
+{php} if(file_exists("dbi/SQLite-dump.php")) { include("dbi/SQLite-dump.php"); } {/php}
 {/if}
+*}
         </div>
     </div>
 {include file=admin-foot.tpl}
