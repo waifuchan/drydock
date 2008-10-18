@@ -43,7 +43,7 @@ if ($_GET['action'] == "login")
 
 	if (isset ($_POST['name']) && isset ($_POST['password']))
 	{
-		$username = $db->getuserdata_login($_POST['name'], $_POST['password']);
+		$userdata = $db->getuserdata_login($_POST['name'], $_POST['password']);
 
 		if ($userdata != NULL)
 		{

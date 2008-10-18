@@ -3,7 +3,7 @@
 
 /*
 	drydock imageboard script (http://code.573chan.org/)
-	File:           dbi/MySQL.php
+	File:           dbi/MySQL-dbi.php
 	Description:    Handles interface between database and board functions using a MySQL database.
 	
 	Unless otherwise stated, this code is copyright 2008 
