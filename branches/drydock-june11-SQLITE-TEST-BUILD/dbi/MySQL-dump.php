@@ -1,7 +1,7 @@
 <?php
 	/*
 		drydock imageboard script (http://code.573chan.org/)
-		File:           		dump-mysql.php
+		File:           		MySQL-dump.php
 		Description:	This is used to do raw MySQL dumps of tables,
 					in case someone doesn't have phpmyadmin.
 

@@ -23,7 +23,7 @@ class ThornBoardDBI extends ThornDBI
 		$this->blotterentries = $this->getblotter($bored);
 		//$this->st=$st;
 		//$this->et=$et;
-		var_dump($this->binfo);
+		var_dump($this->on);
 		//die();
 	}
 
@@ -246,6 +246,19 @@ class ThornBoardDBI extends ThornDBI
 		}
 		return ($sthreads);
 	} //getsthreads
+
+	function getvisibleboards()
+	{
+		/*
+			Retrieve an array of assoc-arrays for all visible boards
+												
+			Returns:
+				An array of assoc-arrays
+		*/
+		
+		return $this->mymultiarray("SELECT * FROM " . THboards_table . " WHERE hidden != 1 order by folder asc");
+	}
+
 
 } //class ThornBoardDBI
 ?>

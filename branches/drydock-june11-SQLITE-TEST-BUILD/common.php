@@ -29,7 +29,7 @@
 	//Find DB code
 	if (THdbtype!=null)
 	{
-		$findpath=THpath."dbi/".THdbtype.".php";
+		$findpath=THpath."dbi/".THdbtype."-dbi.php";
 		if (file_exists($findpath))
 		{
 			require_once($findpath);
@@ -518,15 +518,15 @@
 				}
 			}			
 		}
-		elseif (isset($_SESSION['username']))
-		{
-			/* Unset PHP session variables */
-			unset($_SESSION['username']);
-			unset($_SESSION['userid']);
-			unset($_SESSION['userlevel']);
-			unset($_SESSION['admin']);
-			unset($_SESSION['moderator']);
-			unset($_SESSION['mod_array']);
-		}
+//		elseif (isset($_SESSION['username']))
+//		{
+//			/* Unset PHP session variables */
+//			unset($_SESSION['username']);
+//			unset($_SESSION['userid']);
+//			unset($_SESSION['userlevel']);
+//			unset($_SESSION['admin']);
+//			unset($_SESSION['moderator']);
+//			unset($_SESSION['mod_array']);
+//		}
 	}
 ?>

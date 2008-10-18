@@ -70,7 +70,7 @@ class ThornProfileDBI extends ThornDBI
 				array containing user info (if name is valid)
 		*/
 
-		return $db->myarray("SELECT * FROM " . THusers_table . " WHERE username='" . escape_string($username) . "'");
+		return $this>myarray("SELECT * FROM " . THusers_table . " WHERE username='" . escape_string($username) . "'");
 	}
 
 	function updateuser($username, $id)
@@ -86,7 +86,7 @@ class ThornProfileDBI extends ThornDBI
 			Returns:
 				Nothing
 		*/
-		$db->myquery("UPDATE " . THusers_table . " SET userid=''" . $this->clean($id) . "\", timestamp=" . time() .
+		$this->myquery("UPDATE " . THusers_table . " SET userid=''" . $this->clean($id) . "\", timestamp=" . time() .
 		"WHERE username=''" . $this->clean($username) . "''");
 	}
 
@@ -312,7 +312,7 @@ class ThornProfileDBI extends ThornDBI
 				Nothing
 		*/
 
-		$db->myquery("UPDATE " . THusers_table . " SET approved = '-2' WHERE username='" . escape_string($username) . "'");
+		$this>myquery("UPDATE " . THusers_table . " SET approved = '-2' WHERE username='" . escape_string($username) . "'");
 	}
 
 	function userexists($username)
