@@ -209,9 +209,9 @@ To continue, click the button below.
 	$it=opendir("dbi/");
 	while (($set=readdir($it))!==false)
 	{
-		if (in_array($set,array(".","..",".svn"))==false)
+		if(preg_match("/^.*-dbi\.php$/", $set, $dbi))
 		{
-			$sets[]=$set;
+			$sets[]=str_replace("-dbi","", $dbi[0]);
 		}
 	}
 	?>
