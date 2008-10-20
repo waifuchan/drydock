@@ -28,7 +28,7 @@ var_dump($_POST);
 		THdie("PObanned");
 	}
 	$board=$db->escape_string($_POST['board']);
-	$binfo=$db->getbinfo(getboardnumber($board));
+	$binfo=$db->getbinfo($board);
 	//print_r($binfo);
 
 	//check for banned keywords
@@ -85,14 +85,14 @@ var_dump($_POST);
 	$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
 
 	$tnum=$db->putthread(
-	$usethese['nombre'],$usethese['trip'],(int)$_POST['board'],$_POST['subj'],
+	$usethese['nombre'],$usethese['trip'],$board,$_POST['subj'],
 	$_POST['body'],$_POST['link'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage
 	);
 
 	movefiles($goodfiles,$tnum,true,$binfo,$db);
 
 	$sm=smsimple();
-	$sm->clear_cache(null,"b".$_POST['board']);
+	$sm->clear_cache(null,$board);
 	//$sm->clear_cache(null,"idx"); what
 /* 	if (isset($_POST['tedit'])==true)
 	{
@@ -101,7 +101,7 @@ var_dump($_POST);
 
 	if ($binfo['tmax']!=0 /*&& isset($_POST['tedit'])==false*/) //Don't purge if max threads is set to 0
 	{
-		delimgs($db->purge($binfo['id']));
+		delimgs($db->purge(intval(1)));
 	}
 	//Cookie setting stuff here
 	if ($_POST['mem']=="on") 
@@ -122,17 +122,16 @@ var_dump($_POST);
 	}
 
 	//hopefully this doesn't break it! -tyam
-	$boardz = /*getboardname*/($_POST['board']);
 	if ($_POST['todo']=="board")
 	{
-		if (THuserewrite) { $location = THurl.$boardz; } else { $location = THurl."drydock.php?b=$boardz"; }
+		if (THuserewrite) { $location = THurl.$board; } else { $location = THurl."drydock.php?b=$board"; }
 		header("Location: ".$location);
 	}
 	elseif ($_POST['todo']=="thread")
 	{
 		$threadglobalid=$db->myquery("select globalid from ".THthreads_table." where id=".$tnum);
-        	$threadglobalid=$db->myquery($threadglobalid,0,"globalid");
-		if (THuserewrite) { $location = THurl.$boardz."/thread/".$threadglobalid; } else { $location = THurl."drydock.php?b=$boardz&i=$threadglobalid"; }
+        $threadglobalid=$db->myquery($threadglobalid,0,"globalid");
+		if (THuserewrite) { $location = THurl.$board."/thread/".$threadglobalid; } else { $location = THurl."drydock.php?b=$board&i=$threadglobalid"; }
 		header("Location: ".$location);
 	} else {
 		header("Location: drydock.php");

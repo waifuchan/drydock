@@ -44,7 +44,7 @@ function escape_string($string)
 			The board to fetch.
 				returns: array $board
 		*/
-		return ($this->myassoc("select * from " . THboards_table . " where id=" . $b));
+		return ($this->myassoc("select * from " . THboards_table . " where folder='" . $b ."'"));
 	}
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false)
 	{
@@ -80,7 +80,7 @@ function escape_string($string)
 			$tyme = time() + (THtimeoffset * 60);
 		}
 		$q = "INSERT INTO " . THthreads_table . " ( board, title, body";
-		$v = " VALUES ( " . $board . " ,'" . $this->clean($title) . "','";
+		$v = " VALUES ( " . getboardnumber($board) . " ,'" . $this->clean($title) . "','";
 		if ($board == THnewsboard || $board == THmodboard) //don't filter the news board nor the mod board
 		{
 			$v .= $this->escape_string($body);
@@ -131,7 +131,7 @@ function escape_string($string)
 		}
 		smclearcache($board, -1, -1); // clear the cache for this board
 		$tnum = sqlite_last_insert_rowid(THdblitefn); //help
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id=" . $board) or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board ."'") or THdie("DBpost");
 		return ($tnum);
 	}
 
@@ -211,7 +211,7 @@ function escape_string($string)
 		{
 			$this->myquery("update " . THthreads_table . " set bump=" . $tyme . " where id=" . $thread . " and permasage = 0");
 		}
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id=" . $board) or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder=" . $board) or THdie("DBpost");
 		smclearcache($board, -1, -1); // clear cache for the board
 		smclearcache($board, -1, $thread); // and for the thread
 		return ($pnum);
@@ -312,7 +312,7 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 		The ID of the board we're purging.
 			Returns: array $images-from-deleted-threads (to be deleted from the disk by Thorn)
 		*/
-		$board = $this->getbinfo($boardid);
+		$board = $this->getbinfo(getboardname($boardid));
 		if ($this->myresult("select count(*) from " . THthreads_table . " where board=" . $board['id'] . " and pin=0") > $board['tmax'])
 		{
 			$last = $this->myassoc("select bump from " . THthreads_table . " where board=" . $board['id'] . " and pin=0 order by bump desc limit " . ((int) $board['tmax'] - 1) . ",1"); //-1 'cuz it's zero-based er' somethin'
@@ -373,10 +373,10 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 			Gives us individual board numbering and overall numbering instead of counts for both
 			threads and replies.
 		*/
-		$sql = "select globalid from " . THboards_table . " where id=" . $board;
+		$sql = "select globalid from " . THboards_table . " where folder='" . $board ."'";
 		$globalid = $this->myresult($sql);
 		$globalid++;
-		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where id=" . $board;
+		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where folder='" . $board ."'";
 		$this->myquery($newsql);
 		return ($globalid);
 	}
