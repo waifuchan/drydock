@@ -93,7 +93,7 @@
 					<td class="postblock">Rules</td>
 					<td><div class="rules">{include file=rules.tpl}</div></td>
 				</tr>
-		<input type="hidden" name="board" value="{$binfo.id}" />
+		<input type="hidden" name="board" value="{$binfo.folder}" />
 {if $comingfrom == "thread"}
 		<input type="hidden" name="thread" value="{$thread.id}" />
 {/if} {* board not locked / logged in *}
