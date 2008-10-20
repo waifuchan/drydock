@@ -319,6 +319,7 @@
             //var_dump($yayimgs);
             $id=$db->putimgs($tpnum,$isthread,$yayimgs);
             //rename dir
+echo $id;
             rename($thedir,THpath."images/".$id."/");
         }//if count($goodfiles)
     }//end function
@@ -583,7 +584,7 @@
 			$pagecount = $pdf->setSourceFile($fyle['path']);
 			$extrainfo = intval($pagecount)." pages";
 			
-			$query="INSERT INTO ".THextrainfo_table." SET extra_info='".escape_string($extrainfo)."'";
+			$query="INSERT INTO ".THextrainfo_table." (id, extra_info) VALUES (NULL,'".escape_string($extrainfo)."')";
 			$ex_inf_result = $db->myquery($query);
 			if($ex_inf_result)
 			{
@@ -760,11 +761,11 @@
 
                 if($extrainfo)
                 {
-                    $query="INSERT INTO ".THextrainfo_table." SET extra_info='".escape_string($extrainfo)."'";
+                    $query="INSERT INTO ".THextrainfo_table."(id, extra_info) VALUES (NULL, '".escape_string($extrainfo)."')";
                     $ex_inf_result = $db->myquery($query);
                     if($ex_inf_result)
                     {
-                    $fyle['extra_info'] = mysql_insert_id();
+                    $fyle['extra_info'] = $db->lastid();
                     }
                 }
             }

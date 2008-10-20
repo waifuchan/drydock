@@ -27,7 +27,8 @@ var_dump($_POST);
 	{
 		THdie("PObanned");
 	}
-	$binfo=$db->getbinfo((int)$_POST['board']);
+	$board=$db->escape_string($_POST['board']);
+	$binfo=$db->getbinfo(getboardnumber($board));
 	//print_r($binfo);
 
 	//check for banned keywords
@@ -121,7 +122,7 @@ var_dump($_POST);
 	}
 
 	//hopefully this doesn't break it! -tyam
-	$boardz = getboardname($_POST['board']);
+	$boardz = /*getboardname*/($_POST['board']);
 	if ($_POST['todo']=="board")
 	{
 		if (THuserewrite) { $location = THurl.$boardz; } else { $location = THurl."drydock.php?b=$boardz"; }
@@ -129,8 +130,8 @@ var_dump($_POST);
 	}
 	elseif ($_POST['todo']=="thread")
 	{
-		$threadglobalid=mysql_query("select globalid from ".THthreads_table." where id=".$tnum);
-        	$threadglobalid=mysql_result($threadglobalid,0,"globalid");
+		$threadglobalid=$db->myquery("select globalid from ".THthreads_table." where id=".$tnum);
+        	$threadglobalid=$db->myquery($threadglobalid,0,"globalid");
 		if (THuserewrite) { $location = THurl.$boardz."/thread/".$threadglobalid; } else { $location = THurl."drydock.php?b=$boardz&i=$threadglobalid"; }
 		header("Location: ".$location);
 	} else {

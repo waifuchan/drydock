@@ -19,7 +19,10 @@ class ThornPostDBI extends ThornDBI
 	{
 		$this->ThornDBI();
 	}
-
+function escape_string($string)
+{
+	return (sqlite_escape_string($string));
+}
 	function gettinfo($t)
 	{
 		/*
@@ -283,7 +286,10 @@ class ThornPostDBI extends ThornDBI
 				fputs($fp,"\n"); 
 			*/
 		}
-		$this->myquery("insert into " . THimages_table . " values " . implode(",", $values));
+		//var_dump($values); 
+foreach($values as $line) { $this->myquery("insert into " . THimages_table . " values $line;"); }
+
+		//$this->myquery("insert into " . THimages_table . " values " . implode(",", $values));
 		if ($isthread)
 		{
 			$this->myquery("update " . THthreads_table . " set imgidx=" . $id . " where id=" . $num);

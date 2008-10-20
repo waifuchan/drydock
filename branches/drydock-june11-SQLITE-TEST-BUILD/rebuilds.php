@@ -185,7 +185,7 @@ function rebuild_filters()
 
 function rebuild_hovermenu()
 {
-	$db = new ThornBoardDBI();
+	$db = new ThornDBI();
 
 	$boards = $db->getvisibleboards();
 	$showcount = count($boards);
@@ -275,7 +275,7 @@ function rebuild_htaccess()
 
 function rebuild_linkbars()
 {
-	$db = new ThornBoardDBI();
+	$db = new ThornDBI();
 	$looper = 1;
 	$boards = $db->getvisibleboards();
 	$showcount = count($boards);
@@ -330,74 +330,76 @@ function rebuild_linkbars()
 
 function rebuild_rss()
 {
-	$sidelinks = fopen("rss.xml", "w") or die("Could not open rss.xml for writing.");
-	fwrite($sidelinks, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
-	fwrite($sidelinks, "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n");
-	fwrite($sidelinks, "\t<channel>\n");
-	fwrite($sidelinks, '<atom:link href="' . THurl . 'rss.xml" rel="self" type="application/rss+xml" />' . "\n");
-	fwrite($sidelinks, "\t\t<title>" . THname . "</title>\n");
-	fwrite($sidelinks, "\t\t<description>" . THname . " drydock RSS feeder - " . THurl . "</description>\n");
-	fwrite($sidelinks, "\t\t<language>en</language>\n");
-	fwrite($sidelinks, "\t\t<link>" . THurl . "</link>\n");
-	fwrite($sidelinks, "\t\t<generator>drydock rss feed generator</generator>\n");
-	fwrite($sidelinks, "\t\t<copyright>tyam/ordog/kchan devs - http://573chan.org</copyright>\n");
-	$db = new ThornDBI();
-	//pull everything from the news page
-
-	$boardsquery = "SELECT globalid,board,title,name,trip,body,time FROM " . THthreads_table . " where board=" . THnewsboard . " ORDER BY time DESC LIMIT 0,15";
-	$board = $db->mymultiarray($boardsquery);
-	foreach ($board as $boardentry)
+	if (THnewsboard)
 	{
-		//set up our variables so we're not using raws
-		if ($boardentry['name'])
+		$sidelinks = fopen("rss.xml", "w") or die("Could not open rss.xml for writing.");
+		fwrite($sidelinks, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+		fwrite($sidelinks, "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n");
+		fwrite($sidelinks, "\t<channel>\n");
+		fwrite($sidelinks, '<atom:link href="' . THurl . 'rss.xml" rel="self" type="application/rss+xml" />' . "\n");
+		fwrite($sidelinks, "\t\t<title>" . THname . "</title>\n");
+		fwrite($sidelinks, "\t\t<description>" . THname . " drydock RSS feeder - " . THurl . "</description>\n");
+		fwrite($sidelinks, "\t\t<language>en</language>\n");
+		fwrite($sidelinks, "\t\t<link>" . THurl . "</link>\n");
+		fwrite($sidelinks, "\t\t<generator>drydock rss feed generator</generator>\n");
+		fwrite($sidelinks, "\t\t<copyright>tyam/ordog/kchan devs - http://573chan.org</copyright>\n");
+		$db = new ThornDBI();
+		//pull everything from the news page
+		$boardsquery = "SELECT globalid,board,title,name,trip,body,time FROM " . THthreads_table . " where board=" . THnewsboard . " ORDER BY time DESC LIMIT 0,15";
+		$board = $db->mymultiarray($boardsquery);
+		foreach ($board as $boardentry)
 		{
-			if ($boardentry['trip'])
+			//set up our variables so we're not using raws
+			if ($boardentry['name'])
 			{
-				$author = $boardentry['name'] . "!" . $boardentry['trip'];
+				if ($boardentry['trip'])
+				{
+					$author = $boardentry['name'] . "!" . $boardentry['trip'];
+				}
+				else
+				{
+					$author = $boardentry['name'];
+				} //tripcode check
 			}
 			else
 			{
-				$author = $boardentry['name'];
-			} //tripcode check
+				$author = "Anonymous";
+			} //name check
+			$text = $boardentry['body']; //no filters
+			if ($boardentry['title'] != NULL)
+			{
+				$subject = $boardentry['title'];
+			}
+			else
+			{
+				$subject = "News post";
+			}
+			$newsboard = getboardname(THnewsboard); //get the name of the board
+			if (THuserewrite)
+			{
+				$link = THurl . $newsboard . '/thread/' . $boardentry['globalid'];
+			}
+			else
+			{
+				$link = THurl . 'drydock.php?b=' . $newsboard . '&amp;i=' . $boardentry['globalid'];
+			}
+			$guid = $boardentry['globalid'];
+			$body = replacewedge(nl2br($text)) . '&lt;br/&gt;~' . $author;
+			//post template
+			fwrite($sidelinks, "\n");
+			fwrite($sidelinks, "\t\t<item>\n");
+			fwrite($sidelinks, "\t\t<guid isPermaLink=\"false\">news $guid</guid>\n");
+			fwrite($sidelinks, "\t\t\t<title>$subject</title>\n");
+			fwrite($sidelinks, "\t\t\t<description>$body</description>\n");
+			fwrite($sidelinks, "\t\t\t<link>$link</link>\n");
+			fwrite($sidelinks, "\t\t\t<pubDate>" . date(DATE_RSS, $boardentry['time']) . "</pubDate>\n");
+			fwrite($sidelinks, "\t\t</item>\n");
+			fwrite($sidelinks, "\n");
 		}
-		else
-		{
-			$author = "Anonymous";
-		} //name check
-		$text = $boardentry['body']; //no filters
-		if ($boardentry['title'] != NULL)
-		{
-			$subject = $boardentry['title'];
-		}
-		else
-		{
-			$subject = "News post";
-		}
-		$newsboard = getboardname(THnewsboard); //get the name of the board
-		if (THuserewrite)
-		{
-			$link = THurl . $newsboard . '/thread/' . $boardentry['globalid'];
-		}
-		else
-		{
-			$link = THurl . 'drydock.php?b=' . $newsboard . '&amp;i=' . $boardentry['globalid'];
-		}
-		$guid = $boardentry['globalid'];
-		$body = replacewedge(nl2br($text)) . '&lt;br/&gt;~' . $author;
-		//post template
-		fwrite($sidelinks, "\n");
-		fwrite($sidelinks, "\t\t<item>\n");
-		fwrite($sidelinks, "\t\t<guid isPermaLink=\"false\">news $guid</guid>\n");
-		fwrite($sidelinks, "\t\t\t<title>$subject</title>\n");
-		fwrite($sidelinks, "\t\t\t<description>$body</description>\n");
-		fwrite($sidelinks, "\t\t\t<link>$link</link>\n");
-		fwrite($sidelinks, "\t\t\t<pubDate>" . date(DATE_RSS, $boardentry['time']) . "</pubDate>\n");
-		fwrite($sidelinks, "\t\t</item>\n");
-		fwrite($sidelinks, "\n");
+		fwrite($sidelinks, "\t</channel>\n");
+		fwrite($sidelinks, "</rss>\n");
+		fclose($sidelinks);
 	}
-	fwrite($sidelinks, "\t</channel>\n");
-	fwrite($sidelinks, "</rss>\n");
-	fclose($sidelinks);
 }
 
 function rebuild_spamlist()

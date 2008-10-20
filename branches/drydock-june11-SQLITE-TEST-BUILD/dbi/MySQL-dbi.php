@@ -19,6 +19,10 @@ function escape_string($string)
 {
 	return (mysql_real_escape_string($string));
 }
+function lastid()
+{
+	mysql_insert_id();
+}
 
 class ThornDBI
 {

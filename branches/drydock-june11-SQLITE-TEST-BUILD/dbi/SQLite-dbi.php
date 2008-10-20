@@ -21,6 +21,7 @@ function escape_string($string)
 	return (sqlite_escape_string($string));
 }
 
+
 class ThornDBI
 {
 	function ThornDBI()
@@ -29,6 +30,21 @@ class ThornDBI
 		{
 			$this->cxn = THdblitefn or THdie($sqliteerror);
 		}
+	}
+	function lastid()
+	{
+		sqlite_last_insert_rowid( THdblitefn );
+	}
+	function getvisibleboards()
+	{
+		/*
+			Retrieve an array of assoc-arrays for all visible boards
+												
+			Returns:
+				An array of assoc-arrays
+		*/
+		
+		return $this->mymultiarray("SELECT * FROM " . THboards_table . " WHERE hidden != 1 order by folder asc");
 	}
 
 	/*  provided by Mell03d0ut from anonib */

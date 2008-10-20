@@ -373,7 +373,8 @@
 		{
 			if ($_GET['board'])
 			{
-				$boardarray = $db->myarray("select * from ".THboards_table." where folder='".$db->clean($_GET['board'])."'");
+				$boardarray = $db->myassoc("select * from ".THboards_table." where folder='".$db->clean($_GET['board'])."'");
+var_dump($boardarray);
 				if($boardarray)
 				{
 					$sm->assign("binfo",$boardarray,$sm);
