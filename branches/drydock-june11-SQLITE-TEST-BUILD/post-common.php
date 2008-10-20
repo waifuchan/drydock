@@ -545,7 +545,7 @@
 	                $extrainfo = $extrainfo . "<br>Zlib compression";
 	            }
 				
-	            $query="INSERT INTO ".THextrainfo_table." SET extra_info='".escape_string($extrainfo)."'";
+	            $query="INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".escape_string($extrainfo)."')";
 	            $ex_inf_result = $db->myquery($query);
 	            if($ex_inf_result)
 	            {

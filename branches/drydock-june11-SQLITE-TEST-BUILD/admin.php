@@ -67,7 +67,7 @@
 			if ($_GET['boardselect'])
 			{
 				//Configure options for a specific board
-				$boardselect = $db->myarray("select * from ".THboards_table." where folder='".$db->clean($_GET['boardselect'])."'");
+				$boardselect = $db->myassoc("select * from ".THboards_table." where folder='".$db->clean($_GET['boardselect'])."'");
 				if($boardselect)
 				{
 					$sm->assign("boardselect",$db->clean($_GET['boardselect']));
