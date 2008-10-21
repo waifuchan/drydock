@@ -52,7 +52,7 @@
 			<a class="info" href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">
 				<img src="{$THurl}images/{$thread.imgidx}/{$it.tname}" width="{$it.twidth}" height="{$it.theight}" alt="{$it.name}" class="thumb" />
 
-				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.extra_info|extra_info}</span>
+				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.id|extra_info}</span>
 			</a>
 		</td>
 {		if ($imgcount mod 4 == 3)}</tr><tr>{/if}{* tyam - let's avoid more template breaking *}
@@ -81,6 +81,7 @@
 {			$bodey|filters_new|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {		/if}
 {	/if}
+
 {if $comingfrom=="board" and $bodeycheck.wastruncated}<em><a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}#{$post.globalid}" class="ssmed">[more...]</a></em>{/if}
 {/if}
 </blockquote>

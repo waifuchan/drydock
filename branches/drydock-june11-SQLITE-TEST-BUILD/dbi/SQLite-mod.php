@@ -438,8 +438,9 @@ class ThornModDBI extends ThornDBI
 			case 1 : // Blotter posts
 				// FIELD 1: The entry (string)
 				// FIELD 2: The target board (integer)
-				$query = 'INSERT INTO ' . THblotter_table . ' ( entry, board, time ) VALUES ("' .
-				$this->clean($field1) . '","' . intval($field2) . '","' . (THtimeoffset * 60) + time() . '")';
+				$time = (THtimeoffset * 60) + time();
+				$query = "INSERT INTO " . THblotter_table . " ( entry, board, time ) VALUES ('" .
+				$this->clean($field1) . "','" . intval($field2) . "','" . $time . "')";
 				break;
 
 			case 2 : // Capcodes

@@ -318,8 +318,8 @@
             //DB insert
             //var_dump($yayimgs);
             $id=$db->putimgs($tpnum,$isthread,$yayimgs);
+			//echo $id;
             //rename dir
-echo $id;
             rename($thedir,THpath."images/".$id."/");
         }//if count($goodfiles)
     }//end function

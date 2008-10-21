@@ -60,13 +60,13 @@
 			$board =getboardnumber($_GET['board']);
 			$qstring = "SELECT * FROM ".THreplies_table." WHERE globalid=".$post." AND board=".$board;
 			//echo $qstring."<br>/n";
-			$postquery = $db->myquery($qstring);
-			$posttoedit=$db->myarray($postquery);
+			//$postquery = $db->myquery($qstring);
+			$posttoedit=$db->myassoc($qstring);
 
 			if( !$posttoedit )
 			{
 				$qstring = "SELECT * FROM ".THthreads_table." WHERE globalid=".$post." AND board=".$board;
-				$posttoedit=$db->myarray($qstring);
+				$posttoedit=$db->myassoc($qstring);
 				if( !$posttoedit )
 				{
 					THdie("Post with global ID of ".$_GET['post']." and board ".$_GET['board']." does not exist. :(");
@@ -149,7 +149,7 @@
 
 		if($threadquery == NULL) //we are editing a reply
 		{
-			$thread = $posttoedit['thread'];
+			if(isset($posttoedit['thread'])) { $thread = $posttoedit['thread']; } else { $thread=$posttoedit['id']; }
 			if(isset($_POST['editsub'])) 
 			{
 				$pin = intval($_POST['pin']);

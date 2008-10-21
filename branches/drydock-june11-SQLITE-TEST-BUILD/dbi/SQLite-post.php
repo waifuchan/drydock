@@ -172,7 +172,7 @@ function escape_string($string)
 		}
 
 		//FIX THE REST OF THIS QUERY
-		$glob = $this->getglobalid($board);
+		$glob = $this->getglobalid(getboardname($board));
 		$q .= ",ip,bump,globalid";
 		$v .= "'," . $ip . "," . (int) $bump . "," . $glob;
 		if ($name != null)
@@ -211,7 +211,7 @@ function escape_string($string)
 		{
 			$this->myquery("update " . THthreads_table . " set bump=" . $tyme . " where id=" . $thread . " and permasage = 0");
 		}
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder=" . $board) or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . getboardname($board)."'") or THdie("DBpost");
 		smclearcache($board, -1, -1); // clear cache for the board
 		smclearcache($board, -1, $thread); // and for the thread
 		return ($pnum);

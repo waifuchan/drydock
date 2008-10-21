@@ -23,7 +23,7 @@ class ThornBoardDBI extends ThornDBI
 		$this->blotterentries = $this->getblotter($bored);
 		//$this->st=$st;
 		//$this->et=$et;
-		var_dump($this->on);
+		//var_dump($this->on);
 		//die();
 	}
 
@@ -241,7 +241,7 @@ class ThornBoardDBI extends ThornDBI
 				}
 				$th['scount'] = count($th['reps']);
 			}
-			var_dump($th);
+			//var_dump($th);
 			$sthreads[] = $th;
 		}
 		return ($sthreads);
