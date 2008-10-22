@@ -25,7 +25,6 @@
 		//shove in some defaults for our new database, should be standard SQL so it should work with all future expansions without editing.
 		$query = "INSERT INTO ".$configarray['THdbprefix']."users ( username , password , userid , userlevel , email , mod_array , mod_global , mod_admin , timestamp , age , gender , location , contact , description , capcode , has_picture , approved , pic_pending , proposed_capcode ) VALUES 
 			('".$configarray['adminname']."', '".$configarray['adminpass']."', '".$configarray['adminpass']."', '9', NULL , '0', '0', '1', '0', NULL , NULL , NULL , NULL , NULL , NULL , NULL , '1', NULL , NULL)";
-			echo $query;
 		if($configarray['THdbtype']=="MySQL") { mysql_query($query) or die("Database settings aren't correct"); } else { sqlite_query($link, $query) or die("Database settings aren't correct"); }
 	}
 
@@ -301,15 +300,24 @@ Database prefix: <input type="text" name="THdbprefix" size="12" value="drydock_"
 	} else {
 	echo '
 	Database server: <input type="text" name="THdbserver" size="12" /><br />
+	Database name: <input type="text" name="THdbbase" size="12" /><br />
 	Database username: <input type="text" name="THdbuser" size="12" /><br />
 	Database password: <input type="password" name="THdbpass" size="12" /><br />
-	Database name: <input type="text" name="THdbbase" size="12" /><br />';
+	Verify password: <input type="password" name="THdbpassver" size="12" /><br />';
 	}
 ?>
 	<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
 <input type="submit" value="Continue">
 </form>
 <?php } elseif($_GET['p']==5) { 
+
+		if ($_POST['THdbpass'] == $_POST['THdbpassver']) {
+			if($_POST['THdbpassver'] == "") {
+				die("Administrator password is not set.");
+			}
+		} else {
+			die("Passwords do not match.");
+		}
 
 //pass our current info on to the next page
 $configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
@@ -342,7 +350,27 @@ $check = unserialize($configarray);
 
 ?>
 <div class="logo">confirm settings</div>
+Here you can review your settings before they are written to the server.
+If everything here looks good, go ahead and hit continue.<br><br>
+<?php
+	echo "Database type: ".$check['THdbtype']."<br>";
+	echo "Database table prefix: ".$check['THdbprefix']."<br>";
+	if($check['THdbtype']!="SQLite")
+	{
+		echo "Database server: ".$check['THdbserver']."<br>";
+		echo "Database username: ".$check['THdbuser']."<br>";
+		echo "Database name: ".$check['THdbbase']."<br>";
+	}
+	echo "Install location: ".$check['THpath']."<br>";
+	echo "Install URL: ".$check['THurl']."<br>";
 
+	echo "Administrator username: ".$check['adminname']."<br>";
+
+	echo "PEAR path: ".$check['THpearpath']."<br>";
+	echo "Enable SWF metatags: "."<br>"; //THuseSWFmeta
+	echo "Enable SVG support: "."<br>"; //THuseSVG
+?>
+<br>
 <form method="post" enctype="multipart/form-data" action="configure.php?p=7">
 <input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
 <input type="submit" value="Continue">
@@ -350,6 +378,11 @@ $check = unserialize($configarray);
 <?php } elseif($_GET['p']==7) {
 	//Time to finish up with everything.
 	$configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
+	echo "The configuration file is being written now, as well as any database interaction that needs 
+		to be done.  If all has gone well up to this point, you can probably log in now by going to the
+		<a href='".$configarray['THurl']."profiles.php?action=login'>login page</a> and using the administrator account you set up.  
+		From there you should rebuild all items in the housekeeping menu.";
+	
 		$seed = mt_rand(0,100000); // I like the Mersenne Twister random number generation more.
 
 		// lol.
@@ -393,7 +426,7 @@ $check = unserialize($configarray);
 			fwrite($config, 'define("THcapcodes_table","'.$configarray['THdbprefix']."capcodes".'");'."\n");
 			fwrite($config, 'define("THextrainfo_table","'.$configarray['THdbprefix']."extrainfo".'");'."\n");
 			fwrite($config, 'define("THfilters_table","'.$configarray['THdbprefix']."filters".'");'."\n");
-			fwrite($config, 'define("THimages_table","'.$configarray['THdbprefix']."imgs".'");'."\n");
+			fwrite($config, 'define("THimages_table","'.$configarray['THdbprefix']."images".'");'."\n");
 			fwrite($config, 'define("THreplies_table","'.$configarray['THdbprefix']."replies".'");'."\n");
 			fwrite($config, 'define("THthreads_table","'.$configarray['THdbprefix']."threads".'");'."\n");
 			fwrite($config, 'define("THusers_table","'.$configarray['THdbprefix']."users".'");'."\n");
@@ -452,8 +485,9 @@ $check = unserialize($configarray);
 		initial_builds($path, $configarray);
 		unlink_placeholders($path);
 }//p=7
- elseif($_GET['p']==1) { 
-echo 'done';
+else
+{
+echo "There appears to be a problem!";
 }
 ?>
 	</div>

@@ -553,12 +553,13 @@ var_dump($boardarray);
 	{
 		if($_POST['boardselect'])
 		{
-			if ($_POST['delete'.$_POST['boardselect']]==true) //Delete images on that board; nuke it from db
+			if ($_POST['delete'.getboardnumber($_POST['boardselect'])]==TRUE) //Delete images on that board; nuke it from db
 			{
 				delimgs($db->fragboard($_POST['boardselect']));
-				$db->myquery("DELETE from ".THboards_table." WHERE folder=".intval($_POST['boardselect']));
+				$db->myquery("DELETE from ".THboards_table." WHERE folder='".$_POST['boardselect']."'");
 				$actionstring = "Board delete\tid:".$id;
 				writelog($actionstring,"admin");
+				$location=THurl."admin.php?a=b";
 			} 
 			else 
 			{
@@ -592,6 +593,7 @@ var_dump($boardarray);
 				$db->myquery($updatequery);
 				$actionstring = "Board edit\tid:".$id;
 				writelog($actionstring,"admin");
+				$location=THurl."admin.php?a=b&boardselect=".$folder;
 			}
 		}
 		else
@@ -634,6 +636,7 @@ VALUES (
 				$actionstring = "Board add\tid:".$id;
 				writelog($actionstring,"admin");
 				//print_r($query);
+				$location=THurl."admin.php?a=b&boardselect=".$folder;
 			}
 		}
 		//print_r($boards);
@@ -644,7 +647,7 @@ VALUES (
 		rebuild_htaccess();
 		rebuild_linkbars();
 		rebuild_hovermenu();
-		header("Location: ".THurl."admin.php?a=b");
+		header("Location: ".$location);
 		die();
 	}
 	elseif ($_GET['t']=="ax") //Add ban
