@@ -29,19 +29,19 @@ class ThornPostDBI extends ThornDBI
 			The thread to fetch.
 				Returns: array $thread
 		*/
-		return ($this->myassoc("select * from " . THthreads_table . " where id=" . $this->clean($t)));
+		return ($this->myassoc("select * from " . THthreads_table . " where id=" . intval($t)));
 	}
 
-	function getbinfo($b)
+	function getbinfo($id)
 	{
 		/*
 			Another simple function. This just gets information about a board.
 			Parameters:
-				int $b
+				int $id
 			The board to fetch.
 				returns: array $board
 		*/
-		return ($this->myassoc("select * from " . THboards_table . " where id=" . getboardnumber($b)));
+		return ($this->myassoc("select * from " . THboards_table . " where id=" . intval($id)));
 	}
 
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false)
@@ -87,7 +87,7 @@ class ThornPostDBI extends ThornDBI
 			$q .= $this->clean($body);
 		}
 		$q .= "', ip=" . $ip . ", pin=" . $pin . ", permasage=" . $permasage . ", lawk=" . $lock . ", time=" . $tyme . ", bump=" . $tyme;
-		$globalid = $this->getglobalid(getboardnumber($board));
+		$globalid = $this->getglobalid($board);
 		$q .= ", globalid=" . $globalid;
 		if ($name != null)
 		{
@@ -119,11 +119,11 @@ class ThornPostDBI extends ThornDBI
 		}
 		smclearcache($board, -1, -1); // clear the cache for this board
 		$tnum = mysql_insert_id();
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id=" . getboardnumber($board)) or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id=" . ($board)) or THdie("DBpost");
 		return ($tnum);
 	}
 
-	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $bump, $tyme = false)
+	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $tyme = false)
 	{
 		/*
 			Posts a reply to a thread, updates the "bump" column of the relevant thread, and updates the last post time of the relevant board. Note that, as with putthread, images are stored using the separate putimgs() function.
@@ -144,11 +144,9 @@ class ThornPostDBI extends ThornDBI
 			The ip2long()'d IP address of the poster.
 				bool $mod
 			Is the poster a mod or admin? (For future feature; currently ignored by this DBI as well as the included templates.)
-				bool $bump
-			Should we bump the thread?
 				Returns: int $post-id
 		*/
-		$q = "insert into " . THreplies_table . " set thread=" . $thread . ", board=" . getboardnumber($board) . ", body='";
+		$q = "insert into " . THreplies_table . " set thread=" . $thread . ", board=" . intval($board) . ", body='";
 		if ($board == THmodboard) //don't filter the mod board since it should be all locked up anyway
 		{
 			$q .= $this->escape_string($body);

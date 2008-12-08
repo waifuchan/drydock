@@ -301,34 +301,6 @@
 		}
 	}
 
-	//<Ordog163> that does the name lookup from a board number
-	//<Ordog163> stick it in common.php and use that for like thornlight and stuff?
-	function getboardname($number)
-	{
-		$db=new ThornDBI();
-		$boardquery = "SELECT folder FROM ".THboards_table." WHERE id =".$number;
-		$name = $db->myresult($boardquery);
-		if($name != null)
-		{ 
-			return $name;
-		} else { 
-			return false;
-		}
-	}
-	//works backwards from above
-	function getboardnumber($name)
-	{
-		$db=new ThornDBI();
-		$boardquery = "SELECT id FROM ".THboards_table." WHERE folder ='".$name."'";
-		$number = $db->myresult($boardquery);
-		if($number != null)
-		{ 
-			return $number;
-		} else { 
-			return false;
-		}
-	}
-
 	function bitlookup($ext)
 	{
 		// OH YEAH BITFLAGS

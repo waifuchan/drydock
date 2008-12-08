@@ -29,7 +29,7 @@ class ThornPostDBI extends ThornDBI
 			The thread to fetch.
 				Returns: array $thread
 		*/
-		return ($this->myassoc("select * from " . THthreads_table . " where id=" . $this->escape_string($t)));
+		return ($this->myassoc("select * from " . THthreads_table . " where id=" . intval($t)));
 	}
 
 
@@ -67,7 +67,7 @@ class ThornPostDBI extends ThornDBI
 			$tyme = time() + (THtimeoffset * 60);
 		}
 		$q = "INSERT INTO " . THthreads_table . " ( board, title, body";
-		$v = " VALUES ( " . getboardnumber($board) . " ,'" . $this->escape_string($title) . "','";
+		$v = " VALUES ( " . intval($board) . " ,'" . $this->escape_string($title) . "','";
 		$v .= $this->escape_string($body);
 		$q .= ", ip, pin, permasage, lawk, time, bump";
 		$v .= "'," . $ip . " , " . $pin . " , " . $permasage . " , " . $lock . " , " . $tyme . " , " . $tyme;
@@ -115,7 +115,7 @@ class ThornPostDBI extends ThornDBI
 		return ($tnum);
 	}
 
-	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $bump, $tyme = false)
+	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $tyme = false)
 	{
 		/*
 			Posts a reply to a thread, updates the "bump" column of the relevant thread, and updates the last post time of the relevant board. Note that, as with putthread, images are stored using the separate putimgs() function.
@@ -136,12 +136,10 @@ class ThornPostDBI extends ThornDBI
 			The ip2long()'d IP address of the poster.
 				bool $mod
 			Is the poster a mod or admin? (For future feature; currently ignored by this DBI as well as the included templates.)
-				bool $bump
-			Should we bump the thread?
 				Returns: int $post-id
 		*/
 		$q = "INSERT INTO " . THreplies_table . " (thread,board,body";
-		$v = " ) VALUES (" . $thread . ",'" . getboardnumber($board) . "','";
+		$v = " ) VALUES (" . $thread . ",'" . intval($board) . "','";
 		$v .= $this->escape_string($body);
 
 		//FIX THE REST OF THIS QUERY
@@ -285,7 +283,7 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 		The ID of the board we're purging.
 			Returns: array $images-from-deleted-threads (to be deleted from the disk by Thorn)
 		*/
-		$board = $this->getbinfo(getboardname($boardid));
+		$board = $this->getbinfo($boardid);
 		if ($this->myresult("select count(*) from " . THthreads_table . " where board=" . $board['id'] . " and pin=0") > $board['tmax'])
 		{
 			$last = $this->myassoc("select bump from " . THthreads_table . " where board=" . $board['id'] . " and pin=0 order by bump desc limit " . ((int) $board['tmax'] - 1) . ",1"); //-1 'cuz it's zero-based er' somethin'

@@ -12,6 +12,26 @@
 	
 	require_once("common.php");
 	require_once("post-common.php");
+	
+	/*
+		THINGS THAT WE EXPECT TO COME IN:
+	
+		$_POST['body'] (string for the post body)
+		$_POST['subj'] (string for the post subject)
+		$_POST['link'] (string for the link field)
+		$_POST['nombre'] (string for the post name if forced_anon is off)
+		$_POST['board'] (string for the board folder)
+	
+		THINGS THAT MIGHT ALSO COME IN:
+		$_POST['vc'] (captcha string)
+		$_POST['email'] (spambot string)
+		$_POST['todo'] (after-posting string)
+		$_FILES (for images)
+		$_POST['pin']
+		$_POST['lock']
+		$_POST['permasage']
+	
+	*/
 
 /*
 	//You can see how this would be used (and even expand it to other fields if you wish), but we're not using it right now. - tyam
@@ -27,8 +47,12 @@
 	{
 		THdie("PObanned");
 	}
-	$board=$db->escape_string($_POST['board']);
-	$binfo=$db->getbinfo($board);
+
+	$binfo=$db->getbinfo($db->getboardnumber($board));
+	
+	// Die if the board doesn't exist.
+	if( $binfo == null )
+		die("Specified board does not exist.");
 
 	//check for banned keywords
 	if ($mod==false)
@@ -84,7 +108,7 @@
 	$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
 
 	$tnum=$db->putthread(
-	$usethese['nombre'],$usethese['trip'],$board,$_POST['subj'],
+	$usethese['nombre'],$usethese['trip'],$binfo['id'],$_POST['subj'],
 	$_POST['body'],$_POST['link'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage
 	);
 

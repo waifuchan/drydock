@@ -22,6 +22,7 @@
 	<br />
 			SQL dumps can be generated with the following links.  Please be careful with these since they could be used to gain access to your administration area or other registered profiles if posted to a public forum.  If you are using these dumps for support on the drydock discussion board, please edit out any important information (password hashes, contact info, etc) before posting publicly.<br/>
 			<b>To disable this function, delete the file '.THpath.'dump-mysql.php</b><br/><br/>  These may take a while to process, depending on how active your site is.<br />
+			<a href="'.THurl.'dump-mysql.php?table=banhistory">Ban history table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=bans">Bans table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=blotter">Blotter table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=boards">Boards table</a> | 
@@ -30,6 +31,7 @@
 			<a href="'.THurl.'dump-mysql.php?table=filters">Wordfilters table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=images">Images table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=replies">Replies table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=reports">Reports table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=threads">Threads table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=users">Users table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=all">All tables</a><br /><br />
@@ -92,6 +94,9 @@
 
 	switch ($_GET['table'])
 	{
+		case "banhistory":
+			dumptable(THbanhistory_table);
+			break;
 		case "bans":
 			dumptable(THbans_table);
 			break;
@@ -116,6 +121,9 @@
 		case "replies":
 			dumptable(THreplies_table);
 			break;
+		case "reporrts":
+			dumptable(THreports_table);
+			break;
 		case "threads":
 			dumptable(THthreads_table);
 			break;
@@ -123,6 +131,7 @@
 			dumptable(THusers_table);
 			break;
 		case "all":   //ugh what are they doing
+			dumptable(THbanhistory_table);
 			dumptable(THbans_table);
 			dumptable(THblotter_table);
 			dumptable(THboards_table);
@@ -131,6 +140,7 @@
 			dumptable(THfilters_table);
 			dumptable(THimages_table);
 			dumptable(THreplies_table);
+			dumptable(THreports_table);
 			dumptable(THthreads_table);
 			dumptable(THusers_table);
 			break;

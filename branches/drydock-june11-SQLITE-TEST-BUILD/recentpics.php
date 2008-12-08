@@ -85,16 +85,18 @@ if($bail==1)
 else 
 {
 	// Let's get these cached so we don't have to do a getboardname call for every post.
-	$boardquery = "SELECT * FROM ".THboards_table;
-	$boards=array();
-	$queryresult=$db->myquery($boardquery);
-	if($queryresult!=0)  //Did we return anything at all?
-	{
-		while ($boarditem=$db->myarray($queryresult))
-		{
-        	$boards[$boarditem['id']]=$boarditem;
-		}
-	}
+	$boards = $db->getboard(); // No parameters means EVERYTHING
+		
+	// $boardquery = "SELECT * FROM ".THboards_table;
+	// $boards=array();
+	// $queryresult=$db->myquery($boardquery);
+	// if($queryresult!=0)  //Did we return anything at all?
+	// {
+		// while ($boarditem=$db->myarray($queryresult))
+		// {
+        	// $boards[$boarditem['id']]=$boarditem;
+		// }
+	// }
 
 	if($count > 40)
 	{

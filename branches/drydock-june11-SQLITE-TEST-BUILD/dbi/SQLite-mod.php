@@ -135,14 +135,14 @@ class ThornModDBI extends ThornDBI
 			$ip = $this->myresult($q1);
 			$q2 = "select globalid,board,body from " . THthreads_table . " where id=" . $id;
 			$postdata = $this->myassoc($q2);
-			$postdata = 'Post ' . $postdata['globalid'] . ' in /' . getboardname($postdata['board']) .
+			$postdata = 'Post ' . $postdata['globalid'] . ' in /' . $this->getboardname($postdata['board']) .
 			"/:<br />" . nl2br($postdata['body']);
 		}
 		else
 		{
 			$ip = $this->myresult("select ip from " . THreplies_table . " where id=" . $id);
 			$postdata = $this->myassoc("select globalid,board,body from " . THreplies_table . " where id=" . $id);
-			$postdata = 'Post ' . $postdata['globalid'] . ' in /' . getboardname($postdata['board']) .
+			$postdata = 'Post ' . $postdata['globalid'] . ' in /' . $this->getboardname($postdata['board']) .
 			"/:<br />" . nl2br($postdata['body']);
 		}
 		$this->banbody($id, $isthread, $publicreason);

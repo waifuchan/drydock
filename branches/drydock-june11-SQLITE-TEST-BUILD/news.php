@@ -49,8 +49,9 @@
 				$archivelink = '<a class="info" href="'.THurl;
 			} else {
 				$archivelink = '<a class="info" href="'.THurl.'drydock.php?b=';
-			}			
-		 $archivelink .= getboardname(THnewsboard).'">Full News Archive</a>';  //make our link
+			}
+		$db = new ThornDBI();
+		 $archivelink .= $db->getboardname(THnewsboard).'">Full News Archive</a>';  //make our link
 	} else {
 		echo "<br />This site is powered by the drydock image board script.";
 	}

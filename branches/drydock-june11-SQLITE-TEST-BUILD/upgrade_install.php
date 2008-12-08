@@ -90,7 +90,7 @@
 		
 		if($result === null)
 		{
-			die "CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n";
+			die ("CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
 		}
 
 		// Add new tables (use THdbprefix)
@@ -109,7 +109,7 @@
 		
 		if($result === null)
 		{
-			die "CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n";
+			die ("CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
 		}
 			
 		// Rewrite config.php (just a simple append, but I guess it will do for now)
@@ -120,7 +120,7 @@
 		?>';
 		
 		// We want to append the two new table names to config.php, so this will do for now (it'll look nicer after the next config.php rebuild, whenever that happens)
-		file_put_contents(THpath."config.php", $addition, (FILE_TEXT | FILE_APPEND)
+		file_put_contents(THpath."config.php", $addition, (FILE_TEXT | FILE_APPEND))
 			or die("Could not open config.php for writing.");
 		
 		echo "Success!";
@@ -190,7 +190,7 @@
 		
 		if($result === null)
 		{
-			die "DROP Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n";
+			die ("DROP Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
 		}
 		
 		// Insert new bans table
@@ -215,7 +215,7 @@
 		
 		if($result === null)
 		{
-			die "CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n";
+			die ("CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
 		}
 		
 		// Insert converted bans

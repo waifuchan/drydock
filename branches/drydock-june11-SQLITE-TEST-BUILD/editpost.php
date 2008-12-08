@@ -57,7 +57,7 @@
 		else 
 		{
 			$post = intval($_GET['post']); // SQL injection protection :]
-			$board =getboardnumber($_GET['board']);
+			$board = $db->getboardnumber($_GET['board']);
 			$qstring = "SELECT * FROM ".THreplies_table." WHERE globalid=".$post." AND board=".$board;
 			//echo $qstring."<br>/n";
 			//$postquery = $db->myquery($qstring);
@@ -76,7 +76,7 @@
 		}
 		//print_r($posttoedit);
 
-
+		$boardname = $db->getboardname($board);
 		$isanythingchanged = 0;
 		$unvisibletime=0;
 
@@ -289,11 +289,11 @@
 					
 					if(THuserewrite)
 					{
-					$diereturn='Post(s) deleted.<br><a href="'.THurl.getboardname($board).'/thread/'.$threadop.'">Return to thread</a>';
+					$diereturn='Post(s) deleted.<br><a href="'.THurl.$boardname.'/thread/'.$threadop.'">Return to thread</a>';
 					}
 					else
 					{
-					$diereturn='Post(s) deleted.<br><a href="'.THurl.'drydock.php?b='.getboardname($board).'&i='.$threadop.'">Return to thread</a>';
+					$diereturn='Post(s) deleted.<br><a href="'.THurl.'drydock.php?b='.$boardname.'&i='.$threadop.'">Return to thread</a>';
 					}
 				} 
 				else 
@@ -304,11 +304,11 @@
 					
 					if(THuserewrite)
 					{
-					$diereturn='Post(s) deleted.<br><a href="'.THurl.getboardname($board).'">Return to board</a>';
+					$diereturn='Post(s) deleted.<br><a href="'.THurl.$boardname.'">Return to board</a>';
 					}
 					else
 					{
-					$diereturn='Post(s) deleted.<br><a href="'.THurl.'drydock.php?b='.getboardname($board).'">Return to board</a>';
+					$diereturn='Post(s) deleted.<br><a href="'.THurl.'drydock.php?b='.$boardname.'">Return to board</a>';
 					}
 				}
 
@@ -386,11 +386,11 @@
 		
 		if(THuserewrite)
 		{
-			die('Thread moved.<br><a href="'.THurl.getboardname($destboard).'/thread/'.$newthreadspot.'">Return to thread</a>');
+			die('Thread moved.<br><a href="'.THurl.$boardname.'/thread/'.$newthreadspot.'">Return to thread</a>');
 		}
 		else
 		{
-		   die('Thread moved.<br><a href="'.THurl.'drydock.php?b='.getboardname($destboard).'&i='.$newthreadspot.'">Return to thread</a>');
+		   die('Thread moved.<br><a href="'.THurl.'drydock.php?b='.$boardname.'&i='.$newthreadspot.'">Return to thread</a>');
 		}
 	}
 
@@ -402,19 +402,19 @@
 	echo " <link rel=\"stylesheet\" type=\"text/css\" href=\"".THurl."tpl/".THtplset."/futaba.css\" title=\"Futaba-ish Stylesheet\" />\n";
 	echo "</head>\n";
 	echo "<body>\n";
-	echo "<form name=\"postedit\" action=\"".THurl."editpost.php?post=".$post."&board=".getboardname($board)."\" method=\"post\">\n";
+	echo "<form name=\"postedit\" action=\"".THurl."editpost.php?post=".$post."&board=".$boardname."\" method=\"post\">\n";
 
 	echo '<font size="+1">';
 	echo 'Currently editing <a href="'.THurl;
 	if(THuserewrite)
 	{
-		echo getboardname($board).'/thread/';
+		echo $boardname.'/thread/';
 	} 
 	else 
 	{
-		echo 'drydock.php?b='.getboardname($board).'&i=';
+		echo 'drydock.php?b='.$boardname.'&i=';
 	}
-	echo $threadid.'#'.$post.'">p.'.$post.'</a> in thread '.$threadid.' in /'.getboardname($board).'/';
+	echo $threadid.'#'.$post.'">p.'.$post.'</a> in thread '.$threadid.' in /'.$boardname.'/';
 	
 	echo "</font><hr width=\"70%\" align=\"left\"/>\n";
 	

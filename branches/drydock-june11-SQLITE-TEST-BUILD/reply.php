@@ -9,6 +9,24 @@
 		Artistic License 2.0:
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
+	
+	/*
+		THINGS THAT WE EXPECT TO COME IN:
+	
+		$_POST['thread']  (int for the thread ID)
+		$_POST['body'] (string for the post body)
+		$_POST['link'] (string for the link field)
+		$_POST['nombre'] (string for the post name if forced_anon is off)
+		$_POST['board'] (string for the board folder)
+	
+		THINGS THAT MIGHT ALSO COME IN:
+		$_POST['vc'] (captcha string)
+		$_POST['email'] (spambot string)
+		$_POST['todo'] (after-posting string)
+		$_FILES (for images)
+	
+	*/
+	
 	require_once("common.php");
 	require_once("post-common.php");
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
@@ -19,9 +37,17 @@
 	{
 		THdie("PObanned");
 	}
-	$thread=$db->gettinfo((int)$_POST['thread']);
-	$binfo=$db->getbinfo($_POST['board']);
-
+	
+	// Get thread and board info
+	$thread=$db->gettinfo($_POST['thread']);
+	$binfo=$db->getbinfo($db->getboardnumber($_POST['board']));
+	
+	// Die if the board doesn't exist.
+	if( $binfo == null )
+		die("Specified board does not exist.");
+	else if( $thread == null )
+		die("Specified thread does not exist.");
+	
 	//check for banned keywords
 	if ($mod==false)
 	{
@@ -78,7 +104,7 @@
 	if (strlen($_POST['body'])>1 || count($goodfiles)>0) 
 	{
 		$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
-		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],$_POST['board'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$_POST['bump']=="on");
+		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],$binfo['id'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),$mod);
 		movefiles($goodfiles, $pnum, false, $binfo, $db);
 	}
 
@@ -100,12 +126,10 @@
 	}
 
 	//hopefully this doesn't break it! -tyam
-	//$boardz = getboardname($thread['board']);
-
 	if ($_POST['todo']=="board")
 	{
-		if (THuserewrite) { $location = THurl.$boardz; } 
-		else { $location = THurl."drydock.php?b=$boardz"; }
+		if (THuserewrite) { $location = THurl.$binfo['folder']; } 
+		else { $location = THurl."drydock.php?b=".$binfo['folder']; }
 		header("Location: ".$location);
 	}
 	elseif ($_POST['todo']=="post") 
@@ -114,8 +138,8 @@
 		$postglobalid=mysql_result($postglobalid,0,"globalid");
 		$threadglobalid=mysql_query("select globalid from ".THthreads_table." where id=".$thread['id']);
 		$threadglobalid=mysql_result($threadglobalid,0,"globalid");
-		if (THuserewrite) { $location = THurl.$boardz."/thread/".$threadglobalid."#".$postglobalid; } 
-		else { $location = THurl."drydock.php?b=$boardz&i=$threadglobalid#$postglobalid"; }
+		if (THuserewrite) { $location = THurl.$binfo['folder']."/thread/".$threadglobalid."#".$postglobalid; } 
+		else { $location = THurl."drydock.php?b=".$binfo['folder']."&i=$threadglobalid#$postglobalid"; }
 		header("Location: ".$location);
 	} else {
 		header("Location: drydock.php");

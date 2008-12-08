@@ -553,7 +553,7 @@ var_dump($boardarray);
 	{
 		if($_POST['boardselect'])
 		{
-			if ($_POST['delete'.getboardnumber($_POST['boardselect'])]==TRUE) //Delete images on that board; nuke it from db
+			if ($_POST['delete'.$db->getboardnumber($_POST['boardselect'])]==TRUE) //Delete images on that board; nuke it from db
 			{
 				delimgs($db->fragboard($_POST['boardselect']));
 				$db->myquery("DELETE from ".THboards_table." WHERE folder='".$_POST['boardselect']."'");
@@ -563,7 +563,7 @@ var_dump($boardarray);
 			} 
 			else 
 			{
-				$oldid=getboardnumber($db->escape_string($_POST['boardselect']));
+				$oldid=$db->getboardnumber($_POST['boardselect']);
 				$globalid=intval($_POST['globalid'.$oldid]);
 				$name=$db->escape_string($_POST['name'.$oldid]);
 				$folder=$db->escape_string($_POST['folder'.$oldid]);

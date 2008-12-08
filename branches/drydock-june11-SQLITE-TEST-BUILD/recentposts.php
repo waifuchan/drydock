@@ -34,9 +34,9 @@
 	$board = $db->escape_string($_GET['board']); //clean the board name from get
 	
 	// We just append this to the end of all the SQL queries/links.  Makes things simpler because we only have to do it once.
-	if(isset($_GET['board']) && getboardnumber($_GET['board']) )
+	if(isset($_GET['board']) && $db->getboardnumber($_GET['board']) )
 	{
-		$boardquery = " WHERE board=".getboardnumber($_GET['board']);
+		$boardquery = " WHERE board=".$db->getboardnumber($_GET['board']);
 		$boardlink = "&board=".$board;
 	}
 	else 
@@ -293,7 +293,6 @@
 			//fix thread=0 bug - tyam
 			if ($thispost['thread'] != 0) 
 			{
-				//$boardz = getboardname($thispost['board']);
 				$boardz = $boards[$thispost['board']]['folder'];
 
 				if( $boardz != false ) 
@@ -320,7 +319,6 @@
 			} 
 			else 
 			{
-				//$boardz = getboardname($thispost['board']);
 				$boardz = $boards[$thispost['board']]['folder'];
 				// hopefully this will fix the problem with new threads not being displayed correctly
 				if( $thispost['id'] != 0 ) 

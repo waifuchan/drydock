@@ -313,7 +313,7 @@ function rebuild_linkbars()
 		{
 			fwrite($sidelinks, ' <a class=info href="' . THurl . 'drydock.php?b=');
 		}
-		fwrite($sidelinks, getboardname(THnewsboard) . '">' . getboardname(THnewsboard) . "</a> /\n");
+		fwrite($sidelinks, $db->getboardname(THnewsboard) . '">' . $db->getboardname(THnewsboard) . "</a> /\n");
 
 	}
 	//uncomment this out if you have the irc stuff installed - we don't ship it ~tyam
@@ -376,7 +376,7 @@ function rebuild_rss()
 			{
 				$subject = "News post";
 			}
-			$newsboard = getboardname(THnewsboard); //get the name of the board
+			$newsboard = $db->getboardname(THnewsboard); //get the name of the board
 			if (THuserewrite)
 			{
 				$link = THurl . $newsboard . '/thread/' . $boardentry['globalid'];

@@ -306,22 +306,39 @@ class ThornDBI
 	function checkban($ip = null)
 	{
 		/*
-			Check to see if an IP is banned. Will check both the actual IP and the IP's subnet.
+			Check to see if an IP is banned. Will check both the actual IP and the IP's last
+			two subnets.
+			
 			Parameters:
-				int $ip=ip2long($_SERVER['REMOTE_ADDR']);
-			The ip2long'd IP address. If blank, it checks the user's IP address. ("function checkban($ip=ip2long($_SERVER['REMOTE_ADDR']))" makes PHP cwy.)
+				int $ip
+			The IP address.  If it comes in as an int, long2ip will be used.  If it comes in as a string,
+			nothing will be done to it.  If it comes in as null, $_SERVER['REMOTE_ADDR'] will
+			be used by default.
 			
 			Returns:
 				bool $banned
 		*/
+		
+		// If it's null
 		if ($ip == null)
 		{
-			$ip = ip2long($_SERVER['REMOTE_ADDR']);
+			$ip = $_SERVER['REMOTE_ADDR'];
 		}
-		//echo();
-		$sub = ipsub($ip);
+		else if ( is_int($ip) ) // If it's an int
+		{
+			$ip = long2ip($ip);
+		}
+		
+		// Break up into octets
+		$octets = explode(".", $ip, 4);
+
 		//Check already banned...
-		if ($this->myresult("select count(*) from " . THbans_table . " where (ip=" . $sub . " && subnet=1) || ip=" . $ip) > 0)
+		if ($this->myresult("select count(*) from `" . THbans_table . "` where 
+			`ip_octet1`=" . intval($octets[0]) . " 
+			&& `ip_octet2`=" . intval($octets[1]) . " 
+			&& (`ip_octet3`=" . intval($octets[2]) . " || `ip_octet3` = -1 )
+			&& (`ip_octet4`=" . intval($octets[3]) . " || `ip_octet4` = -1 )
+			") > 0)
 		{
 			return (true);
 		}
@@ -366,6 +383,54 @@ class ThornDBI
 		}
 		
 		return $this->mymultiarray($querystring);
+	}
+	
+	function getboardname($number)
+	{
+		/*
+			Get the folder name of a board from an ID
+			Parameters:
+				int id 
+			The board ID
+			
+			Returns:
+				The board folder, or null if it does not exist
+		*/
+		
+		$boardquery = "SELECT folder FROM ".THboards_table." WHERE id =".intval($number);
+		$name = $this->myresult($boardquery);
+		if($name != null)
+		{ 
+			return $name;
+		} 
+		else 
+		{ 
+			return false;
+		}
+	}
+
+	function getboardnumber($folder)
+	{
+		/*
+			Get the ID of a board from an folder
+			Parameters:
+				string folder
+			The board folder
+			
+			Returns:
+				The board ID, or null if it does not exist
+		*/
+		
+		$boardquery = "SELECT id FROM ".THboards_table." WHERE folder ='".$this->escape_string($folder)."'";
+		$number = $this->myresult($boardquery);
+		if($number != null)
+		{ 
+			return $number;
+		} 
+		else 
+		{ 
+			return false;
+		}
 	}
 
 } //ThornDBI
