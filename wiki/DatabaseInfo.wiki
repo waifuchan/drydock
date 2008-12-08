@@ -1,4 +1,6 @@
+#summary Information regarding the design of the SQL database.
 #labels Phase-Implementation,Phase-Design
+
 =Database tables list=
 
 The aim of this page is to document the creation and administration of the SQL database.
