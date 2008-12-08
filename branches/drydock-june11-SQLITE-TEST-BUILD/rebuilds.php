@@ -406,20 +406,6 @@ function rebuild_rss()
 
 function rebuild_spamlist()
 {
-	$bannedwords = array ();
-	if (THusecURL)
-	{
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, "http://wakaba.c3.cx/antispam/spam.txt");
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		$string = curl_exec($ch);
-		curl_close($ch);
-
-		//echo $string;
-		$bannedwords = explode("\n", $string);
-	}
-
 	/* manual spam filter downloading - parse unlinked/spam.txt */
 	/* Note that this will do it IN addition to cURL. */
 	$spamfile = THpath . "unlinked/spam.txt";
@@ -433,17 +419,38 @@ function rebuild_spamlist()
 					Click <a href='" . $THpath . "admin.php?a=hk'>here</a> to return to the housekeeping menu.");
 	}
 
-	@ $fp_blacklist = fopen($spamfile, "r") or die();
-	while (!feof($fp_blacklist))
+	$bannedwords = array ();
+	if (THusecURL)
 	{
-		$buffer = fgets($fp_blacklist, 4096);
 
-		if (rtrim($buffer))
-		{
-			$bannedwords[] = $buffer;
-		}
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, "http://wakaba.c3.cx/antispam/spam.txt");
+
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$string = curl_exec($ch);
+
+		curl_close($ch);
+
+		//echo $string;
+		$bannedwords = explode("\n", $string);
 	}
 
+
+	if(is_file($spamfile))
+	{
+		@ $fp_blacklist = fopen($spamfile, "r") or die();
+		while (!feof($fp_blacklist))
+		{
+			$buffer = fgets($fp_blacklist, 4096);
+
+			if (rtrim($buffer))
+			{
+				$bannedwords[] = $buffer;
+			}
+		}
+	}
+	
 	$fp_cache = fopen(THpath . "cache/blacklist.php", "w");
 	if ($fp_cache)
 	{
@@ -465,9 +472,9 @@ function rebuild_spamlist()
 	{
 		die("Could not open blacklist for caching.");
 	}
-
 	fclose($fp_cache);
 	return;
+	
 }
 //end rebuild blocks
 ?>

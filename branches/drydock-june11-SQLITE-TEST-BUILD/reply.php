@@ -9,18 +9,18 @@
 		Artistic License 2.0:
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
-	
 	require_once("common.php");
 	require_once("post-common.php");
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
 
+	var_dump($_POST);
 	$db=new ThornPostDBI();
 	if ($db->checkban())
 	{
 		THdie("PObanned");
 	}
 	$thread=$db->gettinfo((int)$_POST['thread']);
-	$binfo=$db->getbinfo($thread['board']);
+	$binfo=$db->getbinfo($_POST['board']);
 
 	//check for banned keywords
 	if ($mod==false)
@@ -30,9 +30,9 @@
 		//You could use any website, or even CENSORED or some other text.  We picked GameFAQs.
 		if(count($spamblacklist) > 0)
 		{
-			$_POST['body'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['body']);
-			$_POST['link'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['link']);
-			$_POST['name'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['name']);
+			$_POST['body'] = str_replace($spamblacklist, "xxxxx", $_POST['body']);
+			$_POST['link'] = str_replace($spamblacklist, "xxxxx", $_POST['link']);
+			$_POST['name'] = str_replace($spamblacklist, "xxxxx", $_POST['name']);
 		}
 		
 		// The email field will have a big "IF YOU ARE HUMAN DO NOT FILL THIS IN" next to it.
@@ -78,7 +78,7 @@
 	if (strlen($_POST['body'])>1 || count($goodfiles)>0) 
 	{
 		$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
-		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],$thread['board'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$_POST['bump']=="on");
+		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],$_POST['board'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$_POST['bump']=="on");
 		movefiles($goodfiles, $pnum, false, $binfo, $db);
 	}
 
@@ -100,7 +100,7 @@
 	}
 
 	//hopefully this doesn't break it! -tyam
-	$boardz = getboardname($thread['board']);
+	//$boardz = getboardname($thread['board']);
 
 	if ($_POST['todo']=="board")
 	{

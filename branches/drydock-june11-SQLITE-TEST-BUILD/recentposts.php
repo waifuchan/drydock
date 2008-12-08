@@ -31,7 +31,7 @@
 
 	// SELECT COUNT(*) FROM 'img'
 	
-	$board = escape_string($_GET['board']); //clean the board name from get
+	$board = $db->escape_string($_GET['board']); //clean the board name from get
 	
 	// We just append this to the end of all the SQL queries/links.  Makes things simpler because we only have to do it once.
 	if(isset($_GET['board']) && getboardnumber($_GET['board']) )
@@ -394,70 +394,50 @@
 				echo $thispost['title'];
 				echo '</span>';
 			}
-			
-			$images=array();
-			$query= "select * from ".THimages_table." where id=".$thispost['imgidx'];
-			$imagesquery = $db->myquery($query);
-			while ($singleimage=$db->myarray($imagesquery))
+			if($thispost['imgidx'])
 			{
-				$images[]=$singleimage;
-			}//while images
-			
-			if( $images[0] != null )
-			{
-				echo '<table><tbody>';
-				foreach($images as $postimage)
+				$images=array();
+				$query= "select * from ".THimages_table." where id=".$thispost['imgidx'];
+				$imagesquery = $db->myquery($query);
+				while ($singleimage=$db->myarray($imagesquery))
 				{
-					echo '<tr><td><div class="filesize">';
-					echo 'File: <a href="images/'.$thispost['imgidx'].'/'.$postimage['name'].'" target="_blank">'.$postimage['name'].'</a><br />';
-					echo '(<em>'.$postimage['fsize'].' K, '.$postimage['width'].'x'.$postimage['height'];
-					if( $postimage['anim'] )
+					$images[]=$singleimage;
+				}//while images
+			
+				if( $images[0] != null )
+				{
+					echo '<table><tbody>';
+					foreach($images as $postimage)
 					{
-						echo 'a';
-					}//if anim
-					echo '</em>)</div>';
-					echo 'File: <a class="info" href="images/'.$thispost['imgidx'].'/'.$postimage['name'].'" target="_blank">';
-					
-					if($postimage['hash'] != "deleted")
-					{
-					echo '<img src="images/'.$thispost['imgidx'].'/'.$postimage['tname'].
-					'" width="'.$postimage['twidth'].'" height="'.$postimage['theight'].'" alt="'.$postimage['name'].'" class="thumb" />';
-					}
-					else
-					{
-					echo '<img src="'.THurl.'static/file_deleted.png" alt="File deleted" width="100" height="16" class="thumb" />';
-					}
-					
-					/* if($postimage['extra_info'] > 0)
-					{
-						$extrainfo = $db->myresult("SELECT ".THextrainfo_table." FROM extra_info WHERE id=".$postimage['extra_info']);
-						
-						if($extrainfo)
+						echo '<tr><td><div class="filesize">';
+						echo 'File: <a href="images/'.$thispost['imgidx'].'/'.$postimage['name'].'" target="_blank">'.$postimage['name'].'</a><br />';
+						echo '(<em>'.$postimage['fsize'].' K, '.$postimage['width'].'x'.$postimage['height'];
+						if( $postimage['anim'] )
 						{
-						echo '<span>';
-						echo $extrainfo;
-						echo '</a></span>';
-						}
-						else
+							echo 'a';
+						}//if anim
+						echo '</em>)</div>';
+						echo 'File: <a class="info" href="images/'.$thispost['imgidx'].'/'.$postimage['name'].'" target="_blank">';
+
+						if($postimage['hash'] != "deleted")
 						{
-						echo '</a><BR>';
+							echo '<img src="images/'.$thispost['imgidx'].'/'.$postimage['tname'].
+							'" width="'.$postimage['twidth'].'" height="'.$postimage['theight'].'" alt="'.$postimage['name'].'" class="thumb" />';
+						} else {
+							echo '<img src="'.THurl.'static/file_deleted.png" alt="File deleted" width="100" height="16" class="thumb" />';
 						}
-					}
-					else
-					{
-					echo '</a><BR>';
-					} */
-					echo '</a><br />';
-					
-					echo '</td></tr>';
-				}//for images
-				echo '</tbody></table>';
-			}//if img[0]
-			echo '</td></tr><tr><td>';  //split images from body
+						echo '</a><br />';
+
+						echo '</td></tr>';
+					}//for images
+					echo '</tbody></table>';
+				}//if img[0]
+				echo '</td></tr><tr><td>';  //split images from body
+			}//imgidx
 			echo '<blockquote>'.nl2br($thispost['body']).'</blockquote>';
 			echo '</td></tr></table><hr>';
 		}//end post and i think fix our bug? ~tyam
-		
+
 		echo "\n";
 		$row++;
 	}//while posts

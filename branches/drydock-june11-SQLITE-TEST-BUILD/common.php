@@ -177,7 +177,7 @@
 	{
 		require_once("_Smarty/Smarty.class.php");
 		$sm=new Smarty;
-		$sm->debugging=true;  //uncomment to enable debugging window for smarty
+		//$sm->debugging=true;  //uncomment to enable debugging window for smarty
 		return($sm);
 	}
 	
@@ -461,6 +461,10 @@
 		// ...or a tank top
 
 		//oh hello i found this comment thanks diff ~tyam
+	}
+	function replacedouble($filter)
+	{
+		return str_replace('"', "&#034;", $filter);
 	}
 	
 	function writelog($actionstring,$type)

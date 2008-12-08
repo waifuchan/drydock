@@ -19,7 +19,9 @@ if ($_POST['remember'])
 {
 	setcookie(THcookieid . "-uname", $_SESSION['username'], time() + THprofile_cookietime, THprofile_cookiepath);
 	setcookie(THcookieid . "-id", $_SESSION['userid'], time() + THprofile_cookietime, THprofile_cookiepath);
+
 }
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -686,6 +688,7 @@ else
 				else
 					if ($_GET['action'] == "register")
 					{
+						echo "<div class=\"pgtitle\">Register a new account</div><br />\n";
 						if (isset ($_SESSION['username']))
 						{
 							die("But you are logged in!");
@@ -696,7 +699,7 @@ else
 							die("Registration disabled.");
 						}
 
-						$success == 0;
+						$success = 0;
 
 						echo "<title>" . THname . "&#8212; Register</title>\n";
 						echo "</head><body>\n";
@@ -804,20 +807,19 @@ else
 								}
 								else
 								{
-									echo "You have registered successfully.<br>\n";
+									//echo "You have registered successfully.<br>\n";
+									$success = 1;
 								}
 							}
 						}
-
 						if ($errorstring != "")
 						{
 							echo "The following errors were encountered:<br>\n";
 							echo $errorstring;
 						}
 
-						if (!$success)
+						if ($success=="0")
 						{
-							echo "<div class=\"pgtitle\">Register a new account</div><br />\n";
 							echo "<form action=\"profiles.php?action=register\" method=\"POST\">\n";
 							echo "<b>Username:</b><input type=\"text\" name=\"user\" maxlength=\"30\" ><br>\n";
 							echo "<b>Password:</b><input type=\"password\" name=\"password\" maxlength=\"30\" ><br>\n";
@@ -851,9 +853,14 @@ else
 									echo "An email containing your account information has been sent to your specified email address.<br>\n";
 								}
 							}
-
+		echo "<table><form action=\"profiles.php?action=login\" method=\"POST\">\n";
+		echo "<tr><td>Username:</td><td><input type=\"text\" name=\"name\" maxlength=\"30\" ></td></tr>\n";
+		echo "<tr><td>Password:</td><td><input type=\"password\" name=\"password\" maxlength=\"30\" ></td></tr>\n";
+		echo "<tr><td><input type=\"checkbox\" name=\"remember\" ><font size=\"2\">Remember me</td>\n";
+		echo "<tr><td><input type=\"submit\" value=\"Login\"></td></tr>\n";
+		echo "</form></table>\n";
 						}
-						echo "[<a href=\"drydock.php\">Board index</a>]\n";
+//						echo "[<a href=\"drydock.php\">Board index</a>]\n";
 						echo "</td></tr></table>\n";
 					}
 					else
@@ -948,7 +955,7 @@ elseif ($_GET['action'] == "permissions")
 	echo '<div id="main"><div class="box">';
 	echo "<div class=\"pgtitle\">User permissions:" . $username . "</div><br />\n";
 	
-	$user = $db->getuserinfo($username);
+	$user = $db->getuserdata($username);
 	$boards = $db->getboard(); // no parameters means all boards
 
 	if (isset ($_POST['permsub']))
@@ -1032,7 +1039,7 @@ elseif ($_GET['action'] == "permissions")
 		//echo $query; print_r($_POST); die();
 	}
 
-	$user = $db->getuserinfo($username); // reload user info
+	$user = $db->getuserdata($username); // reload user info
 
 	echo "<form action=\"profiles.php?action=permissions&user=" . $username . "\" method=\"POST\">\n";
 

@@ -546,7 +546,7 @@
 	                $extrainfo = $extrainfo . "<br>Zlib compression";
 	            }
 				
-	            $query="INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".escape_string($extrainfo)."')";
+	            $query="INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".$db->escape_string($extrainfo)."')";
 	            $ex_inf_result = $db->myquery($query);
 	            if($ex_inf_result)
 	            {
@@ -584,7 +584,7 @@
 			$pagecount = $pdf->setSourceFile($fyle['path']);
 			$extrainfo = intval($pagecount)." pages";
 			
-			$query="INSERT INTO ".THextrainfo_table." (id, extra_info) VALUES (NULL,'".escape_string($extrainfo)."')";
+			$query="INSERT INTO ".THextrainfo_table." (id, extra_info) VALUES (NULL,'".$db->escape_string($extrainfo)."')";
 			$ex_inf_result = $db->myquery($query);
 			if($ex_inf_result)
 			{
@@ -761,7 +761,7 @@
 
                 if($extrainfo)
                 {
-                    $query="INSERT INTO ".THextrainfo_table."(id, extra_info) VALUES (NULL, '".escape_string($extrainfo)."')";
+                    $query="INSERT INTO ".THextrainfo_table."(id, extra_info) VALUES (NULL, '".$db->escape_string($extrainfo)."')";
                     $ex_inf_result = $db->myquery($query);
                     if($ex_inf_result)
                     {

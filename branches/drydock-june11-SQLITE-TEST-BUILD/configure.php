@@ -310,15 +310,15 @@ Database prefix: <input type="text" name="THdbprefix" size="12" value="drydock_"
 <input type="submit" value="Continue">
 </form>
 <?php } elseif($_GET['p']==5) { 
-
+	if($_POST['THdbtype']=="MySQL") {
 		if ($_POST['THdbpass'] == $_POST['THdbpassver']) {
 			if($_POST['THdbpassver'] == "") {
-				die("Administrator password is not set.");
+				die("Database password is not set.  If your database user does not have a password, you can not install this script without disabling this check.  This is extremely unsecure.");
 			}
 		} else {
 			die("Passwords do not match.");
 		}
-
+	}
 //pass our current info on to the next page
 $configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
 $post = array('THdbprefix' => $_POST['THdbprefix'], 'THdbserver' => $_POST['THdbserver'], 'THdbuser' => $_POST['THdbuser'], 'THdbpass' => $_POST['THdbpass'], 'THdbbase' => $_POST['THdbbase']);
@@ -411,7 +411,6 @@ If everything here looks good, go ahead and hit continue.<br><br>
 			//write a quick config, this format isn't good, but hopefully they'll change something in the regular config and trigger a rewrite
 			$config = fopen($configarray['THpath']."config.php", 'w');
 			fwrite($config, '<?php'."\n");
-			fwrite($config, '$configver=4;'."\n");
 			fwrite($config, 'define("THpath","'.$configarray['THpath'].'");'."\n");
 			fwrite($config, 'define("THurl","'.$configarray['THurl'].'");'."\n");
 			fwrite($config, 'define("THdbtype","'.$configarray['THdbtype'].'");'."\n");

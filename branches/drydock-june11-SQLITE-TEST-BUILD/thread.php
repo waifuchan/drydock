@@ -29,7 +29,6 @@
 	}
 	$board=$db->escape_string($_POST['board']);
 	$binfo=$db->getbinfo($board);
-	//print_r($binfo);
 
 	//check for banned keywords
 	if ($mod==false)
@@ -39,10 +38,10 @@
 		//You could use any website, or even CENSORED or some other text.  We picked GameFAQs.
 		if(count($spamblacklist) > 0)
 		{
-			$_POST['subj'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['subj']);
-			$_POST['body'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['body']);
-			$_POST['link'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['link']);
-			$_POST['name'] = str_replace($spamblacklist, "gamefaqs.com", $_POST['name']);
+			$_POST['subj'] = str_replace($spamblacklist, "xxxxx", $_POST['subj']);
+			$_POST['body'] = str_replace($spamblacklist, "xxxxx", $_POST['body']);
+			$_POST['link'] = str_replace($spamblacklist, "xxxxx", $_POST['link']);
+			$_POST['name'] = str_replace($spamblacklist, "xxxxx", $_POST['name']);
 		}
 		
 		// The email field will have a big "IF YOU ARE HUMAN DO NOT FILL THIS IN" next to it.

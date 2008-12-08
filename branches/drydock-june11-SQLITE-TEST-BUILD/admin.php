@@ -67,10 +67,10 @@
 			if ($_GET['boardselect'])
 			{
 				//Configure options for a specific board
-				$boardselect = $db->myassoc("select * from ".THboards_table." where folder='".$db->clean($_GET['boardselect'])."'");
+				$boardselect = $db->myassoc("select * from ".THboards_table." where folder='".$db->escape_string($_GET['boardselect'])."'");
 				if($boardselect)
 				{
-					$sm->assign("boardselect",$db->clean($_GET['boardselect']));
+					$sm->assign("boardselect",$db->escape_string($_GET['boardselect']));
 					$sm->assign("board",$boardselect,$sm);
 				}
 				else
@@ -234,11 +234,11 @@
 			if((isset($_GET['action']) && $_GET['action']=="regyes") && isset($_GET['username']))
 			{
 				$db->myquery("UPDATE ".THusers_table.
-					" SET approved=1 WHERE username='".escape_string($_GET['username'])."'");
+					" SET approved=1 WHERE username='".$db->escape_string($_GET['username'])."'");
 				if(THprofile_emailwelcome)
 				{
 					$email = $db->myresult("SELECT email FROM ".
-					THusers_table." WHERE username='".escape_string($_GET['username'])."'");
+					THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
 					sendWelcome($username, $email);
 				}
 			}
@@ -246,12 +246,12 @@
 			if((isset($_GET['action']) && $_GET['action']=="regno") && isset($_GET['username']))
 			{
 				$query = "UPDATE ".THusers_table.
-				" SET approved='-1' WHERE username='".escape_string($_GET['username'])."'";
+				" SET approved='-1' WHERE username='".$db->escape_string($_GET['username'])."'";
 				$db->myquery($query);
 				if(THprofile_emailwelcome)
 				{
 					$email = $db->myresult("SELECT email FROM ".
-					THusers_table." WHERE username='".escape_string($_GET['username'])."'");
+					THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
 					sendFuckOff($username, $email);
 				}
 			}
@@ -263,45 +263,45 @@
 					if match found, use update query, else, insert query
 				*/
 				$new_capcode = $db->myresult("SELECT proposed_capcode FROM ".
-				THusers_table." WHERE username='".escape_string($_GET['username'])."'");
+				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
 				
 				$user_hash = $db->myresult("SELECT capcode FROM ".
-				THusers_table." WHERE username='".escape_string($_GET['username'])."'");
+				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
 				
 				$already_there = $db->myresult("SELECT capcode_to FROM ".THcapcodes_table.
-				" WHERE capcode_from='".escape_string($user_hash)."'");
+				" WHERE capcode_from='".$db->escape_string($user_hash)."'");
 				
 				if($already_there != null)
 				{
 					$db->myquery("UPDATE ".THcapcodes_table.
-					" SET proposed_capcode='".escape_string($new_capcode).
-					"' WHERE username='".escape_string($_GET['username'])."'");
+					" SET proposed_capcode='".$db->escape_string($new_capcode).
+					"' WHERE username='".$db->escape_string($_GET['username'])."'");
 				}
 				else
 				{
 					$db->myquery("INSERT INTO ".THcapcodes_table.
-					" (capcode_from, capcode_to) VALUES('".escape_string($user_hash)."','".escape_string($new_capcode)."')");
+					" (capcode_from, capcode_to) VALUES('".$db->escape_string($user_hash)."','".$db->escape_string($new_capcode)."')");
 				}
 				// We don't need this anymore since it's no longer proposed
 				$db->myquery("UPDATE ".THusers_table.
-				" SET proposed_capcode=\"\" WHERE username='".escape_string($_GET['username'])."'");
+				" SET proposed_capcode=\"\" WHERE username='".$db->escape_string($_GET['username'])."'");
 			}
 			if((isset($_GET['action']) && $_GET['action']=="capno") && isset($_GET['username']))
 			{
 				//this capcode isn't going to work for whatever reason, deny it
 				
 				$db->myquery("UPDATE ".THusers_table.
-				" SET proposed_capcode='' WHERE username='".escape_string($_GET['username'])."'");
+				" SET proposed_capcode='' WHERE username='".$db->escape_string($_GET['username'])."'");
 			}
 			if((isset($_GET['action']) && $_GET['action']=="picyes") && isset($_GET['username']))
 			{
 				// Get the file extension of the wanted picture
 				$desired_picture = $db->myresult("SELECT pic_pending FROM ".
-				THusers_table." WHERE username='".escape_string($_GET['username'])."'");
+				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
 				
 				// Get the file extension of the current picture (if any)
 				$old_picture = $db->myresult("SELECT has_picture FROM ".
-				THusers_table." WHERE username='".escape_string($_GET['username'])."'");
+				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
 				
 				// Delete the old picture, if there is one
 				if($old_picture)
@@ -312,22 +312,22 @@
 				
 				// Update the db to reflect this
 				$db->myquery("UPDATE ".THusers_table.
-				" SET pic_pending='', has_picture='".escape_string($desired_picture).
-				"' WHERE username='".escape_string($_GET['username'])."'");
+				" SET pic_pending='', has_picture='".$db->escape_string($desired_picture).
+				"' WHERE username='".$db->escape_string($_GET['username'])."'");
 			}
 			
 			if((isset($_GET['action']) && $_GET['action']=="picno") && isset($_GET['username']))
 			{
 				// Get the file extension
 				$desired_picture = $db->myresult("SELECT pic_pending FROM ".
-				THusers_table." WHERE username='".escape_string($_GET['username'])."'");
+				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
 				
 				// Delete the file
 				unlink(THpath.'unlinked/'.$_GET['username'].'.'.$desired_picture);
 				
 				// Clear the db record
 				$db->myquery("UPDATE ".THusers_table.
-				" SET pic_pending='' WHERE username='".escape_string($_GET['username'])."'");
+				" SET pic_pending='' WHERE username='".$db->escape_string($_GET['username'])."'");
 			}
 						
 			$queryresult = $db->myquery("SELECT * FROM ".THusers_table.
@@ -373,7 +373,7 @@
 		{
 			if ($_GET['board'])
 			{
-				$boardarray = $db->myassoc("select * from ".THboards_table." where folder='".$db->clean($_GET['board'])."'");
+				$boardarray = $db->myassoc("select * from ".THboards_table." where folder='".$db->escape_string($_GET['board'])."'");
 var_dump($boardarray);
 				if($boardarray)
 				{
@@ -539,8 +539,8 @@ var_dump($boardarray);
 			{
 				$blotter_entry=array(
 					'id'=>(int)$_POST['id'.$blot['id']],
-					'text'=>escape_string($_POST['post'.$blot['id']]),
-					'board'=>escape_string($_POST['postto'.$blot['id']])
+					'text'=>$db->escape_string($_POST['post'.$blot['id']]),
+					'board'=>$db->escape_string($_POST['postto'.$blot['id']])
 				);
 				
 				$db->updateBCW(THbcw_blotter, $blotter_entry['id'], $blotter_entry['text'], $blotter_entry['board']);
@@ -563,12 +563,12 @@ var_dump($boardarray);
 			} 
 			else 
 			{
-				$oldid=getboardnumber($db->clean($_POST['boardselect']));
+				$oldid=getboardnumber($db->escape_string($_POST['boardselect']));
 				$globalid=intval($_POST['globalid'.$oldid]);
-				$name=$db->clean($_POST['name'.$oldid]);
-				$folder=$db->clean($_POST['folder'.$oldid]);
+				$name=$db->escape_string($_POST['name'.$oldid]);
+				$folder=$db->escape_string($_POST['folder'.$oldid]);
 				$about=strip_tags(replacequote($_POST['about'.$oldid]), '<i><b><u><strike><p><br><font><a><ul><ol><li><marquee>');
-				$rules=$db->clean($_POST['rules'.$oldid]);
+				$rules=$db->escape_string($_POST['rules'.$oldid]);
 				$perpg=intval($_POST['perpg'.$oldid]);
 				$perth=intval($_POST['perth'.$oldid]);
 				$hidden=($_POST['hidden'.$oldid]=="on");
@@ -588,7 +588,7 @@ var_dump($boardarray);
 				$tpix=intval($_POST['tpix'.$oldid]);
 				$rpix=intval($_POST['rpix'.$oldid]);
 				$tmax=intval($_POST['tmax'.$oldid]);
-				$updatequery = "UPDATE ".THboards_table." set globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
+				$updatequery = "UPDATE ".THboards_table." set globalid=".$db->escape_string($globalid).",name='".$db->escape_string($name)."',folder='".$db->escape_string($folder)."',about='".$about."',rules='".$db->escape_string($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->escape_string($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->escape_string($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
 				//print_r($updatequery); echo "<br/>"; var_dump($_POST);
 				$db->myquery($updatequery);
 				$actionstring = "Board edit\tid:".$id;
@@ -606,6 +606,7 @@ var_dump($boardarray);
 				$folder=$_POST['foldernew'];
 				$about=$_POST['aboutnew'];
 				$rules=$_POST['rulesnew'];
+				$nextaction=$_POST['nextaction'];
 				$perpg=20;
 				$perth=4;
 				$hidden=1;
@@ -629,14 +630,19 @@ var_dump($boardarray);
 $query = "INSERT INTO ".THboards_table." ( id , globalid , name , folder , about , rules , perpg , perth , hidden , allowedformats , forced_anon , maxfilesize ,
  maxres , thumbres , pixperpost , customcss , allowvids , filter , boardlayout , requireregistration , tlock , rlock , tpix , rpix , tmax , lasttime )
 VALUES (
-".$db->clean($id).",".$globalid.",'".$db->clean($name)."','".$db->clean($folder)."','".$db->clean($about)."','".$db->clean($rules)."','".$perpg."','".$perth."','"
+".$db->escape_string($id).",".$globalid.",'".$db->escape_string($name)."','".$db->escape_string($folder)."','".$db->escape_string($about)."','".$db->escape_string($rules)."','".$perpg."','".$perth."','"
 .$hidden."','".$allowedformats."','".$forced_anon."','".$maxfilesize."','".$maxres."','".$thumbres."','".$pixperpost."','".$customcss."','".$allowvids."','"
 .$filter."','".$boardlayout."','".$requireregistration."','".$tlock."','".$rlock."','".$tpix."','".$rpix."','".$tmax."', ".$now." );";
 				$db->myquery($query);
 				$actionstring = "Board add\tid:".$id;
 				writelog($actionstring,"admin");
 				//print_r($query);
-				$location=THurl."admin.php?a=b&boardselect=".$folder;
+				if($nextaction=="edit")
+				{
+					$location=THurl."admin.php?a=b&boardselect=".$folder;
+				} else {
+					$location=THurl."admin.php?a=b";
+				}
 			}
 		}
 		//print_r($boards);
@@ -723,9 +729,9 @@ VALUES (
 			{
 				$capcode=array(
 					'id'=>(int)$_POST['id'.$cap['id']],
-					'from'=>escape_string($_POST['from'.$cap['id']]),
-					'to'=>escape_string($_POST['to'.$cap['id']]),
-					'notes'=>escape_string($_POST['notes'.$cap['id']])
+					'from'=>$db->escape_string($_POST['from'.$cap['id']]),
+					'to'=>$db->escape_string($_POST['to'.$cap['id']]),
+					'notes'=>$db->escape_string($_POST['notes'.$cap['id']])
 				);
 
 				$db->updateBCW(THbcw_capcode, $capcode['id'], $capcode['from'], $capcode['to'], $capcode['notes']);
@@ -768,9 +774,9 @@ VALUES (
 			{
 				$filter=array(
 					'id'=>(int)$_POST['id'.$filt['id']],
-					'from'=>escape_string($_POST['from'.$filt['id']]),
-					'to'=>escape_string($_POST['to'.$filt['id']]),
-					'notes'=>escape_string($_POST['notes'.$filt['id']])
+					'from'=>$db->escape_string($_POST['from'.$filt['id']]),
+					'to'=>$db->escape_string($_POST['to'.$filt['id']]),
+					'notes'=>$db->escape_string($_POST['notes'.$filt['id']])
 				);
 				
 				$db->updateBCW(THbcw_filter, $filter['id'], $filter['from'], $filter['to'], $filter['notes']);
@@ -788,7 +794,7 @@ VALUES (
 			$username = trim($_POST['user']);
 			$password = trim($_POST['password']);
 			$email = trim($_POST['email']);
-			$nameexists = $db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".escape_string($username)."'");
+			$nameexists = $db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".$db->escape_string($username)."'");
 			if($nameexists)
 			{
 			$errorstring .= "Sorry, an account with this name already exists.<br>\n";
@@ -816,7 +822,7 @@ VALUES (
 				{
 					$errorstring .= "You must provide a valid email address!<br>\n";
 				}
-				if($db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE email='".escape_string($email)."'"))
+				if($db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE email='".$db->escape_string($email)."'"))
 				{
 					$errorstring .= "That email has already been used to register an account!<br>\n";
 				}
@@ -831,8 +837,8 @@ VALUES (
 			
 				$insertquery = "INSERT INTO ".THusers_table.
 				" (username, password, userlevel, email, approved) VALUES ('".
-				escape_string($username)."','".escape_string($pass_md5)."',".THprofile_userlevel.
-				",'".escape_string($email)."',1)";
+				$db->escape_string($username)."','".$db->escape_string($pass_md5)."',".THprofile_userlevel.
+				",'".$db->escape_string($email)."',1)";
 				$db->myquery($insertquery);
 				$actionstring = "Add user\tname:".$username;
 				writelog($actionstring,"admin");
