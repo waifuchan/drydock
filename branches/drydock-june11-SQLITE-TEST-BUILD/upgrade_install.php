@@ -5,8 +5,7 @@
 		Description:	Handles upgrading of a MySQL-based drydock install from 0.3.0 to 0.3.1
 
 		todo:
-		figure out what's going on with THdbprefix
-		rewrite config.php in step 2
+		make sure everything works
 		
 		Unless otherwise stated, this code is copyright 2008
 		by the drydock developers and is released under the
@@ -34,7 +33,7 @@
 		$result = $dbi->myresult("SHOW COLUMNS FROM `".THposts_table."` LIKE 'password'");
 		if( mysql_num_rows($result) > 0 )
 		{
-			die("Posts table has already been modified!");
+			die("Database has already been modified!");
 		}
 				
 		$query = "ALTER TABLE `".THthreads_table."` ADD `password` varchar(32) default NULL;";
@@ -112,8 +111,19 @@
 		{
 			die "CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n";
 		}
+			
+		// Rewrite config.php (just a simple append, but I guess it will do for now)
+		$addition = 
+		'<?php 
+		define("THbanhistory_table","'.THdbprefix.'banhistory");
+		define("THreports_table","'.THdbprefix.'reports");
+		?>';
 		
-		// Rewrite config.php
+		// We want to append the two new table names to config.php, so this will do for now (it'll look nicer after the next config.php rebuild, whenever that happens)
+		file_put_contents(THpath."config.php", $addition, (FILE_TEXT | FILE_APPEND)
+			or die("Could not open config.php for writing.");
+		
+		echo "Success!";
 	}
 	
 	// Upgrade the bans table. (Type 3)
@@ -125,15 +135,15 @@
 		$result = $dbi->myresult("SHOW COLUMNS FROM `".THbans_table."` LIKE 'ip_octet3'");
 		if( mysql_num_rows($result) > 0 )
 		{
-			die("Bans table has already been modified!");
+			die("Database has already been modified!");
 		}
 				
 		// Get all of the old bans from the DB
 		$bans = $dbi->mymultiarray("SELECT * FROM `".THbans_table."` WHERE 1"); // This could take a while.
 		
 		// Store them in a temp file
-		file_put_contents("upgrade_install.php.temp", var_export($bans, true), FILE_TEXT)
-			or die("Could not open upgrade_install.php.temp for writing.");
+		file_put_contents(THpath."upgrade_install_temp.php", var_export($bans, true), FILE_TEXT)
+			or die("Could not open upgrade_install_temp.php for writing.");
 				
 		// Convert to a new type
 		$bans_new = array(); // This will hold the converted ones.
@@ -246,6 +256,7 @@
 		if( $successful == 1 )
 		{
 			echo "Success!";
+			unlink("upgrade_install.php.temp");
 		}
 	}
 	
@@ -287,7 +298,8 @@ p.centertext {
 					document.getElementById("action_"+type).innerHTML = "Server response:<br>"+this.responseText;
 					
 					// Change the link for this request either to be hidden or back to a valid link
-					if( this.responseText == "Success!" )
+					if( this.responseText == "Success!"
+					||  this.responseText == "Database has already been modified!")
 					{
 						document.getElementById("link_"+type).style.display = "hidden";
 					}
@@ -314,7 +326,9 @@ p.centertext {
             Drydock Upgrade Script
         </div>
 	<br>
-This script will attempt to perform the necessary database changes
+This script will attempt to perform the necessary database changes.  Make sure that THdbprefix is defined
+in your current config.php script before executing this, or it may not work properly.  We strongly
+advise that you have a backup of your current database in the event of an error.
 <hr>
 <!-- ACTION 1: Add password field to replies/threads tables -->
 This upgrade will attempt to add a password field to the replies and threads tables for user-initiated
@@ -330,8 +344,9 @@ be edited as a result.
 <hr>
 <!-- ACTION 3: Upgrade bans table -->
 This upgrade will attempt to upgrade the bans table to a more flexible version.   In the process,
-the file "upgrade_install.php.temp" will be created as part of the intermediate steps.  Please
-ensure that the script will be able to do this, or this step will fail.
+the file "upgrade_install_temp.php" will be created as part of the intermediate steps.  Please
+ensure that the script will be able to do this, or this step will fail. It is provided for backup purposes 
+in the event of an error, and contains all the old bans (as returned from the database in assoc form).
 <div id="link_3"><a href="#" onclick="javascript:RequestUpgrade('3');">Perform upgrade</a></div>
 <div id="action_3" style="display: hidden;"></div>
 <hr>

@@ -419,7 +419,9 @@ If everything here looks good, go ahead and hit continue.<br><br>
 			fwrite($config, 'define("THdbuser","'.$configarray['THdbuser'].'");'."\n");
 			fwrite($config, 'define("THdbpass","'.$configarray['THdbpass'].'");'."\n");
 			fwrite($config, 'define("THdbbase","'.$configarray['THdbbase'].'");'."\n");
+			fwrite($config, 'define("THdbprefix","'.$configarray['THdbprefix'].'");'."\n");
 			//oh god, i spent like 3 hours trying to set up a regex to match these, dont change them
+			fwrite($config, 'define("THbanhistory_table","'.$configarray['THdbprefix']."banhistory".'");'."\n");
 			fwrite($config, 'define("THbans_table","'.$configarray['THdbprefix']."bans".'");'."\n");
 			fwrite($config, 'define("THblotter_table","'.$configarray['THdbprefix']."blotter".'");'."\n");
 			fwrite($config, 'define("THboards_table","'.$configarray['THdbprefix']."boards".'");'."\n");
@@ -428,6 +430,7 @@ If everything here looks good, go ahead and hit continue.<br><br>
 			fwrite($config, 'define("THfilters_table","'.$configarray['THdbprefix']."filters".'");'."\n");
 			fwrite($config, 'define("THimages_table","'.$configarray['THdbprefix']."images".'");'."\n");
 			fwrite($config, 'define("THreplies_table","'.$configarray['THdbprefix']."replies".'");'."\n");
+			fwrite($config, 'define("THreports_table","'.$configarray['THdbprefix']."reports".'");'."\n");
 			fwrite($config, 'define("THthreads_table","'.$configarray['THdbprefix']."threads".'");'."\n");
 			fwrite($config, 'define("THusers_table","'.$configarray['THdbprefix']."users".'");'."\n");
 			fwrite($config, 'define("THsecret_salt","'.$secret_salt.'");'."\n");  //salt for passwords

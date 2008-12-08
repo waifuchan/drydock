@@ -56,7 +56,6 @@ function rebuild_config($configpost)
 	$config = fopen(THpath . "config.php", 'w');
 	fwrite($config, '<?php' . "\n");
 	//Stuff that doesn't change
-	fwrite($config, '$configver=4;' . "\n");
 	fwrite($config, 'define("THpath","' . THpath . '");' . "\n");
 	fwrite($config, 'define("THurl","' . THurl . '");' . "\n");
 	fwrite($config, 'define("THcookieid","' . THcookieid . '");' . "\n"); //cookie seed.
@@ -67,8 +66,10 @@ function rebuild_config($configpost)
 	fwrite($config, 'define("THdbpass","' . THdbpass . '");' . "\n");
 	fwrite($config, 'define("THdbbase","' . THdbbase . '");' . "\n");
 	fwrite($config, 'define("THdbtype","' . THdbtype . '");' . "\n");
+	fwrite($config, 'define("THdbprefix","' . THdbprefix . '");' . "\n");
 	//tables
 	fwrite($config, 'define("THbans_table","' . THbans_table . '");' . "\n");
+	fwrite($config, 'define("THbanhistory_table","' . THbanhistory_table . '");' . "\n");
 	fwrite($config, 'define("THblotter_table","' . THblotter_table . '");' . "\n");
 	fwrite($config, 'define("THboards_table","' . THboards_table . '");' . "\n");
 	fwrite($config, 'define("THcapcodes_table","' . THcapcodes_table . '");' . "\n");
@@ -76,6 +77,7 @@ function rebuild_config($configpost)
 	fwrite($config, 'define("THfilters_table","' . THfilters_table . '");' . "\n");
 	fwrite($config, 'define("THimages_table","' . THimages_table . '");' . "\n");
 	fwrite($config, 'define("THreplies_table","' . THreplies_table . '");' . "\n");
+	fwrite($config, 'define("THreports_table","' . THreports_table . '");' . "\n");
 	fwrite($config, 'define("THthreads_table","' . THthreads_table . '");' . "\n");
 	fwrite($config, 'define("THusers_table","' . THusers_table . '");' . "\n");
 	fwrite($config, "\n");
