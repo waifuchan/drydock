@@ -19,10 +19,7 @@ class ThornPostDBI extends ThornDBI
 	{
 		$this->ThornDBI();
 	}
-function escape_string($string)
-{
-	return (sqlite_escape_string($string));
-}
+
 	function gettinfo($t)
 	{
 		/*
@@ -32,20 +29,10 @@ function escape_string($string)
 			The thread to fetch.
 				Returns: array $thread
 		*/
-		return ($this->myassoc("select * from " . THthreads_table . " where id=" . $this->clean($t)));
+		return ($this->myassoc("select * from " . THthreads_table . " where id=" . $this->escape_string($t)));
 	}
 
-	function getbinfo($b)
-	{
-		/*
-			Another simple function. This just gets information about a board.
-			Parameters:
-				int $b
-			The board to fetch.
-				returns: array $board
-		*/
-		return ($this->myassoc("select * from " . THboards_table . " where folder='" . $b ."'"));
-	}
+
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false)
 	{
 		/*
@@ -80,15 +67,8 @@ function escape_string($string)
 			$tyme = time() + (THtimeoffset * 60);
 		}
 		$q = "INSERT INTO " . THthreads_table . " ( board, title, body";
-		$v = " VALUES ( " . getboardnumber($board) . " ,'" . $this->clean($title) . "','";
-		if ($board == THnewsboard || $board == THmodboard) //don't filter the news board nor the mod board
-		{
-			$v .= $this->escape_string($body);
-		}
-		else
-		{
-			$v .= $this->clean($body);
-		}
+		$v = " VALUES ( " . getboardnumber($board) . " ,'" . $this->escape_string($title) . "','";
+		$v .= $this->escape_string($body);
 		$q .= ", ip, pin, permasage, lawk, time, bump";
 		$v .= "'," . $ip . " , " . $pin . " , " . $permasage . " , " . $lock . " , " . $tyme . " , " . $tyme;
 		$globalid = $this->getglobalid($board);
@@ -97,7 +77,7 @@ function escape_string($string)
 		if ($name != null)
 		{
 			$q .= ", name";
-			$v .= ",'" . $this->clean($name) . "'";
+			$v .= ",'" . $this->escape_string($name) . "'";
 		}
 		if ($tpass != null)
 		{
@@ -113,10 +93,10 @@ function escape_string($string)
 			}
 			else
 			{
-				$link = $this->clean($link);
+				$link = $this->escape_string($link);
 			}
 			$q .= ", link";
-			$v .= "'" . $this->clean($link) . "'";
+			$v .= ", '" . $this->escape_string($link) . "'";
 		}
 		//echo($q.", time=".$tyme);
 		//echo $q;
@@ -161,24 +141,17 @@ function escape_string($string)
 				Returns: int $post-id
 		*/
 		$q = "INSERT INTO " . THreplies_table . " (thread,board,body";
-		$v = " ) VALUES (" . $thread . "," . $board . ",'";
-		if ($board == THmodboard) //don't filter the mod board since it should be all locked up anyway
-		{
-			$v .= escape_string($body);
-		}
-		else
-		{
-			$v .= $this->clean($body);
-		}
+		$v = " ) VALUES (" . $thread . ",'" . getboardnumber($board) . "','";
+		$v .= $this->escape_string($body);
 
 		//FIX THE REST OF THIS QUERY
-		$glob = $this->getglobalid(getboardname($board));
+		$glob = $this->getglobalid($board);
 		$q .= ",ip,bump,globalid";
 		$v .= "'," . $ip . "," . (int) $bump . "," . $glob;
 		if ($name != null)
 		{
 			$q .= ", name";
-			$v .= ",'" . $this->clean($name) . "'";
+			$v .= ",'" . $this->escape_string($name) . "'";
 		}
 		if ($tpass != null)
 		{
@@ -193,7 +166,7 @@ function escape_string($string)
 				$link = "mailto:" . $link;
 			}
 			$q .= ", link";
-			$v .= ",'" . $this->clean($link) . "'";
+			$v .= ",'" . $this->escape_string($link) . "'";
 		}
 		if ($tyme === false)
 		{
@@ -211,7 +184,7 @@ function escape_string($string)
 		{
 			$this->myquery("update " . THthreads_table . " set bump=" . $tyme . " where id=" . $thread . " and permasage = 0");
 		}
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . getboardname($board)."'") or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board."'") or THdie("DBpost");
 		smclearcache($board, -1, -1); // clear cache for the board
 		smclearcache($board, -1, $thread); // and for the thread
 		return ($pnum);
@@ -252,7 +225,7 @@ function escape_string($string)
 		$id = $this->myresult("select max(id) from " . THimages_table) + 1;
 		foreach ($files as $file)
 		{
-			$values[] = "(" . $id . ",'" . $file['hash'] . "','" . $this->clean($file['name']) . "'," . $file['width'] . "," . $file['height'] . ",'" . $this->clean($file['tname']) . "'," . $file['twidth'] . "," . $file['theight'] . "," . $file['fsize'] . "," . (int) $file['anim'] . "," . (int) $file['extra_info'] . ")";
+			$values[] = "(" . $id . ",'" . $file['hash'] . "','" . $this->escape_string($file['name']) . "'," . $file['width'] . "," . $file['height'] . ",'" . $this->escape_string($file['tname']) . "'," . $file['twidth'] . "," . $file['theight'] . "," . $file['fsize'] . "," . (int) $file['anim'] . "," . (int) $file['extra_info'] . ")";
 			/*
 				fputs($fp,"id:\t");
 				fputs($fp,$id);

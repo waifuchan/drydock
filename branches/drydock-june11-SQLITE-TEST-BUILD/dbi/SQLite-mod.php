@@ -45,8 +45,8 @@ class ThornModDBI extends ThornDBI
 		$when = time() + (THtimeoffset * 60);
 
 		$banquery = "insert into " . THbans_table . " ( ip,subnet,privatereason,publicreason,adminreason,postdata,duration,bantime,bannedby ) VALUES (
-				" . $ip . ", " . (int) $subnet . ",'" . $this->clean($privatereason) . "', 
-				'" . $this->clean($publicreason) . "', '" . $this->clean($adminreason) . "', 
+				" . $ip . ", " . (int) $subnet . ",'" . $this->escape_string($privatereason) . "', 
+				'" . $this->escape_string($publicreason) . "', '" . $this->escape_string($adminreason) . "', 
 				'" . $postdata . "', '" . (int) $duration . "'," . $when . ", '" . $bannedby . "');";
 		$this->myquery($banquery);
 
@@ -102,14 +102,14 @@ class ThornModDBI extends ThornDBI
 		{
 			$thebody = $this->myresult("select body from " . THthreads_table . " where id=" . $id);
 			$thebody .= $publicbanreason;
-			$updatequery = "update " . THthreads_table . " set body='" . escape_string(nl2br($thebody)) . "' where id=" . $id;
+			$updatequery = "update " . THthreads_table . " set body='" . $this->escape_string(nl2br($thebody)) . "' where id=" . $id;
 			$myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
 		}
 		else
 		{
 			$thebody = $this->myresult("select body from " . THreplies_table . " where id=" . $id);
 			$thebody .= $publicbanreason;
-			$updatequery = "update " . THreplies_table . " set body='" . escape_string(nl2br($thebody)) . "' where id=" . $id;
+			$updatequery = "update " . THreplies_table . " set body='" . $this->escape_string(nl2br($thebody)) . "' where id=" . $id;
 			$myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
 		}
 		return;
@@ -375,7 +375,7 @@ class ThornModDBI extends ThornDBI
 				$this->myquery("update " . THreplies_table . " set board=" . $max . " where board=" . $board['oldid']);
 				$max++;
 			}
-			$query = "insert into " . THboards_table . " set id=" . $board['id'] . ", globalid=" . $board['globalid'] . ", name='" . $this->clean($board['name']) . "', folder='" . $this->clean($board['folder']) . "', about='" . $this->clean($board['about']) . "', rules='" . $board['rules'] . "', perpg=" . $board['perpg'] . ", perth=" . $board['perth'] . ", hidden=" . $board['hidden'] . ", forced_anon=" . $board['forced_anon'] . ", tlock=" . $board['tlock'] . ", rlock=" . $board['rlock'] . ", tpix=" . $board['tpix'] . ", rpix=" . $board['rpix'] . ", tmax=" . $board['tmax'];
+			$query = "insert into " . THboards_table . " set id=" . $board['id'] . ", globalid=" . $board['globalid'] . ", name='" . $this->escape_string($board['name']) . "', folder='" . $this->escape_string($board['folder']) . "', about='" . $this->escape_string($board['about']) . "', rules='" . $board['rules'] . "', perpg=" . $board['perpg'] . ", perth=" . $board['perth'] . ", hidden=" . $board['hidden'] . ", forced_anon=" . $board['forced_anon'] . ", tlock=" . $board['tlock'] . ", rlock=" . $board['rlock'] . ", tpix=" . $board['tpix'] . ", rpix=" . $board['rpix'] . ", tmax=" . $board['tmax'];
 			print_r($query);
 			$this->myquery($query);
 		}
@@ -397,18 +397,18 @@ class ThornModDBI extends ThornDBI
 			Returns: array $imgidxes (one-dimensional)
 		*/
 		$imgidxes = array ();
-		$hare = $this->myquery("select distinct imgidx from " . THthreads_table . " where board=" . $board . " and imgidx!=0");
+		$hare = $this->myquery("select distinct imgidx from " . THthreads_table . " where board='" . $board . "' and imgidx!=0");
 		while ($xyz = sqlite_fetch_array($hare)) //help
 		{
 			$imgidxes[] = $xyz['imgidx'];
 		}
-		$hare = $this->myquery("select distinct imgidx from " . THreplies_table . " where board=" . $board . " and imgidx!=0");
+		$hare = $this->myquery("select distinct imgidx from " . THreplies_table . " where board='" . $board . "' and imgidx!=0");
 		while ($xyz = sqlite_fetch_array($hare)) //help
 		{
 			$imgidxes[] = $xyz['imgidx'];
 		}
-		$this->myquery("delete from " . THthreads_table . " where board=" . $board);
-		$this->myquery("delete from " . THreplies_table . " where board=" . $board);
+		$this->myquery("delete from " . THthreads_table . " where board='" . $board. "'");
+		$this->myquery("delete from " . THreplies_table . " where board='" . $board. "'");
 		if (count($imgidxes) != 0)
 		{
 			$this->myquery("delete from " . THimages_table . " where id in (" . implode(",", $imgidxes) . ")");
@@ -440,7 +440,7 @@ class ThornModDBI extends ThornDBI
 				// FIELD 2: The target board (integer)
 				$time = (THtimeoffset * 60) + time();
 				$query = "INSERT INTO " . THblotter_table . " ( entry, board, time ) VALUES ('" .
-				$this->clean($field1) . "','" . intval($field2) . "','" . $time . "')";
+				$this->escape_string($field1) . "','" . intval($field2) . "','" . $time . "')";
 				break;
 
 			case 2 : // Capcodes
@@ -448,7 +448,7 @@ class ThornModDBI extends ThornDBI
 				// FIELD 2: Capcode to (string)
 				// FIELD 3: Notes (string)
 				$query = 'INSERT INTO ' . THcapcodes_table . ' ( capcodefrom, capcodeto, notes ) VALUES ("' .
-				$this->clean($field1) . '","' . $this->clean($field2) . '","' . $this->clean($field3) . '");';
+				$this->escape_string($field1) . '","' . $this->escape_string($field2) . '","' . $this->escape_string($field3) . '");';
 				break;
 
 			case 3 : // Wordfilters
@@ -456,7 +456,7 @@ class ThornModDBI extends ThornDBI
 				// FIELD 2: Filter to (string)
 				// FIELD 3: Notes (string)
 				$query = 'INSERT INTO ' . THfilters_table . ' ( filterfrom, filterto, notes ) VALUES ("' .
-				$this->clean($field1) . '","' . $this->clean($field2) . '","' . $this->clean($field3) . '");';
+				$this->escape_string($field1) . '","' . $this->escape_string($field2) . '","' . $this->escape_string($field3) . '");';
 				break;
 
 			default :
@@ -492,7 +492,7 @@ class ThornModDBI extends ThornDBI
 			case 1 : // Blotter posts
 				// FIELD 1: The entry (string)
 				// FIELD 2: The target board (integer)
-				$query = 'UPDATE ' . THblotter_table . " SET entry = '" . $this->clean($field1) . "', board=" . intval($field2) . " WHERE id=" . intval($id);
+				$query = 'UPDATE ' . THblotter_table . " SET entry = '" . $this->escape_string($field1) . "', board=" . intval($field2) . " WHERE id=" . intval($id);
 				break;
 
 			case 2 : // Capcodes
@@ -500,7 +500,7 @@ class ThornModDBI extends ThornDBI
 				// FIELD 2: Capcode to (string)
 				// FIELD 3: Notes (string)
 				$query = 'UPDATE ' . THcapcodes_table . " SET capcodefrom='" .
-				$this->clean($field1) . "', capcodeto='" . $this->clean($field2) . "', notes='" . $this->clean($field3) . "' WHERE id=" . intval($id);
+				$this->escape_string($field1) . "', capcodeto='" . $this->escape_string($field2) . "', notes='" . $this->escape_string($field3) . "' WHERE id=" . intval($id);
 				break;
 
 			case 3 : // Wordfilters
@@ -508,7 +508,7 @@ class ThornModDBI extends ThornDBI
 				// FIELD 2: Filter to (string)
 				// FIELD 3: Notes (string)
 				$query = 'UPDATE ' . THfilters_table . " SET filterfrom='" .
-				$this->clean($field1) . "', filterto='" . $this->clean($field2) . "', notes='" . $this->clean($field3) . "' WHERE id=" . intval($id);
+				$this->escape_string($field1) . "', filterto='" . $this->escape_string($field2) . "', notes='" . $this->escape_string($field3) . "' WHERE id=" . intval($id);
 				break;
 
 			default :

@@ -58,11 +58,11 @@ class ThornThreadDBI extends ThornDBI
 
 		if ($p['full'])
 		{
-			$q = "select * from " . THreplies_table . " where thread=" . $this->head['id'] . " order by ";
+			$q = "select * from " . THreplies_table . " where thread=" . $this->head['globalid'] . " order by ";
 		}
 		else
 		{
-			$q = "select id, name, trip, link, time, globalid from " . THreplies_table . " where thread=" . $this->head['id'] . " order by ";
+			$q = "select id, name, trip, link, time, globalid from " . THreplies_table . " where thread=" . $this->head['globalid'] . " order by ";
 		}
 		if ($p['sortmethod'] == "time")
 		{

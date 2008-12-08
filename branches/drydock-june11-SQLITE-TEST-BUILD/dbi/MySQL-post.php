@@ -41,7 +41,7 @@ class ThornPostDBI extends ThornDBI
 			The board to fetch.
 				returns: array $board
 		*/
-		return ($this->myassoc("select * from " . THboards_table . " where id=" . $b));
+		return ($this->myassoc("select * from " . THboards_table . " where id=" . getboardnumber($b)));
 	}
 
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false)
@@ -77,17 +77,17 @@ class ThornPostDBI extends ThornDBI
 		{
 			$tyme = time() + (THtimeoffset * 60);
 		}
-		$q = "insert into " . THthreads_table . " set board=" . $board . ", title='" . $this->clean($title) . "', body='";
+		$q = "insert into " . THthreads_table . " set board='" . $board . "', title='" . $this->clean($title) . "', body='";
 		if ($board == THnewsboard || $board == THmodboard) //don't filter the news board nor the mod board
 		{
-			$q .= escape_string($body);
+			$q .= $this->escape_string($body);
 		}
 		else
 		{
 			$q .= $this->clean($body);
 		}
 		$q .= "', ip=" . $ip . ", pin=" . $pin . ", permasage=" . $permasage . ", lawk=" . $lock . ", time=" . $tyme . ", bump=" . $tyme;
-		$globalid = $this->getglobalid($board);
+		$globalid = $this->getglobalid(getboardnumber($board));
 		$q .= ", globalid=" . $globalid;
 		if ($name != null)
 		{
@@ -119,7 +119,7 @@ class ThornPostDBI extends ThornDBI
 		}
 		smclearcache($board, -1, -1); // clear the cache for this board
 		$tnum = mysql_insert_id();
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id=" . $board) or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id=" . getboardnumber($board)) or THdie("DBpost");
 		return ($tnum);
 	}
 
@@ -148,10 +148,10 @@ class ThornPostDBI extends ThornDBI
 			Should we bump the thread?
 				Returns: int $post-id
 		*/
-		$q = "insert into " . THreplies_table . " set thread=" . $thread . ", board=" . $board . ", body='";
+		$q = "insert into " . THreplies_table . " set thread=" . $thread . ", board=" . getboardnumber($board) . ", body='";
 		if ($board == THmodboard) //don't filter the mod board since it should be all locked up anyway
 		{
-			$q .= escape_string($body);
+			$q .= $this->escape_string($body);
 		}
 		else
 		{

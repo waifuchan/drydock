@@ -42,6 +42,7 @@ There are currently no boards set up.
             Board Creation
         </div>
 	<br />
+	More options are available after submitting this form. After creating this board you must edit these options or the board will not be usable.<br />
 			<div class="sslarge">
             <form method="post" name="boardedit" enctype="multipart/form-data" action="admin.php?t=b">
                 <div>
@@ -51,8 +52,10 @@ There are currently no boards set up.
 <tr><td>Board folder</td><td><input type="text" name="foldernew" size="5" /></td></tr>
 <tr><td>Board description</td><td><input type="text" name="aboutnew" size="60" /></td></tr>
 <tr><td>Board rules</td><td><input type="text" name="rulesnew" size="60" /></td></tr>
+<tr><td>
+Edit this board now or continue to add more boards (and edit later)</td><td><input type="radio" name="nextaction" value="edit" checked/>Edit now <input type="radio" name="nextaction" value="create"/>Create more</td></tr>
 </table>
-More options are available after creating the board. After creating this board you must edit these options or the board will not be usable.<br />
+
 	{else}
 	
 			<div class="sslarge">
@@ -67,11 +70,11 @@ More options are available after creating the board. After creating this board y
 <tr><td>Board description</td><td><input type="text" name="about{$board.id}" size="60" value="{$board.about}" /><br /> <i>Supports these HTML tags:
 &lt;i>&lt;b>&lt;u>&lt;strike>&lt;br>&lt;font>&lt;a>&lt;ul>&lt;ol>&lt;li></i></td></tr>
 <tr><td>Board rules</td><td><input type="text" name="rules{$board.id}" size="60" value="{$board.rules}" /></td></tr>
-<tr><td>Hide from index/linkbar?</td><td><input type="checkbox" name="hidden{$board.id}"{if $board.hidden==1} checked="checked"{/if} /></td></tr>
+<tr><td>Hide from index/linkbar</td><td><input type="checkbox" name="hidden{$board.id}"{if $board.hidden==1} checked="checked"{/if} /></td></tr>
 <tr><td>forced_anon</td><td><input type="checkbox" name="forced_anon{$board.id}"{if $board.forced_anon==1} checked="checked"{/if} /></td></tr>
-<tr><td>Apply wordfilters?</td><td><input type="checkbox" name="filter{$board.id}"{if $board.filter==1} checked="checked"{/if} /></td></tr>
+<tr><td>Apply wordfilters</td><td><input type="checkbox" name="filter{$board.id}"{if $board.filter==1} checked="checked"{/if} /></td></tr>
 <tr><td>Allow embedded videos<br>(MySpace, YouTube, Google)</td><td><input type="checkbox" name="allowvids{$board.id}"{if $board.allowvids==1} checked="checked"{/if} /></td></tr>
-<tr><td>Require registration?<br>(Dangerous!)</td><td><input type="checkbox" name="requireregistration{$board.id}"{if $board.requireregistration==1} checked="checked"{/if} /></td></tr>
+<tr><td>Require registration</td><td><input type="checkbox" name="requireregistration{$board.id}"{if $board.requireregistration==1} checked="checked"{/if} /></td></tr>
 <tr><td>Board layout</td><td>
                     <select name="boardlayout{$board.id}">
    {foreach from=$tplsets item=set}
@@ -79,7 +82,7 @@ More options are available after creating the board. After creating this board y
    {/foreach}
 	</select>
 </tr></td>
-<tr><td>Use custom css?<br>(Place css file named "{$board.folder}.css" in template directory)</td><td><input type="checkbox" name="customcss{$board.id}"{if $board.customcss==1} checked="checked"{/if} /></td></tr>
+<tr><td>Use custom css<br>(Place css file named "{$board.folder}.css" in template directory)</td><td><input type="checkbox" name="customcss{$board.id}"{if $board.customcss==1} checked="checked"{/if} /></td></tr>
 
 <tr><td>Thread lock</td><td><input type="checkbox" name="tlock{$board.id}"{if $board.tlock==1} checked="checked"{/if} /></td></tr>
 <tr><td>Reply lock</td><td><input type="checkbox" name="rlock{$board.id}"{if $board.rlock==1} checked="checked"{/if} /></td></tr>

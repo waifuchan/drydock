@@ -15,11 +15,7 @@
 define("THdblitefn", sqlite_open(THpath . "unlinked/drydock.sqlite", 0666, $sqliteerror));
 require_once ("config.php");
 require_once ("common.php");
-
-function escape_string($string)
-{
-	return (sqlite_escape_string($string));
-}
+define("DDDEBUG",1);
 
 
 class ThornDBI
@@ -46,22 +42,40 @@ class ThornDBI
 		
 		return $this->mymultiarray("SELECT * FROM " . THboards_table . " WHERE hidden != 1 order by folder asc");
 	}
-
-	/*  provided by Mell03d0ut from anonib */
-	function clean($call)
+	function getbinfo($b)
 	{
+		/*
+			Another simple function. This just gets information about a board.
+			Parameters:
+				int $b
+			The board to fetch.
+				returns: array $board
+		*/
+		return ($this->myassoc("select * from " . THboards_table . " where folder='" . $b ."'"));
+	}
+	/*  suggested by Mell03d0ut from anonib - edited by us to add new ideas */
+	function escape_string($call)
+	{
+		if(DDDEBUG==1) { echo "0: $call<br>"; }
 		$call = htmlspecialchars($call);
+		if(DDDEBUG==1) { echo "1: $call<br>"; }
 		if (get_magic_quotes_gpc() == 0)
 		{
 			$call = sqlite_escape_string($call);
+			if(DDDEBUG==1) { echo "2: $call<br>"; }
 		}
 		$call = trim($call);
+		if(DDDEBUG==1) { echo "3: $call<br>"; }
+		$call = str_replace("\'", "&#039;", $call);
+		if(DDDEBUG==1) { echo "4: $call<br>"; }
+		$call = str_replace("\&quot;", "&#034;", $call);
+		if(DDDEBUG==1) { echo "5: $call<br>"; }
 		return ($call);
 	}
 
 	function myassoc($call)
 	{
-		echo ("myassoc: " . $call . "<br />");
+		if(DDDEBUG==1) { echo ("myassoc: " . $call . "<br />"); } 
 		$pup = sqlite_query(THdblitefn, $call);
 		$dog = sqlite_fetch_array($pup, SQLITE_ASSOC); // or return null;
 		if ($dog === false)
@@ -73,7 +87,7 @@ class ThornDBI
 	//in mysql this is the same as above but sometimes sqlite craps itself and i don't want to work on it anymore
 	function myarray($call)
 	{
-		echo ("myarray: " . $call . "<br />");
+		if(DDDEBUG==1) { echo ("myarray: " . $call . "<br />"); }
 		$manta = sqlite_fetch_array($call, SQLITE_ASSOC); // or return null;
 		if ($manta === false)
 		{
@@ -84,7 +98,7 @@ class ThornDBI
 
 	function myresult($call)
 	{
-		echo ("myresult: " . $call . "<br />");
+		if(DDDEBUG==1) { echo ("myresult: " . $call . "<br />"); }
 		$dog = sqlite_query(THdblitefn, $call);
 		if ($dog === false || sqlite_num_rows($dog) == 0)
 		{
@@ -95,7 +109,7 @@ class ThornDBI
 
 	function myquery($call)
 	{
-		echo ("myquery: " . $call . "<br />");
+		if(DDDEBUG==1) { echo ("myquery: " . $call . "<br />"); }
 		$dog = sqlite_query(THdblitefn, $call); // or die(mysql_error()."<br />".$call);
 		if ($dog === false)
 		{
@@ -106,6 +120,7 @@ class ThornDBI
 
 	function mymultiarray($call)
 	{
+		if(DDDEBUG==1) { echo ("mymultiarray: " . $call . "<br />"); } 
 		/*
 		Encapsulate executing a query and iteratively calling myarray on the result.
 		
@@ -196,7 +211,7 @@ class ThornDBI
 			return (array ());
 		}
 		$imgs = array ();
-		$turtle = $this->myquery("select * from " . THimages_table . " where id=" . $this->clean($imgidx));
+		$turtle = $this->myquery("select * from " . THimages_table . " where id=" . $this->escape_string($imgidx));
 		while ($img = sqlite_fetch_array($turtle)) //help
 		{
 			$imgs[] = $img;
@@ -342,7 +357,7 @@ class ThornDBI
 		}
 		elseif ($id != 0 and $folder != "") // Filtering by both folder AND ID
 		{
-			$querystring = $querystring . "id=" . $id . " AND folder='" . $this->clean($folder) . "'";
+			$querystring = $querystring . "id=" . $id . " AND folder='" . $this->escape_string($folder) . "'";
 		}
 		elseif ($id != 0) // Filtering by only ID
 		{
@@ -350,7 +365,7 @@ class ThornDBI
 		}
 		else // Filtering by only folder
 		{
-			$querystring = $querystring . "folder='" . $this->clean($folder) . "'";
+			$querystring = $querystring . "folder='" . $this->escape_string($folder) . "'";
 		}
 		
 		return $this->mymultiarray($querystring);

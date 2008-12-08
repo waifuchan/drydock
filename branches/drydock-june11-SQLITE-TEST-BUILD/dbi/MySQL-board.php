@@ -67,6 +67,8 @@ class ThornBoardDBI extends ThornDBI
 			$p['end'] = false;
 		}
 
+	/*
+		//I don't really know what's going on here with this but it's causing images to not display in board view for some reason.
 		if ($p['full'] == true)
 		{
 			$q = "select * from " . THthreads_table . " where board=" . $this->binfo['id'];
@@ -75,7 +77,8 @@ class ThornBoardDBI extends ThornDBI
 		{
 			$q = "select id, title, name, trip, link, time, pin, lawk, bump, globalid from " . THthreads_table . " where board=" . $this->binfo['id'];
 		}
-
+	*/
+		$q = "select * from " . THthreads_table . " where board=" . $this->binfo['id'];
 		if ($p['start'] != false)
 		{
 			$q .= " && time>=" . $p['start'];
@@ -129,7 +132,7 @@ class ThornBoardDBI extends ThornDBI
 		$rezs = $this->myquery($q);
 
 		$threads = array ();
-		while (@ $th = mysql_fetch_assoc($rezs))
+		while (@ $th = $this->myarray($rezs))
 		{
 			unset ($th['ip']);
 			if ($p['full'] == true)
@@ -140,9 +143,10 @@ class ThornBoardDBI extends ThornDBI
 			{
 				$th['date'] = getdate($th['time']);
 			}
+			$th['images'] = $this->getimgs($th['imgidx']);
 			$threads[] = $th;
 		}
-
+echo"<b>";var_dump($threads);echo"</b>";
 		return ($threads);
 	}
 
@@ -263,18 +267,6 @@ class ThornBoardDBI extends ThornDBI
 		}
 		return ($sthreads);
 	} //getsthreads
-	
-	function getvisibleboards()
-	{
-		/*
-			Retrieve an array of assoc-arrays for all visible boards
-												
-			Returns:
-				An array of assoc-arrays
-		*/
-		
-		return $this->mymultiarray("SELECT * FROM " . THboards_table . " WHERE hidden != 1 order by folder asc");
-	}
 	
 } //class ThornBoardDBI
 ?>

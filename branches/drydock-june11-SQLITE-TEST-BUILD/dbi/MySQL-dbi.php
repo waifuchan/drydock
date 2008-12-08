@@ -15,14 +15,7 @@
 require_once ("config.php");
 require_once ("common.php");
 
-function escape_string($string)
-{
-	return (mysql_real_escape_string($string));
-}
-function lastid()
-{
-	mysql_insert_id();
-}
+
 
 class ThornDBI
 {
@@ -34,7 +27,25 @@ class ThornDBI
 			mysql_select_db($base, $this->cxn) or THdie("DBsel");
 		}
 	}
-
+	function escape_string($string)
+	{
+		return (mysql_real_escape_string($string));
+	}
+	function lastid()
+	{
+		mysql_insert_id();
+	}
+	function getvisibleboards()
+	{
+		/*
+			Retrieve an array of assoc-arrays for all visible boards
+												
+			Returns:
+				An array of assoc-arrays
+		*/
+		
+		return $this->mymultiarray("SELECT * FROM " . THboards_table . " WHERE hidden != 1 order by folder asc");
+	}
 	/*  provided by Mell03d0ut from anonib */
 	function clean($call)
 	{
@@ -49,50 +60,55 @@ class ThornDBI
 
 	function myassoc($call)
 	{
-		//echo($call."<br />");
+		echo("myassoc: $call<br />");
 		$dog = @ mysql_fetch_assoc(mysql_query($call)); // or return null;
 		if ($dog === false)
 		{
 			return (null);
 		}
+		var_dump($dog);echo"<br>";
 		return ($dog);
 	}
 
 	function myarray($call)
 	{
-		//echo($call."<br />");
+		echo("myarray: $call<br />");
 		$manta = @ mysql_fetch_array(mysql_query($call)); // or return null;
 		if ($manta === false)
 		{
 			return (null);
 		}
+		var_dump($manta);echo"<br>";
 		return ($manta);
 	}
 
 	function myresult($call)
 	{
-		//echo($call."<br />");
+		echo("myresult: $call<br />");
 		$dog = mysql_query($call); // or die(mysql_error()."<br />".$call);
 		if ($dog === false || mysql_num_rows($dog) == 0)
 		{
 			return (null);
 		}
+		var_dump(mysql_result($dog, 0));echo"<br>";
 		return (mysql_result($dog, 0));
 	}
 
 	function myquery($call)
 	{
-		//echo($call."<br />");
+		echo("myquery: $call<br />");
 		$dog = mysql_query($call); // or die(mysql_error()."<br />".$call);
 		if ($dog === false)
 		{
 			return (null);
 		}
+		var_dump($dog);echo"<br>";
 		return ($dog);
 	}
 
 	function mymultiarray($call)
 	{
+		echo("mymultiarray: $call<br />");
 		/*
 		Encapsulate executing a query and iteratively calling myarray on the result.
 		
@@ -114,6 +130,7 @@ class ThornDBI
 				$multi[] = $entry;
 			}
 		}
+		var_dump($multi);echo"<br>";
 		return $multi;
 	}
 
@@ -183,11 +200,16 @@ class ThornDBI
 			return (array ());
 		}
 		$imgs = array ();
-		$turtle = $this->myquery("select * from " . THimages_table . " where id=" . $this->clean($imgidx));
-		while ($img = mysql_fetch_assoc($turtle))
+		$turtle = "select * from " . THimages_table . " where id=" . $this->clean($imgidx);
+/*
+		while ($img = $this->myassoc($turtle))
 		{
 			$imgs[] = $img;
 		}
+*/
+
+		$imgs[] = $this->myassoc($turtle);
+		echo"<b>";var_dump($imgs);echo"</b>";
 		return ($imgs);
 	}
 

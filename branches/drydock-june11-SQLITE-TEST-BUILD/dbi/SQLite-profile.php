@@ -34,8 +34,8 @@ class ThornProfileDBI extends ThornDBI
 				array containing user info (if name and password are valid)
 		*/
 
-		$query = "SELECT * FROM " . THusers_table . " WHERE username='" . $this->clean($username) .
-		"' AND password='" . escape_string(md5(THsecret_salt . $password)) . "' AND approved=1";
+		$query = "SELECT * FROM " . THusers_table . " WHERE username='" . $this->escape_string($username) .
+		"' AND password='" . $this->escape_string(md5(THsecret_salt . $password)) . "' AND approved=1";
 
 		return $this->myassoc($query);
 	}
@@ -54,8 +54,8 @@ class ThornProfileDBI extends ThornDBI
 				array containing user info (if name and id are valid)
 		*/		
 		
-		return $this->myassoc("SELECT * FROM ".THusers_table." WHERE username='".escape_string($username).
-				"' AND userid='".escape_string($id)."' AND approved = 1");
+		return $this->myassoc("SELECT * FROM ".THusers_table." WHERE username='".$this->escape_string($username).
+				"' AND userid='".$this->escape_string($id)."' AND approved = 1");
 	}
 
 	function getuserdata($username)
@@ -69,8 +69,7 @@ class ThornProfileDBI extends ThornDBI
 			Returns:
 				array containing user info (if name is valid)
 		*/
-
-		return $this->myarray("SELECT * FROM " . THusers_table . " WHERE username='" . escape_string($username) . "'");
+		return $this->myassoc("SELECT * FROM " . THusers_table . " WHERE username='" . $this->escape_string($username) . "'");
 	}
 
 	function updateuser($username, $id)
@@ -86,8 +85,8 @@ class ThornProfileDBI extends ThornDBI
 			Returns:
 				Nothing
 		*/
-		$this->myquery("UPDATE " . THusers_table . " SET userid='" . $this->clean($id) . "', timestamp=" . time() .
-		"WHERE username='" . $this->clean($username) . "'");
+		$this->myquery("UPDATE " . THusers_table . " SET userid='" . $this->escape_string($id) . "', timestamp=" . time() .
+		"WHERE username='" . $this->escape_string($username) . "'");
 	}
 
 	function getuserlist()
@@ -115,7 +114,7 @@ class ThornProfileDBI extends ThornDBI
 				A string
 		*/
 
-		return $this->myresult("SELECT capcodeto FROM " . THcapcodes_table . " WHERE capcodefrom='" . escape_string($capcode) . "'");
+		return $this->myresult("SELECT capcodeto FROM " . THcapcodes_table . " WHERE capcodefrom='" . $this->escape_string($capcode) . "'");
 	}
 	
 	function getuserimage($username)
@@ -131,7 +130,7 @@ class ThornProfileDBI extends ThornDBI
 				A string
 		*/
 		
-		return $this->myresult("SELECT has_picture FROM " .	THusers_table . " WHERE username='" . escape_string($username) . "'");
+		return $this->myresult("SELECT has_picture FROM " .	THusers_table . " WHERE username='" . $this->escape_string($username) . "'");
 	}
 
 	function registeruser($username, $password, $userlevel, $email, $approved)
@@ -158,10 +157,10 @@ class ThornProfileDBI extends ThornDBI
 		return $this->myquery(
 				"INSERT INTO " . THusers_table . 
 				"(username, password, userlevel, email, approved) VALUES ('" .
-				escape_string($username) . "','" . 
-				escape_string(THsecret_salt.$password) . "'," . 
+				$this->escape_string($username) . "','" . 
+				$this->escape_string( md5( THsecret_salt . $password) ). "'," . 
 				intval($userlevel) . ",'" . 
-				escape_string($email) . "',".
+				$this->escape_string($email) . "',".
 				intval($approved).")"
 			);
 	}
@@ -195,14 +194,14 @@ class ThornProfileDBI extends ThornDBI
 		
 		$this->myquery(
 			"UPDATE " . THusers_table . " SET ".
-			"age = '".escape_string($age)."',".
-			"gender = '".escape_string($gender)."',".
-			"location = '".escape_string($location)."',".
-			"contact = '".escape_string($contact)."',".
-			"description = '".escape_string($description)."',".
-			"has_picture = '".escape_string($picture_ext)."',".
-			"pic_pending = '".escape_string($picture_pending)."' ".
-			"WHERE username='".escape_string($username)."'"		
+			"age = '".$this->escape_string($age)."',".
+			"gender = '".$this->escape_string($gender)."',".
+			"location = '".$this->escape_string($location)."',".
+			"contact = '".$this->escape_string($contact)."',".
+			"description = '".$this->escape_string($description)."',".
+			"has_picture = '".$this->escape_string($picture_ext)."',".
+			"pic_pending = '".$this->escape_string($picture_pending)."' ".
+			"WHERE username='".$this->escape_string($username)."'"		
 		);
 	}
 
@@ -237,7 +236,7 @@ class ThornProfileDBI extends ThornDBI
 		// If they have no capcode, strip out any capcode proposals
 		if($capcode == "")
 		{
-			$this->myquery("UPDATE ".THusers_table." SET proposed_capcode='' WHERE username='".escape_string($username) . "'");
+			$this->myquery("UPDATE ".THusers_table." SET proposed_capcode='' WHERE username='".$this->escape_string($username) . "'");
 		}
 		
 		$this->myquery(
@@ -245,9 +244,9 @@ class ThornProfileDBI extends ThornDBI
 			"mod_admin = ".$admin.",".
 			"mod_global = ".$moderator.",".
 			"userlevel = ".$userlevel.",".
-			"mod_array = '".escape_string($boards)."',".
-			"capcode = '".escape_string($capcode)."' ".
-			"WHERE username='".escape_string($username)."'"
+			"mod_array = '".$this->escape_string($boards)."',".
+			"capcode = '".$this->escape_string($capcode)."' ".
+			"WHERE username='".$this->escape_string($username)."'"
 		);
 	}
 
@@ -273,9 +272,9 @@ class ThornProfileDBI extends ThornDBI
 		// This is here to prevent the remote possibility of someone proposing a capcode, and then in between the time the admin views the proposed capcodes page
 		// and clicks the "Approve" link, someone changes it to something malicious.
 		if (!$this->myresult("SELECT proposed_capcode FROM " . THusers_table .
-			" WHERE username='" . escape_string($username) . "'"))
+			" WHERE username='" . $this->escape_string($username) . "'"))
 		{
-			$this->myquery("UPDATE " . THusers_table . " SET proposed_capcode='" . escape_string($capcode) . "' WHERE username='" . escape_string($username) . "'");
+			$this->myquery("UPDATE " . THusers_table . " SET proposed_capcode='" . $this->escape_string($capcode) . "' WHERE username='" . $this->escape_string($username) . "'");
 		}
 
 	}
@@ -295,8 +294,8 @@ class ThornProfileDBI extends ThornDBI
 				Nothing
 		*/
 		
-		return $this->myquery("UPDATE " . THusers_table . " SET password='" . escape_string(md5(THsecret_salt.$password)) .
-		"' WHERE username='" . escape_string($username) . "' AND mod_admin = 0");
+		return $this->myquery("UPDATE " . THusers_table . " SET password='" . $this->escape_string(md5(THsecret_salt.$password)) .
+		"' WHERE username='" . $this->escape_string($username) . "' AND mod_admin = 0");
 	}
 
 	function suspenduser($username)
@@ -312,7 +311,7 @@ class ThornProfileDBI extends ThornDBI
 				Nothing
 		*/
 
-		$this>myquery("UPDATE " . THusers_table . " SET approved = '-2' WHERE username='" . escape_string($username) . "'");
+		$this->myquery("UPDATE " . THusers_table . " SET approved = '-2' WHERE username='" . $this->escape_string($username) . "'");
 	}
 
 	function userexists($username)
@@ -328,7 +327,7 @@ class ThornProfileDBI extends ThornDBI
 				A boolean
 		*/
 
-		$count = $this->myresult("SELECT COUNT(*) FROM " . THusers_table . " WHERE username='" . escape_string($username) . "'");
+		$count = $this->myresult("SELECT COUNT(*) FROM " . THusers_table . " WHERE username='" . $this->escape_string($username) . "'");
 
 		if ($count > 0)
 		{
@@ -353,7 +352,7 @@ class ThornProfileDBI extends ThornDBI
 				A boolean
 		*/
 
-		$count = $this->myresult("SELECT COUNT(*) FROM " . THusers_table . " WHERE email='" . escape_string(email) . "'");
+		$count = $this->myresult("SELECT COUNT(*) FROM " . THusers_table . " WHERE email='" . $this->escape_string(email) . "'");
 
 		if ($count > 0)
 		{
@@ -392,7 +391,7 @@ class ThornProfileDBI extends ThornDBI
 		}
 
 		// We assume $user is a valid username, so any functions should make that check beforehand
-		$userlevel = $this->myresult("SELECT userlevel FROM " . THusers_table . " WHERE username='" . escape_string($username) . "'");
+		$userlevel = $this->myresult("SELECT userlevel FROM " . THusers_table . " WHERE username='" . $this->escape_string($username) . "'");
 		if ($userlevel >= $_SESSION['userlevel'] || $userlevel == null)
 		{
 			return false;
