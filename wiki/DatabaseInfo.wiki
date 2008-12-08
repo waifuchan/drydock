@@ -47,7 +47,7 @@ The boards we have set up
 || perpg || {{{ `perpg` tinyint(3) unsigned NOT NULL default '20' }}} || {{{ perpg TINYINT(3) }}} || Per-page display limit.  Default 20 threads per page ||
 || perth || {{{ `perth` tinyint(3) unsigned NOT NULL default '4' }}} || {{{ perth TINYINT(3) }}} || Replies visible per thread on board view.  Default shows top post and 4 recent replies ||
 || hidden || {{{ `hidden` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ hidden TINYINT(1) }}} || Is the board hidden from the board list? ||
-|| allowedformats || {{{ `allowedformats` tinyint(3) unsigned NOT NULL default '7' }}} || {{{ allowedformats TINYINT(1) }}} || Which file formats are allowed? ||
+|| allowedformats || {{{ `allowedformats` tinyint(3) unsigned NOT NULL default '7' }}} || {{{ allowedformats TINYINT(3) }}} || Which file formats are allowed? ||
 || forced_anon || {{{ `forced_anon` tinyint(1) NOT NULL default '0' }}} || {{{ forced_anon TINYINT(1) }}} || Is forced_anon turned on? ||
 || maxfilesize || {{{ `maxfilesize` int(11) unsigned NOT NULL default '2097152' }}} || {{{ maxfilesize INT(11) }}} || Max file size in bytes.  Default 2MB ||
 || maxres || {{{ `maxres` int(5) unsigned NOT NULL default '3000' }}} || {{{ maxres INT(5) }}} || Maximum resolution in pixels ||
@@ -169,7 +169,7 @@ Threads table
 || unvisibletime || {{{ `unvisibletime` int(11) NOT NULL default '0' }}} || {{{ unvisibletime INT(11) }}} || When post was hidden ||
 || permasage || {{{ `permasage` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ permasage TINYINT(1) }}} || Has this been permasaged? ||
 || link || {{{ `link` text  NOT NULL }}} || {{{ link TEXT  }}} || The link field (example: "sage") ||
-|| password || {{{ `password` text }}} || {{{ password TEXT  }}} || The password associated with this post, used for later deletion as requested, Wakaba-style (null for legacy posts). *_Proposed for drydock 0.3.1_* ||
+|| password || {{{`password` varchar(32) default NULL}}} || {{{ password VARCHAR(32)}}} || The password associated with this post, used for later deletion as requested, Wakaba-style (null for legacy posts). *_Added for drydock 0.3.1_* ||
 
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
@@ -196,14 +196,14 @@ Replies to threads
 || unvisibletime || {{{ `unvisibletime` int(11) NOT NULL default '0' }}} || {{{ unvisibletime INT(11) }}} || When post was hidden ||
 || permasage || {{{ `permasage` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ permasage TINYINT(1) }}} || Has this been permasaged? (should be irrelevant) ||
 || link || {{{ `link` text  NOT NULL }}} || {{{ link TEXT  }}} || The link field (example: "sage") ||
-|| password || {{{ `password` text }}} || {{{ password TEXT  }}} || The password associated with this post, used for later deletion as requested, Wakaba-style (null for legacy posts). *_Proposed for drydock 0.3.1_* ||
+|| password || {{{`password` varchar(32) default NULL}}} || {{{password VARCHAR(32)}}} || The password associated with this post, used for later deletion as requested, Wakaba-style (null for legacy posts). *_Added for drydock 0.3.1_* ||
 
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
 
-==Proposed new THbans_table==
-This is the proposed new version of the bans table, such that subnet banning is easier. *_Proposed for drydock 0.3.1_*
+==New THbans_table==
+This is the proposed new version of the bans table, such that subnet banning is easier. *_Added for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Now necessary just because the _combination_ of octet fields forms a unique identifier, as opposed to a single IP ||
@@ -223,8 +223,8 @@ This is the proposed new version of the bans table, such that subnet banning is 
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
 
-==Proposed new THbanshistory_table==
-This is a new table that contains all expired bans, thus making it easier to verify the history for a particular IP or IP range.  It works a lot like the proposed THbans_table. *_Proposed for drydock 0.3.1_*
+==New THbanshistory_table==
+This is a new table that contains all expired bans, thus making it easier to verify the history for a particular IP or IP range.  It works a lot like the proposed THbans_table. *_Added for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Now necessary just because the _combination_ of octet fields forms a unique identifier, as opposed to a single IP ||
@@ -246,7 +246,7 @@ This is a new table that contains all expired bans, thus making it easier to ver
 
 
 ==Proposed new THreports_table==
-This is a new table that contains user-generated reports. *_Proposed for drydock 0.3.1_*
+This is a new table that contains user-generated reports. *_Added for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID number for tracking ||

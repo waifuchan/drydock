@@ -37,7 +37,7 @@
 			die("Posts table has already been modified!");
 		}
 				
-		$query = "ALTER TABLE `".THthreads_table."` ADD `password` VARCHAR( 32 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL;";
+		$query = "ALTER TABLE `".THthreads_table."` ADD `password` varchar(32) default NULL;";
 		$result = $dbi->myquery($query);
 		
 		// Catch and display errors
@@ -48,7 +48,7 @@
 		else
 		{
 			// Since that worked, alter the posts table	
-			$query = "ALTER TABLE `".THposts_table."` ADD `password` VARCHAR( 32 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL;";
+			$query = "ALTER TABLE `".THposts_table."` ADD `password` varchar(32) default NULL;";
 			$result = $dbi->myquery($query);
 			
 			if($result === null)
@@ -83,7 +83,7 @@
 		`bantime` int(11) unsigned NOT NULL, 
 		`bannedby` varchar(100)  NOT NULL, 
 		`bannedby` varchar(100)  NOT NULL, 
-		`unbaninfo` text NOT NULL 
+		`unbaninfo` text NOT NULL,
 		PRIMARY KEY  (`id`) 
 		) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci;";
 		
@@ -102,7 +102,7 @@
 		`time` int(11) unsigned NOT NULL,
 		`postid` int unsigned NOT NULL default '0',
 		`board` smallint(5) unsigned NOT NULL default '0',
-		`status` tinyint(1) unsigned NOT NULL default '0'
+		`status` tinyint(1) unsigned NOT NULL default '0',
 		PRIMARY KEY  (`id`) 
 		) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci;";
 		
