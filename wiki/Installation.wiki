@@ -1,18 +1,20 @@
 #summary Provides some information about installation
+#labels Phase-Deploy,Phase-Support
 
 =Pre installation checklist=
-drydock has some important files that it uses in its default setup that you'll need to have installed and correctly configured in order to achieve the best results.
+Drydock has some important files that it uses in its default setup that you'll need to have installed and correctly configured in order to achieve the best results.
+   * The newest version of PHP5 with GD enabled
+   * The newest version of MySQL 5 or SQLite (_as of 0.3.0_)
+   * Apache - IIS SHOULD work, but I do not do extensive testing or development on the machine here with IIS.  I know it runs stock Thorn code just fine once PHP is installed.  Windows machines must use C:/htdocs/drydock/ or similar layout using forward slashes instead of backward slashes. You must also be sure to have some way of preventing outside users from accessing the /unlinked/ folder (the provided .htaccess will do this for Apache)
+
+=Optional modules (See RequiredLibraries for more information)=
    * PEAR - for SWF metadata parsing using File_SWF and some svg handling
    * imagemagick - "convert" command for converting images and thumbnailing
-   * librsvg (optional) - for converting svg files (not yet supported in 0.3.0)
-   * The newest version of PHP5 - PHP4 might work, but odds are we've written some hackish stuff here :[
-   * The newest version of MySQL5 - Again, YMMV.  Support for more dbis are being planned for future releases
-   * Apache - IIS SHOULD work, but I do not do extensive testing or development on the machine here with IIS.  I know it runs stock Thorn 
-code just fine once PHP is installed.  Windows machines must use C:/htdocs/drydock/ or similar layout using forward slashes instead of backward slashes.
+   * librsvg (optional) - for converting svg files
 
-
-=Database warning=
-drydock by default stores its databases with no prefix in the following tables - the prefix drydock`_` should be added to these names
+=Database information=
+Drydock by default stores its databases with no prefix in the following tables - the prefix drydock`_` should be added to these names
+   * banhistory (_as of 0.3.0_)
    * bans
    * blotter
    * boards
@@ -20,7 +22,8 @@ drydock by default stores its databases with no prefix in the following tables -
    * extra_info
    * filters
    * imgs
-   * posts
+   * replies
+   * reports (_as of 0.3.0_)
    * threads
    * users
 
@@ -42,6 +45,7 @@ The following files and directories must be writable on the installation script 
    * drydock/captchas/
    * drydock/images/
    * drydock/unlinked/
+   * drydock/config.php
    * drydock/menu.php
    * drydock/linkbar.php
    * drydock/rss.xml
