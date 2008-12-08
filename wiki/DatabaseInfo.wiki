@@ -173,8 +173,8 @@ Threads table
 
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
-  
-  
+
+
 ==THreplies_table==
 Replies to threads
 || Field name || MySQL declaration || SQLite declaration || Description ||
@@ -197,13 +197,13 @@ Replies to threads
 || permasage || {{{ `permasage` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ permasage TINYINT(1) }}} || Has this been permasaged? (should be irrelevant) ||
 || link || {{{ `link` text  NOT NULL }}} || {{{ link TEXT  }}} || The link field (example: "sage") ||
 || password || {{{ `password` text }}} || {{{ password TEXT  }}} || The password associated with this post, used for later deletion as requested, Wakaba-style (null for legacy posts). *_Proposed for drydock 0.3.1_* ||
- 
+
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
 
 ==Proposed new THbans_table==
-This is the proposed new version of the bans table, such that subnet banning is easier.
+This is the proposed new version of the bans table, such that subnet banning is easier. *_Proposed for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Now necessary just because the _combination_ of octet fields forms a unique identifier, as opposed to a single IP ||
@@ -219,8 +219,12 @@ This is the proposed new version of the bans table, such that subnet banning is 
 || bantime || {{{ `bantime` int(11) unsigned NOT NULL }}} || {{{ bantime INT(11)  }}} || The time the ban was set ||
 || bannedby || {{{ `bannedby` varchar(100)  NOT NULL }}} || {{{ bannedby VARCHAR(100) }}} || Who did the banning? ||
 
+|| Additional MySQL declarations ||
+|| {{{ PRIMARY KEY  (`id`) }}} ||
+
+
 ==Proposed new THbanshistory_table==
-This is a new table that contains all expired bans, thus making it easier to verify the history for a particular IP or IP range.  It works a lot like the proposed THbans_table.
+This is a new table that contains all expired bans, thus making it easier to verify the history for a particular IP or IP range.  It works a lot like the proposed THbans_table. *_Proposed for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Now necessary just because the _combination_ of octet fields forms a unique identifier, as opposed to a single IP ||
@@ -236,3 +240,21 @@ This is a new table that contains all expired bans, thus making it easier to ver
 || bantime || {{{ `bantime` int(11) unsigned NOT NULL }}} || {{{ bantime INT(11)  }}} || The time the ban was set ||
 || bannedby || {{{ `bannedby` varchar(100)  NOT NULL }}} || {{{ bannedby VARCHAR(100) }}} || Who did the banning? ||
 || unbaninfo || {{{ `unbaninfo` text  NOT NULL }}} || {{{ unbaninfo TEXT }}} || Used to explain why this ban is expired (either naturally, or because an admin manually removed it- in which case, they should probably include a rationale). ||
+
+|| Additional MySQL declarations ||
+|| {{{ PRIMARY KEY  (`id`) }}} ||
+
+
+==Proposed new THreports_table==
+This is a new table that contains user-generated reports. *_Proposed for drydock 0.3.1_*
+
+|| Field name || MySQL declaration || SQLite declaration || Description ||
+|| id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID number for tracking ||
+|| ip || {{{ `ip` int(11) NOT NULL default '0' }}} || {{{ ip INT(11) }}} || IP of reporter ||
+|| time || {{{ `time` int(11) unsigned NOT NULL }}} || {{{ time INT(11)  }}} || Timestamp of the report ||
+|| postid || {{{ `postid` int unsigned NOT NULL default '0' }}} || {{{ postid INT }}} || The (non-unique) ID of the post being reported  ||
+|| board || {{{ `board` smallint(5) unsigned NOT NULL default '0' }}} || {{{ board SMALLINT(5) }}} || The ID of the board for the report ||
+|| status || {{{ `status` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ status TINYINT(1) }}} || The status of this report (0 = unreviewed, 1 = reviewed and considered "valid", 2 = reviewed and considered invalid, 3 = reviewed but neither outright valid/invalid) ||
+
+|| Additional MySQL declarations ||
+|| {{{ PRIMARY KEY  (`id`) }}} ||
