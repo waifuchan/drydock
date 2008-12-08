@@ -11,6 +11,7 @@
 			After putting the rss2html.php and the XML parser file, edit rss2html and change these variables
 				$XMLfilename = "rss.xml";
 				$TEMPLATEfilename = "news-template.php";
+			These two are optional but suggested.
 				$ShortDateFormat = "Y.m.d";
 				$ShortTimeFormat = "H:i";
 
