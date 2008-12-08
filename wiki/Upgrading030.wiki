@@ -1,4 +1,6 @@
-#summary Upgrading from 0.2.9 to 0.3.0
+#summary 0.2.9 -> 0.3.0 upgrade instructions
+#labels Phase-Deploy,Deprecated
+
 =Why upgrade?=
 In addition to a few security features being added or tweaked, 0.3.0 adds the following features:
   * Smarty cache functionality restored - This means faster load times and reduced database calls
