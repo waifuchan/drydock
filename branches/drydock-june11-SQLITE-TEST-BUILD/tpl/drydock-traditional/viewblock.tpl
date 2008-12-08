@@ -2,11 +2,11 @@
 {if $comingfrom=="board"}
 <tr><td>
 <a name="{$thread.globalid}" href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">
-{		if $binfo.forced_anon == "0"} {* begin forced_anon *}
+{		if $binfo.forced_anon != "1"} {* begin forced_anon *}
 {			if !$thread.title}
-		No subject
+		<span class="filetitle">No subject</span>
 {			else}
-		<span class="filetitle">{$thread.title|escape:'html':'UTF-8'}</span>
+		<span class="filetitle">{$thread.title}</span>
 {			/if} {* if no title *}
 </a>
 {if $thread.pin}
@@ -40,11 +40,11 @@
 <div class="damnopera">
 	<a name="{$thread.globalid}"></a>
 	<label>
-{		if $binfo.forced_anon == "0"} {* begin forced_anon *}
+{		if $binfo.forced_anon != "1"} {* begin forced_anon *}
 {			if !$thread.title}
 		&nbsp;&nbsp;
 {			else}
-		<span class="filetitle">{$thread.title|escape:'html':'UTF-8'}</span>
+		<span class="filetitle">{$thread.title}</span>
 {			/if} {* if no title *}
 {			if $thread.link}<a href="{$thread.link}">{/if}
 {			if $thread.name == "CAPCODE"}
@@ -104,7 +104,7 @@
 {if $comingfrom=="board"}{assign value=$thread.body|THtrunc:2000 var=bodeycheck}
 <blockquote>
 {assign value=$bodeycheck.text var=bodey}{else}{assign value=$thread.body var=bodey}{/if}
-{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
+{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter!="1"}
 {		if $binfo.allowvids == 1} 
 {			$bodey|vids|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {		else}
@@ -186,7 +186,7 @@
 {else}
 {if $comingfrom=="board"}{assign value=$post.body|THtrunc:1000 var=bodeycheck}
 {assign value=$bodeycheck.text var=bodey}{else}{assign value=$post.body var=bodey}{/if}
-{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
+{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter!="1"}
 {		if $binfo.allowvids == 1} 
 {			$bodey|vids|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {		else}

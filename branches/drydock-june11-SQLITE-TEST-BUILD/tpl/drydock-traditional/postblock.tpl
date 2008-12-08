@@ -1,4 +1,5 @@
 <div class="theader">
+
 {if $comingfrom=="board"}
 	{if $binfo.tlock}
 		(Board is locked, no more posts allowed)
@@ -21,13 +22,17 @@
 		<tbody>
 
 			<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
-{				if $binfo.forced_anon == "0"} {* begin forced_anon *}
-				<tr>
-					<td class="postblock">Name</td>
-					<td><input type="text" name="nombre" size="40" maxlength="40"/><span style="font-size:x-small;"><input type="checkbox" name="mem" style="font-size:x-small;" value="on" />Remember</span></td>
-				</tr>
+{				if $binfo.forced_anon != "1"} {* begin forced_anon *}
+{					if $binfo.requireregistration != "1"}
+					<tr>
+						<td class="postblock">Name</td>
+						<td><input type="text" name="nombre" size="40" maxlength="40"/><span style="font-size:x-small;"><input type="checkbox" name="mem" style="font-size:x-small;" value="on" />Remember</span></td>
+					</tr>
+{					else}
+						<input type="hidden" name="nombre" value="{$username}"/>
+{					/if} {* end registration *}
 {				/if} {* end forced_anon *}
-{				if $binfo.forced_anon=="0" and $comingfrom=="board"} {* begin forced_anon / boardorthread check*}
+{				if $binfo.forced_anon!="1" and $comingfrom=="board"} {* begin forced_anon / boardorthread check*}
 				<tr>
 					<td class="postblock">Subject</td>
 					<td><input type="text" name="subj" size="40" maxlength="40"/></td>
@@ -93,7 +98,8 @@
 					<td class="postblock">Rules</td>
 					<td><div class="rules">{include file=rules.tpl}</div></td>
 				</tr>
-{if $comingfrom == "board"}<input type="hidden" name="board" value="{$binfo.id}" />{else if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.id}" />{/if}
+<input type="hidden" name="board" value="{$binfo.folder}" />
+{if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.globalid}" />{/if}
 {if $blotter}
 <tr>
 <td class="postblock">Blotter</td>
