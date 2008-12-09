@@ -134,14 +134,22 @@
 	}
 	elseif ($_POST['todo']=="post") 
 	{
-		$postglobalid=mysql_query("select globalid from ".THreplies_table." where id=".$pnum);
-		$postglobalid=mysql_result($postglobalid,0,"globalid");
-		$threadglobalid=mysql_query("select globalid from ".THthreads_table." where id=".$thread['id']);
-		$threadglobalid=mysql_result($threadglobalid,0,"globalid");
-		if (THuserewrite) { $location = THurl.$binfo['folder']."/thread/".$threadglobalid."#".$postglobalid; } 
-		else { $location = THurl."drydock.php?b=".$binfo['folder']."&i=$threadglobalid#$postglobalid"; }
+		// Retrieve the global IDs for both the thread and post number
+		$loc_arr = $db->getpostlocation($thread['id'], $pnum);
+
+		if (THuserewrite) 
+		{ 
+			$location = THurl.$binfo['folder']."/thread/".$loc_arr['thread_loc']."#".$loc_arr['post_loc']; 
+		} 
+		else 
+		{ 
+			$location = THurl."drydock.php?b=".$binfo['folder']."&i=".$loc_arr['thread_loc']."#".$loc_arr['post_loc']; 
+		}
+		
 		header("Location: ".$location);
-	} else {
+	} 
+	else 
+	{
 		header("Location: drydock.php");
 	}
 

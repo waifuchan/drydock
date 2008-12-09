@@ -32,18 +32,6 @@ class ThornPostDBI extends ThornDBI
 		return ($this->myassoc("select * from " . THthreads_table . " where id=" . intval($t)));
 	}
 
-	function getbinfo($id)
-	{
-		/*
-			Another simple function. This just gets information about a board.
-			Parameters:
-				int $id
-			The board to fetch.
-				returns: array $board
-		*/
-		return ($this->myassoc("select * from " . THboards_table . " where id=" . intval($id)));
-	}
-
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false)
 	{
 		/*
@@ -340,18 +328,52 @@ class ThornPostDBI extends ThornDBI
 	function getglobalid($board)
 	{
 		/*
-			This gets the global post id for passing to other functions
-			Pulls overall global.
+			This function gets a new global id for the specified board.  It will increment the current id by one.
+			Parameters:
+				string $board
+			The folder name of the board
 			
-			Gives us individual board numbering and overall numbering instead of counts for both
-			threads and replies.
+			Returns: int representing this new ID
 		*/
-		$sql = "select globalid from " . THboards_table . " where id=" . $board;
-		$this->myresult($sql, 0, "globalid");
+		$sql = "select globalid from " . THboards_table . " where folder='" . $this->escape_string($board)."'";
+		$globalid = $this->myresult($sql);
 		$globalid++;
-		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where id=" . $board;
+		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where folder='" . $this->escape_string($board) . "'";
 		$this->myquery($newsql);
 		return ($globalid);
+	}
+	
+	function getpostlocation($threadid, $postid = -1)
+	{
+		/*
+			This function gets global IDs for a particular thread and possibly a particular reply.
+			If the post ID is not provided it gets treated as a thread lookup.  
+			
+			Parameters:
+				int $threadid
+			The ID of the thread
+				int $postid
+			The ID of the post, defaults to -1.
+
+				
+			Returns: 
+			If postid is defined, returns an array with the elements 'post_loc' and 'thread_loc'.
+			If postid is not defined, returns an array with the element 'thread_loc'.
+		*/
+		
+		$location = array();
+		
+		if ( $postid > -1 ) // Retrieving information for a reply
+		{
+			$location['post_loc'] = $this->myresult("select globalid from ".THreplies_table." where id=".intval($postid));
+			$location['thread_loc'] = $this->myresult("select globalid from ".THthreads_table." where id=".intval($threadid));
+		}
+		else // For a thread
+		{
+			$location['thread_loc'] = $this->myresult("select globalid from ".THthreads_table." where id=".intval($threadid));
+		}
+		
+		return $location;
 	}
 } //ThornPostDBI
 ?>

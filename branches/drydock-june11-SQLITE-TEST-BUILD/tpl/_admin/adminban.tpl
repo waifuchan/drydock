@@ -38,10 +38,12 @@
     {foreach from=$bans item=ban}
                         <tr>
                             <td>
-                                <input type="checkbox" name="del{$ban.longip}" />
+                                <input type="checkbox" name="del{$ban.id}" />
                             </td>
                             <td>
-                                <a href="{$THurl}admin.php?a=x&banselect={$ban.longip}">{$ban.ip1}.{$ban.ip2}.{$ban.ip3}.{$ban.ip4}</a><!-- ({$ban.longip}) /-->
+                                <a href="{$THurl}admin.php?a=x&banselect={$ban.id}">{$ban.ip_octet1}.{$ban.ip_octet2}.
+								{if $ban.ip_octet3=="-1"}*{else}{$ban.ip_octet3}{/if}.
+								{if $ban.ip_octet4=="-1"}*{else}{$ban.ip_octet4}{/if}</a>
                             </td>
                             <td>
                                 {$ban.privatereason}
@@ -59,6 +61,7 @@
 			
     {/foreach}
                          </table>
+					<br />Unban rationale: <input type="text" name="reason"><br>
                     <input type="submit" value="Unban checked IPs" />
                 </div>
             </form>
@@ -68,13 +71,16 @@
 	<a href="{$THurl}admin.php?a=x">back to ban list</a>
 	            <form method="post" enctype="multipart/form-data" action="admin.php?t=ux">
                 <div>
+				<div>
                     <table>
                         <tr>
                             <tr><td>
-                                Unban?</td><td><input type="checkbox" name="del{$longip}" />
+                                Unban?</td><td><input type="checkbox" name="del{$ban.id}" />
                             </td></tr>
                             <tr><td>
-                                Banned IP</td><td>{$ip1}.{$ip2}.{$ip3}.{$ip4}<!-- ({$longip}) /-->
+                                Banned IP</td><td>{$ban.ip_octet1}.{$ban.ip_octet2}.
+								{if $ban.ip_octet3=="-1"}*{else}{$ban.ip_octet3}{/if}.
+								{if $ban.ip_octet4=="-1"}*{else}{$ban.ip_octet4}{/if}
                             </td></tr>
                             <tr><td>
                                 Public Reason</td><td>{$ban.publicreason}
@@ -97,10 +103,71 @@
                             <tr><td>
                                 Banned by</td><td>{$ban.bannedby}
                             </td></tr>
-			                         </table>
-                    <input type="submit" value="Unban checked IPs" />
-                </div>
-            </form>
+			        </table>
+				</div>
+<div class="pgtitle">Previous associated ban history:</div>
+    {if $banhistory==null}
+            There were no prior bans found.
+    {else}
+            <div>
+                    <table>
+                        <tr>
+                            <td>
+                                Banned IP
+                            </td>
+                            <td>
+                                Private<br>Reason
+                            </td>
+                            <td>
+                                Admin<br>Reason
+                            </td>
+							<td>
+                                Duration
+                            </td>
+                            <td>
+                                Ban set
+                            </td>
+                            <td>
+                                Banned by
+                            </td>
+                            <td>
+                                Unbannning reason
+                            </td>
+                       </tr>
+		{foreach from=$banhistory item=ban}
+					<tr>
+						<td>
+							<a href="{$THurl}admin.php?a=x&banselect={$ban.id}">{$ban.ip_octet1}.{$ban.ip_octet2}.
+							{if $ban.ip_octet3=="-1"}*{else}{$ban.ip_octet3}{/if}.
+							{if $ban.ip_octet4=="-1"}*{else}{$ban.ip_octet4}{/if}</a>
+						</td>
+						<td>
+							{$ban.privatereason}
+						</td>
+						<td>
+							{$ban.adminreason}
+						</td>
+						<td>
+							{if $ban.duration=="-1"}Permanent{elseif $ban.duration=="0"}Warning{else}{$ban.duration}{/if}
+						</td>
+						<td>
+							{$ban.bantime|date_format:$THdatetimestring}
+						</td>
+						<td>
+							{$ban.bannedby}
+						</td>
+						<td>
+							{$ban.unbaninfo}
+						</td>
+					</tr>
+		{/foreach}
+				</table>
+			</div>
+	{/if}
+			<br />Unban rationale: <input type="text" name="reason"><br>
+			<input type="submit" value="Unban checked IPs" />
+        </div>
+     </form>
 
 {/if}
         <div class="pgtitle">
@@ -109,7 +176,11 @@
 	<br />
             <form method="post" enctype="multipart/form-data" action="admin.php?t=ax">
                 <div>
-                    IP address: <input type="text" name="ip1" size="3" />.<input type="text" name="ip2" size="3" />.<input type="text" name="ip3" size="3" />.<input type="text" name="ip4" size="3" /> <input type="checkbox" name="ipsub" />Ban subnet<br />
+                    IP address: <input type="text" name="ip1" size="3" />.<input type="text" name="ip2" size="3" />.<input type="text" name="ip3" size="3" />.<input type="text" name="ip4" size="3" /> <select name="ipsub">
+  <option value ="0">Ban IP</option>
+  <option value ="1">Ban subnet (xxx.xxx.xxx.*)</option>
+  <option value ="2">Ban class C subnet (xxx.xxx.*.*)</option>
+</select><br />
                     Reason: <input type="text" name="adminreason" size="20" /> Duration: <input type="text" name="duration" size="3" />hrs<input type="submit" value="Ban" />
                 </div>
             </form>

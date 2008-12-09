@@ -51,20 +51,11 @@
 		if($err=="ADbanned" || $err =="PObanned") // THIS USED TO READ $err="ADbanned", which meant that whenever THdie was called it would tell someone they're banned, gg
 		{
 			$db=new ThornDBI();
-			$haship=ip2long($_SERVER['REMOTE_ADDR']);
-			$sub=ipsub($haship);
-			$banquery = "select * from ".THbans_table." where ip=".$haship;
-			$queryresult =$db->myassoc($banquery);
-			if(!$queryresult)
-			{
-				$banquery = "select * from ".THbans_table." where ip=".$sub." && subnet=1";
-				$queryresult = $db->myassoc($banquery);
-			}
-			$ip=explode(".",long2ip($queryresult['ip']));
-			if ($queryresult['subnet'])
-			{
-				$ip[3]="*";
-			}
+
+			// Get bans associated with an IP (there could be multiple bans)
+			$bans = $db->getban();
+			$unbanned = 1; // boolean to indicate whether they've been unbanned or not, gets changed in the foreach loop if appropriate
+			
 			echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 			echo '<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">';
 			echo '<head>';
@@ -76,86 +67,80 @@
 			echo '<body>';
 			echo '<div align="center">You have been banned.<br /></div>';
 
-			if($queryresult['subnet'] == 0)
+			foreach( $bans as $singleban )
 			{
-				echo 'Your IP: '.$ip[0].".".$ip[1].".".$ip[2].".".$ip[3].'<br />';
-			} 
-			else 
-			{
-				echo 'Your subnet: '.$ip[0].".".$ip[1].".".$ip[2].".".$ip[3].'<br />';
-			}
-
-			//did they get banned from a post?
-			if($queryresult['postdata'])
-			{
-				echo 'You were banned for making this post:<br />'.$queryresult['postdata'].'<br /><br />';
-			}
+				// Display wildcards as appropriate.
+				printf("Associated IP: %d.%d.%s.%s<br>\n",
+				$singleban['ip_octet1'],
+				$singleban['ip_octet2'],
+				(($singleban['ip_octet3'] == -1) ? "*" : $singleban['ip_octet3']),
+				(($singleban['ip_octet4'] == -1) ? "*" : $singleban['ip_octet4']));
 			
-			if(!$queryresult['privatereason'])
-			{
-				$reason=$queryresult['publicreason'];
-			} 
-			else 
-			{
-				$reason=$queryresult['privatereason'];
-			}
-			
-			if(!$reason)
-			{
-				$reason='No reason given';
-			}
-			else
-			{
-				echo 'Reason given: '.$reason.'<br /><br />';
-			}
-			
-			//we'll need to know the difference between the ban time and the duration for actually expiring the bans
-			$offset = THtimeoffset*60;
-			$now = time()+$offset;
-			$banoffset = $queryresult['duration']*3600;
-			$expiremath = $banoffset+$queryresult['bantime'];
-			//check duration
-			if($queryresult['duration']=="0")
-			{
-				echo 'This is only a warning.  After viewing this page your ban record will be deleted.  Keep in mind however that if you are warned multiple times you may be permabanned.  Click the link below to continue.<br /><br />';
-			}
-			elseif ($queryresult['duration']=="-1")
-			{
-				echo 'This ban will not expire.<br /><br />';
-			} 
-			else 
-			{
-				if($now>$expiremath)
+				if( $singleban['postdata'] )
 				{
-					echo 'Your ban has expired.  Keep in mind that you may be rebanned at any time.<br /><br />';
+					echo 'Associated post:<br />'.$singleban['postdata'].'<br /><br />';
+				}
+				
+				$reason = "";
+				if(!$singleban['privatereason'])
+				{
+					$reason=$singleban['publicreason'];
 				} 
 				else 
 				{
-					echo 'Your ban duration was set to '.$queryresult['duration'].' hours.  The ban will expire '.date("l, m.d.Y: H:i:s",$expiremath).'<br /><br />';
+					$reason=$singleban['privatereason'];
 				}
+				
+				if(!$reason)
+				{
+					$reason='No reason given';
+				}
+				else
+				{
+					echo 'Reason given: '.$reason.'<br /><br />';
+				}
+				
+				if( $singleban['duration'] == 0 )
+				{
+					echo 'This is only a warning and will be removed from the active bans list. Keep in mind however that if you are warned multiple times you may be permabanned.';
+				}
+				else if( $singleban['duration'] == -1 )
+				{
+					echo 'This ban will not expire.<br /><br />';
+					$unbanned = 0; // still banned
+				}
+				else // Neither permanent nor a warning
+				{
+					//we'll need to know the difference between the ban time and the duration for actually expiring the bans
+					$offset = THtimeoffset*60;
+					$now = time()+$offset;
+					$banoffset = $singleban['duration']*3600; // convert to hours
+					$expiremath = $banoffset+$singleban['bantime'];
+				
+					if($now>$expiremath)
+					{
+						echo 'This ban has expired.  Keep in mind that you may be rebanned at any time.<br /><br />';
+					} 
+					else 
+					{
+						echo 'This ban duration was set to '.$bantime['duration'].' hours.  The ban will expire on '.
+							date(THdatetimestring,$expiremath).'<br /><br />';
+						$unbanned = 0; // still banned
+					}
+				}
+				
 			}
-			//display results of banning
-			if($queryresult['duration']=="0")
+	
+			if($unbanned == 1)
 			{
-				$unbanquery = "delete from ".THbans_table." where ip=".$haship;
-				$db->myquery($unbanquery);
 				echo '<a href="'.THurl.'">Continue to the main index</a>';
 			} 
 			else 
-			{	
-				if($now>$expiremath)
-				{
-					$unbanquery = "delete from ".THbans_table." where ip=".$haship;
-					$db->myquery($unbanquery);
-					echo '<a href="'.THurl.'">Continue to the main index</a>';
-				} 
-				else 
-				{
-					echo "If you feel this ban is in error, please email an administrator.";
-				}
+			{
+				echo "If you feel this ban is in error, please email an administrator.";
 			}
-			echo '</body>
-			</html>';
+			
+			echo '</body></html>';
 		} 
 		else 
 		{

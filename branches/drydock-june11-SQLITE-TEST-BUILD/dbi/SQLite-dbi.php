@@ -53,6 +53,7 @@ class ThornDBI
 		*/
 		return ($this->myassoc("select * from " . THboards_table . " where folder='" . intval($b) ."'"));
 	}
+	
 	/*  suggested by Mell03d0ut from anonib - edited by us to add new ideas */
 	function escape_string($call)
 	{
@@ -355,6 +356,106 @@ class ThornDBI
 		
 	}
 
+	function getban($ip = null)
+	{
+		/*
+			Get ban information for a particular IP.  If the ban is a warning, or if
+			the ban has expired, the ban will additionally be moved out of the active bans table
+			and into the ban history table.
+			
+			Parameters:
+				int $ip
+			The IP address.  If it comes in as an int, long2ip will be used.  If it comes in as a string,
+			nothing will be done to it.  If it comes in as null, $_SERVER['REMOTE_ADDR'] will
+			be used by default.
+			
+			Returns:
+				An assoc-array
+		*/
+		
+		// If it's null
+		if ($ip == null)
+		{
+			$ip = $_SERVER['REMOTE_ADDR'];
+		}
+		else if ( is_int($ip) ) // If it's an int
+		{
+			$ip = long2ip($ip);
+		}
+		
+		// Break up into octets
+		$octets = explode(".", $ip, 4);
+
+		//Retrieve the bans
+		$bans = $this->mymultiarray("select * from `" . THbans_table . "` where 
+			`ip_octet1`=" . intval($octets[0]) . " 
+			&& `ip_octet2`=" . intval($octets[1]) . " 
+			&& (`ip_octet3`=" . intval($octets[2]) . " || `ip_octet3` = -1 )
+			&& (`ip_octet4`=" . intval($octets[3]) . " || `ip_octet4` = -1 )");
+
+		// Move old bans to the ban history table
+		foreach( $bans as $singleban )
+		{
+			if( $singleban['duration'] == 0 ) // Warning
+			{
+				// Move to ban history table
+				$history = "insert into `".THbanhistory_table."` 
+				set ip_octet1=" . $singleban['ip_octet1'] . ",
+				ip_octet2=" . $singleban['ip_octet2'] . ",
+				ip_octet3=" . $singleban['ip_octet3'] . ",
+				ip_octet4=" . $singleban['ip_octet4'] . ",
+				privatereason='" . $this->clean($singleban['privatereason']) . "', 
+				publicreason='" . $this->clean($singleban['publicreason']) . "', 
+				adminreason='" . $this->clean($singleban['adminreason']) . "', 
+				postdata='" . $this->clean($singleban['postdata']) . "', 
+				duration='" . $singleban['duration'] . "', 
+				bantime=" . $singleban['bantime'] . ", 
+				bannedby='" . $singleban['bannedby'] . "',
+				unbaninfo='viewed'";
+			
+				$this->myquery($history);
+				
+				// Delete this ban from the active bans table
+				$this->myquery("delete from ".THbans_table." where id=".intval($singleban['id']));
+			}
+			else if( $singleban['duration'] != -1 ) // May have expired, so we'll have to check
+			{
+				//we'll need to know the difference between the ban time and the duration for actually expiring the bans
+				$offset = THtimeoffset*60;
+				$now = time()+$offset;
+				$banoffset = $singleban['duration']*3600; // convert to hours
+				$expiremath = $banoffset+$singleban['bantime'];
+			
+				if($now>$expiremath) // It expired.
+				{
+					// Move to ban history table
+					$history = "insert into `".THbanhistory_table."` 
+					set ip_octet1=" . $singleban['ip_octet1'] . ",
+					ip_octet2=" . $singleban['ip_octet2'] . ",
+					ip_octet3=" . $singleban['ip_octet3'] . ",
+					ip_octet4=" . $singleban['ip_octet4'] . ",
+					privatereason='" . $this->clean($singleban['privatereason']) . "', 
+					publicreason='" . $this->clean($singleban['publicreason']) . "', 
+					adminreason='" . $this->clean($singleban['adminreason']) . "', 
+					postdata='" . $this->clean($singleban['postdata']) . "', 
+					duration='" . $singleban['duration'] . "', 
+					bantime=" . $singleban['bantime'] . ", 
+					bannedby='" . $singleban['bannedby'] . "',
+					unbaninfo='expired'";
+				
+					$this->myquery($history);
+					
+					// Delete from active bans table
+					$this->myquery("delete from ".THbans_table." where id=".intval($singleban['id']));
+				} 
+			}
+			
+		}
+		
+		return $bans;
+	}
+
+	
 	function getboard($id = 0, $folder = "")
 	{
 		/*

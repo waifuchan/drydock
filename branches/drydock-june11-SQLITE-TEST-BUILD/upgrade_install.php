@@ -224,10 +224,10 @@
 		foreach( $bans_new as $insert )
 		{
 			$banquery = "insert into `".THbans_table."` 
-			set ip_octet1=" . $single_ban['ip_octet1'] . ",
-			ip_octet2=" . $single_ban['ip_octet2'] . ",
-			ip_octet3=" . $single_ban['ip_octet3'] . ",
-			ip_octet4=" . $single_ban['ip_octet4'] . ",
+			set ip_octet1=" . $insert['ip_octet1'] . ",
+			ip_octet2=" . $insert['ip_octet2'] . ",
+			ip_octet3=" . $insert['ip_octet3'] . ",
+			ip_octet4=" . $insert['ip_octet4'] . ",
 			privatereason='" . $dbi->clean($insert['privatereason']) . "', 
 			publicreason='" . $dbi->clean($insert['publicreason']) . "', 
 			adminreason='" . $dbi->clean($insert['adminreason']) . "', 
@@ -241,10 +241,10 @@
 			if($result === null)
 			{
 				printf("Insert Error for %d.%d.%d.%s: #%d: %s<br>\n",
-				$single_ban['ip_octet1'],
-				$single_ban['ip_octet2'],
-				$single_ban['ip_octet3'],
-				(($single_ban['ip_octet4'] == -1) ? "*" : $single_ban['ip_octet4']),
+				$insert['ip_octet1'],
+				$insert['ip_octet2'],
+				$insert['ip_octet3'],
+				(($insert['ip_octet4'] == -1) ? "*" : $insert['ip_octet4']),
 				mysql_errno($dbi->cxn),
 				mysql_error($dbi->cxn));
 

@@ -506,7 +506,7 @@
 	}
 	echo '</td><td>';
 	
-	echo '<b>Last changed:</b> ';
+	echo '<b>Moderation last performed:</b> ';
 	if($unvisibletime != 0)
 	{
 		echo strftime(THdatetimestring,$unvisibletime).'';

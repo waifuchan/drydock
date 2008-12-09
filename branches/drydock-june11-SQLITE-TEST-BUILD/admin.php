@@ -67,11 +67,11 @@
 			if ($_GET['boardselect'])
 			{
 				//Configure options for a specific board
-				$boardselect = $db->myassoc("select * from ".THboards_table." where folder='".$db->escape_string($_GET['boardselect'])."'");
+				$boardselect = $db->getboard(0, $_GET['boardselect']); // Should return an array of assoc-arrays (but with only one assoc-array)
 				if($boardselect)
 				{
 					$sm->assign("boardselect",$db->escape_string($_GET['boardselect']));
-					$sm->assign("board",$boardselect,$sm);
+					$sm->assign("board",$boardselect[0],$sm);
 				}
 				else
 				{
@@ -93,66 +93,90 @@
 		}
 		elseif ($_GET['a']=="x")
 		{
+			if (THdbtype==null)
+			{
+				//Can't access this unless the database is set up.
+				THdie("ADdbfirst");
+			}
+			
 			//Ban config		
 			if ($_GET['banselect'])
 			{
 				//Edit a specific ban
 				$sm->assign("banselect",$_GET['banselect']);
-				$sm->assign("ban",$db->myarray($db->myquery("select * from ".THbans_table." where ip=".intval($_GET['banselect']))),$sm);
-				$ippull = $_GET['banselect'];
-				$ipdata = explode(".",long2ip($ippull));
-				$subnet = sqlite_fetch_single($db->myquery("select subnet from ".THbans_table." where ip=".$_GET['banselect']));
-				//this should be commented out right now because this code is a big hack job and i dont know what i am doing because it is 4:15am but it isnt so okay ~tyam
-				if ($subnet[0])
+				
+				// Get the individual ban in question
+				$single_ban_assoc = $db->getbanfromid($_GET['banselect']);
+				$sm->assign("ban",$single_ban_assoc,$sm);
+				
+				// Next we fetch all history for the ban.
+				
+				// Substitute in 0 for the subnets
+				$ip3 = 0;
+				if( $single_ban_assoc['ip_octet3'] > -1 )
 				{
-					$ipdata[3]="*";
+					$ip3 = $single_ban_assoc['ip_octet3'];
 				}
-				$ipdata[]=array(
-					"ip1"=>$ipdata[0],
-					"ip2"=>$ipdata[1],
-					"ip3"=>$ipdata[2],
-					"ip4"=>$ipdata[3],
-					"longip"=>$ippull
-					);
-				//ugh why isnt this working.  okay let's be retarded about it
-				$sm->assign("ip1",$ipdata[0],$sm);
-				$sm->assign("ip2",$ipdata[1],$sm);
-				$sm->assign("ip3",$ipdata[2],$sm);
-				$sm->assign("ip4",$ipdata[3],$sm);
-				$sm->assign("longip",$ippull,$sm);
+				
+				$ip4 = 0;
+				if( $single_ban_assoc['ip_octet4'] > -1 )
+				{
+					$ip4 = $single_ban_assoc['ip_octet4'];
+				}
+								
+				$ip=ip2long($single_ban_assoc['ip_octet1'].".".$single_ban_assoc['ip_octet2'].".".$ip3.".".$ip4);
+				
+				// Get history for the IP
+				$rawhist=$db->getiphistory($ip);
+				if ($rawhist!=null)
+				{
+					$banhistory=array();
+					foreach ($rawhist as $hist)
+					{
+						$banhistory[]=array(
+							"ip1"=>$hist['ip_octet1'],
+							"ip2"=>$hist['ip_octet2'],
+							"ip3"=>$hist['ip_octet3'],
+							"ip4"=>$hist['ip_octet4'],
+							"id"=>$hist['id'],
+							"publicreason"=>$hist['publicreason'],
+							"privatereason"=>$hist['privatereason'],
+							"adminreason"=>$hist['adminreason'],
+							"postdata"=>$hist['postdata'],
+							"duration"=>$hist['duration'],
+							"bantime"=>$hist['bantime'],
+							"bannedby"=>$hist['bannedby'],
+							"unbaninfo"=>$hist['unbaninfo']
+						);
+					}
+				}
+				else
+				{
+					$banhistory=null;
+				}
+				$sm->assign("banhistory",$banhistory);
 			}
 			else
 			{
-				if (THdbtype==null)
-				{
-					//Can't access this unless the database is set up.
-					THdie("ADdbfirst");
-				}
 				$rawbans=$db->getallbans();
 				if ($rawbans!=null)
 				{
 					$bans=array();
 					foreach ($rawbans as $ban)
 					{
-						$ip=explode(".",long2ip($ban['ip']));
-						if ($ban['subnet'])
-						{
-							$ip[3]="*";
-						}
 						$bans[]=array(
-							"ip1"=>$ip[0],
-							"ip2"=>$ip[1],
-							"ip3"=>$ip[2],
-							"ip4"=>$ip[3],
-							"longip"=>$ban['ip'],
-							"subnet"=>$ban['subnet'],
+							"ip1"=>$ban['ip_octet1'],
+							"ip2"=>$ban['ip_octet2'],
+							"ip3"=>$ban['ip_octet3'],
+							"ip4"=>$ban['ip_octet4'],
+							"id"=>$ban['id'],
 							"publicreason"=>$ban['publicreason'],
 							"privatereason"=>$ban['privatereason'],
 							"adminreason"=>$ban['adminreason'],
 							"postdata"=>$ban['postdata'],
 							"duration"=>$ban['duration'],
 							"bantime"=>$ban['bantime'],
-							"bannedby"=>$ban['bannedby'],
+							"bannedby"=>$ban['bannedby']
 							);
 					}
 				}
@@ -373,11 +397,12 @@
 		{
 			if ($_GET['board'])
 			{
-				$boardarray = $db->myassoc("select * from ".THboards_table." where folder='".$db->escape_string($_GET['board'])."'");
+				// Should return an array of assoc-arrays
+				$boardarray = $db->getboard(0, $_GET['board']);
 var_dump($boardarray);
 				if($boardarray)
 				{
-					$sm->assign("binfo",$boardarray,$sm);
+					$sm->assign("binfo",$boardarray[0],$sm);
 					$sm->display("adminpost.tpl");
 				}
 				else
@@ -658,39 +683,44 @@ VALUES (
 	}
 	elseif ($_GET['t']=="ax") //Add ban
 	{
-		if ($_POST['ip4']=="")
+		// Regular subnet ban (ipsub value of 1)
+		$ip4 = "0";
+		if ($_POST['ipsub'] < 1)
 		{
-			$ip4="0";
+			$ip4=$_POST['ip4'];
 		}
-		else
+		
+		// Class C subnet ban (ipsub value of 2)
+		$ip3 = "0";
+		if ($_POST['ipsub'] < 2)
 		{
-			if ($_POST['ipsub'])
-			{
-				$ip4="0";
-			}
-			else
-			{
-				$ip4=$_POST['ip4'];
-			}
+			$ip3=$_POST['ip3'];
 		}
-		$ip=ip2long($_POST['ip1'].".".$_POST['ip2'].".".$_POST['ip3'].".".$ip4);
+		
+		$ip=ip2long($_POST['ip1'].".".$_POST['ip2'].".".$ip3.".".$ip4);
 		if ($ip==-1 || $ip==false)
 		{
 			THdie("ADbanbadip");
 		}
 		$banreason = 'This is an admin ban, you were not banned for a specific post.';
-		$postdata = $_SESSION['username']." via admin ban panel";
-		$db->banip($ip,($_POST['ipsub']=="on"),$_POST['adminreason'],'admin ban',$_POST['adminreason'],$postdata,$_POST['duration'],$bannedby);
+		$bannedby = $_SESSION['username']." via admin ban panel";
+		$db->banip($ip,($_POST['ipsub']=="on"),$banreason,'admin ban',$_POST['adminreason'],"",$_POST['duration'],$bannedby);
 		header("Location: ".THurl."admin.php?a=x");
 	}
 	elseif ($_GET['t']=="ux") //Remove ban
 	{
-		$ips=$db->getallbans();
-		foreach ($ips as $ip)
+		$reason = $_SESSION['username']." via admin ban panel";
+		if( isset($_GET['reason']) )
 		{
-			if ($_POST['del'.$ip['ip']])
+			$reason = $_GET['reason'];
+		}
+		
+		$bans=$db->getallbans();
+		foreach ($bans as $ban)
+		{
+			if ($_POST['del'.$ban['id']])
 			{
-				$db->delban($ip['ip']);
+				$db->delban($ban['id'], $reason);
 			}
 		}
 		header("Location: ".THurl."admin.php?a=x");

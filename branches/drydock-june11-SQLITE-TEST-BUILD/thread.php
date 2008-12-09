@@ -152,11 +152,22 @@
 	}
 	elseif ($_POST['todo']=="thread")
 	{
-		$threadglobalid=$db->myquery("select globalid from ".THthreads_table." where id=".$tnum);
-        $threadglobalid=$db->myquery($threadglobalid,0,"globalid");
-		if (THuserewrite) { $location = THurl.$board."/thread/".$threadglobalid; } else { $location = THurl."drydock.php?b=$board&i=$threadglobalid"; }
+		// Look up the global ID for this thread.
+		$loc_arr = $db->getpostlocation($tnum);
+
+		if (THuserewrite) 
+		{ 
+			$location = THurl.$board."/thread/".$loc_arr['thread_loc']; 
+		} 
+		else 
+		{ 
+			$location = THurl."drydock.php?b=$board&i=".$loc_arr['thread_loc']; 
+		}
+		
 		header("Location: ".$location);
-	} else {
+	} 
+	else 
+	{
 		header("Location: drydock.php");
 	}
 ?>

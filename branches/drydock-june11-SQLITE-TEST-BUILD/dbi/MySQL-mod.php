@@ -25,28 +25,73 @@ class ThornModDBI extends ThornDBI
 	{
 		/*
 		This adds a banned IP to the database. It checks to see if the IP is already banned first.
+		
 		Parameters:
 			int $ip
-		The ip2long'd IP to ban. Note that if Thorn is banning an IP by subnet, this DBI expects the IP to have its fourth part set to 0 before being ip2long'd. (For example, 123.45.67.89 will become 123.45.67.0.) So, if $subnet, we'll need to do this conversion. Fortunately, there's a function in common.php called ipsub() that does this conversion for us, as I think it's a pretty logical way to check for subnets in a DB and may be used by other DBIs.
-			bool $subnet
-		Ban the IP's subnet?
-			string $reason
-		Why is this IP being banned? (Solves the "Why did I ban all these IPs again?" problem with phpBB...)
+		The ip2long'd IP to ban.   Additionally, a string is acceptable.  If is_int($ip) is true it will be converted
+		back into a string.
+			int $subnet
+		0 to ban no subnet, 1 to ban the subnet, 2 to ban the class C subnet (be careful with this)
+			string $privatereason
+		What reason will the user see for being banned?
+			string $publicreason
+		What reason will be publically shown?
+			string $publicreason
+		What reason will be the admins see for being banned?
+			string $postdata
+		What post was the user banned for?
+			int $duration
+		How long will the ban be? (-1 = perma, 0 = warning, everything else is in hours)
+			string $bannedby
+		Who is responsible for the banning?
+		
 			Returns: bool $added (will be false if IP was already in the database.)
 		*/
-		if ($this->checkban($ip))
+		
+		if ($this->checkban($ip) && $subnet == 0) // Check if it's a ban for a specific IP that's already covered by a subnet (the reverse is OK)
 		{
 			return (false);
 		}
-		if ($subnet)
+
+		if ( is_int($ip) ) // If it's an int, change it back over to the other format
 		{
-			$ip = ipsub($ip);
+			$ip = long2ip($ip);
 		}
+		
+		// Start messing around with the octets
+		$octets = explode(".", long2ip($ip), 4);
+		
+		$octets[0] = intval($octets[0]);
+		$octets[1] = intval($octets[1]);
+		
+		if( $subnet > 0 ) // Ban a subnet
+		{
+			$octets[3] = -1;
+		}
+		
+		if( $subnet > 1) // Ban a class C subnet
+		{
+			$octets[2] = -1;
+		}
+		
+		// Calculate when the ban was made
 		$when = time() + (THtimeoffset * 60);
-
-		$banquery = "insert into " . THbans_table . " set ip=" . $ip . ", subnet=" . (int) $subnet . ", privatereason='" . $this->clean($privatereason) . "', publicreason='" . $this->clean($publicreason) . "', adminreason='" . $this->clean($adminreason) . "', postdata='" . $postdata . "', duration='" . (int) $duration . "', bantime=" . $when . ", bannedby='" . $bannedby . "'";
+		
+		$banquery = "insert into `".THbans_table."` 
+		set ip_octet1=" . $octets[0] . ",
+		ip_octet2=" . $octets[1] . ",
+		ip_octet3=" . $octets[2] . ",
+		ip_octet4=" . $octets[3] . ",
+		privatereason='" . $this->clean($privatereason) . "', 
+		publicreason='" . $this->clean($publicreason) . "', 
+		adminreason='" . $this->clean($adminreason) . "', 
+		postdata='" . $this->clean($postdata) . "', 
+		duration='" . intval($duration) . "', 
+		bantime=" . $when . ", 
+		bannedby='" . $this->clean($bannedby) . "'";
+		
 		$this->myquery($banquery);
-
+		
 		return (true);
 	}
 
@@ -91,8 +136,8 @@ class ThornModDBI extends ThornDBI
 		{
 			$publicbanreason = '<br /><br /><b><span class=ban>(' . $publicbanreason . ')</span></b>';
 		}
-		else // return if we don't have '
-			{
+		else // return if we don't have one
+		{
 			return;
 		}
 
@@ -102,7 +147,7 @@ class ThornModDBI extends ThornDBI
 			//$thebody = escape_string($thebody);
 			//$thebody.=' (USER HAS BEEN BANNED FOR THIS POST)';
 			$thebody .= $publicbanreason;
-			$updatequery = "update " . THthreads_table . " set body='" . escape_string(nl2br($thebody)) . "' where id=" . $id;
+			$updatequery = "update " . THthreads_table . " set body='" . $this->escape_string(nl2br($thebody)) . "' where id=" . $id;
 			$myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
 		}
 		else
@@ -116,6 +161,7 @@ class ThornModDBI extends ThornDBI
 		}
 		return;
 	}
+	
 	function banipfrompost($id, $isthread, $subnet, $privatereason, $publicreason, $adminreason, $duration, $bannedby)
 	{
 		/*
@@ -152,15 +198,82 @@ class ThornModDBI extends ThornDBI
 		return ($this->banip($ip, $subnet, $privatereason, $publicreason, $adminreason, $postdata, $duration, $bannedby));
 	}
 
-	function delban($ip)
+	function delban($id, $reason="None provided")
 	{
 		/*
-		Simply deletes a banned IP from the database.
+		Simply deletes a ban from the database.  It will be moved to the ban history table.
+		
 		Parameters:
-			int $ip
-		The ip2long'd IP to delete.
+			int $id
+		The ID of the ban to delete.
+			string $reason
+		Why the ban is getting lifted
 		*/
-		$this->myquery("delete from " . THbans_table . " where ip=" . $ip);
+		
+		$singleban = $this->myassoc("select * from " . THbans_table . " where id=" . intval($id));
+		
+		if( $singleban )
+		{
+			// Move to the ban history table
+			$history = "insert into `".THbanhistory_table."` 
+			set ip_octet1=" . $singleban['ip_octet1'] . ",
+			ip_octet2=" . $singleban['ip_octet2'] . ",
+			ip_octet3=" . $singleban['ip_octet3'] . ",
+			ip_octet4=" . $singleban['ip_octet4'] . ",
+			privatereason='" . $this->clean($singleban['privatereason']) . "', 
+			publicreason='" . $this->clean($singleban['publicreason']) . "', 
+			adminreason='" . $this->clean($singleban['adminreason']) . "', 
+			postdata='" . $this->clean($singleban['postdata']) . "', 
+			duration='" . $singleban['duration'] . "', 
+			bantime=" . $singleban['bantime'] . ", 
+			bannedby='" . $singleban['bannedby'] . "',
+			unbaninfo='" . $this->clean($reason) . "'";
+		
+			$this->myquery($history);
+		
+			$this->myquery("delete from " . THbans_table . " where id=" . intval($id));
+		}
+	}
+	
+	function getbanfromid($id)
+	{
+		/*
+		Retrieve a ban from the database based on ID
+		Parameters:
+			int $id
+		The ID of the ban
+		
+			Returns:
+		An array with the ban data
+		*/
+		
+		return $this->myassoc("select * from " . THbans_table . " where id=" . intval($id));
+	}
+	
+	function getiphistory($ip)
+	{
+		/*
+			Get ban history information for a particular IP.  Note that this does not include active bans.
+			
+			Parameters:
+				int $ip
+			The IP address.  long2ip will be used on it.
+			
+			Returns:
+				An array of assoc-arrays
+		*/
+			
+		// Break up into octets
+		$octets = explode(".", long2ip($ip), 4);
+
+		//Retrieve the bans
+		$bans = $this->mymultiarray("select * from `" . THbanhistory_table . "` where 
+			`ip_octet1`=" . intval($octets[0]) . " 
+			&& `ip_octet2`=" . intval($octets[1]) . " 
+			&& (`ip_octet3`=" . intval($octets[2]) . " || `ip_octet3` = -1 )
+			&& (`ip_octet4`=" . intval($octets[3]) . " || `ip_octet4` = -1 )");
+		
+		return $bans;
 	}
 
 	function getallbans()
@@ -172,10 +285,11 @@ class ThornModDBI extends ThornDBI
 		$baddies = array ();
 		$baddies = $this->mymultiarray("select * from " . THbans_table);
 
-		foreach ($baddies as $row)
-		{
-			$row['subnet'] = (bool) $row['subnet'];
-		}
+		// Rendered unnecessary with our new ban format!
+		// foreach ($baddies as $row)
+		// {
+			// $row['subnet'] = (bool) $row['subnet'];
+		// }
 		return ($baddies);
 	}
 
