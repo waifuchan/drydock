@@ -27,7 +27,7 @@
 			} else {
 				$archivelink = '<a class="info" href="'.THurl.'drydock.php?b=';
 			}			
-		 $archivelink = .getboardname(THnewsboard).'">Full News Archive</a>';  //make our link
+		 $archivelink = $archivelink.getboardname(THnewsboard).'">Full News Archive</a>';  //make our link
 		echo '<div align="center" style="font-family:verdana,century;font-size:10px">- '.$archivelink." -<br></div>\n";
 	} else {
 		echo "<br />This site is powered by the drydock image board script.";
