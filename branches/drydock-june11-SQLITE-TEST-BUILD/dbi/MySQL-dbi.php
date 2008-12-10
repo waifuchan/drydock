@@ -559,4 +559,5 @@ require_once ("MySQL-mod.php"); //ThornModDBI
 require_once ("MySQL-post.php"); //ThornPostDBI
 require_once ("MySQL-thread.php"); //ThornThreadDBI
 require_once ("MySQL-profile.php"); // ThornProfileDBI
+require_once ("MySQL-tools.php"); // ThornToolsDBI
 ?>

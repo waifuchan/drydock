@@ -553,4 +553,5 @@ require_once ("SQLite-mod.php"); //ThornModDBI
 require_once ("SQLite-post.php"); //ThornPostDBI
 require_once ("SQLite-thread.php"); //ThornThreadDBI
 require_once ("SQLite-profile.php"); // ThornProfileDBI
+require_once ("SQLite-tools.php"); // ThornToolsDBI
 ?>
