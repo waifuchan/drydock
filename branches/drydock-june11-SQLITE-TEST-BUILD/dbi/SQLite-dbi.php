@@ -18,7 +18,7 @@ require_once ("common.php");
 define("DDDEBUG",1);
 
 
-class ThornDBI
+class ThornDBI implements absThornDBI
 {
 	function ThornDBI()
 	{
@@ -27,10 +27,40 @@ class ThornDBI
 			$this->cxn = THdblitefn or THdie($sqliteerror);
 		}
 	}
+	
+	/*  suggested by Mell03d0ut from anonib - edited by us to add new ideas */
+	function escape_string($call)
+	{
+		if(DDDEBUG==1) { echo "0: $call<br>"; }
+		$call = htmlspecialchars($call);
+		if(DDDEBUG==1) { echo "1: $call<br>"; }
+		if (get_magic_quotes_gpc() == 0)
+		{
+			$call = sqlite_escape_string($call);
+			if(DDDEBUG==1) { echo "2: $call<br>"; }
+		}
+		$call = trim($call);
+		if(DDDEBUG==1) { echo "3: $call<br>"; }
+		$call = str_replace("\'", "&#039;", $call);
+		if(DDDEBUG==1) { echo "4: $call<br>"; }
+		$call = str_replace("\&quot;", "&#034;", $call);
+		if(DDDEBUG==1) { echo "5: $call<br>"; }
+		return ($call);
+	}
+	
+	/*  provided by Mell03d0ut from anonib */
+	function clean($call)
+	{
+		$call = escape_string($call);
+		$call = trim($call);
+		return ($call);
+	}	
+	
 	function lastid()
 	{
 		sqlite_last_insert_rowid( THdblitefn );
 	}
+	
 	function getvisibleboards()
 	{
 		/*
@@ -54,26 +84,6 @@ class ThornDBI
 		return ($this->myassoc("select * from " . THboards_table . " where folder='" . intval($b) ."'"));
 	}
 	
-	/*  suggested by Mell03d0ut from anonib - edited by us to add new ideas */
-	function escape_string($call)
-	{
-		if(DDDEBUG==1) { echo "0: $call<br>"; }
-		$call = htmlspecialchars($call);
-		if(DDDEBUG==1) { echo "1: $call<br>"; }
-		if (get_magic_quotes_gpc() == 0)
-		{
-			$call = sqlite_escape_string($call);
-			if(DDDEBUG==1) { echo "2: $call<br>"; }
-		}
-		$call = trim($call);
-		if(DDDEBUG==1) { echo "3: $call<br>"; }
-		$call = str_replace("\'", "&#039;", $call);
-		if(DDDEBUG==1) { echo "4: $call<br>"; }
-		$call = str_replace("\&quot;", "&#034;", $call);
-		if(DDDEBUG==1) { echo "5: $call<br>"; }
-		return ($call);
-	}
-
 	function myassoc($call)
 	{
 		if(DDDEBUG==1) { echo ("myassoc: " . $call . "<br />"); } 
@@ -538,6 +548,32 @@ class ThornDBI
 		else 
 		{ 
 			return false;
+		}
+	}
+	
+	function addexifdata($exif)
+	{
+		/*
+			Insert metadata info into the extra info table, and return the ID
+			
+			Parameters:
+				string exif
+			The metadata to store
+			
+			Returns:
+				The insert id, or 0 if it failed
+		*/	
+		
+		$ex_inf_result = 
+			$this->myquery("INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".$this->clean($exif)."')");
+		
+		if($ex_inf_result)
+		{
+			return $this->lastid();
+		}
+		else
+		{
+			return 0;
 		}
 	}
 

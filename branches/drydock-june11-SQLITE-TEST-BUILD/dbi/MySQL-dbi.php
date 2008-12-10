@@ -16,8 +16,7 @@ require_once ("config.php");
 require_once ("common.php");
 
 
-
-class ThornDBI
+class ThornDBI implements absThornDBI
 {
 	function ThornDBI($server = THdbserver, $user = THdbuser, $pass = THdbpass, $base = THdbbase)
 	{
@@ -27,10 +26,24 @@ class ThornDBI
 			mysql_select_db($base, $this->cxn) or THdie("DBsel");
 		}
 	}
+	
 	function escape_string($string)
 	{
 		return (mysql_real_escape_string($string));
 	}
+	
+	/*  provided by Mell03d0ut from anonib */
+	function clean($call)
+	{
+		$call = htmlspecialchars($call);
+		if (get_magic_quotes_gpc() == 0)
+		{
+			$call = escape_string($call);
+		}
+		$call = trim($call);
+		return ($call);
+	}
+	
 	function lastid()
 	{
 		mysql_insert_id();
@@ -60,18 +73,6 @@ class ThornDBI
 		return ($this->myassoc("select * from " . THboards_table . " where id=" . intval($id)));
 	}
 	
-	/*  provided by Mell03d0ut from anonib */
-	function clean($call)
-	{
-		$call = htmlspecialchars($call);
-		if (get_magic_quotes_gpc() == 0)
-		{
-			$call = mysql_real_escape_string($call);
-		}
-		$call = trim($call);
-		return ($call);
-	}
-
 	function myassoc($call)
 	{
 		echo("myassoc: $call<br />");
@@ -547,6 +548,32 @@ class ThornDBI
 		}
 	}
 
+	function addexifdata($exif)
+	{
+		/*
+			Insert metadata info into the extra info table, and return the ID
+			
+			Parameters:
+				string exif
+			The metadata to store
+			
+			Returns:
+				The insert id, or 0 if it failed
+		*/	
+		
+		$ex_inf_result = 
+			$this->myquery("INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".$this->clean($exif)."')");
+		
+		if($ex_inf_result)
+		{
+			return $this->lastid();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	
 } //ThornDBI
 
 //===========================================================================================
