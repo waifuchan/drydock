@@ -67,6 +67,7 @@
 			// get out spambot >:[
 			$redhammer = new ThornModDBI();
 			$redhammer->banip(ip2long($_SERVER['REMOTE_ADDR']),0,"Suspected bot.","","Suspected bot.",$_POST['body'], -1, "autoban");
+			THdie("Abnormal reply"); // heh heh
 		}
 	}
 
