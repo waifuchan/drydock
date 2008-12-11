@@ -5,6 +5,7 @@
 	drydock imageboard script (http://code.573chan.org/)
 	File:           dbi/MySQL-mod.php
 	Description:    Code for the ThornModDBI class, based upon the MySQL version of ThornDBI
+	Its abstract interface is in dbi/ABSTRACT-mod.php.
 	
 	Unless otherwise stated, this code is copyright 2008 
 	by the drydock developers and is released under the
@@ -23,31 +24,6 @@ class ThornModDBI extends ThornDBI
 
 	function banip($ip, $subnet, $privatereason, $publicreason, $adminreason, $postdata, $duration, $bannedby)
 	{
-		/*
-		This adds a banned IP to the database. It checks to see if the IP is already banned first.
-		
-		Parameters:
-			int $ip
-		The ip2long'd IP to ban.   Additionally, a string is acceptable.  If is_int($ip) is true it will be converted
-		back into a string.
-			int $subnet
-		0 to ban no subnet, 1 to ban the subnet, 2 to ban the class C subnet (be careful with this)
-			string $privatereason
-		What reason will the user see for being banned?
-			string $publicreason
-		What reason will be publically shown?
-			string $publicreason
-		What reason will be the admins see for being banned?
-			string $postdata
-		What post was the user banned for?
-			int $duration
-		How long will the ban be? (-1 = perma, 0 = warning, everything else is in hours)
-			string $bannedby
-		Who is responsible for the banning?
-		
-			Returns: bool $added (will be false if IP was already in the database.)
-		*/
-		
 		if ($this->checkban($ip) && $subnet == 0) // Check if it's a ban for a specific IP that's already covered by a subnet (the reverse is OK)
 		{
 			return (false);
@@ -97,41 +73,6 @@ class ThornModDBI extends ThornDBI
 
 	function banbody($id, $isthread, $publicbanreason = "USER HAS BEEN BANNED FOR THIS POST")
 	{
-		//adds (USER HAS BEEN BANNED FOR THIS POST) in big red text
-
-		/*
-			Fix from thorn discussion board from anonib guy
-			
-				On the new page, everythign is exactly the same as the old "mod ban/delete" thing, except for how long someone is banned.
-				So just copy the whole mod thing over from reply.php/thread.php
-		
-				I then added this into the code: $thehours=(int)(($_POST['bandays'] * 24) + $_POST['banhours']);
-		
-				{following code block was posted}
-		
-			now, we need to be able to customize our ban reasons.  Andrew I think has the mod window done except for a few things or something
-			I'm not sure what the exact problem was.
-			
-			so we'll use $publicbanreason in the threads, which will follow this format, which basically will just add our crap to it:
-			
-			$publicbanreason="<br><br><b><font color=red>(".$publicbanreason.")</font></b>";
-			we may want to not hard code the text as being red, and leave it up to css to decide what to make it
-			
-			Now, in the mod window, when you click on the ban reason box, javascript will fill out "USER HAS BEEN BANNED FOR THIS POST"
-			as the default, which you can then change to anything
-			
-			The public ban reason is the only one they will see
-			
-			Private ban reason will show up on the admin panel and only be viewable by logged in admin
-			
-			All that the below code does is add the (ban reason).  It doesn't do php banning nor does it actually add to the ban page
-			Stuff I think we need to store for bans
-				private reason
-				public reason
-				ip
-				time
-				post banned for
-		*/
 		if ($publicbanreason)
 		{
 			$publicbanreason = '<br /><br /><b><span class=ban>(' . $publicbanreason . ')</span></b>';
@@ -164,19 +105,6 @@ class ThornModDBI extends ThornDBI
 	
 	function banipfrompost($id, $isthread, $subnet, $privatereason, $publicreason, $adminreason, $duration, $bannedby)
 	{
-		/*
-		Bans an IP or subnet by fetching the naughty IP from a post or thread. Calls banip().
-		Parameters:
-			int $id
-		The ID number of the naughty thread or post.
-			bool $isthread
-		If true, $id refers to a thread. If false, it refers to a post.
-			bool $subnet
-		If true, ban the IP's subnet. See banip() for more info on banning subnets.
-			string $reason
-		Again, see banip().
-			Returns: bool $added (will be false if IP was already banned.)
-		*/
 		if ($isthread)
 		{
 			$q1 = "select ip from " . THthreads_table . " where id=" . $id;
@@ -199,17 +127,7 @@ class ThornModDBI extends ThornDBI
 	}
 
 	function delban($id, $reason="None provided")
-	{
-		/*
-		Simply deletes a ban from the database.  It will be moved to the ban history table.
-		
-		Parameters:
-			int $id
-		The ID of the ban to delete.
-			string $reason
-		Why the ban is getting lifted
-		*/
-		
+	{	
 		$singleban = $this->myassoc("select * from " . THbans_table . " where id=" . intval($id));
 		
 		if( $singleban )
@@ -236,33 +154,12 @@ class ThornModDBI extends ThornDBI
 	}
 	
 	function getbanfromid($id)
-	{
-		/*
-		Retrieve a ban from the database based on ID
-		Parameters:
-			int $id
-		The ID of the ban
-		
-			Returns:
-		An array with the ban data
-		*/
-		
+	{		
 		return $this->myassoc("select * from " . THbans_table . " where id=" . intval($id));
 	}
 	
 	function getiphistory($ip)
-	{
-		/*
-			Get ban history information for a particular IP.  Note that this does not include active bans.
-			
-			Parameters:
-				int $ip
-			The IP address.  long2ip will be used on it.
-			
-			Returns:
-				An array of assoc-arrays
-		*/
-			
+	{	
 		// Break up into octets
 		$octets = explode(".", long2ip($ip), 4);
 
@@ -278,10 +175,6 @@ class ThornModDBI extends ThornDBI
 
 	function getallbans()
 	{
-		/*
-		Simply returns all ban information. Intended for use to render the ban management admin page.
-		No parameters.
-		*/
 		$baddies = array ();
 		$baddies = $this->mymultiarray("select * from " . THbans_table);
 
@@ -295,17 +188,6 @@ class ThornModDBI extends ThornDBI
 
 	function delpost($id, $isthread)
 	{
-		/*
-		Deletes a post or thread. If $isthread, all posts in the thread will be deleted to. In addition, if the deleted post(s) had images, we need to delete the
-		relevant image information from the database.
-		Parameters:
-			int $id
-		The ID number of the offending post.
-			bool $isthread
-		blah blah yadda yadda
-			Returns: array $affected-images, a one-dimensional array of image indexes that need to be deleted. This array is passed to a function in Thorn that deletes images.
-			(Note that this is separate from image INFORMATION, which is stored in the database; the actual images are stored in a directory on disk.)
-		*/
 		if ($isthread)
 		{
 			$rezs = $this->myquery("select distinct imgidx from " . THreplies_table . " where thread=" . $id . " && imgidx!=0");
@@ -373,17 +255,6 @@ class ThornModDBI extends ThornDBI
 
 	function delip($ip, $delsub = false)
 	{
-		/*
-		Deletes all posts from an IP. If the IP created threads, all posts from those threads are deleted too. If $delsub, all posts from the
-		subnet are fragged. If any if the fragged posts contain images, that image info is removed from the database, and the image indexes
-		are stored in an array to be passed to Thorn's image deletion function.
-		Parameters:
-			int $ip
-		blah blah
-			bool $delsub=false
-		yadda yadda
-			Returns: array $affected-images
-		*/
 		if ($delsub)
 		{
 			$sub = ipsub($ip);
@@ -450,14 +321,6 @@ class ThornModDBI extends ThornDBI
 
 	function delipfrompost($id, $isthread, $subnet = false)
 	{
-		/*
-		Gets the IP of a post for which we want to delete all posts from that IP. Yeah. Like banipfrompost().
-		Parameters:
-		(If you've been following along, you can probably guess what all these params do by now.)
-			int $id
-			bool $isthread
-			bool $subnet
-		*/
 		if ($isthread)
 		{
 			$ip = $this->myresult("select ip from " . THthreads_table . " where id=" . $id);
@@ -471,10 +334,6 @@ class ThornModDBI extends ThornDBI
 
 	function updateboards($boards)
 	{
-		/*
-		You know, I'm getting tired of typing all these things up for every simple little function. If you can't
-		figure out by yourself what this does, quit programming. Forever. Now.
-		*/
 		$max = $this->myresult("select max(id) from " . THboards_table) + 1;
 		$this->myquery("delete from " . THboards_table);
 		$changeroo = array ();
@@ -504,14 +363,6 @@ class ThornModDBI extends ThornDBI
 
 	function fragboard($board)
 	{
-		/* 
-		This deletes all the threads, posts and image info from a certain board. This is in case we're deleting the board;
-		we wanna frag all the images on the board too. It returns a list of the image indexes so that they can be deleted off of the disk by Thorn.
-		Parameters:
-			$board
-		duh
-			Returns: array $imgidxes (one-dimensional)
-		*/
 		$imgidxes = array ();
 		$hare = $this->myquery("select distinct imgidx from " . THthreads_table . " where board=" . $board . " && imgidx!=0");
 		while ($xyz = mysql_fetch_assoc($hare))
@@ -535,19 +386,6 @@ class ThornModDBI extends ThornDBI
 
 	function insertBCW($type = -1, $field1 = "", $field2 = "", $field3 = "")
 	{
-		/*
-			Insert either a blotter post, capcode, or wordfilter, based upon the passed type parameter
-			Parameters:
-				int type
-			What to insert.  1 for blotter posts, 2 for capcodes, 3 for wordfilters.
-				string field1, field2, field3
-			Different fields to insert- the usage of which differs between types.  Look at the comments
-			in the switch structure to determine what each parameter should be.
-			
-			Returns:
-				The resulting insertion ID.
-		*/
-
 		$type = intval($type);
 		switch ($type)
 		{
@@ -585,20 +423,6 @@ class ThornModDBI extends ThornDBI
 
 	function updateBCW($type = -1, $id, $field1 = "", $field2 = "", $field3 = "")
 	{
-		/*
-			Update either a blotter post, capcode, or wordfilter, based upon the passed type parameter
-			Parameters:
-				int type
-			What to insert.  1 for blotter posts, 2 for capcodes, 3 for wordfilters.
-				int id
-			The ID corresponding with the item to update.
-				string field1, field2, field3
-			Different fields to update- the usage of which differs between types.  Look at the comments
-			in the switch structure to determine what each parameter should be.
-			
-			Returns:
-				Nothing
-		*/
 		$type = intval($type);
 
 		// It is assumed that all of these will have some sort of ID by which to identify what to update, therefore it is not listed in the FIELD comments.
@@ -636,17 +460,6 @@ class ThornModDBI extends ThornDBI
 
 	function deleteBCW($type = -1, $id)
 	{
-		/*
-			Delete either a blotter post, capcode, or wordfilter, based upon the passed type parameter
-			Parameters:
-				int type
-			What type of item to delete.  1 for blotter posts, 2 for capcodes, 3 for wordfilters.
-				int id
-			The ID corresponding with the item to delete.
-			
-			Returns:
-				Nothing
-		*/
 		$type = intval($type);
 		switch ($type)
 		{
@@ -672,15 +485,6 @@ class ThornModDBI extends ThornDBI
 
 	function fetchBCW($type = -1)
 	{
-		/*
-			Retrieve either all blotter posts, capcodes, or wordfilters, based upon the passed type parameter
-			Parameters:
-				int type
-			What type of items to select.  1 for blotter posts, 2 for capcodes, 3 for wordfilters.
-			
-			Returns:
-				An array of items
-		*/
 		$type = intval($type);
 		switch ($type)
 		{

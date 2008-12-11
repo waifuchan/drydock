@@ -5,6 +5,7 @@
 	drydock imageboard script (http://code.573chan.org/)
 	File:           dbi/SQLite-post.php
 	Description:    Code for the ThornPostDBI class, based upon the SQLite version of ThornDBI
+	Its abstract interface is in dbi/ABSTRACT-post.php.
 	
 	Unless otherwise stated, this code is copyright 2008 
 	by the drydock developers and is released under the
@@ -22,46 +23,12 @@ class ThornPostDBI extends ThornDBI
 
 	function gettinfo($t)
 	{
-		/*
-			Basically, just gets the thread head. Getting images are not necessary.
-			Parameters:
-				int $t
-			The thread to fetch.
-				Returns: array $thread
-		*/
 		return ($this->myassoc("select * from " . THthreads_table . " where id=" . intval($t)));
 	}
 
 
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false)
 	{
-		/*
-			Posts a new thread, and updates the respective board's last post time. Note that the storing of image information is done in a separate function, putimgs().
-			Parameters:
-				string $name
-			The poster's name.
-				string $tpass
-			The poster's encoded tripcode.
-				int $board
-			The board this thread will go into.
-				string $title
-			The title of this new thread.
-				string $body
-			The body text of this new thread.
-				string $link
-			The link field of this new thread
-				int $ip
-			The ip2long()'d IP of the poster.
-				bool $mod
-			Is the poster a mod or admin? (For future feature; currently ignored by this DBI as well as the included templates.)
-				bool $pin
-			Should the thread be pinned? (Since MySQL doesn't support booleans, this is stored as a 0 or 1 in an integer column.)
-				bool $lock
-			Should the thread be locked? (Ditto)
-				int $tyme
-			Time of post (now if set to false)
-				Returns: int $thread-id
-		*/
 		if ($tyme === false)
 		{
 			$tyme = time() + (THtimeoffset * 60);
@@ -117,27 +84,6 @@ class ThornPostDBI extends ThornDBI
 
 	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $tyme = false)
 	{
-		/*
-			Posts a reply to a thread, updates the "bump" column of the relevant thread, and updates the last post time of the relevant board. Note that, as with putthread, images are stored using the separate putimgs() function.
-			Parameters:
-				string $name
-			The poster's name.
-				string $tpass
-			The poster's encoded tripcode.
-				string $link
-			The poster's link (could be mailto, could be something similar, who knows!)
-				int $board
-			The board to which this post's thread belongs.
-				int $thread
-			The thread for which this post is a reply.
-				string $body
-			This post's body text.
-				int $ip
-			The ip2long()'d IP address of the poster.
-				bool $mod
-			Is the poster a mod or admin? (For future feature; currently ignored by this DBI as well as the included templates.)
-				Returns: int $post-id
-		*/
 		$q = "INSERT INTO " . THreplies_table . " (thread,board,body";
 		$v = " ) VALUES (" . $thread . ",'" . intval($board) . "','";
 		$v .= $this->escape_string($body);
@@ -190,36 +136,6 @@ class ThornPostDBI extends ThornDBI
 
 	function putimgs($num, $isthread, $files)
 	{
-		/*
-		Puts image information into the database, then updates the relevant thread or post with the image data's image index.
-		Parameters:
-			int $num
-		The ID number of the post or thread to which we are putting images.
-			bool $isthread
-		Is $num referring to a post or a thread?
-			array $files
-		An array containing information about the images we're uploading. The parameters are:
-				string $file['hash']
-			The sha1 hash of the image file.
-				string $file['name']
-			The image's filename.
-				int $file['width']
-			The width in pixels of the image.
-				int $file['height']
-			Take a wild guess...
-				string $file['tname']
-			The name of the image's thumbnail.
-				int $file['twidth']
-			The thumbnail's width in pixels.
-				int $file['theight']
-			Whatever this is, it is absolutely NOT the height of the thumbnail in pixels. That's just what they WANT you to think...
-				int $file['fsize']
-			The image's filesize in K, rounded up.
-				bool $file['anim']
-			Is the image animated?
-			Returns: int $image-index
-		*/
-
 		$id = $this->myresult("select max(id) from " . THimages_table) + 1;
 		foreach ($files as $file)
 		{
@@ -275,14 +191,6 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 
 	function purge($boardid)
 	{
-		/*
-		Purges a board after a new thread is posted. It would be nice if we could include this with the putthread() function, 
-		but both these functions need to return very important and very separate things...
-		Parameters:
-			int $boardid
-		The ID of the board we're purging.
-			Returns: array $images-from-deleted-threads (to be deleted from the disk by Thorn)
-		*/
 		$board = $this->getbinfo($boardid);
 		if ($this->myresult("select count(*) from " . THthreads_table . " where board=" . $board['id'] . " and pin=0") > $board['tmax'])
 		{
@@ -319,13 +227,6 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 
 	function dupecheck($hashes)
 	{
-		/*
-		A simple function to check to see if any of the sha1 hashes in $hashes are already present. 
-		Parameters:
-			array $hashes
-		A one-dimensional string array of hashes.
-			Returns: int $num-found-hashes (For other DBIs, returning just true or false should suffice -- the count really isn't important.)
-		*/
 		if (count($hashes) > 0)
 		{
 			return ($this->myresult("select count(*) from " . THimages_table . " where hash in ('" . implode("','", $hashes) . "')"));
@@ -338,14 +239,6 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 	
 	function getglobalid($board)
 	{
-		/*
-			This function gets a new global id for the specified board.  It will increment the current id by one.
-			Parameters:
-				string $board
-			The folder name of the board
-			
-			Returns: int representing this new ID
-		*/
 		$sql = "select globalid from " . THboards_table . " where folder='" . $this->escape_string($board) ."'";
 		$globalid = $this->myresult($sql);
 		$globalid++;
@@ -356,22 +249,6 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 	
 	function getpostlocation($threadid, $postid = -1)
 	{
-		/*
-			This function gets global IDs for a particular thread and possibly a particular reply.
-			If the post ID is not provided it gets treated as a thread lookup.  
-			
-			Parameters:
-				int $threadid
-			The ID of the thread
-				int $postid
-			The ID of the post, defaults to -1.
-
-				
-			Returns: 
-			If postid is defined, returns an array with the elements 'post_loc' and 'thread_loc'.
-			If postid is not defined, returns an array with the element 'thread_loc'.
-		*/
-		
 		$location = array();
 		
 		if ( $postid > -1 ) // Retrieving information for a reply

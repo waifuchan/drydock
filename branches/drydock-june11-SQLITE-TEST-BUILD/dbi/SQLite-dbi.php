@@ -5,6 +5,7 @@
 	drydock imageboard script (http://code.573chan.org/)
 	File:           dbi/SQLite.php
 	Description:    Handles interface between database and board functions using a SQLite database
+	Its abstract interface is in dbi/ABSTRACT-dbi.php.
 	
 	Unless otherwise stated, this code is copyright 2008 
 	by the drydock developers and is released under the
@@ -64,24 +65,11 @@ class ThornDBI implements absThornDBI
 	
 	function getvisibleboards()
 	{
-		/*
-			Retrieve an array of assoc-arrays for all visible boards
-												
-			Returns:
-				An array of assoc-arrays
-		*/
-		
 		return $this->mymultiarray("SELECT * FROM " . THboards_table . " WHERE hidden != 1 order by folder asc");
 	}
+	
 	function getbinfo($b)
 	{
-		/*
-			Another simple function. This just gets information about a board.
-			Parameters:
-				int $b
-			The board to fetch.
-				returns: array $board
-		*/
 		return ($this->myassoc("select * from " . THboards_table . " where folder='" . intval($b) ."'"));
 	}
 	
@@ -96,6 +84,7 @@ class ThornDBI implements absThornDBI
 		}
 		return ($dog);
 	}
+	
 	//in mysql this is the same as above but sometimes sqlite craps itself and i don't want to work on it anymore
 	function myarray($call)
 	{
@@ -133,16 +122,6 @@ class ThornDBI implements absThornDBI
 	function mymultiarray($call)
 	{
 		if(DDDEBUG==1) { echo ("mymultiarray: " . $call . "<br />"); } 
-		/*
-		Encapsulate executing a query and iteratively calling myarray on the result.
-		
-		Parameters:
-			string call
-		The SQL query to execute
-		
-		Returns:
-			An array of associative arrays (can be size 0)
-		*/
 
 		$multi = array ();
 
@@ -211,13 +190,6 @@ class ThornDBI implements absThornDBI
 
 	function getimgs($imgidx)
 	{
-		/*
-		Get the images associated with a certain post by its image index.
-		Parameters:
-			int $imgidx
-		The image index to search for.
-			Returns: array $images (blank array if none)
-		*/
 		if ($imgidx == 0 || $imgidx == null)
 		{
 			return (array ());
@@ -233,13 +205,6 @@ class ThornDBI implements absThornDBI
 
 	function getblotter($board)
 	{
-		/*
-		Get the latest blotter entries perhaps associated with a certain board
-		Parameters:
-			int $board
-		The board for which the entries are being retrieved
-			Returns: array $entries (blank array if none)
-		*/
 		$entries = array ();
 		$count = 0;
 		$blotter = $this->myquery("select * from " . THblotter_table . " ORDER BY time ASC");
@@ -261,17 +226,6 @@ class ThornDBI implements absThornDBI
 
 	function getindex($p, & $sm)
 	{
-		/*
-			Returns an index of the boards.
-			Parameters:
-				bool $p['full']=false
-			If true, all board information will be fetched. If false, only the board ID, name and description ('about') are returned.
-				string $p['sortmethod']="id"
-			If "id", boards are sorted by ID number. If "name", boards are sorted by name. If "last", boards are sorted by last post time.
-				bool $p['desc']=false
-			If true, the boards are returned in descending order.
-				Returns: array $boards (blank if none)
-		*/
 		if (isset ($p['full']) == false)
 		{
 			$p['full'] = false;
@@ -321,22 +275,7 @@ class ThornDBI implements absThornDBI
 	}
 
 	function checkban($ip = null)
-	{
-		
-		/*
-			Check to see if an IP is banned. Will check both the actual IP and the IP's last
-			two subnets.
-			
-			Parameters:
-				int $ip
-			The IP address.  If it comes in as an int, long2ip will be used.  If it comes in as a string,
-			nothing will be done to it.  If it comes in as null, $_SERVER['REMOTE_ADDR'] will
-			be used by default.
-			
-			Returns:
-				bool $banned
-		*/
-		
+	{		
 		// If it's null
 		if ($ip == null)
 		{
@@ -369,21 +308,6 @@ class ThornDBI implements absThornDBI
 
 	function getban($ip = null)
 	{
-		/*
-			Get ban information for a particular IP.  If the ban is a warning, or if
-			the ban has expired, the ban will additionally be moved out of the active bans table
-			and into the ban history table.
-			
-			Parameters:
-				int $ip
-			The IP address.  If it comes in as an int, long2ip will be used.  If it comes in as a string,
-			nothing will be done to it.  If it comes in as null, $_SERVER['REMOTE_ADDR'] will
-			be used by default.
-			
-			Returns:
-				An assoc-array
-		*/
-		
 		// If it's null
 		if ($ip == null)
 		{
@@ -469,18 +393,6 @@ class ThornDBI implements absThornDBI
 	
 	function getboard($id = 0, $folder = "")
 	{
-		/*
-			Get board information, will optionally filter by id and/or folder
-			Parameters:
-				int id 
-			The board ID to optionally filter by
-				string folder
-			The board filter to optionally filter by
-			
-			Returns:
-				array containing board info
-		*/
-
 		$querystring = "select * from " . THboards_table . " where ";
 		$id = intval($id); // Make it explicitly an integer
 
@@ -506,16 +418,6 @@ class ThornDBI implements absThornDBI
 	
 	function getboardname($number)
 	{
-		/*
-			Get the folder name of a board from an ID
-			Parameters:
-				int id 
-			The board ID
-			
-			Returns:
-				The board folder, or null if it does not exist
-		*/
-		
 		$boardquery = "SELECT folder FROM ".THboards_table." WHERE id =".intval($number);
 		$name = $this->myresult($boardquery);
 		if($name != null)
@@ -530,16 +432,6 @@ class ThornDBI implements absThornDBI
 
 	function getboardnumber($folder)
 	{
-		/*
-			Get the ID of a board from an folder
-			Parameters:
-				string folder
-			The board folder
-			
-			Returns:
-				The board ID, or null if it does not exist
-		*/
-		
 		$boardquery = "SELECT id FROM ".THboards_table." WHERE folder ='".$this->escape_string($folder)."'";
 		$number = $this->myresult($boardquery);
 		if($number != null)
@@ -554,17 +446,6 @@ class ThornDBI implements absThornDBI
 	
 	function addexifdata($exif)
 	{
-		/*
-			Insert metadata info into the extra info table, and return the ID
-			
-			Parameters:
-				string exif
-			The metadata to store
-			
-			Returns:
-				The insert id, or 0 if it failed
-		*/	
-		
 		$ex_inf_result = 
 			$this->myquery("INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".$this->clean($exif)."')");
 		

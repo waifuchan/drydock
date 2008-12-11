@@ -11,6 +11,11 @@
 	http://www.opensource.org/licenses/artistic-license-2.0.php
 */
 
+/**
+ * The base DBI class for database queries.  All other DBIs are
+ * extensions of this base class.  Ideally it should only have
+ * code that's common to multiple sections.
+ */
 interface absThornDBI
 {
 	/**

@@ -5,6 +5,7 @@
 	drydock imageboard script (http://code.573chan.org/)
 	File:           dbi/SQLite-thread.php
 	Description:    Code for the ThornThreadDBI class, based upon the SQLite version of ThornDBI
+	Its abstract interface is in dbi/ABSTRACT-thread.php.
 	
 	Unless otherwise stated, this code is copyright 2008 
 	by the drydock developers and is released under the
@@ -24,21 +25,9 @@ class ThornThreadDBI extends ThornDBI
 		$this->binfo = $this->myassoc("select * from " . THboards_table . " where id=" . $this->head['board']);
 		$this->blotterentries = $this->getblotter($binfo['id']);
 	}
+	
 	function getreplies($p, & $sm)
 	{
-		/*
-		Returns the replies for this thread.
-		Parameters:
-			string $p['sortmethod']="time"
-		If "time", posts will be sorted by post time. If "id", they will be sorted by ID number. (Theoretically, each of these will yield the same result.)
-			bool $p['desc']=false
-		If true, posts will be sorted in descending order.
-			bool $p['withhead']=false
-		If true, the thread head will be included in the results. The thread head will be put at the beginning of the array if $p['desc']==false and at the end if $p['desc']==true.
-			bool $p['full']=true
-		If true, the full information from each post is retrieved, including images. If false, only the ID, name, trip and time will be returned.
-			Returns: array $posts
-		*/
 		if (isset ($p['sortmethod']) == false)
 		{
 			$p['sortmethod'] = "time";

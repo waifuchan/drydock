@@ -5,6 +5,7 @@
 	drydock imageboard script (http://code.573chan.org/)
 	File:           dbi/SQLite-board.php
 	Description:    Code for the ThornBoardDBI class, based upon the SQLite version of ThornDBI
+	Its abstract interface is in dbi/ABSTRACT-board.php.
 	
 	Unless otherwise stated, this code is copyright 2008 
 	by the drydock developers and is released under the
@@ -29,19 +30,6 @@ class ThornBoardDBI extends ThornDBI
 
 	function getallthreads($p, & $sm)
 	{
-		/*
-		Get all threads on this board.
-		Parameters:
-			bool $p['full']=false
-		If false, only basic information about the threads will be returned. If true, all information including body text and images for each thread head will be returned.
-			string $p['sortmethod']="bump"
-		If "bump", threads will be sorted by bump (most recent reply). If "time", they will be sorted by date. If "title", they will be sorted by title alphabetically. If "id", they will be sorted by ID number.
-			bool $p['desc']=true
-		If true, threads will be sorted in descending order.
-			bool $p['date']=false
-		If true, perform a getdate() call on each entry and put result in a 'date' array with each entry.
-			Returns: array $threads
-		*/
 		if (isset ($p['full']) == false)
 		{
 			$p['full'] = false;
@@ -148,17 +136,6 @@ class ThornBoardDBI extends ThornDBI
 
 	function getsthreads($p, & $sm)
 	{
-		/*
-		Get sample threads for this board -- the ones intended to be shown in the main area of the page, with the last $binfo['perth'] replies per thread.
-		Parameters:
-			string $p['sortmethod']="bump"
-		If "bump", threads will be sorted by bump (most recent reply). If "time", they will be sorted by date. If "title", they will be sorted by title alphabetically. If "id", they will be sorted by ID number.
-			bool $p['tdesc']=true
-		If true, threads will be sorted in descending order.
-			bool $p['rdesc']=false
-		If true, replies will be sorted in descending order. (Replies are always sorted by time.)
-			Returns: array $sthreads
-		*/
 		if (isset ($p['sortmethod']) == false)
 		{
 			$p['sortmethod'] = "bump";

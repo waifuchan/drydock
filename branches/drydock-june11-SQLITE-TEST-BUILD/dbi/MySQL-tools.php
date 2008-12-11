@@ -6,6 +6,7 @@
 	File:           dbi/MySQL-tools.php
 	Description:    Code for the ThornToolsDBI class, based upon the MySQL version of ThornDBI.
 	ThornToolsDBI is used for things such as recentposts.php and recentpics.php.
+	Its abstract interface is in dbi/ABSTRACT-tools.php.
 	
 	Unless otherwise stated, this code is copyright 2008 
 	by the drydock developers and is released under the
@@ -27,22 +28,7 @@ class ThornToolsDBI extends ThornDBI
 	}
 	
 	function getpostscount($get_threads, $board, $showhidden)
-	{
-		/*
-			Retrieve a post count based on the specified filtering parameters
-			Parameters:
-				bool get_threads
-			True if threads are being retrieved
-				int board
-			The ID of the board, -1 to perform no filtering by board
-				bool showhidden
-			Include posts that have been hidden already
-			
-			Returns:
-				An integer indicating the number of posts which fulfill this criteria
-		*/
-
-		
+	{	
 		$boardquery = "";
 		
 		// Handle board filtering first
@@ -88,24 +74,7 @@ class ThornToolsDBI extends ThornDBI
 	}
 	
 	function getposts($offset, $get_threads, $board, $showhidden)
-	{
-		/*
-			Retrieve an array of assocs containing post data
-			Parameters:
-				int offset 
-			The offset from which to start (for paging through multiple threads)
-				bool get_threads
-			True if threads are being retrieved
-				int board
-			The ID of the board, -1 to perform no filtering by board
-				bool showhidden
-			Include posts that have been hidden already
-			
-			Returns:
-				array of assoc-arrays containing post data - replies will have an additional "thread_globalid" entry
-		*/
-
-		
+	{	
 		$boardquery = "";
 		
 		// Handle board filtering first
