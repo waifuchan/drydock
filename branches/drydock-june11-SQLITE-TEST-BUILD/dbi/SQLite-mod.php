@@ -312,30 +312,147 @@ class ThornModDBI extends ThornDBI
 		}
 		return ($this->delip($ip, $subnet));
 	}
+	
+	function makeboard($name, $folder, $about, $rules)
+	{
+		// Set up some default values
+		$globalid=0;
+		$perpg=20;
+		$perth=4;
+		$hidden=1;
+		$allowedformats=7;
+		$forced_anon=0;
+		$filter=1;
+		$maxfilesize=2097152;
+		$allowvids=0;
+		$customcss=0;
+		$requireregistration=0;
+		$boardlayout="drydock-image";
+		$tlock=1;
+		$rlock=1;
+		$tpix=1;
+		$rpix=1;
+		$pixperpost=8;
+		$maxres=3000;
+		$thumbres=150;
+		$tmax=100;
+		$now=(THtimeoffset*60) + time();
+		
+		$query = "INSERT INTO ".THboards_table." ( " .
+				"globalid , " .
+				"name , " .
+				"folder , " .
+				"about , " .
+				"rules , " .
+				"perpg , " .
+				"perth , " .
+				"hidden , " .
+				"allowedformats , " .
+				"forced_anon , " .
+				"maxfilesize ," .
+				"maxres , " .
+				"thumbres , " .
+				"pixperpost , " .
+				"customcss , " .
+				"allowvids , " .
+				"filter , " .
+				"boardlayout , " .
+				"requireregistration , " .
+				"tlock , " .
+				"rlock , " .
+				"tpix , " .
+				"rpix , " .
+				"tmax , " .
+				"lasttime " .
+			")VALUES (".
+				$globalid.",'".
+				$this->escape_string($name)."','".
+				$this->escape_string($folder)."','".
+				$this->escape_string($about)."','".
+				$this->escape_string($rules)."','".
+				$perpg.	"','".
+				$perth."','".
+				$hidden."','".
+				$allowedformats."','".
+				$forced_anon."','".
+				$maxfilesize."','".
+				$maxres."','".
+				$thumbres."','".
+				$pixperpost."','".
+				$customcss."','".
+				$allowvids."','".
+				$filter."','".
+				$boardlayout."','".
+				$requireregistration."','".
+				$tlock."','".
+				$rlock."','".
+				$tpix."','".
+				$rpix."','".
+				$tmax."', ".
+				$now." );";
+				
+		$this->myquery($query);
+		
+		return $this->lastid();
+	}
 
 	function updateboards($boards)
 	{
-		$max = $this->myresult("select max(id) from " . THboards_table) + 1;
-		$this->myquery("delete from " . THboards_table);
-		$changeroo = array ();
+		$boardchanges = array ();
 		foreach ($boards as $board)
 		{
+			// Just a precautionary measure.
+			if( $board['oldid'] == null || $board['oldid'] < 1)
+			{
+				$board['oldid'] = $board['id'];
+			}
+			
 			if ($board['oldid'] != $board['id'])
 			{
+				$max = $this->myresult("select max(id) from " . THboards_table) + 1;
+				
 				//Way to keep posts and threads on their intended board. A bit hackneyed, but should work.
-				$changeroo[] = array (
+				$boardchanges[] = array (
 					"now" => $max,
 					"to" => $board['id']
 				);
+				
 				$this->myquery("update " . THthreads_table . " set board=" . $max . " where board=" . $board['oldid']);
 				$this->myquery("update " . THreplies_table . " set board=" . $max . " where board=" . $board['oldid']);
 				$max++;
 			}
-			$query = "insert into " . THboards_table . " set id=" . $board['id'] . ", globalid=" . $board['globalid'] . ", name='" . $this->escape_string($board['name']) . "', folder='" . $this->escape_string($board['folder']) . "', about='" . $this->escape_string($board['about']) . "', rules='" . $board['rules'] . "', perpg=" . $board['perpg'] . ", perth=" . $board['perth'] . ", hidden=" . $board['hidden'] . ", forced_anon=" . $board['forced_anon'] . ", tlock=" . $board['tlock'] . ", rlock=" . $board['rlock'] . ", tpix=" . $board['tpix'] . ", rpix=" . $board['rpix'] . ", tmax=" . $board['tmax'];
+			
+			$query = "update " . THboards_table . " set id=" . $board['id'] 
+				. ", globalid=" . $board['globalid'] 
+				. ", name='" . $this->escape_string($board['name'])
+				. "', folder='" . $this->escape_string($board['folder']) 
+				. "', about='" . $this->escape_string($board['about']) 
+				. "', rules='" . $this->escape_string($board['rules'])
+				. "', boardlayout ='" . $this->escape_string($board['boardlayout'])
+				. "', perpg=" . $board['perpg'] 
+				. ", perth=" . $board['perth'] 
+				. ", allowedformats = ". $board['allowedformats']	
+				. ", tpix=" . $board['tpix'] 
+				. ", rpix=" . $board['rpix'] 
+				. ", tmax=" . $board['tmax'] 							
+				. ", thumbres=" . $board['thumbres']
+				. ", maxfilesize=" . $board['maxfilesize']
+				. ", maxres=" . $board['maxres']
+				. ", pixperpost=" . $board['pixperpost']	
+				. ", forced_anon=" . $board['forced_anon'] 
+				. ", customcss=" . $board['customcss'] 
+				. ", allowvids=" . $board['allowvids'] 
+				. ", filter=" . $board['filter']
+				. ", requireregistration=" . $board['requireregistration'] 
+				. ", hidden=" . $board['hidden'] 
+				. ", tlock=" . $board['tlock'] 
+				. ", rlock=" . $board['rlock'] 
+				. " where id=".$board['oldid'];
+				
 			print_r($query);
 			$this->myquery($query);
 		}
-		foreach ($changeroo as $change)
+		foreach ($boardchanges as $change)
 		{
 			$this->myquery("update " . THthreads_table . " set board=" . $change['to'] . " where board=" . $change['now']);
 			$this->myquery("update " . THreplies_table . " set board=" . $change['to'] . " where board=" . $change['now']);
@@ -363,6 +480,11 @@ class ThornModDBI extends ThornDBI
 		}
 		smclearcache($board, -1, -1, true); // clear EVERYTHING in the cache associated with this board
 		return ($imgidxes);
+	}
+	
+	function removeboard($board)
+	{
+		$this->myquery("DELETE from ".THboards_table." WHERE id=".intval($board));
 	}
 
 	function insertBCW($type = -1, $field1 = "", $field2 = "", $field3 = "")

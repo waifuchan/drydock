@@ -137,9 +137,24 @@ interface absThornModDBI
 	function delipfrompost($id, $isthread, $subnet = false);
 
 	/**
+	 * Set up a new board, assigning default values for most of the
+	 * board settings.
+	 * 
+	 * @param string $name The name of the board
+	 * @param string $folder The folder for the board (should be unique)
+	 * @param string $about A description for the board
+	 * @param string $rules Some initial rules for the board
+	 * 
+	 * @return int The insertion ID for the board
+	 */
+	function makeboard($name, $folder, $about, $rules);
+
+	/**
 	 * Update board information based on the values passed in as the array.
 	 * Change the board field for posts associated with a particular board 
-	 * if that board's ID has changed, for whatever reason.
+	 * if that board's ID has changed, for whatever reason.  If there is a
+	 * change in a board's ID, it should be stored in $board['id'] with the
+	 * previous ID stored in $board['oldid'] or the results will be unexpected.
 	 * 
 	 * @param array $boards An array of assoc-arrays with a board's information in each assoc
 	 */
@@ -150,11 +165,20 @@ interface absThornModDBI
 	 * It will return a list of the image indexes so that they can be deleted
 	 * via some other function.
 	 * 
-	 * @param int $board The ID of the board to frag
+	 * @param name $board The ID of the board to frag
 	 * 
 	 * @return array A one-dimensional array of image indices
 	 */
 	function fragboard($board);
+	
+	/**
+	 * Delete the board entirely.  Note that this is different from fragboard, and
+	 * it will assume you have already called fragboard. Obviously, you should
+	 * be very careful with this function.
+	 * 
+	 * @param int $board The ID of the board to delete
+	 */
+	 function removeboard($board);
 	
 	/**
 	 * Insert either a blotter post (type 1), capcode (type 2), or wordfilter (type 3),

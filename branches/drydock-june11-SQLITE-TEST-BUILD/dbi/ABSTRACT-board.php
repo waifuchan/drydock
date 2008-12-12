@@ -18,8 +18,9 @@
  * Instances of this should probably have board information in an
  * assoc-array stored as the $binfo member.  It might also have a 
  * scalar $payj variable to indicate the current page.  It might also 
- * have date-specific data stored in $on as an array, or possibly
- * even blotter items stored in $blotterentries.
+ * have date-specific data stored in $on as an array (with year,
+ * month, and/or day as possible entries), or possibly even blotter 
+ * items stored in $blotterentries.
  */
 interface absThornBoardDBI
 {

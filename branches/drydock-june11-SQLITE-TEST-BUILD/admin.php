@@ -204,19 +204,23 @@
 			{
 				THdie("ADdbfirst");
 			}
-			$queryresult = $db->myquery("SELECT * FROM ".THcapcodes_table);
-			if ($queryresult!=null)
+			
+			// Retrieve capcodes
+			$capcodes = array();
+			$capcodes = $db->fetchBCW(THbcw_capcode);
+			
+			if(count($capcodes) > 0)
 			{
-				$capcodes=array();
-				while ($capcode=$db->myarray($queryresult))
+				foreach ($capcodes as $capcode)
 				{
-					$capcodes[]=$capcode;
+					$capcode = replacequote($capcode);
 				}
 			}
 			else
 			{
-				$capcodes=null;
+				$capcodes = null;
 			}
+			
 			//print_r($capcodes);
 			//rebuild_capcodes();
 			$sm->assign("capcodes",$capcodes);
@@ -230,19 +234,19 @@
 				THdie("ADdbfirst");
 			}
 
-			$queryresult = $db->myquery("SELECT * FROM ".THfilters_table);
-
-			if ($queryresult!=null)
+			// Retrieve wordfilters
+			$filters = array();
+			$filters = $db->fetchBCW(THbcw_filter);
+			if(count($filters) > 0)
 			{
-				$filters=array();
-				while ($filter=$db->myarray($queryresult))
+				foreach( $filters as $filter )
 				{
-					$filters[]=replacequote($filter);
+					$filter = replacequote($filter);
 				}
 			}
 			else
 			{
-				$filters=null;
+				$filters = null;
 			}
 
 			$sm->assign("filters",$filters);
@@ -254,78 +258,60 @@
 			{
 				THdie("ADdbfirst");
 			}
+			
+			// Use the functions provided to us by this class
+			$profile_dbi = new ThornProfileDBI();
+			
 			//move this over to t=p eventually - tyam
 			if((isset($_GET['action']) && $_GET['action']=="regyes") && isset($_GET['username']))
 			{
-				$db->myquery("UPDATE ".THusers_table.
-					" SET approved=1 WHERE username='".$db->escape_string($_GET['username'])."'");
+				// Approving an account
+						
+				// Use the approvalaction function	
+				$profile_dbi->approvalaction($_GET['username'], "account", true);
+				
 				if(THprofile_emailwelcome)
 				{
-					$email = $db->myresult("SELECT email FROM ".
-					THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
-					sendWelcome($username, $email);
+					$email = $profile_dbi->getemail($_GET['username']);
+					sendWelcome($_GET['username'], $email);
 				}
 			}
 
 			if((isset($_GET['action']) && $_GET['action']=="regno") && isset($_GET['username']))
 			{
-				$query = "UPDATE ".THusers_table.
-				" SET approved='-1' WHERE username='".$db->escape_string($_GET['username'])."'";
-				$db->myquery($query);
+				// Denying an account
+				
+				// Use the approvalaction function	
+				$profile_dbi->approvalaction($_GET['username'], "account", false);
+				
 				if(THprofile_emailwelcome)
 				{
-					$email = $db->myresult("SELECT email FROM ".
-					THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
-					sendFuckOff($username, $email);
+					$email = $profile_dbi->getemail($_GET['username']);
+					sendDenial($_GET['username'], $email);
 				}
 			}
 			if((isset($_GET['action']) && $_GET['action']=="capyes") && isset($_GET['username']))
 			{
-				//update or insert capcode
-				/*
-					check capcode table for match of existing capcode
-					if match found, use update query, else, insert query
-				*/
-				$new_capcode = $db->myresult("SELECT proposed_capcode FROM ".
-				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
+				// Approve a proposed capcode
 				
-				$user_hash = $db->myresult("SELECT capcode FROM ".
-				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
-				
-				$already_there = $db->myresult("SELECT capcode_to FROM ".THcapcodes_table.
-				" WHERE capcode_from='".$db->escape_string($user_hash)."'");
-				
-				if($already_there != null)
-				{
-					$db->myquery("UPDATE ".THcapcodes_table.
-					" SET proposed_capcode='".$db->escape_string($new_capcode).
-					"' WHERE username='".$db->escape_string($_GET['username'])."'");
-				}
-				else
-				{
-					$db->myquery("INSERT INTO ".THcapcodes_table.
-					" (capcode_from, capcode_to) VALUES('".$db->escape_string($user_hash)."','".$db->escape_string($new_capcode)."')");
-				}
-				// We don't need this anymore since it's no longer proposed
-				$db->myquery("UPDATE ".THusers_table.
-				" SET proposed_capcode=\"\" WHERE username='".$db->escape_string($_GET['username'])."'");
+				// This abstracts the rest of the DB queries for us
+				$profile_dbi->approvalaction($_GET['username'], "capcode", true);
 			}
 			if((isset($_GET['action']) && $_GET['action']=="capno") && isset($_GET['username']))
 			{
 				//this capcode isn't going to work for whatever reason, deny it
 				
-				$db->myquery("UPDATE ".THusers_table.
-				" SET proposed_capcode='' WHERE username='".$db->escape_string($_GET['username'])."'");
+				$profile_dbi->approvalaction($_GET['username'], "capcode", false);
 			}
 			if((isset($_GET['action']) && $_GET['action']=="picyes") && isset($_GET['username']))
 			{
-				// Get the file extension of the wanted picture
-				$desired_picture = $db->myresult("SELECT pic_pending FROM ".
-				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
+				// Approving a requested picture
 				
 				// Get the file extension of the current picture (if any)
-				$old_picture = $db->myresult("SELECT has_picture FROM ".
-				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
+				$old_picture = $profile_dbi->getuserimage($_GET['username']);
+				
+				// Get the file extension of the wanted picture
+				$desired_picture = $profile_dbi->getpendinguserimage($_GET['username']);
 				
 				// Delete the old picture, if there is one
 				if($old_picture)
@@ -335,33 +321,30 @@
 				rename(THpath.'unlinked/'.$_GET['username'].'.'.$desired_picture, THpath.'images/profiles/'.$_GET['username'].'.'.$desired_picture);
 				
 				// Update the db to reflect this
-				$db->myquery("UPDATE ".THusers_table.
-				" SET pic_pending='', has_picture='".$db->escape_string($desired_picture).
-				"' WHERE username='".$db->escape_string($_GET['username'])."'");
+				$profile_dbi->approvalaction($_GET['username'], "picture", true);
 			}
 			
 			if((isset($_GET['action']) && $_GET['action']=="picno") && isset($_GET['username']))
 			{
-				// Get the file extension
-				$desired_picture = $db->myresult("SELECT pic_pending FROM ".
-				THusers_table." WHERE username='".$db->escape_string($_GET['username'])."'");
+				// Denying a requested picture
+				
+				// Get the file extension of the wanted picture
+				$desired_picture = $profile_dbi->getpendinguserimage($_GET['username']);
 				
 				// Delete the file
 				unlink(THpath.'unlinked/'.$_GET['username'].'.'.$desired_picture);
 				
 				// Clear the db record
-				$db->myquery("UPDATE ".THusers_table.
-				" SET pic_pending='' WHERE username='".$db->escape_string($_GET['username'])."'");
+				$profile_dbi->approvalaction($_GET['username'], "picture", false);
 			}
 						
-			$queryresult = $db->myquery("SELECT * FROM ".THusers_table.
-				" WHERE pic_pending IS NOT NULL OR proposed_capcode IS NOT NULL OR approved=0");
-			if ($queryresult!=null)
+			$users = $profile_dbi->getprofilemodqueue();
+			if ($users!=null)
 			{
 				$pend_regs=array();
 				$pend_caps=array();
 				$pend_pics=array();
-				while ($user=$db->myarray($queryresult))
+				foreach($users as $user)
 				{
 					if($user['approved'] == 0)
 					{
@@ -447,20 +430,15 @@ var_dump($boardarray);
 			{
 				THdie("ADdbfirst");
 			}
-			$queryresult = $db->myquery("SELECT * FROM ".THblotter_table);
-			if ($queryresult!=null)
+			
+			$blotter = $db->fetchBCW(THbcw_blotter);
+			
+			// Perform replacequote on the blotter entries
+			foreach ($blotter as $blot)
 			{
-				$blotter=array();
-				while ($blot=$db->myarray($queryresult))
-				{
-					$blotter[]=replacequote($blot);
-				}
+				$blot = replacequote($blot);
 			}
-			else
-			{
-				$blotter=null;
-			}
-			//print_r($filters);
+
 			$sm->assign("blots",$blotter);
 			
 			$sm->assign("boards",$db->getindex(array('full'=>true),$sm));
@@ -578,45 +556,79 @@ var_dump($boardarray);
 	{
 		if($_POST['boardselect'])
 		{
-			if ($_POST['delete'.$db->getboardnumber($_POST['boardselect'])]==TRUE) //Delete images on that board; nuke it from db
-			{
-				delimgs($db->fragboard($_POST['boardselect']));
-				$db->myquery("DELETE from ".THboards_table." WHERE folder='".$_POST['boardselect']."'");
-				$actionstring = "Board delete\tid:".$id;
+			$boardnumber = $db->getboardnumber($_POST['boardselect']);
+			
+			if ($_POST['delete'.$boardnumber]==TRUE) //Delete images on that board; nuke it from db
+			{	
+				// Remove associated images
+				delimgs($db->fragboard($boardnumber));
+				
+				// Remove the DB board entry
+				$db->removeboard($boardnumber);
+				
+				$actionstring = "Board delete\tid:".$boardnumber;
 				writelog($actionstring,"admin");
 				$location=THurl."admin.php?a=b";
 			} 
 			else 
-			{
-				$oldid=$db->getboardnumber($_POST['boardselect']);
-				$globalid=intval($_POST['globalid'.$oldid]);
-				$name=$db->escape_string($_POST['name'.$oldid]);
-				$folder=$db->escape_string($_POST['folder'.$oldid]);
-				$about=strip_tags(replacequote($_POST['about'.$oldid]), '<i><b><u><strike><p><br><font><a><ul><ol><li><marquee>');
-				$rules=$db->escape_string($_POST['rules'.$oldid]);
-				$perpg=intval($_POST['perpg'.$oldid]);
-				$perth=intval($_POST['perth'.$oldid]);
-				$hidden=($_POST['hidden'.$oldid]=="on");
-				$allowedformats=intval($_POST['allowedformats'.$oldid]);
-				$forced_anon=($_POST['forced_anon'.$oldid]=="on");
-				$maxfilesize=intval($_POST['maxfilesize'.$oldid]);
-				$thumbres=intval($_POST['thumbres'.$oldid]);
-				$maxres=intval($_POST['maxres'.$oldid]);
-				$pixperpost=intval($_POST['pixperpost'.$oldid]);
-				$allowvids=($_POST['allowvids'.$oldid]=="on");
-				$customcss=($_POST['customcss'.$oldid]=="on");
-				$filter=($_POST['filter'.$oldid]=="on");
-				$boardlayout=$_POST['boardlayout'.$oldid];
-				$requireregistration=($_POST['requireregistration'.$oldid]=="on");
-				$tlock=($_POST['tlock'.$oldid]=="on");
-				$rlock=($_POST['rlock'.$oldid]=="on");
-				$tpix=intval($_POST['tpix'.$oldid]);
-				$rpix=intval($_POST['rpix'.$oldid]);
-				$tmax=intval($_POST['tmax'.$oldid]);
-				$updatequery = "UPDATE ".THboards_table." set globalid=".$db->escape_string($globalid).",name='".$db->escape_string($name)."',folder='".$db->escape_string($folder)."',about='".$about."',rules='".$db->escape_string($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->escape_string($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->escape_string($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
-				//print_r($updatequery); echo "<br/>"; var_dump($_POST);
-				$db->myquery($updatequery);
-				$actionstring = "Board edit\tid:".$id;
+			{		
+				// We're going to make an array of boards to update (with size 1) containing
+				// assoc-arrays with board information
+				$boards_to_update = array();
+				$updated_board = array();
+				
+				// Get ID stuff set up
+				$updated_board['oldid'] = $boardnumber;
+				$updated_board['id'] = $updated_board['oldid'];
+				$oldid = $updated_board['oldid'];
+				$updated_board['globalid'] = $_POST['globalid'.$oldid];
+				
+				// Now that the ID stuff is set up, we can do some verification.
+				// Make sure we don't have a folder name conflict.
+				$folder = trim($_POST['folder'.$oldid]);
+				$folder_id = $db->getboardnumber($folder);
+				
+				// It's ok if it's equal to the old ID, because that just means
+				// it's retrieving the number for its own board
+				if( $folder_id != $oldid )
+				{
+					THdie("An existing board already has a folder named \"".$folder."\"!");
+				}
+				
+				// String values
+				$updated_board['name'] = $_POST['name'.$oldid];
+				$updated_board['folder'] = $folder; // we already did the stuff above
+				$updated_board['about'] = strip_tags(replacequote($_POST['about'.$oldid]), 
+					'<i><b><u><strike><p><br><font><a><ul><ol><li><marquee>');
+				$updated_board['rules'] = $_POST['rules'.$oldid];
+				$updated_board['boardlayout'] =$_POST['boardlayout'.$oldid];			
+					
+				// Integer values
+				$updated_board['perpg'] = intval($_POST['perpg'.$oldid]);
+				$updated_board['perth'] = intval($_POST['perth'.$oldid]);
+				$updated_board['allowedformats'] = intval($_POST['allowedformats'.$oldid]);
+				$updated_board['tpix'] = intval($_POST['tpix'.$oldid]);
+				$updated_board['rpix'] = intval($_POST['rpix'.$oldid]);		
+				$updated_board['tmax'] = intval($_POST['tmax'.$oldid]);
+				$updated_board['thumbres'] = intval($_POST['thumbres'.$oldid]);
+				$updated_board['maxfilesize'] = intval($_POST['maxfilesize'.$oldid]);
+				$updated_board['maxres'] = intval($_POST['maxres'.$oldid]);
+				$updated_board['pixperpost'] = intval($_POST['pixperpost'.$oldid]);
+				
+				// Boolean values
+				$updated_board['forced_anon'] = ($_POST['forced_anon'.$oldid]=="on");
+				$updated_board['customcss'] = ($_POST['customcss'.$oldid]=="on");
+				$updated_board['allowvids'] = ($_POST['allowvids'.$oldid]=="on");
+				$updated_board['filter'] = ($_POST['filter'.$oldid]=="on");
+				$updated_board['requireregistration'] = ($_POST['requireregistration'.$oldid]=="on");
+				$updated_board['hidden'] = ($_POST['hidden'.$oldid]=="on");
+				$updated_board['tlock'] = ($_POST['tlock'.$oldid]=="on");
+				$updated_board['rlock'] = ($_POST['rlock'.$oldid]=="on");
+				
+				// Add the assoc-array with the updated information into the array
+				$boards_to_update[] = $updated_board;
+								
+				$actionstring = "Board edit\tid:".$boardnumber;
 				writelog($actionstring,"admin");
 				$location=THurl."admin.php?a=b&boardselect=".$folder;
 			}
@@ -625,47 +637,42 @@ var_dump($boardarray);
 		{
 			if ($_POST['namenew']!=null)  //Adding a new board
 			{
-				$id=(int)$_POST['idnew'];
-				$globalid=0;
-				$name=$_POST['namenew'];
-				$folder=$_POST['foldernew'];
+				$name=trim($_POST['namenew']);
+				$folder=trim($_POST['foldernew']);
+				
+				if( $name == "")
+				{
+					THdie("You must provide a valid board name!");
+				}
+				
+				if( $folder == "")
+				{
+					THdie("You must provide a valid folder name!");
+				}
+								
+				// Make sure we don't have a folder name conflict
+				$folder_exists = $db->getboardnumber($folder);
+				
+				if( $folder_exists != null)
+				{
+					THdie("An existing board already has a folder named \"".$folder."\"!");
+				}
+				
 				$about=$_POST['aboutnew'];
 				$rules=$_POST['rulesnew'];
-				$nextaction=$_POST['nextaction'];
-				$perpg=20;
-				$perth=4;
-				$hidden=1;
-				$allowedformats=7;
-				$forced_anon=0;
-				$filter=1;
-				$maxfilesize=2097152;
-				$allowvids=0;
-				$customcss=0;
-				$requireregistration=0;
-				$boardlayout="drydock-image";
-				$tlock=1;
-				$rlock=1;
-				$tpix=1;
-				$rpix=1;
-				$pixperpost=8;
-				$maxres=3000;
-				$thumbres=150;
-				$tmax=100;
-				$now=(THtimeoffset*60) + time();
-$query = "INSERT INTO ".THboards_table." ( id , globalid , name , folder , about , rules , perpg , perth , hidden , allowedformats , forced_anon , maxfilesize ,
- maxres , thumbres , pixperpost , customcss , allowvids , filter , boardlayout , requireregistration , tlock , rlock , tpix , rpix , tmax , lasttime )
-VALUES (
-".$db->escape_string($id).",".$globalid.",'".$db->escape_string($name)."','".$db->escape_string($folder)."','".$db->escape_string($about)."','".$db->escape_string($rules)."','".$perpg."','".$perth."','"
-.$hidden."','".$allowedformats."','".$forced_anon."','".$maxfilesize."','".$maxres."','".$thumbres."','".$pixperpost."','".$customcss."','".$allowvids."','"
-.$filter."','".$boardlayout."','".$requireregistration."','".$tlock."','".$rlock."','".$tpix."','".$rpix."','".$tmax."', ".$now." );";
-				$db->myquery($query);
+				
+				// This will return the last insert ID.
+				$id = $db->makeboard($name, $folder, $_POST['aboutnew'], $_POST['rulesnew']);
+				
 				$actionstring = "Board add\tid:".$id;
 				writelog($actionstring,"admin");
-				//print_r($query);
-				if($nextaction=="edit")
+				
+				if($_POST['nextaction']=="edit")
 				{
 					$location=THurl."admin.php?a=b&boardselect=".$folder;
-				} else {
+				} 
+				else 
+				{
 					$location=THurl."admin.php?a=b";
 				}
 			}
@@ -821,11 +828,15 @@ VALUES (
 		$errorstring = "";
 		if(isset($_POST['user']))
 		{	
+			$profile_dbi = new ThornProfileDBI(); // This encapsulates the DB queries we need
+			
 			$username = trim($_POST['user']);
 			$password = trim($_POST['password']);
 			$email = trim($_POST['email']);
-			$nameexists = $db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".$db->escape_string($username)."'");
-			if($nameexists)
+			
+			// Name validation
+			// Check if the account exists
+			if($profile_dbi->userexists($username) == true)
 			{
 			$errorstring .= "Sorry, an account with this name already exists.<br>\n";
 			}
@@ -833,6 +844,8 @@ VALUES (
 			{
 	        $errorstring .= "Sorry, your name must be alphanumeric and contain no spaces.<br>\n";
 	        }
+			
+			// Password validation
 			if($password)
 			{
 				$passlength = strlen($password);
@@ -845,6 +858,8 @@ VALUES (
 			{
 				$errorstring .= "You must provide a password!<br>\n";
 			}
+			
+			// Email validation
 			if(isset($_POST['email']) && strlen($email))
 			{
 		         /* Check if valid email address */
@@ -852,7 +867,8 @@ VALUES (
 				{
 					$errorstring .= "You must provide a valid email address!<br>\n";
 				}
-				if($db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE email='".$db->escape_string($email)."'"))
+				// Check if it exists already
+				if($profile_dbi->emailexists($email) == true)
 				{
 					$errorstring .= "That email has already been used to register an account!<br>\n";
 				}
@@ -861,15 +877,13 @@ VALUES (
 			{
 				$errorstring .= "You must provide an email address!<br>\n";
 			}
-			if($errorstring == "") 
-			{ // No errors encountered so far, attempt to register
-				$pass_md5 = md5(THsecret_salt.$password);
 			
-				$insertquery = "INSERT INTO ".THusers_table.
-				" (username, password, userlevel, email, approved) VALUES ('".
-				$db->escape_string($username)."','".$db->escape_string($pass_md5)."',".THprofile_userlevel.
-				",'".$db->escape_string($email)."',1)";
-				$db->myquery($insertquery);
+			// No errors encountered so far, attempt to register
+			if($errorstring == "") 
+			{ 	
+				// Insert them, with approval from the beginning (hence the 1 at the end)
+				$profile_dbi->registeruser($username, $password, THprofile_userlevel, $email, 1);
+				
 				$actionstring = "Add user\tname:".$username;
 				writelog($actionstring,"admin");
 				//header("Location: ".THurl."admin.php?a=p");

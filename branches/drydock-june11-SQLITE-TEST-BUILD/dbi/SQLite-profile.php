@@ -60,6 +60,16 @@ class ThornProfileDBI extends ThornDBI
 	{
 		return $this->myresult("SELECT has_picture FROM " .	THusers_table . " WHERE username='" . $this->escape_string($username) . "'");
 	}
+	
+	function getpendinguserimage($username)
+	{
+		return $this->myresult("SELECT pic_pending FROM " .	THusers_table . " WHERE username='" . $this->escape_string($username) . "'");
+	}
+	
+	function getemail($username)
+	{
+		return $this->myresult("SELECT email FROM " .	THusers_table . " WHERE username='" . $this->escape_string($username) . "'");
+	}
 
 	function registeruser($username, $password, $userlevel, $email, $approved)
 	{
@@ -189,6 +199,100 @@ class ThornProfileDBI extends ThornDBI
 			return false;
 		}
 		return true;
+	}
+	
+	function approvalaction($username, $type="", $approved)
+	{
+		$querystring = "";
+		
+		if( $type == "account")
+		{
+			if( $approved == true )
+			{
+				$querystring = "UPDATE ".THusers_table.	" SET approved=1 WHERE username='".
+					$this->escape_string($username)."'";
+			}
+			else // Denied
+			{
+				$querystring = "UPDATE ".THusers_table.	" SET approved=-1 WHERE username='".
+					$this->escape_string($username)."'";
+			}
+		}
+		else if( $type == "picture")
+		{
+			if( $approved == true )
+			{
+				// Get the file extension of the wanted picture
+				$desired_picture = $this->getpendinguserimage($username);
+				
+				if( $desired_picture )
+				{
+					$querystring  = "UPDATE ".THusers_table.
+						" SET pic_pending='', has_picture='".$this->escape_string($desired_picture).
+						"' WHERE username='".$this->escape_string($username)."'";
+				}
+				else
+				{
+					$querystring = ""; // Something's not right.
+				}
+			}
+			else // Denied
+			{
+				$querystring = "UPDATE ".THusers_table." SET pic_pending='' WHERE username='".$this->escape_string($username)."'";
+			}
+		}
+		else if( $type == "capcode")
+		{
+			if( $approved == true )
+			{
+				/*
+					check capcode table for match of existing capcode
+					if match found, use update query, else, insert query
+				*/
+				$new_capcode = $this->myresult("SELECT proposed_capcode FROM ".
+					THusers_table." WHERE username='".$this->escape_string($username)."'");
+				
+				$user_hash = $this->myresult("SELECT capcode FROM ".
+					THusers_table." WHERE username='".$this->escape_string($username)."'");
+				
+				$already_there = $this->myresult("SELECT capcode_to FROM ".THcapcodes_table.
+					" WHERE capcode_from='".$this->escape_string($user_hash)."'");
+				
+				if($already_there != null)
+				{
+					$this->myquery("UPDATE ".THcapcodes_table.
+						" SET proposed_capcode='".$this->escape_string($new_capcode).
+						"' WHERE username='".$this->escape_string($username)."'");
+				}
+				else
+				{
+					$this->myquery("INSERT INTO ".THcapcodes_table.
+						" (capcode_from, capcode_to) VALUES('".$this->escape_string($user_hash)."','".
+						$this->escape_string($new_capcode)."')");
+				}
+				
+				// We don't need this anymore since it's no longer proposed, it's approved :]
+				$querystring = "UPDATE ".THusers_table.
+					" SET proposed_capcode=\"\" WHERE username='".$this->escape_string($username)."'";				
+			}
+			else // Denied
+			{
+				$querystring = "UPDATE ".THusers_table." SET proposed_capcode='' WHERE username='".
+					$this->escape_string($username)."'";
+			}
+		}
+		
+		// $querystring will only be nonempty if we encountered one of the above cases
+		if( $querystring != "")
+		{
+			$this->myquery($querystring);
+		}
+	}
+	
+	function getprofilemodqueue()
+	{
+		return $this->mymultiassoc("SELECT * FROM ".THusers_table.
+			" WHERE pic_pending IS NOT NULL OR proposed_capcode IS NOT NULL OR approved=0");
 	}
 
 } //class ThornProfileDBI

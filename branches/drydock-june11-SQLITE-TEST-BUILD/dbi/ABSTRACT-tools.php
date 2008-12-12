@@ -52,5 +52,13 @@ interface absThornToolsDBI
 	 * have an additional "thread_globalid" entry in each assoc
 	 */
 	function getposts($offset, $get_threads, $board, $showhidden);
+	
+	/**
+	 * Retrieve the top 15 threads from the news board.
+	 * 
+	 * @return array An array of assoc-arrays containing thread data
+	 */
+	function getnewsthreads();
+	
 }
 ?>

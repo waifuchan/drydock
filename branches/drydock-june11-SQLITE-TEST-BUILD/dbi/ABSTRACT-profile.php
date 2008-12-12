@@ -83,6 +83,24 @@ interface absThornProfileDBI
 	function getuserimage($username);
 
 	/**
+	 * Retrieves the extension associated with a user's PENDING profile picture, if any
+	 * 
+	 * @param string $username The username of the target profile
+	 * 
+	 * @return string The extension of the picture, or null if there is none
+	 */
+	function getpendinguserimage($username);
+	
+	/**
+	 * Retrieve a user's email
+	 * 
+	 * @param string $username The username of the target profile
+	 * 
+	 * @return string The email for the username
+	 */
+	function getemail($username);
+
+	/**
 	 * Register a new user into the system
 	 * 
 	 * @param string $username The new user's name
@@ -170,6 +188,28 @@ interface absThornProfileDBI
 	 * @return bool A boolean indicating if the logged in user can edit
 	 */
 	function caneditprofile($username);
+	
+	/**
+	 * Approve or deny a particular section of a user's profile, such
+	 * as a proposed picture, a pending capcode, or a pending registration.
+	 * 
+	 * @param string $username The user account in question
+	 * @param string $type The type of section to be approved.  Can be
+	 * "account", "picture", or "capcode".  Defaults to "", which does nothing.
+	 * @param bool $approved If this is an approval action (if not, it will be
+	 * considered a denial)
+	 */
+	function approvalaction($username, $type="", $approved);
+	
+	/**
+	 * Return a list of users who fulfill at least one of the following criteria:
+	 * - Pending registration status
+	 * - Pending picture proposal
+	 * - Pending capcode proposal
+	 * 
+	 * @return array An array of assoc-arrays of user data (can be size 0)
+	 */
+	function getprofilemodqueue();
 
 }
 ?>

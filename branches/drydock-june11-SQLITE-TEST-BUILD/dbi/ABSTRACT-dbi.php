@@ -215,6 +215,24 @@ interface absThornDBI
 	 * @return int The board ID, or null if it does not exist
 	 */
 	function getboardnumber($folder);
+	
+	/**
+	 * Get the registration status of a board from an ID
+	 * 
+	 * @param int $board The board ID
+	 * 
+	 * @return bool If the board requires users to be registered
+	 */
+	function isboardreg($board);
+	
+	/**
+	 * Retrieve the template set name for a board.
+	 * 
+	 * @param int $board The board ID
+	 * 
+	 * @param string The template set name
+	 */
+	function getboardtemplate($board);
 
 	/**
 	 * Insert metadata info into the extra info table, and return the ID

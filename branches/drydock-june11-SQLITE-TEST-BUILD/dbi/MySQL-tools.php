@@ -115,6 +115,12 @@ class ThornToolsDBI extends ThornDBI
 		
 		return $this->mymultiarray($postquery);
 	}
+	
+	function getnewsthreads()
+	{
+		return $this->mymultiarray("SELECT globalid,board,title,name,trip,body,time FROM " . THthreads_table . 
+					" where board=" . THnewsboard . " ORDER BY time DESC LIMIT 0,15");
+	}
 
 } //class ThornToolsDBI
 ?>

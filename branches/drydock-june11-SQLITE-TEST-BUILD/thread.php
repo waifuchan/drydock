@@ -76,6 +76,19 @@
 			$redhammer->banip(ip2long($_SERVER['REMOTE_ADDR']),0,"Suspected bot.","","Suspected bot.",$_POST['body'], 4, "autoban");
 			THdie("Abnormal reply"); // heh heh
 		}
+		
+		// Prevent people from posting new threads if it's the mod or news board
+		if( $binfo['id'] == THmodboard || $binfo['id'] == Thnewsboard)
+		{
+			THdie("POnonewth");
+		}
+		
+		// Prevent people from posting to boards that require registration
+		// when they're not logged in
+		if( $binfo['requireregistration'] == true && $_SESSION['username'] == false)
+		{
+			THdie("POnonewth");
+		}
 	}
 
 	if ($binfo['tlock']==1 && $mod==false) 

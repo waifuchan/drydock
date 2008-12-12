@@ -47,7 +47,6 @@ There are currently no boards set up.
             <form method="post" name="boardedit" enctype="multipart/form-data" action="admin.php?t=b">
                 <div>
                     <table>
-<input type="hidden" name="idnew" size="3" value="{$board.id+1}" />
 <tr><td>Board name</td><td><input type="text" name="namenew" size="60" /></td></tr>
 <tr><td>Board folder</td><td><input type="text" name="foldernew" size="5" /></td></tr>
 <tr><td>Board description</td><td><input type="text" name="aboutnew" size="60" /></td></tr>

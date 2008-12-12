@@ -45,6 +45,14 @@
 	define("THbcw_capcode", 2);
 	define("THbcw_filter", 3);
 	
+	/**
+	 * Generate an error page for whatever reason.  If $err is
+	 * equal to "ADbanned" or "PObanned" it looks up the ban data
+	 * and displays that.  Otherwise it uses the standard error
+	 * Smarty template.
+	 * 
+	 * @param string $err The kind of error that occurred
+	 */
 	function THdie($err)
 	{
 		//die($err);
@@ -152,12 +160,24 @@
 	}//THdie
 	//Below are functions that are used in various places throughout Thorn.
 	
+	/**
+	 * Take an incoming IP and strip the last octet in it, replacing with 0
+	 * 
+	 * @param int $ip The incoming IP in long-int form
+	 * 
+	 * @return int The incoming IP but with the last octet replaced with 0
+	 */
 	function ipsub($ip)
 	{
 		$sub=explode(".",long2ip($ip));
 		return(ip2long(implode(".",array($sub[0],$sub[1],$sub[2],0))));
 	}
-	
+
+	/**
+ 	* Initialize a new Smarty object.
+ 	* 
+ 	* @return object A new instance of the Smarty class
+ 	*/	
 	function smsimple()
 	{
 		require_once("_Smarty/Smarty.class.php");
@@ -166,6 +186,21 @@
 		return($sm);
 	}
 	
+	/**
+	 * Initialize a new Smarty object with certain parameters set, including
+	 * the cache directory, the caching mode, the template directory, the ID
+	 * used for caching, and with certain common variables, such as THurl,
+	 * intialized
+	 * 
+	 * @param string $tpl The template file to use
+	 * @param string $id The ID to use for caching (will perform a lookup and may
+	 * even potentially result in a cached version being used if there is a match).
+	 * Defaults to null.
+	 * @param string $template The template set to use.  Defaults to THtplset.
+	 * @param bool $admin Whether this is considered an "administrator" page, in
+	 * which case the template set is overridden to "_admin" and caching is
+	 * always disabled.
+	 */
 	function sminit($tpl,$id=null,$template=THtplset,$admin=false)
 	{
 		$smarty=smsimple();
@@ -225,6 +260,22 @@
 		return($smarty);
 	}
 	
+	/**
+	 * Get a count of elements in an array. Since Smarty doesn't have an integrated
+	 * array counting function, this serves as a wrapper for PHP's. $p is an array 
+	 * which has various values used for the produced output:
+	 * 
+	 * $p['array'] contains the array whose elements will be counted.
+	 * 
+	 * If $p['assign'] is set and true, the function will change $p['assign']
+	 * to be the array count
+	 * 
+	 * @param array $p The array containing the previously mentioned values.
+	 * @param reference $sm A reference to a Smarty object
+	 * 
+	 * @return mixed Nothing is returned if $p['assign'] is true- in all other instances,
+	 * however, the elements count is returned
+	 */
 	function smcount($p,&$sm)
 	{
 		//Sweet mother, why didn't I think of this sooner?!
@@ -232,11 +283,23 @@
 		if (isset($p['assign'])==true)
 		{
 			$sm->assign($p['assign'],count($p['array']));
-		} else {
+		} 
+		else 
+		{
 			return(count($p['array']));
 		}
 	}
 	
+	/**
+	 * Clear the cache for a thread, page, and/or entire board
+	 * 
+	 * @param int $board The affected board ID
+	 * @param int $page The affected page (if any). Defaults to -1, meaning no page
+	 * @param int $thread The affected thread ID (unique, not globalid). Defaults to -1,
+	 * meaning no thread
+	 * @param bool $delete_everything Deletes the board cache AND ALL thread caches for a
+	 * particular board (meant for use ONLY in fragboard)
+	 */
 	function smclearcache($board, $page=-1, $thread=-1, $delete_everything=false)
 	{
 		// Oh, we're actually clearing the cache for a thread
@@ -264,6 +327,14 @@
 		}
 	}
 
+	/**
+	 * Delete images from the images folder.  The 
+	 * directories to clear out are provided in the
+	 * incoming array of imgidxes
+	 * 
+	 * @param array $badimgs The array of imgidxes whose corresponding
+	 * directories will be cleared out
+	 */
 	function delimgs($badimgs)
 	{
 		//Delete these images
@@ -286,6 +357,14 @@
 		}
 	}
 
+	/**
+	 * Convert an incoming file extension into its corresponding
+	 * bit, or 0 if there was no match
+	 * 
+	 * @param string $ext The extension
+	 * 
+	 * @return int The bit value, or 0 if there was no match
+	 */
 	function bitlookup($ext)
 	{
 		// OH YEAH BITFLAGS
@@ -312,14 +391,31 @@
 		return 0;
 	}
 	
+	/**
+	 * Find if an item is in an array whose elements are stored as a comma-separated
+	 * list (hence the CSL) which is represented as a string
+	 * 
+	 * @param string $item The item to search for
+	 * @param string $csl The string which represents the comma-separated list
+	 * 
+	 * @return bool If $item was found
+	 */
 	function is_in_csl($item, $csl)
-	// CSL stands for comma separated list.  It's not
-	// very complicated.
 	{
-		$items = explode(",",$csl);
-		return in_array($item, $items);
+		return in_array($item, explode(",",$csl));
 	}
-	//minor annoyance
+	
+	/**
+	* This function takes a string or array and
+	* replaces every instance of < and > with their HTML-encoded
+	* equivalent, so it doesn't mess up our HTML forms
+	* if we use it as a value attribute or something like that.
+	*
+	* @param mixed $filter A string or array or whatever, see how 
+	* the PHP function str_replace works for the $subject param
+	*
+	* @return mixed Whatever was passed in but with the substitution performed
+	*/
 	function replacewedge($input)
 	{
 		$output = str_replace("<", "&lt;", $input);
@@ -327,18 +423,63 @@
 		return $output;
 	}
 	
-	//profile related functions follow
+	/**
+	* This function takes a string or array and
+	* replaces every instance of ' with its HTML-encoded
+	* equivalent, so it doesn't mess up our HTML forms
+	* if we use it as a value attribute or something like that.
+	*
+	* @param mixed $filter A string or array or whatever, see how 
+	* the PHP function str_replace works for the $subject param
+	*
+	* @return mixed Whatever was passed in but with the substitution performed
+	*/
+	function replacequote($filter)
+	{
+		// ~simple and clean is the way that you're making me feel tonight~
+		// ^-- imagine tyam singing this while wearing a dress...
+		return str_replace("'", "&#039;", $filter);
+		// ...or a tank top
+
+		//oh hello i found this comment thanks diff ~tyam
+	}
+	
+	/**
+	* This function takes a string or array and
+	* replaces every instance of " with its HTML-encoded
+	* equivalent, so it doesn't mess up our HTML forms
+	* if we use it as a value attribute or something like that.
+	*
+	* @param mixed $filter A string or array or whatever, see how 
+	* the PHP function str_replace works for the $subject param
+	*
+	* @return mixed Whatever was passed in but with the substitution performed
+	*/
+	function replacedouble($filter)
+	{
+		return str_replace('"', "&#034;", $filter);
+	}
+	
+	/**
+	 * Generate a random ID. 16^32 possible values SHOULD
+	 * decrease the chances of hash collisions. ;)
+	 * 
+	 * @return string A 32-character hex string (an MD5 hash)
+	 */
 	function generateRandID()
 	
 	{
 		return md5(generateRandStr(16));
 	}
 	
-	/*
-		generateRandStr - Generates a string made up of randomized
-		letters (lower and upper case) and digits, the length
-		is a specified parameter.
-	*/
+	/**
+	 * Generate a random string made up of randomized letters
+	 * (lower and upper case) and digits, with a certain length
+	 * 
+	 * @param int $length How long a string to make
+	 * 
+	 * @return string The generated string with length $length
+	 */
 	function generateRandStr($length)
 	{
 		$randstr = "";
@@ -359,6 +500,16 @@
 		return $randstr;
 	}
 
+	/**
+	 * Send an email welcoming a new user
+	 * 
+	 * @param string $user The user's name
+	 * @param string $email Destination email
+	 * @param string $pass The password for this new account
+	 * 
+	 * @return bool True if the mail was accepted for delivery (see the workings
+	 * of the PHP mail function for more explanation)
+	 */
 	function sendWelcome($user, $email, $pass)
 	{
 		$from = "From: ".THprofile_emailname." <".THprofile_emailaddr.">";
@@ -376,6 +527,18 @@
 			."- ".THname." Automailer";
 		return mail($email,$subject,$body,$from);
 	}
+
+	/**
+	 * Send an email containing a newly-reset password to a user
+	 * 
+	 * @param string $user The user's name
+	 * @param string $email Destination email
+	 * @param string $pass The new password
+	 * @param string $ip The IP requesting the email change
+	 * 
+	 * @return bool True if the mail was accepted for delivery (see the workings
+	 * of the PHP mail function for more explanation)
+	 */	
 	function sendNewPass($user, $email, $pass, $ip)
 	{
 		$from = "From: ".THprofile_emailname." <".THprofile_emailaddr.">";
@@ -395,7 +558,17 @@
 			."- ".THname." Automailer";
 		return mail($email,$subject,$body,$from);
 	}
-	function sendFuckOff($user, $email)
+	
+	/**
+	 * Send an email notifying a user that their approval status was denied.
+	 * 
+	 * @param string $user The user's name
+	 * @param string $pass The password for this new account
+	 * 
+	 * @return bool True if the mail was accepted for delivery (see the workings
+	 * of the PHP mail function for more explanation)
+	 */
+	function sendDenial($user, $email)
 	{
 		$from = "From: ".THprofile_emailname." <".THprofile_emailaddr.">";
 		$subject = THname." : pending registration";
@@ -409,21 +582,12 @@
 		return mail($email,$subject,$body,$from);
 	}
 
-	function replacequote($filter)
-	//fuck html!
-	{
-		// ~simple and clean is the way that you're making me feel tonight~
-		// ^-- imagine tyam singing this while wearing a dress...
-		return str_replace("'", "&#039;", $filter);
-		// ...or a tank top
-
-		//oh hello i found this comment thanks diff ~tyam
-	}
-	function replacedouble($filter)
-	{
-		return str_replace('"', "&#034;", $filter);
-	}
-	
+	/**
+	 * Record a particular (significant) action in a log file
+	 * 
+	 * @param string $actionstring What's going down
+	 * @param string $type The kind of log file to write to
+	 */	
 	function writelog($actionstring,$type)
 	{
 		$logfile = fopen("unlinked/".$type.".log", "a") or error_log("Could not write ".$type." log: ".$actionstring."\n",3,"error.log");
@@ -432,7 +596,12 @@
 		fwrite($logfile, $actionstring."\n");
 		fclose($logfile);
 	}
-	
+
+	/**
+	 * Check if the current session has administrator status
+	 * 
+	 * @return bool Is the user an admin?
+	 */	
 	function checkadmin()  //quick, simple, to the point, this is how I like it
 	{
 		if($_SESSION['admin']!=true)
@@ -440,7 +609,14 @@
 			THdie("You are not logged in as an administrator!");
 		}
 	}
-	
+
+	/**
+	 * Check the user's login status based on certain stored cookie values
+	 * and the state of their $_SESSION variables.  Sets their session vars
+	 * as appropriate (if it's an invalid login state, their session data
+	 * is reset, but if they're logged in correctly with no session data,
+	 * that is rectified as well) 
+	 */		
 	function checklogin() //look for cookies, set session variables if needed
 	{
 		if(isset($_COOKIE[THcookieid."-uname"]) && isset($_COOKIE[THcookieid."-id"]))

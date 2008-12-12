@@ -444,6 +444,16 @@ class ThornDBI implements absThornDBI
 		}
 	}
 	
+	function isboardreg($board)
+	{
+		return $this->myresult("select requireregistration from ".THboards_table." where id=".intval($board));
+	}
+	
+	function getboardtemplate($board)
+	{
+		return $this->myresult("select boardlayout from ".THboards_table." where id=".intval($board));
+	}
+	
 	function addexifdata($exif)
 	{
 		$ex_inf_result = 

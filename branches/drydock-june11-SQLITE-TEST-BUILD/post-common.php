@@ -546,13 +546,8 @@
 	                $extrainfo = $extrainfo . "<br>Zlib compression";
 	            }
 				
-	            $query="INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".$db->escape_string($extrainfo)."')";
-	            $ex_inf_result = $db->myquery($query);
-	            if($ex_inf_result)
-	            {
-	                $fyle['extra_info'] = mysql_insert_id();
-	            }
-
+				$fyle['extra_info'] = $db->addexifdata($extrainfo);
+				
 	        }//end if flash
 		}
 
@@ -584,12 +579,7 @@
 			$pagecount = $pdf->setSourceFile($fyle['path']);
 			$extrainfo = intval($pagecount)." pages";
 			
-			$query="INSERT INTO ".THextrainfo_table." (id, extra_info) VALUES (NULL,'".$db->escape_string($extrainfo)."')";
-			$ex_inf_result = $db->myquery($query);
-			if($ex_inf_result)
-			{
-				$fyle['extra_info'] = mysql_insert_id();
-			}		
+			$fyle['extra_info'] = $db->addexifdata($extrainfo);	
 		}
 
         $fyle['twidth']=100;
@@ -761,12 +751,7 @@
 
                 if($extrainfo)
                 {
-                    $query="INSERT INTO ".THextrainfo_table."(id, extra_info) VALUES (NULL, '".$db->escape_string($extrainfo)."')";
-                    $ex_inf_result = $db->myquery($query);
-                    if($ex_inf_result)
-                    {
-                    $fyle['extra_info'] = $db->lastid();
-                    }
+                    $fyle['extra_info'] = $db->addexifdata($extrainfo);
                 }
             }
         }//theimg=="" else

@@ -345,47 +345,49 @@ function rebuild_rss()
 		fwrite($sidelinks, "\t\t<link>" . THurl . "</link>\n");
 		fwrite($sidelinks, "\t\t<generator>drydock rss feed generator</generator>\n");
 		fwrite($sidelinks, "\t\t<copyright>tyam/ordog/kchan devs - http://573chan.org</copyright>\n");
-		$db = new ThornDBI();
+		
 		//pull everything from the news page
-		$boardsquery = "SELECT globalid,board,title,name,trip,body,time FROM " . THthreads_table . " where board=" . THnewsboard . " ORDER BY time DESC LIMIT 0,15";
-		$board = $db->mymultiarray($boardsquery);
-		foreach ($board as $boardentry)
+		$db = new ThornToolsDBI();
+		$posts = $db->getnewsthreads();
+		$newsboard = $db->getboardname(THnewsboard); //get the name of the board
+
+		foreach ($posts as $news_post)
 		{
 			//set up our variables so we're not using raws
-			if ($boardentry['name'])
+			if ($news_post['name'])
 			{
-				if ($boardentry['trip'])
+				if ($news_post['trip'])
 				{
-					$author = $boardentry['name'] . "!" . $boardentry['trip'];
+					$author = $news_post['name'] . "!" . $news_post['trip'];
 				}
 				else
 				{
-					$author = $boardentry['name'];
+					$author = $news_post['name'];
 				} //tripcode check
 			}
 			else
 			{
 				$author = "Anonymous";
 			} //name check
-			$text = $boardentry['body']; //no filters
-			if ($boardentry['title'] != NULL)
+			$text = $news_post['body']; //no filters
+			if ($news_post['title'] != NULL)
 			{
-				$subject = $boardentry['title'];
+				$subject = $news_post['title'];
 			}
 			else
 			{
 				$subject = "News post";
 			}
-			$newsboard = $db->getboardname(THnewsboard); //get the name of the board
+
 			if (THuserewrite)
 			{
-				$link = THurl . $newsboard . '/thread/' . $boardentry['globalid'];
+				$link = THurl . $newsboard . '/thread/' . $news_post['globalid'];
 			}
 			else
 			{
-				$link = THurl . 'drydock.php?b=' . $newsboard . '&amp;i=' . $boardentry['globalid'];
+				$link = THurl . 'drydock.php?b=' . $newsboard . '&amp;i=' . $news_post['globalid'];
 			}
-			$guid = $boardentry['globalid'];
+			$guid = $news_post['globalid'];
 			$body = replacewedge(nl2br($text)) . '&lt;br/&gt;~' . $author;
 			//post template
 			fwrite($sidelinks, "\n");
@@ -394,7 +396,7 @@ function rebuild_rss()
 			fwrite($sidelinks, "\t\t\t<title>$subject</title>\n");
 			fwrite($sidelinks, "\t\t\t<description>$body</description>\n");
 			fwrite($sidelinks, "\t\t\t<link>$link</link>\n");
-			fwrite($sidelinks, "\t\t\t<pubDate>" . date(DATE_RSS, $boardentry['time']) . "</pubDate>\n");
+			fwrite($sidelinks, "\t\t\t<pubDate>" . date(DATE_RSS, $news_post['time']) . "</pubDate>\n");
 			fwrite($sidelinks, "\t\t</item>\n");
 			fwrite($sidelinks, "\n");
 		}
