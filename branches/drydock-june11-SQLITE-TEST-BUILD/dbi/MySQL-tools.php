@@ -22,9 +22,32 @@ class ThornToolsDBI extends ThornDBI
 		$this->ThornDBI($server, $user, $pass, $base);
 	}
 
-	function getpicscount()
+	function getpicscount($board)
 	{
+		// Filter by board.
+		if( $board > 0 )
+		{
+			$querystring = "SELECT 
+				COUNT(*)
+			FROM 
+				images 
+			LEFT OUTER JOIN 
+    			threads 
+			ON 
+				images.id = threads.imgidx
+			LEFT OUTER JOIN 
+    			replies 
+			ON
+				images.id = replies.imgidx
+			WHERE 
+				threads.board = ".intval($board)." || replies.board = ".intval($board);
+		}
+		else
+		{
+			$querystring = "SELECT COUNT(*) FROM images WHERE 1";			
+		}
 		
+		return $this->myresult($querystring);		
 	}
 	
 	function getpostscount($get_threads, $board, $showhidden)
@@ -68,9 +91,61 @@ class ThornToolsDBI extends ThornDBI
 		return $this->myresult($postquery);		
 	}
 	
-	function getpics()
+	function getpics($offset, $board)
 	{
+		// Filter by board.
+		if( $board > 0 )
+		{
+			$querystring = "SELECT 
+				images.*,
+				threads.board AS thread_board,
+				threads.id AS thread_ID,
+				threads.globalid AS thread_globalID,
+				replies.board AS reply_board,
+				replies.id AS reply_ID,
+				replies.globalid AS reply_globalID
+			FROM 
+				images 
+			LEFT OUTER JOIN 
+    			threads 
+			ON 
+				images.id = threads.imgidx
+			LEFT OUTER JOIN 
+    			replies 
+			ON
+				images.id = replies.imgidx
+			WHERE 
+				threads.board = ".intval($board)." || replies.board = ".intval($board)."
+			ORDER BY 
+				id ASC LIMIT ".intval($offset).", 40;";
+		}
+		else
+		{
+			$querystring = "SELECT 
+				images.*,
+				threads.board AS thread_board,
+				threads.id AS thread_ID,
+				threads.globalid AS thread_globalID,
+				replies.board AS reply_board,
+				replies.id AS reply_ID,
+				replies.globalid AS reply_globalID
+			FROM 
+				images 
+			LEFT OUTER JOIN 
+    			threads 
+			ON 
+				images.id = threads.imgidx
+			LEFT OUTER JOIN 
+    			replies 
+			ON
+				images.id = replies.imgidx
+			WHERE 
+				1
+			ORDER BY 
+				id ASC LIMIT ".intval($offset).", 40;";			
+		}
 		
+		return $this->mymultiarray($querystring);
 	}
 	
 	function getposts($offset, $get_threads, $board, $showhidden)

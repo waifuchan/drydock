@@ -20,9 +20,14 @@
 interface absThornToolsDBI
 {
 	/**
-	 * TODO
+	 * Retrieve an image count based on the specified filtering parameters
+	 * 
+	 * @param int $board The ID of the board to filter images by (experimental).
+	 * If $board is 0, no filtering will be performed.
+	 * 
+	 * @return int The number of images which fulfill this criteria
 	 */
-	function getpicscount();
+	function getpicscount($board);
 
 	/**
 	 * Retrieve a post count based on the specified filtering parameters.
@@ -36,9 +41,18 @@ interface absThornToolsDBI
 	function getpostscount($get_threads, $board, $showhidden);
 	
 	/**
-	 * TODO
+	 * Retrieve an array of assocs containing image data
+	 * 
+	 * @param int $offset The offset from which to start (for going through "pages")
+	 * @param int $board The board to filter images by (experimental).
+	 * If $board is 0, no filtering will be performed.
+	 * 
+	 * @return array An array of assoc-arrays containing image data- the arrays
+	 * will have extra elements named "thread_board", "thread_id", "thread_globalid",
+	 * "reply_board", "reply_id", and "reply_globalid" to eliminate the need
+	 * for a second lookup query
 	 */
-	function getpics($offset);
+	function getpics($offset, $board);
 	
 	/**
 	 * Retrieve an array of assocs containing post data

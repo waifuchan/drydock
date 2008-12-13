@@ -131,7 +131,9 @@ interface absThornDBI
 	 * 
 	 * @param int $imgidx The image index to search for
 	 * 
-	 * @return array Images (blank if none)
+	 * @return array Images (blank if none), which will have an extra
+	 * "exif_text" field corresponding with its associated metadata
+	 * string in the extra info table
 	 */
 	function getimgs($imgidx);
 

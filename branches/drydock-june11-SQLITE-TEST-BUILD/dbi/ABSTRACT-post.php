@@ -129,7 +129,7 @@ interface absThornPostDBI
 	 * 
 	 * @param string $board The folder name of the board
 	 * 
-	 * @return int The new ID
+	 * @return int The new ID, or null if the specified board does not exist
 	 */
 	function getglobalid($board);
 	
@@ -145,5 +145,56 @@ interface absThornPostDBI
 	 */
 	function getpostlocation($threadid, $postid = -1);
 	
+	/**
+	 * Get a single post's data from either the threads or the replies table
+	 * (the function will find out which one is necessary)
+	 * 
+	 * @param int $id The global ID of the post
+	 * @param int $board The board where the post may be found
+	 * 
+	 * @return array An assoc-array containing the post data, or null if there was no match
+	 */
+	function getsinglepost($id, $board);
+	
+	/**
+	 * Move a thread with a specified unique ID to a new board.
+	 * 
+	 * @param int $id The unique ID of the thread
+	 * @param int $newboard The ID of the destination board
+	 * 
+	 * @return int The new global ID of the thread, or null if the move failed
+	 */
+	function movethread($id, $newboard);
+	
+	/**
+	 * Update a pre-existing post in the DB with new information.  Note that no sort of
+	 * access checking is performed so it is assumed that the user has the proper authorization
+	 * for doing so. The unvisibletime field is updated to reflect that a mod has reviewed this
+	 * particular post already.
+	 * 
+	 * @param int $id The global ID of the post
+	 * @param int $board The board ID of the post
+	 * @param string $name The new name field
+	 * @param string $trip The new tripcode hash
+	 * @param string $link THe new link field
+	 * @param string $subject The new title field
+	 * @param string $body The new post body
+	 * @param int $visible The visible status
+	 * @param int $pin The pin status (only matters for threads)
+	 * @param int $lock The lock status (only matters for threads)
+	 * @param int $permasage The permasage status (only matters for threads)
+	 */
+	function updatepost($id, $board, $name, $trip, $link, $subject, $body, $visible, $pin, $lock, $permasage);
+	
+	/**
+	 * Remove a single image from the database, and optionally its corresponding
+	 * metadata info, if it has one
+	 * 
+	 * @param int $imgidx The index of the image
+	 * @param string $hash The SHA-1 hash of the image
+	 * @param int $extra_info The ID for the metadata table entry, if there is one.  Defaults
+	 * to -1, which signifies no such entry.
+	 */
+	function deleteimage($imgidx, $hash, $extra_info = -1);
 }
 ?>

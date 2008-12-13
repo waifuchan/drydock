@@ -126,6 +126,20 @@ class ThornModDBI extends ThornDBI
 		return ($this->banip($ip, $subnet, $privatereason, $publicreason, $adminreason, $postdata, $duration, $bannedby));
 	}
 
+	function banipfromthread($id, $privatereason, $publicreason, $adminreason, $duration, $bannedby)
+	{
+		$this->banipfrompost($id, true, 0, $privatereason, $publicreason, $adminreason, 
+				$duration, $bannedby);
+			
+		$replies = $this->myarray("select id from " . THreplies_table . " where thread=" . $id);		
+		foreach($replies as $reply)
+		{
+			$this->banipfrompost($reply, false, 0, $privatereason, $publicreason, $adminreason, 
+				$duration, $bannedby);		
+		}
+	}
+	
+
 	function delban($id, $reason="None provided")
 	{	
 		$singleban = $this->myassoc("select * from " . THbans_table . " where id=" . intval($id));

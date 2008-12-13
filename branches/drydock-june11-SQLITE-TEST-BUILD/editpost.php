@@ -1,4 +1,6 @@
 <?php
+	
+	
 	/*
 		drydock imageboard script (http://code.573chan.org/)
 		File:			editpost.php
@@ -9,597 +11,449 @@
 		Artistic License 2.0:
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
-
-	require_once("config.php");
-	require_once("common.php");
+	
+	require_once ("config.php");
+	require_once ("common.php");
 	
 	/*
 		OKAY HERE COMES THE HUGE LIST OF PARAMETERS THAT CAN BE PASSED TO THIS FUNCTION (aka: documentation)
-		post - 		The global ID of the post (can't change this, but it's still necessary)
-		name - 		The name of the poster
+		board -			The name of the board (its folder)
+		post - 			The global ID of the post (can't change this, but it's still necessary)
+		name - 			The name of the poster
 		trip - 			The tripcode of the poster
 		link -			Sage goes in the link field :o/saggy goes in da emo
 		title - 		The subject (if this post begins a thread)
-		body - 		The text of the post
-		visible-		Hide/unhide the post	
-		pin-			STICKY DIS SHIT
-		lock-			LOCK DIS SHIT	
-		permasage- 		THE SAGE OF DEATH
+		body - 			The text of the post
+		visible -		Hide/unhide the post	
+		pin -			STICKY DIS SHIT
+		lock -			LOCK DIS SHIT	
+		permasage - 	THE SAGE OF DEATH
 		remimage____ - 	Remove the image with the hash matching whatever's in the blank.
-
+		moddo -			Delete some stuff
+		modban -		Ban some people
+	
 		Was it good for you too?
 	*/
 	
-	$db=new ThornPostDBI();
 	/*
 		What can be done with this is a touchy issue, and thus my idea is the following:
 		Unrestricted access to post editing is reserved for admins only.
-		Moderators have the ability to sticky, lock, permasage, ban, and hide/unhide posts.  No editing functions are available.
+		Moderators have the ability to sticky, lock, permasage, ban, and hide/unhide posts.  
+		No editing functions are available.
 	*/
-
-		if((is_in_csl(intval($_GET['board']), $_SESSION['mod_array'])!=1) && ($_SESSION['admin'] !=1) && ($_SESSION['mod_global'] !=1))
+	
+	// First check if we even have the params we need
+	if (!isset ($_GET['post']) || !isset ($_GET['board']))
+	{
+		THdie("No thread and/or board parameter, nothing to do!");
+	}
+	
+	// Get the board ID.
+	$board_folder = trim($_GET['board']);
+	
+	// Check for local mod access or global mod/admin access.
+	if ((is_in_csl($board_folder, $_SESSION['mod_array']) != 1) && ($_SESSION['admin'] != 1) && ($_SESSION['mod_global'] != 1))
+	{
+		THdie("You are not permitted to moderate posts on this board");
+	}
+	
+	// Initialize admin powers
+	if ((isset ($_SESSION["admin"])) && ($_SESSION["admin"] == 1))
+	{
+		$adminpowers = 1;
+	}
+	else
+	{
+		$adminpowers = 0;
+	}
+	
+	$db = new ThornPostDBI();
+	
+	// Set some stuff up.
+	$board_id = $db->getboardname($board_id);
+	$postid = intval($_GET['post']); // SQL injection protection :]
+	$threadid = 0; // set this up later once we get some post data
+	$ipstring = "";
+	
+	// Make sure we retrieved a valid board folder
+	if ($board_folder == null)
+	{
+		THdie("That board does not exist!");
+	}
+	
+	// $postarray will hold the assoc containing post data
+	$postarray = array ();
+	
+	$postarray = $db->getsinglepost($postid, $board_id);
+	
+	// Make sure it exists
+	if ($postarray == null)
+	{
+		THdie("Post with global ID of " . $postid . " and board /" . $board_folder . "/ does not exist.");
+	}
+	
+	// Make a string from the IP for easy use in Smarty
+	$ipstring = long2ip($postarray['ip']);
+	
+	// If it's a thread, the thread global ID and post global ID will be one and the same.
+	// Otherwise, we need to look it up.
+	if ($postarray['thread'] == 0)
+	{
+		$threadid = $postarray['globalid'];
+	}
+	else
+	{
+		$fetched_thread = $db->gettinfo($postarray['thread']);
+		$threadid = $fetched_thread['globalid'];
+	}
+	
+	// only bother if we're receiving POST data
+	if (isset ($_POST['permsub']))
+	{
+		// Initialize some params for the updatepost call
+		$name = $postarray['name'];
+		$trip = $postarray['trip'];
+		$link = $postarray['link'];
+		$title = $postarray['title'];
+		$body = $postarray['body'];
+		$pin = $postarray['pin'];
+		$lock = $postarray['lawk'];
+		$psage = $postarray['permasage'];
+		$visible = $postarray['visible'];
+	
+		$_POST['pin'] = intval($_POST['pin']);
+		$_POST['lock'] = intval($_POST['lock']);
+		$_POST['permasage'] = intval($_POST['permasage']);
+	
+		// We'll use these to keep track of what types of log messages
+		// we need to write
+		$postchanged = 0; // Some actual quality of the post has changed
+		$lockdelta = 0; // Lock status has changed
+		$pindelta = 0; // Pin status has changed
+		$psagedelta = 0; // Permasage status has changed	
+		$visibledelta = 0; // Visibility has changed
+	
+		// First let's take care of the special stuff
+		if ($adminpowers > 0)
 		{
-			THdie("You are not permitted to edit posts on this board");
-		}
-		if ((isset($_SESSION["admin"])) && ($_SESSION["admin"] == 1))
-		{ 
-			$adminpowers = 1;
-		} 
-		else 
-		{
-			$adminpowers = 0;
-		}
-
-		if (!isset($_GET['post']) || !isset($_GET['board'])) 
-		{
-			THdie("No thread and/or board parameter, nothing to do!");
-		} 
-		else 
-		{
-			$post = intval($_GET['post']); // SQL injection protection :]
-			$board = $db->getboardnumber($_GET['board']);
-			$qstring = "SELECT * FROM ".THreplies_table." WHERE globalid=".$post." AND board=".$board;
-			//echo $qstring."<br>/n";
-			//$postquery = $db->myquery($qstring);
-			$posttoedit=$db->myassoc($qstring);
-
-			if( !$posttoedit )
+			// Name
+			if (isset ($_POST['name']) && $name != $_POST['name'])
 			{
-				$qstring = "SELECT * FROM ".THthreads_table." WHERE globalid=".$post." AND board=".$board;
-				$posttoedit=$db->myassoc($qstring);
-				$threadquery = 1;
-				if( !$posttoedit )
-				{
-					THdie("Post with global ID of ".$_GET['post']." and board ".$_GET['board']." does not exist. :(");
-				}
+				$name = $_POST['name'];
+				$postchanged = 1;
+			}
+	
+			// Tripcode hash
+			if (isset ($_POST['trip']) && $name != $_POST['trip'])
+			{
+				$trip = $_POST['trip'];
+				$postchanged = 1;
+			}
+	
+			// Link field
+			if (isset ($_POST['link']) && $name != $_POST['link'])
+			{
+				$link = $_POST['link'];
+				$postchanged = 1;
+			}
+	
+			// Subject
+			if (isset ($_POST['title']) && $name != $_POST['title'])
+			{
+				$title = $_POST['title'];
+				$postchanged = 1;
+			}
+	
+			// Post body
+			if (isset ($_POST['body']) && $name != $_POST['body'])
+			{
+				$body = $_POST['body'];
+				$postchanged = 1;
 			}
 		}
-		//print_r($posttoedit);
-
-		$boardname = $db->getboardname($board);
-		$isanythingchanged = 0;
-		$unvisibletime=0;
-
-		//name
-		if (isset($_POST['name']) && $adminpowers > 0 && $posttoedit['name'] != $_POST['name']) //must have admin powers to edit
-		{ 
-			$name = $_POST['name'];
-			$isanythingchanged = 1;
-		} 
-		else 
+	
+		// This section covers qualities that can be changed by mods
+		// but are only important for threads
+		if ($postarray['thread'] == 0)
 		{
-			$name = $posttoedit['name'];
+			// Pin status
+			if (isset ($_POST['pin']) && $pin != $_POST['pin']) // Cover an explicit change (unchecked->checked)
+			{
+				$pin = $_POST['pin'];
+				$pindelta = 1;
+			}
+			elseif (isset ($_POST['pin']) == false && $pin == true) // Cover an implicit change (checked->unchecked)
+			{
+				$pin = false;
+				$pindelta = 1;
+			}
+	
+			// Lock status
+			if (isset ($_POST['lock']) && $lock != $_POST['lock']) // Cover an explicit change (unchecked->checked)
+			{
+				$lock = $_POST['lock'];
+				$lockdelta = 1;
+			}
+			elseif (isset ($_POST['lock']) == false && $lock == true) // Cover an implicit change (checked->unchecked)
+			{
+				$lock = false;
+				$lockdelta = 1;
+			}
+	
+			// Lock status
+			if (isset ($_POST['permasage']) && $psage != $_POST['permasage']) // Cover an explicit change (unchecked->checked)
+			{
+				$psage = $_POST['permasage'];
+				$psagedelta = 1;
+			}
+			elseif (isset ($_POST['permasage']) == false && $psage == true) // Cover an implicit change (checked->unchecked)
+			{
+				$psage = false;
+				$psagedelta = 1;
+			}
 		}
-
-		//trip
-		if (isset($_POST['trip']) && $adminpowers > 0 && $posttoedit['trip'] != $_POST['trip'])
-		{
-			$trip = $_POST['trip'];
-			$isanythingchanged = 1;
-		} 
-		else 
-		{
-			$trip = $posttoedit['trip'];
-		}
-
-		//link
-		if (isset($_POST['link']) && $adminpowers > 0 && $posttoedit['link'] != $_POST['link'])
-		{
-			$link = $_POST['link'];
-			$isanythingchanged = 1;
-		} 
-		else 
-		{
-			$link = $posttoedit['link'];
-		}
-
-		//title
-		if (isset($_POST['title']) && $adminpowers > 0 && $posttoedit['title'] != $_POST['title']) 
-		{
-			$title = $_POST['title'];
-			$isanythingchanged = 1;
-		} 
-		else 
-		{
-			$title = $posttoedit['title'];
-		}
-
-		//body
-		if (isset($_POST['body']) && $adminpowers > 0 && $posttoedit['body'] != $_POST['body']) 
-		{
-			$body = $_POST['body'];
-			$isanythingchanged = 1;
-		} 
-		else 
-		{
-			$body = $posttoedit['body'];
-		}
-
-		//visibility
-		if (isset($_POST['visible']) && $posttoedit['visible'] != $_POST['visible']) 
+	
+		// You know, this is the one thing that can be consistently changed.
+		if (isset ($_POST['visible']) && $visible != $_POST['visible'])
 		{
 			$visible = $_POST['visible'];
-			$unvisibletime = time()+(THtimeoffset*60);
-			$isanythingchanged = 1;
-		} 
-		else 
-		{
-			$visible = $posttoedit['visible'];
-			if($posttoedit['unvisibletime'] != NULL) { $unvisibletime = $posttoedit['unvisibletime']; } else { $unvisibletime=0; }
+			$visibledelta = 1;
 		}
-
-		if($threadquery == NULL) //we are editing a reply
+	
+		// If we changed the post data, we're going to report the full edit.
+		// If we changed the visibility status, we're going to report that as well.
+		// In either of these two cases, updatepost will be called.
+	
+		if ($postchanged > 0)
 		{
-			if(isset($posttoedit['thread'])) { $thread = $posttoedit['thread']; } else { $thread=$posttoedit['id']; }
-			if(isset($_POST['editsub'])) 
-			{
-				$pin = intval($_POST['pin']);
-				if($pin != $db->myresult("SELECT pin FROM ".THthreads_table." WHERE id=".$thread))
-					$pindelta = 1;
-					
-				$lock = intval($_POST['lawk']);
-				if($lock != $db->myresult("SELECT lawk FROM ".THthreads_table." WHERE id=".$thread))
-					$lockdelta = 1;
-					
-				$psage = intval($_POST['permasage']);
-				if($psage != $db->myresult("SELECT permasage FROM ".THthreads_table." WHERE id=".$thread))
-					$psdelta = 1;
-			} 
-			else 
-			{
-				$pin = $db->myresult("SELECT pin FROM ".THthreads_table." WHERE id=".$thread);
-				$pindelta = 0;
-				$lock = $db->myresult("SELECT lawk FROM ".THthreads_table." WHERE id=".$thread);
-				$lockdelta = 0;
-				$psage = $db->myresult("SELECT permasage FROM ".THthreads_table." WHERE id=".$thread);
-				$psdelta = 0;
-			}
-		} 
-		else 
-		{ // we are editing the OP of a thread
-			if (isset($_POST['editsub'])) 
-			{
-				$pin = intval($_POST['pin']);
-				if($posttoedit['pin'] != $pin);
-					$pindelta = 1;
-				
-				$lock = intval($_POST['lawk']);
-				// GODDAMN IT WHY DID THORN HAVE TO BE RETARDED AND USE "LAWK"
-				if($posttoedit['lawk'] != $lock);
-						$lockdelta = 1;
-				
-				$psage = intval($_POST['permasage']);
-				
-				if($posttoedit['permasage'] != $psage);
-						$psdelta = 1;
-			} 
-			else 
-			{
-				$pin = $posttoedit['pin'];
-				$pindelta = 0;
-				$lock = $posttoedit['lawk'];
-				$lockdelta = 0;
-				$psage = $posttoedit['permasage'];
-				$psdelta = 0;
-			}
-			$thread = $posttoedit['id'];
+			// Update the post data
+			$db->updatepost($postarray['globalid'], $postarray['board'], $name, $trip, $link, $title, $body, $visible, $pin, $lock, $psage);
+	
+			$actionstring = "edit\tgid:" . $postarray['globalid'] . "\tb:" . $postarray['board'];
+			writelog($actionstring, "moderator");
 		}
-		// LOAD STUFF THAT CAN'T BE CHANGED
-		$imgidx 	= $posttoedit['imgidx'];
-		$ip 		= $posttoedit['ip'];
-		$time 		= $posttoedit['time'];
-		$id 		= $posttoedit['id'];
-		//$bump 		= $posttoedit['bump'];
-		$images = $db->getimgs($imgidx);
-		foreach($images as $img)
+		elseif ($visibledelta > 0)
 		{
-			if($_POST['remimage'.strval($img['hash'])] != 0 && isset($_POST['remimage'.strval($img['hash'])]) )
+			// Update the post data
+			$db->updatepost($postarray['globalid'], $postarray['board'], $name, $trip, $link, $title, $body, $visible, $pin, $lock, $psage);
+	
+			$actionstring = "vis\tgid:" . $postarray['globalid'] . "\tb:" . $postarray['board'];
+			writelog($actionstring, "moderator");
+		}
+	
+		// Write lock/pin/permasage logs
+		if ($lockdelta > 0)
+		{
+			$actionstring = "lock\tt:" . $postarray['id'] . "\tb:" . $postarray['board'] . "\tv:" . $lock;
+			writelog($actionstring, "moderator");
+		}
+	
+		if ($pindelta > 0)
+		{
+			$actionstring = "pin\tt:" . $postarray['id'] . "\tb:" . $postarray['board'] . "\tv:" . $pin;
+			writelog($actionstring, "moderator");
+		}
+	
+		if ($psagedelta > 0)
+		{
+			$actionstring = "psage\tt:" . $postarray['id'] . "\tb:" . $postarray['board'] . "\tv:" . $psage;
+			writelog($actionstring, "moderator");
+		}
+	
+		// Since we know it exists, let's fetch its images.
+		$postarray['images'] = $db->getimgs($postarray['imgidx']);
+		foreach ($postarray['images'] as $img)
+		{
+			if ($_POST['remimage' . strval($img['hash'])] != 0 && isset ($_POST['remimage' . strval($img['hash'])]))
 			{
-				
-				if($img['extra_info']>0)
+				// Make the DB call to delete the image
+				$db->deleteimage($postarray['imgidx'], strval($img['hash']), $img['extra_info']);
+	
+				// And delete the physical file
+				$path = THpath . "images/" . $postarray['imgidx'] . "/";
+				unlink($path . $img['name']);
+				unlink($path . $img['tname']);
+	
+				// Log this action
+				$actionstring = "Delete img\timgidx:" . $postarray['imgidx'] . "\tn:" . $img['name'];
+				writelog($actionstring, "moderator");
+			}
+		}
+	
+	}
+	
+	if (isset ($_POST['modban']) || isset ($_POST['moddo']))
+	{
+		if ($_POST['modban'] != "nil" || $_POST['moddo'] != "nil")
+		{
+			$moddb = new ThornModDBI();
+	
+			//Get post
+			$targetid = $postarray['id'];
+	
+			// Find out if this is a thread
+			if ($postarray['thread'] != 0) // Reply
+			{
+				$targetisthread = false;
+			}
+			else // Thread
 				{
-					$db->myquery("delete from ".THextrainfo_table." where id=".$img['extra_info']); // delete any associated extra_info
-				}
-				$path=THpath."images/".$posttoedit['imgidx']."/";
-				unlink($path.$img['name']);
-				unlink($path.$img['tname']);
-				$db->myquery("update ".THimages_table." set hash='deleted' where id=".$posttoedit['imgidx']." and hash='".$db->escape_string($img['hash'])."'"); //"this fixes stupd syntax highlighting in my editor >:[
-				$actionstring = "Delete img\timgidx:".$posttoedit['imgidx']."\tn:".$img['name'];
-				writelog($actionstring,"moderator");				
+				$targetisthread = true;
 			}
-		}
-
-		if( $isanythingchanged > 0 )
-		{
-			if($threadquery == NULL)
+	
+			if ($_POST['modban'] == "banip") // Ban an IP
 			{
-				$db->myquery("update ".THreplies_table." set name='".$db->escape_string($name)."', trip='".$db->escape_string($trip)."', title='".$db->escape_string($title)."', body='".$db->escape_string($body)."', visible=".$visible.", unvisibletime=".$unvisibletime.", link='".$db->escape_string($link)."' where globalid=".$post." AND board=".$board);
-				$actionstring = "Edit\tpid:".$post."\tb:".$board;
-			} 
-			else 
-			{
-				$db->myquery("update ".THthreads_table." set name='".$db->escape_string($name)."', trip='".$db->escape_string($trip)."', title='".$db->escape_string($title)."', body='".$db->escape_string($body)."', visible=".$visible.", unvisibletime=".$unvisibletime.", link='".$db->escape_string($link)."' where globalid=".$post." AND board=".$board);
-				$actionstring = "Edit\ttid:".$post."\tb:".$board;	
+				$moddb->banipfrompost($targetid, $targetisthread, 0, $_POST['privatebanreason'], $_POST['publicbanreason'], $_POST['adminbanreason'], $_POST['banduration'], $_SESSION['username'] . " via mod panel");
 			}
-			smclearcache($board, -1, $thread); // clear the associated cache for this thread
-			writelog($actionstring,"moderator");
-		}
-
-		if($lockdelta > 0)
-		{
-			$actionstring = "lock\tt:".$thread."\tb:".$board;
-			writelog($actionstring,"moderator");
-			$db->myquery("update ".THthreads_table." set lawk=".intval($lock)." WHERE id=".$thread);
-		}
-
-		if($pindelta > 0)
-		{
-			$actionstring = "pin\tt:".$thread."\tb:".$board;
-			writelog($actionstring,"moderator");
-			$db->myquery("update ".THthreads_table." set pin=".intval($pin)." WHERE id=".$thread);
-		}
-
-		if($psdelta > 0)
-		{
-			$actionstring = "psage\tt:".$thread."\tb:".$board;
-			writelog($actionstring,"moderator");
-			$db->myquery("update ".THthreads_table." set permasage=".intval($psage)." WHERE id=".$thread);
-		}
-
-		$threadid = $db->myresult("SELECT globalid FROM ".THthreads_table." WHERE id=".$thread);
-
-		if(isset($_POST['modban']) || isset($_POST['moddo']))
-		{
-			if ($_POST['modban']!="nil"||$_POST['moddo']!="nil") 
+			elseif ($_POST['modban'] == "bansub") // Ban a subnet
 			{
-				$moddb=new ThornModDBI();
-
-				//Get post
-				$suckid=$posttoedit['id'];
-				if ($posttoedit['thread']) 
+				$moddb->banipfrompost($targetid, $targetisthread, 1, $_POST['privatebanreason'], $_POST['publicbanreason'], $_POST['adminbanreason'], $_POST['banduration'], $_SESSION['username'] . " via mod panel");
+			}
+			elseif ($_POST['modban'] == "banthread" && $adminpowers > 0) // Ban a whole thread (requires admin powers)
+			{
+				$moddb->banipfromthread($targetid, $_POST['privatebanreason'], $_POST['publicbanreason'], $_POST['adminbanreason'], $_POST['banduration'], $_SESSION['username'] . " via mod panel (threadban)");
+			}
+	
+			// Post deletion, if they have access
+			if ($adminpowers > 0 && $_POST['moddo'] != "nil")
+			{
+				if ($targetisthread)
 				{
-					// this is a reply
-					$suckisthread=false;
-					$shit = "SELECT thread FROM ".THreplies_table." where globalid=".$post." and board=".$board;
-					$grabid = mysql_result(mysql_query($shit),0);
-					$fuck = "SELECT globalid FROM ".THthreads_table." where id=".$grabid." and board=".$board;
-					$threadop = mysql_result(mysql_query($fuck),0);
-					$actionstring = "delete:\tp:".$threadop."\tb:".$board."\tp:".$posttoedit['globalid'];
-					writelog($actionstring,"moderator");
-					
-					if(THuserewrite)
+					$actionstring = "delete\tt:" . $postarray['globalid'] . "\tb:" . $postarray['board'];
+	
+					if (THuserewrite)
 					{
-					$diereturn='Post(s) deleted.<br><a href="'.THurl.$boardname.'/thread/'.$threadop.'">Return to thread</a>';
+						$diereturn = 'Post(s) deleted.<br><a href="' . THurl . $boardname . '">Return to board</a>';
 					}
 					else
 					{
-					$diereturn='Post(s) deleted.<br><a href="'.THurl.'drydock.php?b='.$boardname.'&i='.$threadop.'">Return to thread</a>';
+						$diereturn = 'Post(s) deleted.<br><a href="' . THurl . 'drydock.php?b=' . $boardname . '">Return to board</a>';
 					}
-				} 
-				else 
+				}
+				else
 				{
-					$suckisthread=true;
-					$actionstring = "delete\tt:".$posttoedit['globalid']."\tb:".$board;
-					writelog($actionstring,"moderator");
-					
-					if(THuserewrite)
+					$actionstring = "delete:\tp:" . $threadid . "\tb:" . $postarray['board'] . "\tp:" . $postarray['globalid'];
+	
+					if (THuserewrite)
 					{
-					$diereturn='Post(s) deleted.<br><a href="'.THurl.$boardname.'">Return to board</a>';
+						$diereturn = 'Post(s) deleted.<br><a href="' . THurl . $boardname . '/thread/' . $threadop . '">Return to thread</a>';
 					}
 					else
 					{
-					$diereturn='Post(s) deleted.<br><a href="'.THurl.'drydock.php?b='.$boardname.'">Return to board</a>';
+						$diereturn = 'Post(s) deleted.<br><a href="' . THurl . 'drydock.php?b=' . $boardname . '&i=' . $threadop . '">Return to thread</a>';
 					}
 				}
-
-				if ($_POST['modban']=="banip") 
-				{
-					$moddb->banipfrompost($suckid,$suckisthread,false,$_POST['privatebanreason'],$_POST['publicbanreason'],$_POST['adminbanreason'],$_POST['banduration'], $_SESSION['username']." via mod panel");
-				}
-				elseif ($_POST['modban']=="bansub") 
-				{
-					$moddb->banipfrompost($suckid,$suckisthread,true,$_POST['privatebanreason'],$_POST['publicbanreason'],$_POST['adminbanreason'],$_POST['banduration'],$_SESSION['username']." via mod panel");
-				}
-				elseif ($_POST['modban']=="banthread" && $adminpowers>0) //MOOT MOOT LOL 
-				{
-					$moddb->banipfrompost($thread,true,false,$_POST['privatebanreason'],$_POST['publicbanreason'],$_POST['adminbanreason'],$_POST['banduration'], $_SESSION['username']." via mod panel (threadban)");
-					$posts=$db->myquery("select * from ".THreplies_table." where thread=".$thread);
-					while ($reply=mysql_fetch_assoc($posts))
-					{
-						$suckid=$reply['id'];
-						$moddb->banipfrompost($suckid,false,false,$_POST['privatebanreason'],$_POST['publicbanreason'],$_POST['adminbanreason'],$_POST['banduration'],$_SESSION['username']." via mod panel (threadban)");
-					}
-				}
-							
-			if($adminpowers > 0)
-			{
-				if ($_POST['moddo']=="killpost") 
+	
+				if ($_POST['moddo'] == "killpost")
 				{
 					smclearcache($board, -1, $thread); // clear the associated cache for this thread
 					smclearcache($board, -1, -1); // AND the board
-					delimgs($moddb->delpost($suckid,$suckisthread));
+					delimgs($moddb->delpost($targetid, $targetisthread));
 				}
-				elseif ($_POST['moddo']=="killip") 
+				elseif ($_POST['moddo'] == "killip")
 				{
-					delimgs($moddb->delipfrompost($suckid,$suckisthread,false));
+					delimgs($moddb->delipfrompost($targetid, $targetisthread, false));
+					
+					// Indicate that an entire IP is getting its posts deleted
+					$actionstring = $actionstring . "\tip:" . $ipstring;
 				}
-				elseif ($_POST['moddo']=="killsub") 
+				elseif ($_POST['moddo'] == "killsub")
 				{
-					delimgs($moddb->delipfrompost($suckid,$suckisthread,true));
+					delimgs($moddb->delipfrompost($targetid, $targetisthread, true));
+					
+					// Indicate that an entire subnet is getting its posts deleted
+					// We do this by writing "sub" instead of "ip" and calling ipsub so that
+					// the last octet will be a 0
+					$actionstring = $actionstring . "\tsub:" . long2ip(ipsub($postarray['ip']));
 				}
-				if($_POST['moddo']!="nil")
-				{
-					//Display our link back.
-					THdie($diereturn);
-				}
-			} 
-			else 
+	
+				// Write to the log
+				writelog($actionstring, "moderator");
+	
+				//Display our link back.
+				THdie($diereturn);
+	
+			}
+			elseif ($_POST['moddo'] != "nil")
 			{
-				die("You lack sufficient ability to delete this post!\n");
+				THdie("You lack sufficient ability to delete this post!");
 			}
 		}
 	}
-	if(isset($_POST['movethread']) && $_POST['movethread']!="nil" && $adminpowers > 0)
+	
+	// Attempt to move a thread (we can if we're an admin)
+	if (isset ($_POST['movethread']) && $_POST['movethread'] != "nil")
 	{
-		$destboard = intval($_POST['movethread']);
-		if($db->myresult("SELECT COUNT(*) FROM ".THboards_table." WHERE id=".$destboard) < 1)
+		if ($adminpowers > 0 && $postarray['thread'] == 0) // this last bit makes sure that it's a thread
 		{
-			die("You can't move a thread to a board that doesn't exist!");
-		}
+			$destboard = intval($_POST['movethread']);
+			$destboard_name = $db->getboardname($destboard);
 	
-		// Clear the relevant caches
-		smclearcache($board, -1, $thread); // clear the associated cache for this thread
-		smclearcache($board, -1, -1); // clear the associated cache for the original board
-		smclearcache($destboard, -1, -1); // clear the associated cache for the target board
-		
-		$newthreadspot = $db->getglobalid($destboard);
-		$db->myquery("update ".THthreads_table." set globalid=".$newthreadspot.", board=".$destboard." where id=".$thread);
-		
-		$actionstring = "Move thread\t(t:".$thread.",ob:".$posttoedit['board'].") => (tid:".$newthreadspot.",b:".$destboard.")";
-		writelog($actionstring,"moderator");
+			if ($destboard_name == null)
+			{
+				THdie("You can't move a thread to a board that doesn't exist!");
+			}
 	
-		$posts=$db->myquery("select * from ".THreplies_table." where thread=".$thread." order by globalid asc");
-		while ($reply=mysql_fetch_assoc($posts))
-		{
-		$db->myquery("update ".THreplies_table." set globalid=".$db->getglobalid($destboard).",board=".$destboard." where id=".$reply['id']);
-		}
-		
-		if(THuserewrite)
-		{
-			die('Thread moved.<br><a href="'.THurl.$boardname.'/thread/'.$newthreadspot.'">Return to thread</a>');
+			// Pass the rest off to the DB
+			$newthreadspot = $db->movethread($id, $destboard);
+	
+			// Check if it failed
+			if ($newthreadspot == null)
+			{
+				THdie("Move failed!");
+			}
+	
+			// Clear the relevant caches
+			smclearcache($board_id, -1, $threadid); // clear the associated cache for this thread
+			smclearcache($board_id, -1, -1); // clear the associated cache for the original board
+			smclearcache($destboard, -1, -1); // clear the associated cache for the target board
+	
+			// Write to the log
+			$actionstring = "Move thread\t(t:" . $thread . ",ob:" . $postarray['board'] . ") => (tid:" . $newthreadspot . ",b:" . $destboard . ")";
+			writelog($actionstring, "moderator");
+	
+			if (THuserewrite)
+			{
+				THdie('Thread moved.<br><a href="' . THurl . $destboard_name . '/thread/' . $newthreadspot . '">Return to thread</a>');
+			}
+			else
+			{
+				THdie('Thread moved.<br><a href="' . THurl . 'drydock.php?b=' . $destboard_name . '&i=' . $newthreadspot . '">Return to thread</a>');
+			}
 		}
 		else
 		{
-		   die('Thread moved.<br><a href="'.THurl.'drydock.php?b='.$boardname.'&i='.$newthreadspot.'">Return to thread</a>');
+			THdie("Invalid move thread attempt!");
 		}
 	}
-
-	echo '<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN">';
-	echo "<html>\n";
-	echo "<head>\n";
-	echo " <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n";
-	echo " <title>".THname." Moderator Window</title>\n";
-	echo " <link rel=\"stylesheet\" type=\"text/css\" href=\"".THurl."tpl/".THtplset."/futaba.css\" title=\"Futaba-ish Stylesheet\" />\n";
-	echo "</head>\n";
-	echo "<body>\n";
-	echo "<form name=\"postedit\" action=\"".THurl."editpost.php?post=".$post."&board=".$boardname."\" method=\"post\">\n";
-
-	echo '<font size="+1">';
-	echo 'Currently editing <a href="'.THurl;
-	if(THuserewrite)
-	{
-		echo $boardname.'/thread/';
-	} 
-	else 
-	{
-		echo 'drydock.php?b='.$boardname.'&i=';
-	}
-	echo $threadid.'#'.$post.'">p.'.$post.'</a> in thread '.$threadid.' in /'.$boardname.'/';
 	
-	echo "</font><hr width=\"70%\" align=\"left\"/>\n";
+	// Some stuff might have changed after all that, so let's refetch the data
+	$postarray = $db->getsinglepost($postid, $board_id);
+	$postarray['images'] = $db->getimgs($postarray['imgidx']);
 	
-	echo "<table width=\"80%\"><tbody>\n<tr>";
-	echo '<td><b>Public ID:</b> '.$_GET['post'].'</td>';
-	echo '<td><b>Poster time:</b> '.strftime(THdatetimestring,$time).'</td>';
-	echo "</tr><tr>\n";
-	echo '<td><b>Private ID:</b> '.$id.'</td><td><b>Poster IP:</b> '.long2ip($ip)."</td></tr>\n";
-
-	echo '<tr>';
-	echo '<td><b>Poster name:</b><br> <input name="name" ';
-	if($adminpowers == 0){ echo 'disabled '; }
-	echo 'type="text" value="'.$name.'"></td>';
-	echo '<td><b>Poster trip:</b><br> <input name="trip" ';
-	if($adminpowers == 0){ echo 'disabled '; }
-	echo 'type="text" value="'.$trip.'"></td>';
-	echo "</tr><tr>\n";
-	echo '<td><b>Poster link:</b><br> <input name="link" ';
-	if($adminpowers == 0){ echo 'disabled '; }
-	echo 'type="text" value="'.$link.'"></td>';
-	echo '<td><b>Post subject (if OP):</b><br> <input name="title" ';
-	if($adminpowers == 0){ echo 'disabled '; }
-	echo 'type="text" value="'.$title.'"></td>';
-	echo '</tr></tbody></table>';
-
-	echo "\n";
-
-	echo '<table width="90%"><tbody>';
-	echo '<tr>';
-	echo '<td><b>Post body:</b></td>';
-	echo '<td><textarea ';
-	if($adminpowers == 0){ echo 'disabled '; }
-	echo 'name="body" cols="48" rows="6" >'.$body.'</textarea></td>';
-	echo "</tr></tbody></table>\n";
-	echo "<table width=\"90%\"><tbody><tr><td>\n";
-
-	echo "<table><tbody><tr>\n<td><b>Modify thread:</b><br></td>\n<td><b>Visibility:</b><br></td></tr>\n";
-
-	echo '<tr><td>';
-	if($lock)
-	{
-		echo '<input type="checkbox" name="lawk" checked="checked" value="1">Locked';
-	} 
-	else 
-	{
-	echo '<input type="checkbox" name="lawk" value="1">Locked';
-	}
-	echo '</td><td>';
-
-	if( $visible > 0 )
-	{
-		echo '<input type="radio" name="visible" checked="1" value="1"> Visible';
-	} 
-	else 
-	{
-		echo '<input type="radio" name="visible" value="1"> Visible';
-	}
-	echo "</td></tr>\n<tr><td>";
+	// Get the boards array, to possibly show a list for moving
+	$boards = array ();
+	$boards = $db->getboard(); // No parameters means everything gets fetched
 	
+	$sm = sminit("adminedit", null, "_admin", true); // Admin mode means NO caching. (and we provided a null id anyway)
 	
-	if($pin)
-	{
-		echo '<input type="checkbox" name="pin" checked="checked" value="1">Stickied';
-	} 
-	else 
-	{
-		echo '<input type="checkbox" name="pin" value="1">Stickied';
-	}
-	echo '</td><td>';
+	// These can be pretty big, so we're going to assign by reference.
+	$sm->assign_by_ref("boards", $boards);
+	$sm->assign_by_ref("postarray", $postarray); // Contains all the post data
 	
-	if( $visible > 0 )
-	{
-		echo '<input type="radio" name="visible" value="0"> Invisible';
-	} 
-	else 
-	{
-		echo '<input type="radio" name="visible" checked="1" value="0"> Invisible';
-	}
-	echo "</td></tr>\n<tr><td>";
+	// Board information
+	$sm->assign("boardname", $board_folder);
+	$sm->assign("boardid", $board_id);
 	
+	// Specific post location information
+	$sm->assign("threadid", $threadid);
+	$sm->assign("postid", $postid);
 	
-	if($psage)
-	{
-		echo '<input type="checkbox" name="permasage" checked="checked" value="1">Permasage';
-	} 
-	else 
-	{
-		echo '<input type="checkbox" name="permasage" value="1">Permasage';
-	}
-	echo '</td><td>';
+	// Misc
+	$sm->assign("adminpowers", $adminpowers); // Administrative abiities
+	$sm->assign("ipstring", $ipstring);
 	
-	echo '<b>Moderation last performed:</b> ';
-	if($unvisibletime != 0)
-	{
-		echo strftime(THdatetimestring,$unvisibletime).'';
-	} 
-	else
-	{
-		echo 'Never.';
-	}
-	echo '</td></tr></tbody></table>';
-	
-	echo '</td>';
-	
-	echo '<td><b>Delete images:</b><br>';
-	
-	$images = $db->getimgs($imgidx);
-	$imgiterator = 0;
-	foreach($images as $img)
-	{
-		$imgiterator++;
-		echo '<input type="checkbox" name="remimage'.strval($img['hash']).'" value="1">';
-		echo '<a href="'.THurl.'images/'.$imgidx.'/'.$img['name'].'">'.$imgiterator.'</a> ';
-		if( $imgiterator%2 == 0)
-		{
-			echo "<br>\n";
-		}
-	}
-	if($imgiterator == 0)
-	{
-		echo "No images<br>\n";
-	}
-	
-	echo "</td></tr>\n<tr>";
-	
-	if($adminpowers > 0)
-	{ 
-		echo "<td><b>Delete:</b><br>\n";
-		echo "<select name=\"moddo\">\n";
-		echo "<option value=\"nil\" selected=\"selected\">&#8212;</option>\n";
-		echo "<option value=\"killpost\">Delete this post</option>\n";
-		echo "<option value=\"killip\">Delete all posts from this poster's IP</option>\n";
-		echo "<option value=\"killsub\">Delete all posts from this poster's subnet</option>\n";
-		echo "</select><br>\n";
-	} 
-	else 
-	{
-		echo "<td>Deletion functions are not available at your access level.<br>Please use the hide functions instead</td>\n";
-	}
-		
-	echo "<b>Ban:</b><br>\n";
-	echo "<select name=\"modban\">\n";
-	echo "<option value=\"nil\" selected=\"selected\">&#8212;</option>\n";
-	echo "<option value=\"banip\">Ban this poster's IP</option>\n";
-	echo "<option value=\"bansub\">Ban this poster's subnet</option>\n";
-	if($adminpowers > 0 && !$posttoedit['thread']){ echo "<option value=\"banthread\">Ban this thread</option>\n"; }
-	
-	echo "</select>\n";
-	
-	if(!$posttoedit['thread'] && $adminpowers > 0)
-	{
-		echo '<br><b>Move thread:</b><br>';
-		echo '<select name="movethread">';
-		echo "<option value=\"nil\" selected=\"selected\">&#8212;</option>";
-		$boards=$db->myquery("select * from ".THboards_table." order by id asc");
-		while ($toboard=mysql_fetch_assoc($boards))
-		{
-			if($toboard['id']!=$board)
-			{
-				echo "<option value=\"".$toboard['id']."\">Move to /".$toboard['folder']."/</option>\n";
-			}
-		}
-		echo "</select>\n";
-		echo "<br><b>Warning:</b> hiding/deleting this post will hide/delete all replies.";
-	}
-	
-	echo '</td>';
-	
-	echo '<td><b>Ban options:</b><br>
-		<table><tbody><tr>
-		<td>Public ban reason:</td>
-		<td><input type="text" name="publicbanreason" size="20" /></td></tr>
-		<tr><td>Private ban reason:</td>
-		<td><input type="text" name="privatebanreason" size="20" /></td></tr>
-		<tr><td>Admin ban reason:
-		<td><input type="text" name="adminbanreason" size="20" /></td></tr>
-		<tr><td>Duration:
-		<td><input type="text" name="banduration" size="20" /> hrs</td>
-		</tr></tbody></table>
-		</td></tr>';
-	
-	
-	echo '</tbody>';
-	echo "</table></div>\n";
-	echo "<input type=\"hidden\" name=\"editsub\" value=\"1\">\n";
-	echo "<INPUT type=\"submit\" value=\"Edit\"> <INPUT type=\"reset\"></form>\n";
-	echo "</body></html>\n";
+	// Show it!
+	$sm->display("adminedit", null);
+	die();
 ?>

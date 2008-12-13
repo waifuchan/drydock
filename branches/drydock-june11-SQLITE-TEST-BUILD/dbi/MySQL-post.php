@@ -89,6 +89,9 @@ class ThornPostDBI extends ThornDBI
 		{
 			$q .= $this->clean($body);
 		}
+		
+		$bump = preg_match("/^(mailto:)?sage$/", $link); // sage check
+		
 		$q .= "', ip=" . $ip . ", bump=" . (int) $bump;
 		$globalid = $this->getglobalid($board);
 		$q .= ", globalid=" . $globalid;
@@ -227,10 +230,17 @@ class ThornPostDBI extends ThornDBI
 			return (0);
 		}
 	}
+	
 	function getglobalid($board)
 	{
 		$sql = "select globalid from " . THboards_table . " where folder='" . $this->escape_string($board)."'";
 		$globalid = $this->myresult($sql);
+		
+		if( $globalid == null )
+		{
+			return null;
+		}
+		
 		$globalid++;
 		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where folder='" . $this->escape_string($board) . "'";
 		$this->myquery($newsql);
@@ -253,5 +263,103 @@ class ThornPostDBI extends ThornDBI
 		
 		return $location;
 	}
+	
+	function getsinglepost($id, $board)
+	{
+		$postassoc = array();
+		
+		// Try replies first
+		
+		$qstring = "SELECT * FROM " . THreplies_table . " WHERE globalid=" . intval($id) . 
+						" AND board=" . intval($board);
+		$postassoc = $this->myassoc($qstring);
+
+		if ($postassoc == null)
+		{
+			$qstring = "SELECT * FROM " . THthreads_table . " WHERE globalid=" . intval($id) . 
+						" AND board=" . intval($board);
+			$postassoc = $this->myassoc($qstring);
+		}
+	
+		return $postassoc;
+	}
+	
+	function movethread($id, $newboard)
+	{
+		// Get the new board name
+		$newboard = intval($newboard); // Save a bit of time
+		
+		$destboard_name = $this->getboardname($newboard);
+		$newthreadspot = $this->getglobalid($destboard_name);
+		
+		if( $newthreadspot == null )
+			return null;
+		
+		$this->myquery("update " . THthreads_table . " set globalid=" . $newthreadspot . ", " .
+				"board=" . intval($newboard) . " where id=" . intval($id));
+	
+		// Get an array of reply IDs to move
+		$posts = array();
+		$posts = $this->myarray("select id from " . THreplies_table . " where thread=" . intval($id) . 
+									" order by globalid asc");
+	
+		foreach( $posts as $reply )
+		{
+			$db->myquery("update " . THreplies_table . " set globalid=" . $db->getglobalid($newboard) . 
+							",board=" . $newboard . " where id=" . intval($reply));
+		}
+		
+		return $newthreadspot;
+	}
+	
+	function updatepost($id, $board, $name, $trip, $link, $subject, $body, $visible, $pin, $lock, $permasage)
+	{
+		$isreply = $this->myresult("SELECT COUNT(*) FROM " . THreplies_table . 
+			" WHERE globalid=".intval($id)." AND board=".intval($board));
+			
+		if( isreply )
+		{
+			$querystring = "UPDATE " . THreplies_table . " SET ".
+					"name='".$this->escape_string($name)."'," .
+					"trip='".$this->escape_string($trip)."'," .
+					"title='".$this->escape_string($subject)."'," .
+					"link='".$this->escape_string($link)."'," .
+					"body='".$this->escape_string($body)."'," .
+					"visible=".intval($visible)."," .
+					"unvisibletime=".time() + (THtimeoffset * 60).
+					" WHERE globalid=".intval($id).
+					" AND board=".intval($board);
+		}
+		else
+		{
+			$querystring = "UPDATE " . THreplies_table . " SET ".
+					"name='".$this->escape_string($name)."'," .
+					"trip='".$this->escape_string($trip)."'," .
+					"title='".$this->escape_string($subject)."'," .
+					"link='".$this->escape_string($link)."'," .
+					"body='".$this->escape_string($body)."'," .
+					"visible=".intval($visible)."," .
+					"pin=".intval($pin)."," .
+					"lawk=".intval($lock)."," .
+					"permasage=".intval($permasage)."," .
+					"unvisibletime=".time() + (THtimeoffset * 60).
+					" WHERE globalid=".intval($id).
+					" AND board=".intval($board);			
+		}
+		
+		$this->myquery($querystring);
+	}
+	
+	function deleteimage($imgidx, $hash, $extra_info = -1)
+	{
+		if ($extra_info > 0) // delete any associated extra_info
+		{
+			$this->myquery("delete from " . THextrainfo_table . " where id=" . intval($extra_info)); 
+		}
+
+		$this->myquery("delete from " . THimages_table . " where id=" . intval($imgidx) . 
+			" and hash='" . $this->escape_string($hash) . "'");
+	}
+	
 } //ThornPostDBI
 ?>

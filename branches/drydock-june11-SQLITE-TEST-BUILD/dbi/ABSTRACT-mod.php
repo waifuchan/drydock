@@ -62,6 +62,18 @@ interface absThornModDBI
 	 * @return bool True if the ban succeeded, false if it failed
 	 */	
 	function banipfrompost($id, $isthread, $subnet, $privatereason, $publicreason, $adminreason, $duration, $bannedby);
+	
+	/**
+	 * Ban an entire thread.  Calls banipfrompost().
+	 * 
+	 * @param int $id The (unique) ID number of the thread/post
+	 * @param string $privatereason The reason shown to the user (privately) why they were banned
+	 * @param string $publicreason The reason shown publically ("(USER WAS BANNED FOR THIS POST)")
+	 * @param string $adminreason The reason shown to admins (used for notes)
+	 * @param int $duration The duration of the ban. 0 for warning, -1 for perma, anything else is in hours
+	 * @param string $bannedby Who performed the banning
+	 */	
+	function banipfromthread($id, $privatereason, $publicreason, $adminreason, $duration, $bannedby);
 
 	/**
 	 * Deletes a ban from the active bans table, and moves it to the ban history table.

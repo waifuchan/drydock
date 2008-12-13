@@ -183,15 +183,13 @@ class ThornDBI
 			return (array ());
 		}
 		$imgs = array ();
-		$turtle = "select * from " . THimages_table . " where id=" . $this->clean($imgidx);
-/*
-		while ($img = $this->myassoc($turtle))
-		{
-			$imgs[] = $img;
-		}
-*/
+		
+		$querystring = "select ". THimages_table .".*, ".THextrainfo_table.".extra_info AS exif_text FROM"
+		 . THimages_table ." LEFT OUTER JOIN ".THextrainfo_table. " on ".THimages_table
+		 .".extra_info = ".THextrainfo_table.".id WHERE id=".intval($imgidx);
 
-		$imgs[] = $this->myassoc($turtle);
+		$imgs = $this->mymultiarray($querystring);
+		
 		echo"<b>";var_dump($imgs);echo"</b>";
 		return ($imgs);
 	}

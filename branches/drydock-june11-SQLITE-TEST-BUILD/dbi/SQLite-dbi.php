@@ -194,12 +194,15 @@ class ThornDBI implements absThornDBI
 		{
 			return (array ());
 		}
+		
 		$imgs = array ();
-		$turtle = $this->myquery("select * from " . THimages_table . " where id=" . $this->escape_string($imgidx));
-		while ($img = sqlite_fetch_array($turtle)) //help
-		{
-			$imgs[] = $img;
-		}
+		
+		$querystring = "select ". THimages_table .".*, ".THextrainfo_table.".extra_info AS exif_text FROM"
+				 . THimages_table ." LEFT OUTER JOIN ".THextrainfo_table. " on ".THimages_table
+				 .".extra_info = ".THextrainfo_table.".id WHERE id=".intval($imgidx);
+
+		$imgs = $this->mymultiarray($querystring);
+		
 		return ($imgs);
 	}
 
