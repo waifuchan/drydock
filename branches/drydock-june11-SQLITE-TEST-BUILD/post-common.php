@@ -29,6 +29,10 @@
 		}
     }    
         
+    /**
+     * Check a verification code, possibly messing
+     * with the session data if necessary.
+     */
     function checkvc()
     {
         //Disabling VCs at code level - probably need to do this from inside config :[[[
@@ -52,6 +56,17 @@
             session_destroy();
         }
     }
+   
+ 	/**
+ 	 * Validate things from $_FILES and add them into an array if they meet our
+ 	 * basic requirements (file format, file size, not duplicates, etc).  Note
+ 	 * that this function will attempt to check the "magic numbers" of a file
+ 	 * rather than just a simple file extension check.
+ 	 * 
+	 * @param array $binfo A reference to an assoc-array containing board information
+ 	 * 
+ 	 * @return array An array of files which are, at least at this stage "valid".
+ 	 */
     function checkfiles(&$binfo) 
     {
         //Are the files we're uploading okay?
@@ -213,11 +228,18 @@
         }
     }//function
 
+	/**
+	 * This function converts all possible CSS2 units to a pixel value, assuming 72 DPI and a 720x720
+	 * image (used for percentages). For information on all the possible units, read section 4.3.2 of 
+	 * the W3 CSS2 spec.
+	 * 
+	 * @param string $string The incoming string to convert.  String syntax:
+	 * (+|-)?(number)(unit or percentage)? where ? indicates an optional section
+	 * 
+	 * @return int The equivalent amount in pixels
+	 */
     function convertw3unit($string)
     {
-        // This function does a conversion from all the possible CSS2 units to pixels, assuming 72 DPI 
-        // and a 720x720 image (the latter is used for percentages and as a fallback)
-        // For information on all the possible units, read section 4.3.2 of the W3 CSS2 spec.
 
         // Syntax: (+|-)?(number)(unit or percentage)?
         preg_match("/(\+?|\-?)(\d+|\.+)(\w+|%?)/", $string, $lengthmatches);  //WHAT HAS SCIENCE DONE
@@ -274,6 +296,18 @@
         }
     }//function
 
+	/**
+	 * Process an array of files.  This includes (indirectly)
+	 * generating thumbnails, metadata, calculating certain image
+	 * qualities, and storage of such information in the database.
+	 * 
+	 * @param array $goodfiles A reference to an array of files that
+	 * have passed checkfiles validation
+	 * @param int $tpnum A temporary location ID for images
+	 * @param bool $isthread If the post associated with these images
+	 * is a thread or not
+	 * @param array $binfo A reference to an assoc-array containing board information
+	 */
     function movefiles(&$goodfiles, $tpnum, $isthread, &$binfo)
     {
         //Process the uploaded files.
@@ -284,7 +318,9 @@
             if ($isthread)
             {
                 $thedir=THpath."images/t".$tpnum."/";
-            } else {
+            } 
+            else 
+            {
                 $thedir=THpath."images/p".$tpnum."/";
             }
             mkdir($thedir) or THdie("POmakeimgdir");
@@ -296,6 +332,8 @@
                 $fyle['name']=str_replace($badchars,"_",$fyle['name']);
                 $fyle['path']=$thedir.$fyle['name'];
                 move_uploaded_file($fyle['tmp_name'],$fyle['path']) or THdie("POmoveimg");
+                
+                // Choose how to process
                 if(in_array($fyle['type'],array("jpeg","png","gif")))
                 {
                     $fyle = handleimage($fyle, $thedir, $binfo);
@@ -315,15 +353,31 @@
 
                 $yayimgs[]=$fyle;
             }//foreach
+            
             //DB insert
             //var_dump($yayimgs);
             $id=$db->putimgs($tpnum,$isthread,$yayimgs);
 			//echo $id;
+			
             //rename dir
             rename($thedir,THpath."images/".$id."/");
+            
         }//if count($goodfiles)
     }//end function
 
+	/**
+	 * Turn a name (in name#tripcode form) into an array
+	 * containing the name and 2ch-style tripcode hash!
+	 * 
+	 * @param string $name The name/tripcode in name#tripcode form
+	 * @param string $tpass Does nothing, left in for future
+	 * functionality
+	 * 
+	 * @return array An array with two elements: nombre (the name)
+	 * and trip (the hash).  For example, an incoming name value
+	 * of "joe#cool" would produce an array with a nombre element
+	 * of "joe" and a trip element of "QkO1sgFXdY".
+	 */
     function preptrip($name,$tpass)
     {
         $pos=strrpos($name,"#");
@@ -347,6 +401,17 @@
         return(array("nombre"=>$nombre,"trip"=>$trip));
     }
 
+	/**
+	 * Generate file information for a SVG-format file, as well
+	 * as safe potentially dangerous scripting elements and generate
+	 * a thumbnail.
+	 * 
+	 * @param array $fyle An array of file information to populate
+	 * @param string $thedir The directory where this file is located
+	 * @param array $binfo A reference to an assoc-array containing board information
+	 * 
+	 * @return array The populated assoc-array of file information
+	 */
     function handlesvg($fyle, $thedir, &$binfo)
     {
         //Since movefiles calls this, I think it's safe to use.
@@ -491,6 +556,16 @@
         return $fyle;
     }//end function
 
+	/**
+	 * Generate file information for a SWF-format file, as well
+	 * as possibly metadata information
+	 * 
+	 * @param array $fyle An array of file information to populate
+	 * @param string $thedir The directory where this file is located
+	 * @param array $binfo A reference to an assoc-array containing board information
+	 * 
+	 * @return array The populated assoc-array of file information
+	 */
     function handleswf($fyle, $thedir, &$binfo)
     {
         //Since movefiles calls this, I think it's safe to use.
@@ -562,6 +637,16 @@
         return $fyle;
     }//end function
 	
+	/**
+	 * Generate file information for a PDF file, and possibly
+	 * metadata information and a thumbnail
+	 * 
+	 * @param array $fyle An array of file information to populate
+	 * @param string $thedir The directory where this file is located
+	 * @param array $binfo A reference to an assoc-array containing board information
+	 * 
+	 * @return array The populated assoc-array of file information
+	 */
     function handlepdf($fyle, $thedir, &$binfo)
     {
         //Since movefiles calls this, I think it's safe to use.
@@ -605,6 +690,16 @@
         return $fyle;
     }//end function
 
+	/**
+	 * Generate file information for a JPEG, PNG, or GIF file,
+	 * as well as a thumbnail and possibly metadata information
+	 * 
+	 * @param array $fyle An array of file information to populate
+	 * @param string $thedir The directory where this file is located
+	 * @param array $binfo A reference to an assoc-array containing board information
+	 * 
+	 * @return array The populated assoc-array of file information
+	 */
     function handleimage($fyle, $thedir, &$binfo)
     {
         //Since movefiles calls this, I think it's safe to use.

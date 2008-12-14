@@ -22,6 +22,9 @@ require_once ("config.php");
 require_once ("common.php");
 //functions below are responsible for rebuilding certain files
 
+/**
+ * Rebuild the cached capcodes file (in cache/capcodes.php)
+ */
 function rebuild_capcodes()
 {
 	$capcodes = array ();
@@ -51,6 +54,13 @@ function rebuild_capcodes()
 
 }
 
+/**
+ * Rebuild the config file, and update options based on the incoming
+ * array, which contains various parameters
+ * 
+ * @param array $configpost An array of values whose new values will
+ * take effect in the new config file
+ */
 function rebuild_config($configpost)
 {
 	$config = fopen(THpath . "config.php", 'w');
@@ -152,6 +162,9 @@ function rebuild_config($configpost)
 	fclose($config); //file's closed, fwrites, etc
 }
 
+/**
+ * Rebuild the cached wordfilters file (in cache/filters.php)
+ */
 function rebuild_filters()
 {
 	
@@ -185,6 +198,11 @@ function rebuild_filters()
 	fclose($fp_cache);
 }
 
+/**
+ * Rebuild the menu file (in menu.php), which contains a list
+ * of boards and potentially to moderation/adminstrative sections
+ * as well
+ */
 function rebuild_hovermenu()
 {
 	$db = new ThornDBI();
@@ -247,6 +265,9 @@ function rebuild_hovermenu()
 	fclose($sidelinks);
 }
 
+/**
+ * Rebuild the root .htaccess file
+ */
 function rebuild_htaccess()
 {
 	$htaccess = fopen(".htaccess", "w") or die("Could not open .htaccess for writing.");
@@ -275,6 +296,10 @@ function rebuild_htaccess()
 	fclose($htaccess);
 }
 
+/**
+ * Rebuild the linkbar file (in linkbar.php), which
+ * spans the top/bottom of pages
+ */
 function rebuild_linkbars()
 {
 	$db = new ThornDBI();
@@ -330,6 +355,9 @@ function rebuild_linkbars()
 	fclose($sidelinks);
 }
 
+/**
+ * Rebuild the RSS feed associated with the news board (at rss.xml)
+ */
 function rebuild_rss()
 {
 	if (THnewsboard)
@@ -406,6 +434,12 @@ function rebuild_rss()
 	}
 }
 
+/**
+ * Rebuild the cached spam blacklist file (in cache/blacklist.php).  This
+ * will take the items contained in unlinked/spam.txt (one URL a line format)
+ * and possibly download Wakaba's anti-spam list as well, combining these two
+ * elements into a single array of prohibited URLs
+ */
 function rebuild_spamlist()
 {
 	/* manual spam filter downloading - parse unlinked/spam.txt */
