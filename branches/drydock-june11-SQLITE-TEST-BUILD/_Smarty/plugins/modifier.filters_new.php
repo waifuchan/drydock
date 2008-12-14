@@ -20,6 +20,14 @@
 $from=array(); 
 $to=array();
 srand(time());
+
+/**
+ * Convert spoiler tags to something that'll show up when moused over
+ * 
+ * @param string $text The post body
+ * 
+ * @return string The text with spoiler spans substituted for tags
+ */
 function checkspoilers($text)
 {
 	/*
@@ -35,6 +43,15 @@ function checkspoilers($text)
 			.$text.'</span>';
 	return(preg_replace($search, $replace, $text));
 }
+
+/**
+ * Convert wordfilters and spoiler tags in text to what they're supposed
+ * to be
+ * 
+ * @param string $filt The post body
+ * 
+ * @return string The nl2br'd text with wordfilters/spoiler tags applied
+ */
 function smarty_modifier_filters_new($filt)
 {
 	
