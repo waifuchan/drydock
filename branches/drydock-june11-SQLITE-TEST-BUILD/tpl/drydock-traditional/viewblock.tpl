@@ -88,7 +88,7 @@
 			<div class="filesize">File: <a href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">{$it.name|filetrunc}</a></div>
 			<a class="info" href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">
 				<img src="{$THurl}images/{$thread.imgidx}/{$it.tname}" width="{$it.twidth}" height="{$it.theight}" alt="{$it.name}" class="thumb" />
-				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.extra_info|extra_info}</span>
+				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.exif_text}</span>
 			</a>
 		</td>
 {		if ($imgcount mod 4 == 3)}</tr><tr>{/if}{* tyam - let's avoid more template breaking *}
@@ -170,7 +170,7 @@
 							<div class="filesize">File: <a href="{$THurl}images/{$post.imgidx}/{$it.name}" target="_blank">{$it.name|filetrunc}</a><br /></div>
 							<a class="info" href="{$THurl}images/{$post.imgidx}/{$it.name}" target="_blank">
 								<img src="{$THurl}images/{$post.imgidx}/{$it.tname}" width="{$it.twidth}" height="{$it.theight}" alt="{$it.name}" class="thumb" />
-								<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.extra_info|extra_info}</span>
+								<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.exif_text}</span>
 							</a>
 						</td>
 {if ($imgcount == 3)}</tr><tr>{/if} {* tyam - let's avoid more template breaking *}
