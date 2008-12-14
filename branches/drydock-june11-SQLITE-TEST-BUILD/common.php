@@ -214,9 +214,9 @@
 			$smarty->assign("THtplurl",THurl."tpl/_admin/");
 
 		}
-		elseif (THtpltest || $tpl=="error.tpl" || $tpl=="preview.tpl")
+		elseif (THtpltest || $tpl=="error.tpl" || $tpl=="preview.tpl" || $tpl=="popup.tpl")
 		{
-			//We don't want to cache error pages or post previews
+			//We don't want to cache error pages, post previews, or popups
 			$smarty->caching=0;
 			$smarty->force_compile=true;
 			$smarty->template_dir=THpath."tpl/".$template."/";
