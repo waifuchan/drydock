@@ -24,6 +24,7 @@ No Subject
     </div>
     <div><span class="medtitle">{$thread.globalid}</span> 
 
+<input type="checkbox" name="chkpost{$thread.globalid}" value="1"> {* Deletion/reporting checkbox *}
 
 {		if $binfo.forced_anon == "0"} {* begin forced_anon *}
 
@@ -90,6 +91,9 @@ No Subject
 {	/if}
 {foreach from=$location item=post}
     <div class="sslarge"><span class="medtitle">{$post.globalid}</span> 
+    
+<input type="checkbox" name="chkpost{$post.globalid}" value="1"> {* Deletion/reporting checkbox *}   
+ 
 {		if $binfo.forced_anon == "0"} {* begin forced_anon *}
  Name: 
 {			if $post.link}<a href="{$post.link}">{/if}

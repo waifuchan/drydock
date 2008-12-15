@@ -31,7 +31,7 @@
 	require_once("config.php");
 	require_once("common.php");
 	
-	if ($_POST['delete'] == "delete" ) // Delete a post/posts
+	if ($_POST['delete'] == "Delete" ) // Delete a post/posts
 	{
 		
 	}

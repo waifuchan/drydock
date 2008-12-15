@@ -86,6 +86,10 @@
 				</tr>
 			{/if} {* if pix>0*}
 				<tr>
+					<td class="postblock">Password</td>
+					<td><input type="password" name="password" size="8" /> (for post deletion)</td>{* New password field for deletion *}
+				</tr>
+				<tr>
 					<td class="postblock">Then</td>
 					<td>
 						<select name="todo">

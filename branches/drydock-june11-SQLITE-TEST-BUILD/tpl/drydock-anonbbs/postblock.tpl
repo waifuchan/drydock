@@ -36,7 +36,7 @@
 				</noscript>
 </td></tr></table>        
 			{/if} {* if pix>0*}
-
+Password: <input type="password" name="password" size="8" /><br> {* New password field for deletion *}
                     After submission, go to the:
                     <select name="todo">
                         <option value="board">Return to board</option>

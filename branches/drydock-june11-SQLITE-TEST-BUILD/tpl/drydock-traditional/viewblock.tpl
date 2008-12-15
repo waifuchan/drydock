@@ -20,6 +20,9 @@
 {/if}
 	
 		</td><td>
+
+<input type="checkbox" name="chkpost{$thread.globalid}" value="1"> {* Deletion/reporting checkbox *}
+
 {*<a href="{$THurl}profiles.php?action=viewprofile&user={$thread.name|escape:'html':'UTF-8'}">*}{*this should only be used on forced-reg boards, so it's untested*}
 {				if !$thread.trip}
 {					if !$thread.name}
@@ -46,6 +49,9 @@
 {			else}
 		<span class="filetitle">{$thread.title}</span>
 {			/if} {* if no title *}
+
+<input type="checkbox" name="chkpost{$thread.globalid}" value="1"> {* Deletion/reporting checkbox *}
+
 {			if $thread.link}<a href="{$thread.link}">{/if}
 {			if $thread.name == "CAPCODE"}
 		<span class="postername">{$thread.trip|capcode}</span>
@@ -142,6 +148,9 @@
 			<td class="reply" id="{$post.globalid}">
 				<a name="{$post.globalid}"></a>
 				<label>&nbsp;&nbsp;
+	
+<input type="checkbox" name="chkpost{$post.globalid}" value="1"> {* Deletion/reporting checkbox *}
+				
 {	if $post.link}<a href="{$post.link}">{/if}
 {	if $post.name == "CAPCODE"}
 				<span class="postername">{$post.trip|capcode}</span>
