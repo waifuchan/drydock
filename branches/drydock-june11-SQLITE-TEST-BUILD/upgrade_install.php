@@ -101,6 +101,7 @@
 		`time` int(11) unsigned NOT NULL,
 		`postid` int unsigned NOT NULL default '0',
 		`board` smallint(5) unsigned NOT NULL default '0',
+		`category` tinyint(1) unsigned NOT NULL default '0',
 		`status` tinyint(1) unsigned NOT NULL default '0',
 		PRIMARY KEY  (`id`) 
 		) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci;";
