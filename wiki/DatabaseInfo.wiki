@@ -256,6 +256,7 @@ This is a new table that contains user-generated reports. *_Added for drydock 0.
 || time || {{{ `time` int(11) unsigned NOT NULL }}} || {{{ time INT(11)  }}} || Timestamp of the report ||
 || postid || {{{ `postid` int unsigned NOT NULL default '0' }}} || {{{ postid INT }}} || The (non-unique) ID of the post being reported  ||
 || board || {{{ `board` smallint(5) unsigned NOT NULL default '0' }}} || {{{ board SMALLINT(5) }}} || The ID of the board for the report ||
+|| category|| {{{ `category` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ category TINYINT(1) }}} || The nature of the report (currently unused, for future expansion) ||
 || status || {{{ `status` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ status TINYINT(1) }}} || The status of this report (0 = unreviewed, 1 = reviewed and considered "valid", 2 = reviewed and considered invalid, 3 = reviewed but neither outright valid/invalid) ||
 
 || Additional MySQL declarations ||
