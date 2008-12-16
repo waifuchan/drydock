@@ -46,11 +46,12 @@ interface absThornPostDBI
  	 * @param bool $pin Should the thread be auto-pinned?
  	 * @param bool $lock Should the thread be auto-locked?
  	 * @param bool $permasage Should the thread be auto-permasaged?
+ 	 * @param string $password The password for post deletion (can be an empty string)
  	 * @param int $tyme The timestamp at which to post, defaults to the current system time
  	 *
  	 * @return int The unique ID of the thread
  	 */
-	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false);
+	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password, $tyme = false);
   
  	/**
  	 * Posts a reply to a thread, updates the "bump" column of the relevant thread, 
@@ -66,11 +67,12 @@ interface absThornPostDBI
  	 * @param string $body The body text of the post
  	 * @param int $ip The ip2long()'d IP address of the poster
  	 * @param bool $mod Is the poster a mod/admin (for future maintainability)
+ 	 * @param string $password The password for post deletion (can be an empty string)
  	 * @param int $tyme The timestamp at which to post, defaults to the current system time
  	 *
  	 * @return int The unique ID of the reply
  	 */
-	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $tyme = false);
+	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $password, $tyme = false);
 
 	/**
 	 * Puts image information into the database, and then updates the relevant thread

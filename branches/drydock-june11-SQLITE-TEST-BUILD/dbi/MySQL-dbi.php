@@ -46,7 +46,12 @@ class ThornDBI
 	
 	function lastid()
 	{
-		mysql_insert_id();
+		return mysql_insert_id($this->cxn);
+	}
+	
+	function affectedrows()
+	{
+		return mysql_affected_rows($this->cxn);
 	}
 	
 	function getvisibleboards()

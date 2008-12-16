@@ -60,7 +60,12 @@ class ThornDBI implements absThornDBI
 	
 	function lastid()
 	{
-		sqlite_last_insert_rowid( THdblitefn );
+		return sqlite_last_insert_rowid( THdblitefn );
+	}
+	
+	function affectedrows()
+	{
+		return sqlite_changes( THdblitefn );
 	}
 	
 	function getvisibleboards()

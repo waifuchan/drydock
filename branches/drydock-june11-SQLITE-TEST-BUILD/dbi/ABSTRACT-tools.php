@@ -74,5 +74,20 @@ interface absThornToolsDBI
 	 */
 	function getnewsthreads();
 	
+	/**
+	 * Report a post and for a general kind of reason (illegal,
+	 * rule violation, etc.)
+	 * 
+	 * @param int $post The global ID of the post
+	 * @param int $board The board ID
+	 * @param int $category The category of violation
+	 * 
+	 * @return int 0 if the submission was a success,
+	 * 1 if the user needs to wait before reporting another post,
+	 * 2 if the user has already reported it,
+	 * 3 if the post+board combo don't exist,
+	 * 4 if it's already been handled
+	 */
+	function reportpost($post, $board, $category);
 }
 ?>

@@ -26,7 +26,7 @@ class ThornPostDBI extends ThornDBI
 		return ($this->myassoc("select * from " . THthreads_table . " where id=" . intval($t)));
 	}
 
-	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false)
+	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password = "", $tyme = false)
 	{
 		if ($tyme === false)
 		{
@@ -64,6 +64,12 @@ class ThornPostDBI extends ThornDBI
 			$q .= ", link";
 			$v .= ", '" . $this->escape_string($link) . "'";
 		}
+		
+		if( $password != "") // Password
+		{
+			$q .= ", password";
+			$v .= ",'" . $this->escape_string(md5(THsecret_salt.$password)) . "'";
+		}
 		//echo($q.", time=".$tyme);
 		//echo $q;
 		$visible = 1;
@@ -81,7 +87,7 @@ class ThornPostDBI extends ThornDBI
 		return ($tnum);
 	}
 
-	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $tyme = false)
+	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $password = "", $tyme = false)
 	{
 		$q = "INSERT INTO " . THreplies_table . " (thread,board,body";
 		$v = " ) VALUES (" . $thread . ",'" . intval($board) . "','";
@@ -118,6 +124,12 @@ class ThornPostDBI extends ThornDBI
 			$tyme = time() + (THtimeoffset * 60);
 		}
 		//echo($q);
+		if( $password != "") // Password
+		{
+			$q .= ", password";
+			$v .= ",'" . $this->escape_string(md5(THsecret_salt.$password)) . "'";
+		}
+		
 		$visible = 1;
 		$v .= "," . $tyme . "," . $visible . ");";
 		$q .= ", time, visible";

@@ -264,5 +264,18 @@ interface absThornModDBI
 	 */
 	function fetchBCW($type = -1);
 	
+	/**
+	 * Attempt to delete all the specified posts in the array
+	 * using a specified password.  It will clear the caches for
+	 * matching threads and delete images for all posts as well.
+	 * 
+	 * @param array $posts An array of post global IDs
+	 * @param int $board The board ID
+	 * @param string $password The password to search for
+	 * 
+	 * @return int The number of posts deleted
+	 */
+	function userdelpost($posts, $board, $password);
+	
 }
 ?>

@@ -26,7 +26,7 @@ class ThornPostDBI extends ThornDBI
 		return ($this->myassoc("select * from " . THthreads_table . " where id=" . intval($t)));
 	}
 
-	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $tyme = false)
+	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password= "",$tyme = false)
 	{
 		if ($tyme === false)
 		{
@@ -61,12 +61,18 @@ class ThornPostDBI extends ThornDBI
 			}
 			$q .= ", link='" . $this->clean($link) . "'";
 		}
+		
+		if( $password != "") // password for post deletion
+		{
+			$q .= ", password='" . $this->escape_string(md5(THsecret_salt.$password)) . "'";
+		}
+		
 		//echo($q.", time=".$tyme);
 		//echo $q;
-		if ($link != null)
-		{
-			$q .= ", link='" . $this->clean($link) . "'";
-		}
+//		if ($link != null)
+//		{
+//			$q .= ", link='" . $this->clean($link) . "'";
+//		}
 		$this->myquery($q) or THdie("DBpost");
 		if ($board == THnewsboard)
 		{
@@ -78,7 +84,7 @@ class ThornPostDBI extends ThornDBI
 		return ($tnum);
 	}
 
-	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $tyme = false)
+	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $password = "", $tyme = false)
 	{
 		$q = "insert into " . THreplies_table . " set thread=" . $thread . ", board=" . intval($board) . ", body='";
 		if ($board == THmodboard) //don't filter the mod board since it should be all locked up anyway
@@ -115,6 +121,11 @@ class ThornPostDBI extends ThornDBI
 		if ($tyme === false)
 		{
 			$tyme = time() + (THtimeoffset * 60);
+		}
+		
+		if( $password != "") // password
+		{
+			$q .= ", password='" . $this->escape_string(md5(THsecret_salt.$password)) . "'";
 		}
 		//echo($q);
 		$this->myquery($q . ", time=" . $tyme) or THdie("DBpost");

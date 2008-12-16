@@ -33,7 +33,55 @@
 	
 	if ($_POST['delete'] == "Delete" ) // Delete a post/posts
 	{
+		$message = "what";
 		
+		if( !isset($_POST['password']) || $_POST['password'] == ""
+		||  !isset($_POST['board']) || $_POST['board'] == "")
+		{
+			$message = "No password provided!";
+		}
+		else
+		{
+			$db = new ThornModDBI();
+			$board = $db->getboardnumber($_POST['board']);
+			
+			// verify that the board is correct
+			if( $board == null )
+			{
+				$message = "Invalid board provided!";
+			}
+			else
+			{
+				// This will be an array of global IDs
+				$posts_to_delete = array();
+				
+				foreach(array_keys($_POST) as $entry)
+				{
+					if(preg_match('/^chkpost\d+$/', $entry ) && $_POST['entry'] != 0 )
+					{
+						// strip out the leading "chkpost" and add the id to the posts_to_delete array
+						$posts_to_delete[] = intval(preg_replace('/^chkpost/', '', $entry ));
+					}
+				}
+				
+				if( count($posts_to_delete) <= 0 )
+				{
+					$message = "No valid posts to delete!";
+				}
+				else
+				{
+					$delcount = $db->userdelpost($posts_to_delete, $board, $_POST['password']);
+					$message = $delcount." posts deleted.";
+				}
+			}
+		}
+		
+		$sm=sminit("popup");
+		$sm->assign("text",$message);
+		$sm->assign("timeout", "5000"); // 5000 ms
+		$sm->assign("title", "Post deletion form");
+		$sm->display("popup");
+		die();
 	}
 	elseif($_POST['report'] == "Report" ) // Report a post
 	{

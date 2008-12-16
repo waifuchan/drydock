@@ -18,6 +18,7 @@
 		$_POST['link'] (string for the link field)
 		$_POST['nombre'] (string for the post name if forced_anon is off)
 		$_POST['board'] (string for the board folder)
+		$_POST['password'] (string for post deletion)
 	
 		THINGS THAT MIGHT ALSO COME IN:
 		$_POST['vc'] (captcha string)
@@ -118,7 +119,9 @@
 	if (strlen($_POST['body'])>1 || count($goodfiles)>0) 
 	{
 		$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
-		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],$binfo['id'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),$mod);
+		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],
+			$binfo['id'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),
+			$mod, $_POST['password']);
 		movefiles($goodfiles, $pnum, false, $binfo, $db);
 	}
 
@@ -137,6 +140,7 @@
 			setcookie(THcookieid."-link",$_POST['link'],time()+THprofile_cookietime, THprofile_cookiepath);
 		} 
 		setcookie(THcookieid."-re-goto", $_POST['todo'],time()+THprofile_cookietime, THprofile_cookiepath);
+		setcookie(THcookieid."-password", $_POST['password'],time()+THprofile_cookietime, THprofile_cookiepath);
 	}
 
 	//hopefully this doesn't break it! -tyam

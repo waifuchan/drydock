@@ -43,6 +43,14 @@ interface absThornDBI
 	 * @return int The last inserted row's ID
 	 */
 	function last_id();
+	
+	/**
+	 * Returns the number of affected rows from the
+	 * last query
+	 * 
+	 * @return int The number of affected rows
+	 */
+	 function affectedrows();
 
 	/**
 	 * This function retrieves information about a specific board,

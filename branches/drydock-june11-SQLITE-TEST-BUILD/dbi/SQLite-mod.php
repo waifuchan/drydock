@@ -624,6 +624,40 @@ class ThornModDBI extends ThornDBI
 
 		return $this->mymultiarray($query);
 	}
+	
+	function userdelpost($posts, $board, $password)
+	{
+		// Get the threads deleted so we can clear their caches!
+		$threads_deleted = array();
+		$threads_deleted = $this->mymultiarray("SELECT id,globalid FROM ".THthreads_table." WHERE board=".intval($board)." " .
+				"AND globalid IN (" . implode(",", $posts) . ") AND password=".
+				$this->escape_string(md5(THsecret_salt.$password))." AND password IS NOT NULL");
+		
+		if( $threads_deleted != null && count($threads_deleted) > 0)
+		{				
+			foreach($threads_deleted as $thread)
+			{
+				delimgs($this->delpost($thread['id'], true));
+				smclearcache($board, -1, $thread['globalid']); // clear the cache
+			}
+		}
+		
+		$posts_deleted = array();
+		$posts_deleted = $this->myarray("SELECT id FROM ".THreplies_table." WHERE board=".intval($board)." " .
+				"AND globalid IN (" . implode(",", $posts) . ") AND password=".
+				$this->escape_string(md5(THsecret_salt.$password))." AND password IS NOT NULL");
+				
+		if( $posts_deleted != null && count($posts_deleted) > 0)
+		{				
+			foreach($posts_deleted as $post)
+			{
+				delimgs($this->delpost($post, false));
+			}
+		}
+		
+		// Return the total number of threads deleted
+		return count($posts_deleted) + count($threads_deleted);
+	}
 
 } //class ThornModDBI
 ?>
