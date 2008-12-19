@@ -9,6 +9,46 @@
 		Artistic License 2.0:
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
+	
+	/**
+	 * $_GET['a'] is typically used for displaying information as opposed
+	 * to form submission.
+	 * 
+	 * THE BIG LIST OF $_GET['a'] POSSIBILITIES:
+	 * 
+	 * "b" - Board info (optionally a $_GET['boardselect'] option as well)
+	 * "x" - Ban info (optionally a $_GET['banselect'] option as well)
+	 * "t" - Thornlight (recent pics)
+	 * "q" - Thornquasilight (recent posts)
+	 * "c" - Capcode options
+	 * "w" - Wordfilter options
+	 * "p" - Profile options
+	 * "g" - General options
+	 * "bl" - Blotter posts
+	 * "mp" - Manager post
+	 * "hk" - Housekeeping options
+	 * "hkc" - Housekeeping options submissions
+	 * 
+	 * 
+	 * 
+	 * $_GET['t'] is typically used for receiving form submissions.
+	 * 
+	 * THE LIST OF $_GET['t'] POSSIBILITIES:
+	 * 
+	 * "au" - Add user
+	 * "aw" - Add wordfilter
+	 * "ew" - Edit wordfilters
+	 * "ac" - Add capcode
+	 * "rc" - Edit capcodes
+	 * "ax" - Add ban
+	 * "ux" - Remove ban
+	 * "lx" - Lookup ban (redirect to $_GET['a'] with $_GET['banselect'] set)
+	 * "b" - Edit boards
+	 * "g" - Rebuild config (gen. options edit)
+	 * "bl" - Add blotter post
+	 * "ble" - Edit blotter
+ 	 */
+	
 	require_once("config.php");
 	require_once("common.php");
 	checkadmin(); //make sure the person trying to access this file is allowed to
@@ -39,6 +79,8 @@
 			else { die(); }
 			readfile('./unlinked/'.$_GET['filename']);
 		}
+		
+		die(); // we're done here
 	}
 	$sm=sminit(null,null,null,true);
 	if (isset($_GET['a']))
@@ -731,6 +773,28 @@ var_dump($boardarray);
 			}
 		}
 		header("Location: ".THurl."admin.php?a=x");
+	}
+	elseif ($_GET['t']=="lx") // Lookup ban
+	{
+		if( isset($_POST['ip']) )
+		{
+			$ban_info = $db->getban($_POST['ip']);
+			
+			// Did we find at least one ban?
+			// If so, redirect to the ban ID of the first element in the array.
+			if(count($ban_info) > 0)
+			{
+				header("Location: ".THurl."admin.php?a=x&banselect=".$ban_info[0]['id']);
+			}
+			else
+			{
+				header("Location: ".THurl."admin.php?a=x"); // failure
+			}
+		}
+		else
+		{
+			header("Location: ".THurl."admin.php?a=x"); // even worse failure
+		}	
 	}
 	elseif ($_GET['t']=="ac") //Add capcode
 	{

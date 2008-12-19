@@ -184,6 +184,16 @@
                     Reason: <input type="text" name="adminreason" size="20" /> Duration: <input type="text" name="duration" size="3" />hrs<input type="submit" value="Ban" />
                 </div>
             </form>
+<div class="pgtitle">
+	  Lookup Existing Ban
+</div>
+<br />
+<form method="post" enctype="multipart/form-data" action="admin.php?t=lx">
+<div>
+IP address: <input type="text" name="ip" /><br>
+<input type="submit" value="Lookup" />
+</div>
+</form>
         </div>
     </div>
 {include file=admin-foot.tpl}
