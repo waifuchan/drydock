@@ -196,6 +196,62 @@ class ThornToolsDBI extends ThornDBI
 		return $this->mymultiarray("SELECT globalid,board,title,name,trip,body,time FROM " . THthreads_table . 
 					" where board=" . THnewsboard . " ORDER BY time DESC LIMIT 0,15");
 	}
+	
+	 function checkreportpost($post, $board)
+	 {
+	 	// Calculate some time/IP stuff
+	 	$time_interval = time() + (THtimeoffset * 60) - 60;
+	 	$longip = ip2long($_SERVER['REMOTE_ADDR']);
+	 	
+	 	// Save ourselves the trouble of doing this multiple times
+	 	$post = intval($post);
+	 	$board = intval($board);	 	
+	 	
+	 	// One report a minute.
+	 	if( $this->myresult("SELECT COUNT(*) FROM ".THreports_table.
+				" WHERE time>".$time_interval." AND ip=".$longip) > 0)
+		{
+			return 1;
+		}
+		
+		// Has it already been reported by this user?
+		if($this->myresult("SELECT COUNT(*) FROM ".THreports_table.
+				" WHERE post=".$post." AND board=".$board." AND ip=".$longip) )
+		{
+			return 2;
+		}
+	 	
+		// Has it already been handled?
+		if($this->myresult("SELECT COUNT(*) FROM ".THreports_table.
+				" WHERE post=".$post." AND board=".$board." AND status>0") )
+		{
+			return 4;
+		}	 	
+	 	
+	 	// This abstracts looking through threads/replies for us
+	 	if( $this->findpost($post, $board) == 0)
+	 	{
+	 		return 3; // not found
+	 	}
+	 	
+	 	// We made it this far, so I guess we're ok
+	 	return 0;
+	 }
+	 
+	 function reportpost($post, $board, $category)
+	 {
+	 	$longip = ip2long($_SERVER['REMOTE_ADDR']);
+	 	
+	 	// calculate the current time
+	 	$now = time() + (THtimeoffset * 60);
+	 	
+	 	// report it!
+	 	if( $this->checkreportpost($post, $board) == 0)
+	 	{
+	 		$this->myquery("INSERT INTO ".THreports_table." set ip=".$longip.", time=".$now.", postid=".intval($post).
+				", board=".intval($board).", category=".intval($category).", status=0");
+	 	}
+	 }
 
 } //class ThornToolsDBI
 ?>

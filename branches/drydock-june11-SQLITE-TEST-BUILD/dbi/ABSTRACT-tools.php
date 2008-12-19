@@ -75,18 +75,28 @@ interface absThornToolsDBI
 	function getnewsthreads();
 	
 	/**
+	 * Determine if a user can report a post
+	 * (have to wait a minute between reports, can't report the same thing
+	 * twice, does the post even exist, etc...)
+	 * 
+	 * @param int $post The global ID of the post
+	 * @param int $board The board ID
+	 * 
+	 * @return int 0 if the user can submit,
+	 * 1 if the user needs to wait before reporting another post,
+	 * 2 if the user has already reported it,
+	 * 3 if the post+board combo don't exist,
+	 * 4 if it's already been processed
+	 */
+	 function checkreportpost($post, $board);
+	
+	/**
 	 * Report a post and for a general kind of reason (illegal,
 	 * rule violation, etc.)
 	 * 
 	 * @param int $post The global ID of the post
 	 * @param int $board The board ID
 	 * @param int $category The category of violation
-	 * 
-	 * @return int 0 if the submission was a success,
-	 * 1 if the user needs to wait before reporting another post,
-	 * 2 if the user has already reported it,
-	 * 3 if the post+board combo don't exist,
-	 * 4 if it's already been handled
 	 */
 	function reportpost($post, $board, $category);
 }

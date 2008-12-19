@@ -477,6 +477,26 @@ class ThornDBI implements absThornDBI
 		}
 	}
 
+	function findpost($globalid, $board)
+	{
+		// Safe it.
+		$globalid = intval($globalid);
+		$board = intval($board);
+		
+		// Check if it's a thread
+	 	if( $this->myresult("SELECT COUNT(*) FROM ".THthreads_table." WHERE globalid=".$globalid." AND board=".$board) > 0)
+	 	{
+	 		return 1; // found it, return 1 for thread
+	 	}
+	 	elseif( $this->myresult("SELECT COUNT(*) FROM ".THreplies_table." WHERE globalid=".$globalid." AND board=".$board) > 0)
+	 	{
+	 		return 2; // found it, return 2 for reply
+	 	}
+	 	
+	 	// We fell through- not found.
+	 	return 0;
+	}
+
 } //ThornDBI
 
 //===========================================================================================

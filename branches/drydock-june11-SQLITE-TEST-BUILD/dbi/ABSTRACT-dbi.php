@@ -252,6 +252,17 @@ interface absThornDBI
 	 * @return int The insert ID, or 0 if it failed
 	 */
 	function addexifdata($exif);
-
+	
+	/**
+	 * Find a post with a given global ID and board.  Return
+	 * an int indicating its location.
+	 * 
+	 * @param int $globalid The global ID of the post
+	 * @param int $board The board ID
+	 * 
+	 * @return int The post location. 1 for in the threads table,
+	 * 2 for in the replies table, and 0 if not found.
+	 */
+	function findpost($globalid, $board);
 }
 ?>
