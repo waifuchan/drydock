@@ -300,9 +300,9 @@ class ThornDBI implements absThornDBI
 		//Check already banned...
 		if ($this->myresult("select count(*) from " . THbans_table . " where 
 			ip_octet1=" . intval($octets[0]) . " 
-			&& ip_octet2=" . intval($octets[1]) . " 
-			&& (ip_octet3=" . intval($octets[2]) . " || ip_octet3 = -1 )
-			&& (ip_octet4=" . intval($octets[3]) . " || ip_octet4 = -1 )
+			AND ip_octet2=" . intval($octets[1]) . " 
+			AND (ip_octet3=" . intval($octets[2]) . " || ip_octet3 = -1 )
+			AND (ip_octet4=" . intval($octets[3]) . " || ip_octet4 = -1 )
 		") > 0)
 		{
 			return (true);
@@ -332,9 +332,9 @@ class ThornDBI implements absThornDBI
 		//Retrieve the bans
 		$bans = $this->mymultiarray("select * from `" . THbans_table . "` where 
 			`ip_octet1`=" . intval($octets[0]) . " 
-			&& `ip_octet2`=" . intval($octets[1]) . " 
-			&& (`ip_octet3`=" . intval($octets[2]) . " || `ip_octet3` = -1 )
-			&& (`ip_octet4`=" . intval($octets[3]) . " || `ip_octet4` = -1 )");
+			AND `ip_octet2`=" . intval($octets[1]) . " 
+			AND (`ip_octet3`=" . intval($octets[2]) . " || `ip_octet3` = -1 )
+			AND (`ip_octet4`=" . intval($octets[3]) . " || `ip_octet4` = -1 )");
 
 		// Move old bans to the ban history table
 		foreach( $bans as $singleban )

@@ -210,7 +210,7 @@ To continue, click the button below.
 	{
 		if(preg_match("/^.*-dbi\.php$/", $set, $dbi))
 		{
-			$sets[]=str_replace("-dbi","", $dbi[0]);
+			$sets[]=str_replace("-dbi.php","", $dbi[0]);
 		}
 	}
 	?>
@@ -220,8 +220,9 @@ Database type <select name="THdbtype">
 <?php
 	//Output selection boxes
 	foreach ($sets as $dbtype) {
-		$dbtype = str_replace(".php", "", $dbtype);
-		echo '<option value="'.$dbtype.'">'.$dbtype.'</option>';
+		if($dbtype!="ABSTRACT") {
+			echo '<option value="'.$dbtype.'">'.$dbtype.'</option>';
+		}
 	}
 ?>
 	</select>

@@ -42,7 +42,7 @@ interface absThornDBI
 	 * 
 	 * @return int The last inserted row's ID
 	 */
-	function last_id();
+	function lastid();
 	
 	/**
 	 * Returns the number of affected rows from the
