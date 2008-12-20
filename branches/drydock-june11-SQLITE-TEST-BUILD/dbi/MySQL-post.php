@@ -32,7 +32,7 @@ class ThornPostDBI extends ThornDBI
 		{
 			$tyme = time() + (THtimeoffset * 60);
 		}
-		$q = "insert into " . THthreads_table . " set board='" . $board . "', title='" . $this->clean($title) . "', body='";
+		$q = "insert into " . THthreads_table . " set board='" . $this->getboardnumber($board) . "', title='" . $this->clean($title) . "', body='";
 		if ($board == THnewsboard || $board == THmodboard) //don't filter the news board nor the mod board
 		{
 			$q .= $this->escape_string($body);

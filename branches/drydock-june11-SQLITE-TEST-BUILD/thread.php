@@ -42,14 +42,14 @@
 	}
 */
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
-	//var_dump($_POST);
+	var_dump($_POST);
 	$db=new ThornPostDBI;
 	if ($db->checkban()) 
 	{
 		THdie("PObanned");
 	}
 
-	$binfo=$db->getbinfo($db->getboardnumber($board));
+	$binfo=$db->getbinfo($db->getboardnumber($_POST['board']));
 	
 	// Die if the board doesn't exist.
 	if( $binfo == null )
@@ -123,7 +123,7 @@
 	$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
 
 	$tnum=$db->putthread(
-		$usethese['nombre'],$usethese['trip'],$binfo['id'],$_POST['subj'],
+		$usethese['nombre'],$usethese['trip'],$binfo['folder'],$_POST['subj'],
 		$_POST['body'],$_POST['link'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage,
 		$_POST['password']);
 

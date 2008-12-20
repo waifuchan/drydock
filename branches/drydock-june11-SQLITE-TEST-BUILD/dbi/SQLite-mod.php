@@ -452,15 +452,15 @@ class ThornModDBI extends ThornDBI
 				. ", maxfilesize=" . $board['maxfilesize']
 				. ", maxres=" . $board['maxres']
 				. ", pixperpost=" . $board['pixperpost']	
-				. ", forced_anon=" . $board['forced_anon'] 
-				. ", customcss=" . $board['customcss'] 
-				. ", allowvids=" . $board['allowvids'] 
-				. ", filter=" . $board['filter']
-				. ", requireregistration=" . $board['requireregistration'] 
-				. ", hidden=" . $board['hidden'] 
-				. ", tlock=" . $board['tlock'] 
-				. ", rlock=" . $board['rlock'] 
-				. " where id=".$board['oldid'];
+				. ", forced_anon='" . $board['forced_anon'] 
+				. "', customcss='" . $board['customcss'] 
+				. "', allowvids='" . $board['allowvids'] 
+				. "', filter='" . $board['filter']
+				. "', requireregistration='" . $board['requireregistration'] 
+				. "', hidden='" . $board['hidden'] 
+				. "', tlock='" . $board['tlock'] 
+				. "', rlock='" . $board['rlock'] 
+				. "' where id=".$board['oldid'];
 				
 			print_r($query);
 			$this->myquery($query);

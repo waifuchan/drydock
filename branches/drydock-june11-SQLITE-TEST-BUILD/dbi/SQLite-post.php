@@ -33,7 +33,7 @@ class ThornPostDBI extends ThornDBI
 			$tyme = time() + (THtimeoffset * 60);
 		}
 		$q = "INSERT INTO " . THthreads_table . " ( board, title, body";
-		$v = " VALUES ( " . intval($board) . " ,'" . $this->escape_string($title) . "','";
+		$v = " VALUES ( " . $this->getboardnumber($board) . " ,'" . $this->escape_string($title) . "','";
 		$v .= $this->escape_string($body);
 		$q .= ", ip, pin, permasage, lawk, time, bump";
 		$v .= "'," . $ip . " , " . $pin . " , " . $permasage . " , " . $lock . " , " . $tyme . " , " . $tyme;

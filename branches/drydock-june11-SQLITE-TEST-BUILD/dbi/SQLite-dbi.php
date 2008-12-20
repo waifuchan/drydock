@@ -73,9 +73,9 @@ class ThornDBI implements absThornDBI
 		return $this->mymultiarray("SELECT * FROM " . THboards_table . " WHERE hidden != 1 order by folder asc");
 	}
 	
-	function getbinfo($b)
+	function getbinfo($id)
 	{
-		return ($this->myassoc("select * from " . THboards_table . " where folder='" . intval($b) ."'"));
+		return ($this->myassoc("select * from " . THboards_table . " where id='" . intval($id) ."'"));
 	}
 	
 	function myassoc($call)
