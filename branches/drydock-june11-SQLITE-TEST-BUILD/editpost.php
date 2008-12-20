@@ -70,7 +70,7 @@
 	$db = new ThornPostDBI();
 	
 	// Set some stuff up.
-	$board_id = $db->getboardname($board_id);
+	$board_folder = $db->getboardname($board_id);
 	$postid = intval($_GET['post']); // SQL injection protection :]
 	$threadid = 0; // set this up later once we get some post data
 	$ipstring = "";
