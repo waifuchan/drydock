@@ -99,11 +99,11 @@ class ThornToolsDBI extends ThornDBI
 			$querystring = "SELECT 
 				images.*,
 				threads.board AS thread_board,
-				threads.id AS thread_ID,
-				threads.globalid AS thread_globalID,
+				threads.id AS thread_id,
+				threads.globalid AS thread_globalid,
 				replies.board AS reply_board,
-				replies.id AS reply_ID,
-				replies.globalid AS reply_globalID
+				replies.id AS reply_id,
+				replies.globalid AS reply_globalid
 			FROM 
 				images 
 			LEFT OUTER JOIN 
@@ -124,11 +124,11 @@ class ThornToolsDBI extends ThornDBI
 			$querystring = "SELECT 
 				images.*,
 				threads.board AS thread_board,
-				threads.id AS thread_ID,
-				threads.globalid AS thread_globalID,
+				threads.id AS thread_id,
+				threads.globalid AS thread_globalid,
 				replies.board AS reply_board,
-				replies.id AS reply_ID,
-				replies.globalid AS reply_globalID
+				replies.id AS reply_id,
+				replies.globalid AS reply_globalid
 			FROM 
 				images 
 			LEFT OUTER JOIN 

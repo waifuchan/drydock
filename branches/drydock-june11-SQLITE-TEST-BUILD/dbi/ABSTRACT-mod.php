@@ -48,7 +48,7 @@ interface absThornModDBI
 	function banbody($id, $isthread, $publicbanreason = "USER HAS BEEN BANNED FOR THIS POST");
 
 	/**
-	 * Bans an IP or subnet by fetching the IP from a post or thread.  Calls banip().
+	 * Bans an IP or subnet by fetching the IP from a post or thread.  Calls banip() and touchpost().
 	 * 
 	 * @param int $id The (unique) ID number of the thread/post
 	 * @param bool $isthread Whether $id refers to a thread (if true) or a reply (if false)
@@ -277,5 +277,15 @@ interface absThornModDBI
 	 */
 	function userdelpost($posts, $board, $password);
 	
+	/**
+	 * Update the specified post's unvisibletime to indicate
+	 * that some moderation action has already been performed on it.
+	 * 
+	 * @param int $id The (unique) ID of the post
+	 * @param bool $isthread If the post is a thread or not
+	 * @param int $time The time (optional). If null, will be set to the
+	 * current time.
+	 */
+	function touchpost($id, $isthread, $time = null);
 }
 ?>

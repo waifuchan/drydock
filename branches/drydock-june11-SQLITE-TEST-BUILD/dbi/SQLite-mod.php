@@ -111,6 +111,8 @@ class ThornModDBI extends ThornDBI
 		}
 		$this->banbody($id, $isthread, $publicreason);
 		//		echo $result; die();
+		$this->touchpost($id, $isthread); // Mark a moderation action as performed
+		
 		return ($this->banip($ip, $subnet, $privatereason, $publicreason, $adminreason, $postdata, $duration, $bannedby));
 	}
 	
@@ -657,6 +659,27 @@ class ThornModDBI extends ThornDBI
 		
 		// Return the total number of threads deleted
 		return count($posts_deleted) + count($threads_deleted);
+	}
+	
+	function touchpost($id, $isthread, $time = null)
+	{
+		if( $time == null )
+		{
+			$time = time() + (THtimeoffset * 60);
+		}
+		else
+		{
+			$time = intval($time);
+		}
+		
+		if( $isthread == true )
+		{
+			$this->myquery("UPDATE ".THthreads_table." set unvisibletime=".$time." WHERE id=".intval($id));
+		}
+		else
+		{
+			$this->myquery("UPDATE ".THreplies_table." set unvisibletime=".$time." WHERE id=".intval($id));
+		}
 	}
 
 } //class ThornModDBI

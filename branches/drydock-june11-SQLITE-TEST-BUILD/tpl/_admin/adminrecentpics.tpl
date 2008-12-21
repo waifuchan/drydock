@@ -77,6 +77,20 @@ Filter by board: <select name="board">
 					{/if}
 					>edit</a>]
 					
+					{* Show quick-moderation panel *}
+					[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$thisimage.reply_id}'))'">Quickmod</a>]
+					<span id="quickmod{$thisimage.reply_id}" style="hidden" class="modblock">
+						<form target="_blank" action="misc.php" method="POST">
+							<input type="hidden" name="board" value="{$boardz}" />
+							<input type="hidden" name="post" value="{$thisimage.reply_globalid}" />
+							<input type="checkbox" name="doban" value="1"> Ban poster<br>
+							Reason: <input type="text" name="banreason"> <br>
+							Duration: <input type="text" name="duration" value="0"><br>
+							<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
+							<input type="submit" name="quickmod" value="quickmod">
+						</form>
+					</span>
+					
 				{else} {* No board found.  Weird. *}
 					No board (UID {$thisimage.reply_id})
 				{/if}
@@ -99,13 +113,27 @@ Filter by board: <select name="board">
 					{/if}
 					>edit</a>]
 					
+					{* Show quick-moderation panel *}
+					[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$thisimage.thread_id}'))">Quickmod</a>]
+					<span id="quickmod{$thisimage.thread_id}" style="hidden" class="modblock">
+						<form target="_blank" action="misc.php" method="POST">
+							<input type="hidden" name="board" value="{$boardz}" />
+							<input type="hidden" name="post" value="{$thisimage.thread_globalid}" />
+							<input type="checkbox" name="doban" value="1"> Ban poster<br>
+							Reason: <input type="text" name="banreason"> <br>
+							Duration: <input type="text" name="duration" value="0"><br>
+							<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
+							<input type="submit" name="quickmod" value="quickmod">
+						</form>
+					</span>
+					
 				{else} {* No board found.  Weird. *}
 					No board (UID {$thisimage.thread_id})
 				{/if}
 
 			{else}
 				[edit]
-			{/if}
+			{/if}	
 			
 			<br />
 			(<i>{$thisimage.fsize} K, {$thisimage.width}x{$thisimage.height}</i>)

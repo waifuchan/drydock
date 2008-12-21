@@ -130,6 +130,25 @@
 			{/if}
 			>edit</a>]
 			
+			{* Show quick-moderation panel *}
+			[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$post.id}'))">Quickmod</a>]
+			<span id="quickmod{$post.id}" style="hidden" class="modblock">
+				<form target="_blank" action="misc.php" method="POST">
+					<input type="hidden" name="board" value="{$boardz}" />
+					<input type="hidden" name="post" value="{$post.globalid}" />
+					<input type="checkbox" name="doban" value="1"> Ban poster<br>
+					Reason: <input type="text" name="banreason"> <br>
+					Duration: <input type="text" name="duration" value="0"><br>
+					<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
+					<input type="submit" name="quickmod" value="quickmod">
+				</form>
+			</span>
+			
+			{* Mark if a post has already been moderated *}
+			{if $post.unvisibletime != 0}
+			&nbsp;<i><b>Previously moderated</b></i>
+			{/if}
+			
 			{* Show stuff like name, link field, etc *}
 			
 			{if $post.link}<a href="{$post.link}">{/if}

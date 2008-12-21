@@ -120,3 +120,15 @@ function ToggleMenu(name, duration, path)
 		document.getElementById("main").style.marginRight="0px";
 	}
 }
+
+function ToggItem(item)
+{
+	if( item.style.display == "block" )
+	{
+		item.style.display = "none";
+	}
+	else
+	{
+		item.style.display = "block";
+	}
+}
