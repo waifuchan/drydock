@@ -157,7 +157,7 @@
 										<form action="misc.php" method="post">Report category:<br>
 										<input type="radio" name="category" value="1"> Illegal content<br>
 										<input type="radio" name="category" value="2"> Rule violation<br>
-										<input type="radio" name="category" value="3"> Terrible posting<br>
+										<input type="radio" name="category" value="3" checked="checked"> Low-quality posting<br>
 										<input type="hidden" name="report" value="report2">
 										<input type="hidden" name="post" value="'.$found_post.'">
 										<input type="hidden" name="board" value="'.$_POST['board'].'">
@@ -353,7 +353,7 @@
 
 							smclearcache($board_folder, -1, $thread); // clear the associated cache for this thread
 							smclearcache($board_folder, -1, -1); // AND the board
-							delimgs($db->delpost($targetid, $targetisthread));						
+							delimgs($db->delpost($targetid, $targetisthread));				
 									
 							// Write to the log
 							writelog("delete\tt:" . $postarray['globalid'] . "\tb:" . $postarray['board'], "moderator");

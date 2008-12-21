@@ -131,7 +131,7 @@
 					} 
 					else 
 					{
-						echo 'This ban duration was set to '.$bantime['duration'].' hours.  The ban will expire on '.
+						echo 'This ban duration was set to '.$singleban['duration'].' hours.  The ban will expire on '.
 							date(THdatetimestring,$expiremath).'<br /><br />';
 						$unbanned = 0; // still banned
 					}
@@ -201,7 +201,7 @@
 	 * which case the template set is overridden to "_admin" and caching is
 	 * always disabled.
 	 */
-	function sminit($tpl,$id=null,$template=THtplset,$admin=false)
+	function sminit($tpl,$id=null,$template=THtplset,$admin=false,$modvar=false)
 	{
 		$smarty=smsimple();
 		$sm->cache_dir=THpath."cache/";

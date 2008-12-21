@@ -48,7 +48,8 @@ interface absThornModDBI
 	function banbody($id, $isthread, $publicbanreason = "USER HAS BEEN BANNED FOR THIS POST");
 
 	/**
-	 * Bans an IP or subnet by fetching the IP from a post or thread.  Calls banip() and touchpost().
+	 * Bans an IP or subnet by fetching the IP from a post or thread.  Calls banip(), touchpost(),
+	 * and touchreports() to mark all reports for this post as valid.
 	 * 
 	 * @param int $id The (unique) ID number of the thread/post
 	 * @param bool $isthread Whether $id refers to a thread (if true) or a reply (if false)
@@ -114,7 +115,8 @@ interface absThornModDBI
 	 * Deletes a post or thread.  If $isthread, all posts in the thread
 	 * will be deleted as well.  If the deleted post(s) have images,
 	 * their database information is deleted and their image indexes are 
-	 * stored in an array and returned.
+	 * stored in an array and returned.  Calls touchreports() to mark
+	 * all associated reports with this post to be deleted as valid.
 	 * 
 	 * @param int $id The (unique) ID number of the offending post
 	 * @param bool $isthread Whether the target post is a thread or not
@@ -124,10 +126,12 @@ interface absThornModDBI
 	function delpost($id, $isthread);
 
 	/**
-	 *	Deletes all posts from an IP. If the IP created threads, all posts from those threads are 
-	 *  deleted too. If $delsub, all posts from the subnet are fragged. If any if the fragged 
-	 * 	posts contain images, that image info is removed from the database, and the image indexes
-	 *	are stored in an array to be passed to Thorn's image deletion function.
+	 * Deletes all posts from an IP. If the IP created threads, all posts from those threads are 
+	 * deleted too. If $delsub, all posts from the subnet are fragged. If any if the fragged 
+	 * posts contain images, that image info is removed from the database, and the image indexes
+	 * are stored in an array to be passed to Thorn's image deletion function.  Calls touchreports()
+	 * to mark all associated reports with this IP or IP range as valid, as well as to mark all replies
+	 * in threads started by this IP or IP range as indeterminate (status 3).
 	 * 
 	 * @param int $ip If the post is a thread (false if it is a reply)
 	 * @param bool $delsub Delete from the entire subnet or just the one IP.  Defaults to false.
@@ -268,6 +272,8 @@ interface absThornModDBI
 	 * Attempt to delete all the specified posts in the array
 	 * using a specified password.  It will clear the caches for
 	 * matching threads and delete images for all posts as well.
+	 * Additionally, it will set the status of all relevant
+	 * reports to 3 via touchreports().
 	 * 
 	 * @param array $posts An array of post global IDs
 	 * @param int $board The board ID
@@ -287,5 +293,35 @@ interface absThornModDBI
 	 * current time.
 	 */
 	function touchpost($id, $isthread, $time = null);
+	
+	/**
+	 * Retrieve the 20 "top" reports (technically aggregates of reports) in assoc-array form.
+	 * Only one report will be retrieved for each post, with two extra fields returned for each
+	 * record: "reporter_count", an int indicating the number of people who have reported
+	 * a particular post, and "earliest_report", another int indicating the time it was first
+	 * reported.  Optionally this will filter by a board.
+	 * 
+	 * The sorting methodology to determine "top":
+	 * 1) Category (ascending because illegal content is 1)
+	 * 2) Reporter count (descending)
+	 * 3) Earliest report (ascending)
+	 * 
+	 * @param int $board The optional board ID to filter by
+	 * 
+	 * @return array An array of assoc-arrays containing report information
+	 */
+	 function gettopreports($board=0);
+	 
+	 /**
+	  * Alter all reports in the table for a particular post to have a certain
+	  * status (1 for found valid, 2 for found entirely invalid, 3 as a catchall
+	  * for neither outright valid or invalid, or when the user deletes their own
+	  * post)
+	  * 
+	  * @param int $post The post globalid
+	  * @param int $board The board ID
+	  * @param int $status The new status for all relevant reports (defaults to 3)
+	  */
+	 function touchreports($post, $board, $status=3);
 }
 ?>

@@ -201,7 +201,7 @@ class ThornToolsDBI extends ThornDBI
 					" where board=" . THnewsboard . " ORDER BY time DESC LIMIT 0,15");
 	}
 	
-	 function checkreportpost($post, $board, $ip)
+	 function checkreportpost($post, $board)
 	 {
 	 	// Calculate some time/IP stuff
 	 	$time_interval = time() + (THtimeoffset * 60) - 60;
@@ -250,7 +250,7 @@ class ThornToolsDBI extends ThornDBI
 	 	$now = time() + (THtimeoffset * 60);
 	 	
 	 	// report it!
-	 	if( $this->checkreportpost($post, $board, $ip) == 0)
+	 	if( $this->checkreportpost($post, $board) == 0)
 	 	{
 	 		$this->myquery("INSERT INTO ".THreports_table." (ip, time, postid, board, category, status) VALUES
 	 				(".$longip.", ".$now.", ".intval($post).", ".intval($board).", ".intval($category).", 0)");

@@ -123,6 +123,7 @@ class ThornModDBI extends ThornDBI
 		}
 		$this->banbody($id, $isthread, $publicreason);
 		$this->touchpost($id, $isthread); // Mark a moderation action as performed
+		$this->touchreports($postdata['globalid'], $postdata['board'], 1); // Mark as valid all reports for this post
 		//		echo $result; die();
 		return ($this->banip($ip, $subnet, $privatereason, $publicreason, $adminreason, $postdata, $duration, $bannedby));
 	}
@@ -205,32 +206,31 @@ class ThornModDBI extends ThornDBI
 	{
 		if ($isthread)
 		{
-			$rezs = $this->myquery("select distinct imgidx from " . THreplies_table . " where thread=" . $id . " && imgidx!=0");
-			$duck = (int) $this->myresult("select imgidx from " . THthreads_table . " where id=" . $id);
-			//the myresult() in the line above is returning strings for some reason.
-			if ($duck != 0)
+			// Get the thread's info
+			$postarray = $this->myassoc("select * from " . THthreads_table  . " where id=" . $id);
+			
+			// Retrieve these for report updating at the end
+			$reply_ids = $this->myarray("select globalid from " . THreplies_table . " where thread=". $id);
+						
+			// Make an array of image indexes, starting with the replies (because then we can just optionally
+			// add on the thread OP's imgidx at the end, instead of having to jump through hoops like before)
+			$affimg = array();
+			$affimg = $this->myarray("select distinct imgidx from " . THreplies_table . " where thread=" . $id . " && imgidx!=0");
+			
+			// Add the OP's imgidx to $affimg if it's nonzero
+			if ($postarray['imgidx'] != 0)
 			{
-				$affimg = array (
-					$duck
-				);
-			}
-			else
-			{
-				$affimg = array ();
-			}
-			while ($rez = mysql_fetch_assoc($rezs))
-			{
-				$affimg[] = $rez['imgidx'];
-			}
+				$affimg[] = $postarray['imgidx'];
+			}			
+		
+			// Actually delete the posts
 			$this->myquery("delete from " . THreplies_table . " where thread=" . $id);
 			$this->myquery("delete from " . THthreads_table . " where id=" . $id);
+			
+			// Remove from the images table
 			if (count($affimg) > 0)
 			{
-				$EXIFquery = $this->myquery("select extra_info from " . THimages_table . " where id in (" . implode(",", $affimg) . ")"); // Remove extra_info sections
-				while ($exif = mysql_fetch_assoc($EXIFquery))
-				{
-					$extra_info_entries[] = $exif['extrainfo'];
-				}
+				$extra_info_entries = $this->myarray("select extra_info from " . THimages_table . " where id in (" . implode(",", $affimg) . ")"); // Remove extra_info sections
 
 				if (count($extra_info_entries) > 0)
 				{
@@ -239,30 +239,46 @@ class ThornModDBI extends ThornDBI
 
 				$this->myquery("delete from " . THimages_table . " where id in (" . implode(",", $affimg) . ")");
 			}
+			
+			// Mark a moderation action as complete for the OP
+			$this->touchreports($postarray['globalid'], $postarray['board'], 1); // 1 means a valid report
+			
+			// Now do it for all of those replies
+			foreach( $reply_ids as $replyid )
+			{
+				$this->touchreports($replyid, $postarray['board'], 1); // 1 means a valid report
+			}
 
 		}
 		else
 		{
-			$duck = $this->myresult("select imgidx from " . THreplies_table . " where id=" . $id);
-			//echo($duck);
-			if ($duck != 0)
+			$postarray = $this->myassoc("select * from " . THreplies_table . " where id=" . $id);
+			
+			// Delete images for this reply, if there are any
+			if ($postarray['imgidx'] != 0)
 			{
-				$affimg = array (
-					$duck
-				);
+				// Since we're deleting a reply, we only have one element in this at most
+				$affimg = array ( $postarray['imgidx'] );
 
-				$extra_info_entries = $this->myquery("select extra_info from " . THimages_table . " where id=" . $duck); // remove extra_info sections
+				// Delete extra_info entries
+				$extra_info_entries = $this->myarray("select extra_info from " . THimages_table . " where id=" . $postarray['imgidx']); // remove extra_info sections
 				if (count($extra_info_entries) > 0)
 				{
 					$this->myquery("delete from " . THextrainfo_table . " where id in (" . implode(",", $extra_info_entries) . ")");
 				}
 
-				$this->myquery("delete from " . THimages_table . " where id=" . $duck);
+				// Finally, delete from the DB
+				$this->myquery("delete from " . THimages_table . " where id=" . $postarray['imgidx']);
 			}
 			else
 			{
 				$affimg = array ();
 			}
+			
+			// Mark a moderation action as complete for this
+			$this->touchreports($postarray['globalid'], $postarray['board'], 1); // 1 means a valid report
+			
+			// Finally, delete from the replies table
 			$this->myquery("delete from " . THreplies_table . " where id=" . $id);
 		}
 		return ($affimg);
@@ -270,59 +286,95 @@ class ThornModDBI extends ThornDBI
 
 	function delip($ip, $delsub = false)
 	{
-		if ($delsub)
+		if ($delsub) // Delete a subnet?
 		{
+			// calculate the subnet
 			$sub = ipsub($ip);
 			$submax = $sub +255;
-			$q1 = $this->myquery("select distinct imgidx from " . THreplies_table . " where ip between " . $sub . " and " . $submax . " && imgidx!=0");
-			$q2 = $this->myquery("select distinct imgidx from " . THthreads_table . " where ip between " . $sub . " and " . $submax . " && imgidx!=0");
-			$q3 = $this->myquery("select id, board from " . THthreads_table . " where ip between " . $sub . " and " . $submax);
+			
+			// Get the imgidxes for the affected posts
+			$reply_imgidx = $this->myarray("select distinct imgidx from " . THreplies_table . " where ip between " . $sub . " and " . $submax . " && imgidx!=0");
+			$thread_imgidx = $this->myarray("select distinct imgidx from " . THthreads_table . " where ip between " . $sub . " and " . $submax . " && imgidx!=0");
+			
+			// Get the affected replies/threads
+			$affreplies = $this->mymultiarray("select id, globalid, board from " . THreplies_table . " where ip between " . $sub . " and " . $submax);
+			$affthreads = $this->mymultiarray("select id, globalid, board from " . THthreads_table . " where ip between " . $sub . " and " . $submax);
+			
+			// Delete from the tables
 			$this->myquery("delete from " . THreplies_table . " where ip between " . $sub . " and " . $submax);
 			$this->myquery("delete from " . THthreads_table . " where ip between " . $sub . " and " . $submax);
 		}
 		else
 		{
-			//echo($ip);
-			$q1 = $this->myquery("select distinct imgidx from " . THreplies_table . " where ip=" . $ip . " && imgidx!=0");
-			$q2 = $this->myquery("select distinct imgidx from " . THthreads_table . " where ip=" . $ip . " && imgidx!=0");
-			$q3 = $this->myquery("select id, board from " . THthreads_table . " where ip=" . $ip);
+			// Get the imgidxes for the affected posts
+			$reply_imgidx = $this->myarray("select distinct imgidx from " . THreplies_table . " where ip=" . $ip . " && imgidx!=0");
+			$thread_imgidx = $this->myarray("select distinct imgidx from " . THthreads_table . " where ip=" . $ip . " && imgidx!=0");
+			
+			// Get the affected replies/threads
+			$affreplies = $this->mymultiarray("select id, globalid, board from " . THreplies_table . " where ip=" . $ip);
+			$affthreads = $this->mymultiarray("select id, globalid, board from " . THthreads_table . " where ip=" . $ip);
+			
+			// Delete from the tables
 			$this->myquery("delete from " . THreplies_table . " where ip=" . $ip);
 			$this->myquery("delete from " . THthreads_table . " where ip=" . $ip);
 		}
 
+		// $affimgs will hold imgidxes to delete later by other functions
 		$affimgs = array ();
-		while ($rez = mysql_fetch_assoc($q1))
+		$affimgs = array_merge($affimgs, $reply_imgidx, $thread_imgidx);
+		
+		// $affthreadids is an array of thread IDs so that we can later
+		// turn into a string to use in a SQL query
+		$affthreadids = array();
+		
+		// Clear the caches for each thread, add the thread ID to the $affthreadids array,
+		// and mark valid all the reports for it
+		foreach( $affthreads as $thread )
 		{
-			$affimgs[] = $rez['imgidx'];
+			$affthreadids[] = $thread['id'];
+			smclearcache($thread['board'], -1, $thread['globalid']); // clear the associated cache for this thread
+			smclearcache($thread['board'], -1, -1); // AND this board
+			$this->touchreports($thread['globalid'], $thread['board'], 1 ); // Mark as valid all reports for this thread
 		}
-		while ($rez = mysql_fetch_assoc($q2))
+		
+		// All we have to do is mark the reports as valid
+		foreach( $affreplies as $reply )
 		{
-			$affimgs[] = $rez['imgidx'];
+			$this->touchreports($reply['globalid'], $reply['board'], 1 ); // Mark as valid all reports for this reply
 		}
-		$affthreads = array ();
-		while ($rez = mysql_fetch_assoc($q3))
-		{
-			$affthreads[] = $rez['id'];
-			smclearcache($rez['board'], -1, $rez['id']); // clear the associated cache for this thread
-			smclearcache($rez['board'], -1, -1); // AND this board
-		}
+		
+		// We need to handle replies in threads (started by this IP or IP range)
 		if (count($affthreads) > 0)
 		{
-			$affstr = implode(",", $affthreads);
-			$q4 = $this->myquery("select distinct imgidx from " . THreplies_table . " where thread in (" . $affstr . ")");
-			$this->myquery("delete from " . THreplies_table . " where thread in (" . $affstr . ")");
+			// Get an array of thread IDs and turn it into a string so that we can
+			// pop it into an SQL query easily
+			$affstr = implode(",", $affthreadids);
+			
+			// Get replies to deleted threads
+			$threadreplies = $this->mymultiarray("select globalid, board, imgidx from " . THreplies_table . " where thread in (" . $affstr . ")");
+			
+			// All we have to do is mark the reports as other (status 3) and
+			// add nonzero imgidxes to $affimgs
+			foreach( $threadreplies as $reply )
+			{
+				$this->touchreports($reply['globalid'], $reply['board'], 3 ); 
+				
+				// Add valid imgidxes to $affimgs
+				if( $reply['imgidx'] != 0)
+				{
+					$affimgs[] =  $reply['imgidx'];
+				}			
+			}
+			
+			// Now delete the replies
+			$this->myquery("delete from " . THreplies_table . " where thread in (" . $affstr . ")");	
 		}
-		while ($rez = mysql_fetch_assoc($q4))
-		{
-			$affimgs[] = $rez['imgidx'];
-		}
+
+		
+		// Delete DB info for all of these images (in $affimgs)
 		if (count($affimgs) > 0)
 		{
-			$EXIFquery = $this->myquery("select extra_info from " . THimages_table . " where id in (" . implode(",", $affimgs) . ")"); // Remove extra_info sections
-			while ($exif = mysql_fetch_assoc($EXIFquery))
-			{
-				$extra_info_entries[] = $exif['extrainfo'];
-			}
+			$extra_info_entries = $this->myarray("select extra_info from " . THimages_table . " where id in (" . implode(",", $affimgs) . ")"); // Remove extra_info sections
 
 			if (count($extra_info_entries) > 0)
 			{
@@ -331,6 +383,8 @@ class ThornModDBI extends ThornDBI
 
 			$this->myquery("delete from " . THimages_table . " where id in (" . implode(",", $affimgs) . ")");
 		}
+		
+		// Return the affected images info
 		return ($affimgs);
 	}
 
@@ -658,6 +712,7 @@ class ThornModDBI extends ThornDBI
 			foreach($threads_deleted as $thread)
 			{
 				delimgs($this->delpost($thread['id'], true));
+				$this->touchreports($thread['globalid'], $board, 3); // Clear all reports for it
 				smclearcache($board, -1, $thread['globalid']); // clear the cache
 			}
 		}
@@ -672,6 +727,7 @@ class ThornModDBI extends ThornDBI
 			foreach($posts_deleted as $post)
 			{
 				delimgs($this->delpost($post, false));
+				$this->touchreports($post, $board, 3); // Clear all reports for it
 			}
 		}
 		
@@ -700,5 +756,51 @@ class ThornModDBI extends ThornDBI
 		}
 	}
 	
+	 function gettopreports($board=0)
+	 {
+	 	if( $board == 0) // No board filtering
+	 	{
+	 		return $this->mymultiarray("SELECT 
+						*,
+						COUNT(DISTINCT ip) AS reporter_count,
+						MIN(time) AS earliest_report
+					FROM 
+						".THreports_table."
+					WHERE 
+						status = 0 
+					GROUP BY 
+						postid, board 
+					ORDER BY 
+						category ASC,
+						reporter_count DESC,
+						earliest_report ASC
+					LIMIT 20");
+	 	}
+	 	else
+	 	{
+	 		return $this->mymultiarray("SELECT 
+						*,
+						COUNT(DISTINCT ip) AS reporter_count,
+						MIN(time) AS earliest_report
+					FROM 
+						".THreports_table."
+					WHERE 
+						status = 0 AND board = ".intval($board)."
+					GROUP BY 
+						postid, board 
+					ORDER BY 
+						category ASC,
+						reporter_count DESC,
+						earliest_report ASC
+					LIMIT 20");	 		
+	 	}
+	 }
+	 
+	 function touchreports($post, $board, $status=3)
+	 {
+	 	$this->myquery("UPDATE ".THreports_table." set status=".intval($status).
+			" where postid=".intval($post)." and board=".intval($board));
+	 }
+		
 } //class ThornModDBI
 ?>
