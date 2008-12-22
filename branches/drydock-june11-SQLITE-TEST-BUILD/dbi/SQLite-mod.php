@@ -750,7 +750,8 @@ class ThornModDBI extends ThornDBI
 	 		return $this->mymultiarray("SELECT 
 						*,
 						COUNT(DISTINCT ip) AS reporter_count,
-						MIN(time) AS earliest_report
+						MIN(time) AS earliest_report,
+						MIN(category) AS lowest_category
 					FROM 
 						".THreports_table."
 					WHERE 
@@ -758,7 +759,7 @@ class ThornModDBI extends ThornDBI
 					GROUP BY 
 						postid, board 
 					ORDER BY 
-						category ASC,
+						lowest_category ASC,
 						reporter_count DESC,
 						earliest_report ASC
 					LIMIT 20");
@@ -768,7 +769,8 @@ class ThornModDBI extends ThornDBI
 	 		return $this->mymultiarray("SELECT 
 						*,
 						COUNT(DISTINCT ip) AS reporter_count,
-						MIN(time) AS earliest_report
+						MIN(time) AS earliest_report,
+						MIN(category) AS lowest_category
 					FROM 
 						".THreports_table."
 					WHERE 
@@ -776,7 +778,7 @@ class ThornModDBI extends ThornDBI
 					GROUP BY 
 						postid, board 
 					ORDER BY 
-						category ASC,
+						lowest_category ASC,
 						reporter_count DESC,
 						earliest_report ASC
 					LIMIT 20");	 		
@@ -786,7 +788,7 @@ class ThornModDBI extends ThornDBI
 	 function touchreports($post, $board, $status=3)
 	 {
 	 	$this->myquery("UPDATE ".THreports_table." set status=".intval($status).
-			" where postid=".intval($post)." and board=".intval($board));
+			" where status=0 and postid=".intval($post)." and board=".intval($board));
 	 }
 
 } //class ThornModDBI

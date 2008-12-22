@@ -12,11 +12,13 @@
 <a href=".THurl."admin.php?a=p>Profile Admin</a><br />
 <a href=".THurl."admin.php?a=hk>Housekeeping</a><br />
 <a href=".THurl."admin.php?a=t>Recent Pics</a><br />
-<a href=".THurl."admin.php?a=q>Recent Posts</a><br /><br />";
+<a href=".THurl."admin.php?a=q>Recent Posts</a><br />
+<a href=".THurl."admin.php?a=r>Reports</a><br /><br />";
 } elseif($_SESSION["moderator"]){
 echo "
 <a href=".THurl."recentpics.php>Recent Pics</a><br />
-<a href=".THurl."recentposts.php>Recent Posts</a><br /><br />";
+<a href=".THurl."recentposts.php>Recent Posts</a><br />
+<a href=".THurl."reports.php>Reports</a><br /><br />";
 } ?>
 <a href="http://localhost/drydock/branches/drydock/">Site Index</a><br />
 <?php if($_SESSION["username"]) {

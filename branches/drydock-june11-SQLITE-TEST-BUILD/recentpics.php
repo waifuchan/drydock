@@ -1,12 +1,15 @@
 <?php
 
-
-/* 	ThornLight v0.04a 	by Ordog163 <ordog@573chan.org>    
-					Alterations by tyam <tyam@meilk.com>  :]
-	NO WARRANTY LOL
-	
-	(02:27:04 AM) wildtyam: LIKE I'VE SAID BEFORE THOSE TWO FILES ARE YOUR BABIES
-*/
+	/*
+		drydock imageboard script (http://code.573chan.org/)
+		File:			recentpics.php (aka ThornLight)
+		Description:	Show the most recent posted pictures for moderator use
+		
+		Unless otherwise stated, this code is copyright 2008 
+		by the drydock developers and is released under the
+		Artistic License 2.0:
+		http://www.opensource.org/licenses/artistic-license-2.0.php
+	*/
 
 require_once ("config.php");
 require_once ("common.php");
@@ -16,7 +19,6 @@ if (!$_SESSION['admin'] && !$_SESSION['moderator'])
 }
 else
 {
-
 	$db = new ThornToolsDBI();
 
 	// Init some stuff
@@ -29,7 +31,7 @@ else
 	$count = 0;
 
 	// We just append this to the end of all the SQL queries/links.  Makes things simpler because we only have to do it once.
-	if ($board_folder && $db->getboardnumber($board_folder))
+	if ($board_folder != "" && $db->getboardnumber($board_folder))
 	{
 		$boardid = $db->getboardnumber($board_folder);
 		$boardlink = "&board=" . $board_folder;

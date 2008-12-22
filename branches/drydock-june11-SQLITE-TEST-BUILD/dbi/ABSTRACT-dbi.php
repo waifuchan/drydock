@@ -264,5 +264,29 @@ interface absThornDBI
 	 * 2 for in the replies table, and 0 if not found.
 	 */
 	function findpost($globalid, $board);
+	
+	/**
+	 * Get a single post's data from either the threads or the replies table
+	 * (the function will find out which one is necessary)
+	 * 
+	 * @param int $id The global ID of the post
+	 * @param int $board The board where the post may be found
+	 * 
+	 * @return array An assoc-array containing the post data, or null if there was no match
+	 */
+	function getsinglepost($id, $board);
+	
+	
+	/**
+	 * This function gets global IDs for a particular thread and possibly a particular
+	 * reply.  If the post ID is not provided it gets treated as a thread lookup.
+	 * 
+	 * @param int $threadid The ID of the thread
+	 * @param int $postid The ID of the post, defaults to -1
+	 * 
+	 * @return array If $postid is defined, returns an array with the elements 'post_loc' and 'thread_loc'.
+	 * If $postid is not defined, returns an array with the element 'thread_loc'
+	 */
+	function getpostlocation($threadid, $postid = -1);
 }
 ?>

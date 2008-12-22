@@ -20,6 +20,7 @@
 	 * "x" - Ban info (optionally a $_GET['banselect'] option as well)
 	 * "t" - Thornlight (recent pics)
 	 * "q" - Thornquasilight (recent posts)
+	 * "r" - Reports (redirect)
 	 * "c" - Capcode options
 	 * "w" - Wordfilter options
 	 * "p" - Profile options
@@ -240,6 +241,10 @@
 		elseif ($_GET['a']=="q") //let's put thornquasilight here
 		{
 			include("recentposts.php");
+		}
+		elseif ($_GET['a']=="r") //oh hello reports
+		{
+			include("reports.php");
 		}
 		elseif ($_GET['a']=="c") //Capcodes
 		{

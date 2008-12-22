@@ -149,6 +149,8 @@
 			&nbsp;<i><b>Previously moderated</b></i>
 			{/if}
 			
+			<br>
+			
 			{* Show stuff like name, link field, etc *}
 			
 			{if $post.link}<a href="{$post.link}">{/if}

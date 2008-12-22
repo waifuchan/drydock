@@ -298,8 +298,9 @@ interface absThornModDBI
 	 * Retrieve the 20 "top" reports (technically aggregates of reports) in assoc-array form.
 	 * Only one report will be retrieved for each post, with two extra fields returned for each
 	 * record: "reporter_count", an int indicating the number of people who have reported
-	 * a particular post, and "earliest_report", another int indicating the time it was first
-	 * reported.  Optionally this will filter by a board.
+	 * a particular post, "earliest_report", another int indicating the time it was first
+	 * reported, and "lowest_category", another int indicating the lowest category that a post
+	 * was reported for.  Optionally this will filter by a board.
 	 * 
 	 * The sorting methodology to determine "top":
 	 * 1) Category (ascending because illegal content is 1)

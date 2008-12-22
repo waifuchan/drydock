@@ -496,6 +496,43 @@ class ThornDBI implements absThornDBI
 	 	// We fell through- not found.
 	 	return 0;
 	}
+	
+	function getsinglepost($id, $board)
+	{
+		$postassoc = array();
+		
+		// Try replies first
+		
+		$qstring = "SELECT * FROM " . THreplies_table . " WHERE globalid=" . intval($id) . 
+						" AND board=" . intval($board);
+		$postassoc = $this->myassoc($qstring);
+
+		if ($postassoc == null)
+		{
+			$qstring = "SELECT * FROM " . THthreads_table . " WHERE globalid=" . intval($id) . 
+						" AND board=" . intval($board);
+			$postassoc = $this->myassoc($qstring);
+		}
+	
+		return $postassoc;
+	}
+		
+	function getpostlocation($threadid, $postid = -1)
+	{
+		$location = array();
+		
+		if ( $postid > -1 ) // Retrieving information for a reply
+		{
+			$location['post_loc'] = $this->myresult("select globalid from ".THreplies_table." where id=".intval($postid));
+			$location['thread_loc'] = $this->myresult("select globalid from ".THthreads_table." where id=".intval($threadid));
+		}
+		else // For a thread
+		{
+			$location['thread_loc'] = $this->myresult("select globalid from ".THthreads_table." where id=".intval($threadid));
+		}
+		
+		return $location;
+	}
 
 } //ThornDBI
 

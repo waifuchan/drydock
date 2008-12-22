@@ -187,7 +187,10 @@ class ThornPostDBI extends ThornDBI
 			*/
 		}
 		//var_dump($values); 
-foreach($values as $line) { $this->myquery("insert into " . THimages_table . " values $line;"); }
+		foreach($values as $line) 
+		{ 
+			$this->myquery("insert into " . THimages_table . " values $line;"); 
+		}
 
 		//$this->myquery("insert into " . THimages_table . " values " . implode(",", $values));
 		if ($isthread)
@@ -205,31 +208,76 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 	function purge($boardid)
 	{
 		$board = $this->getbinfo($boardid);
-		if ($this->myresult("select count(*) from " . THthreads_table . " where board=" . $board['id'] . " and pin=0") > $board['tmax'])
+		
+		// Do we need to do anything?
+		if ($this->myresult("SELECT COUNT(*) FROM " . THthreads_table . " WHERE board=" . $board['id'] . " AND pin=0") > $board['tmax'])
 		{
-			$last = $this->myassoc("select bump from " . THthreads_table . " where board=" . $board['id'] . " and pin=0 order by bump desc limit " . ((int) $board['tmax'] - 1) . ",1"); //-1 'cuz it's zero-based er' somethin'
-			//var_dump($last);
-			$dels = $this->myquery("select * from " . THthreads_table . " where board=" . $board['id'] . " and bump<" . $last['bump'] . " and pin=0");
+			// An array of imgidxes
 			$badimgs = array ();
-			$badths = array ();
-			while ($del = sqlite_fetch_array($dels)) //help
+			// An array of thread IDs
+			$threadids = array ();
+			
+			$targetthreads = $this->mymultiarray("SELECT * FROM " . THthreads_table . " WHERE board=" . $board['id'] . 
+					" AND pin=0 ORDER BY bump ASC LIMIT ". intval($board['tmax']));
+			
+			foreach ( $targetthreads as $thread )
 			{
-				//var_dump($del);
-				if ($del['imgidx'] != 0)
+				if( $thread['imgidx'] != 0)
 				{
-					$badimgs[] = $del['imgidx'];
+					// add to the images array
+					$badimgs[] = $thread['imgidx']; 
 				}
-				$badths[] = $del['id'];
-				smclearcache($board['id'], -1, $del['id']); // clear the associated cache for this thread
+				
+				// Add to the ids array
+				$threadids[] = $thread['id']; 
+				
+				// Clear the reports
+				$this->myquery("UPDATE ".THreports_table." SET status=3 WHERE postid=".$thread['globalid']." AND board=".$board['id']);
+				
+				// Clear the cache
+				smclearcache($board['id'], -1, $thread['globalid']); 
 			}
-			$this->myquery("delete from " . THthreads_table . " where bump<" . $last['bump'] . " and pin=0");
-			$badthstr = implode(",", $badths);
-			$dels = $this->myquery("select imgidx from " . THreplies_table . " where board=" . $board['id'] . " and thread in (" . $badthstr . ") and imgidx!=0");
-			while ($del = mysqlite_current($dels)) //help
+			
+			// String representation of all of the thread IDs to be deleted
+			$badthstr = implode(",", $threadids);
+			
+			// Retrieve the replies that are in these threads to be deleted
+			$targetreplies = $this->mymultiarray("SELECT imgidx, globalid FROM " . THreplies_table . " WHERE board=" . 
+					$board['id'] . " AND thread in (" . $badthstr . ")");
+					
+			foreach ( $targetreplies as $reply )
 			{
-				$badimgs[] = $del;
+				if( $reply['imgidx'] != 0)
+				{
+					// add to the images array
+					$badimgs[] = $reply['imgidx'];
+				}
+				
+				// Clear the reports
+				$this->myquery("UPDATE ".THreports_table." set status=3 where postid=".$reply['globalid']." and board=".$board['id']);
 			}
+			
+			// Delete these posts from the database
+			$this->myquery("delete from " . THthreads_table . " where id in (" . $badthstr . ")");
 			$this->myquery("delete from " . THreplies_table . " where thread in (" . $badthstr . ")");
+			
+			// Delete the image info from the database
+			if (count($badimgs) > 0)
+			{
+				$badimgsstr = implode(",", $badimgs);
+				
+				// Remove extra_info sections first
+				$extra_info_entries = $this->myarray("select extra_info from " . THimages_table . 
+						" where id in (" . $badimgsstr . ")");
+	
+				if (count($extra_info_entries) > 0)
+				{
+					$this->myquery("delete from " . THextrainfo_table . " where id in (" . implode(",", $extra_info_entries) . ")");
+				}
+	
+				$this->myquery("delete from " . THimages_table . " where id in (" . $badimgsstr . ")");
+			}
+			
 			return ($badimgs);
 		}
 		else
@@ -264,43 +312,6 @@ foreach($values as $line) { $this->myquery("insert into " . THimages_table . " v
 		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where folder='" . $this->escape_string($board) ."'";
 		$this->myquery($newsql);
 		return ($globalid);
-	}
-	
-	function getpostlocation($threadid, $postid = -1)
-	{
-		$location = array();
-		
-		if ( $postid > -1 ) // Retrieving information for a reply
-		{
-			$location['post_loc'] = $this->myresult("select globalid from ".THreplies_table." where id=".intval($postid));
-			$location['thread_loc'] = $this->myresult("select globalid from ".THthreads_table." where id=".intval($threadid));
-		}
-		else // For a thread
-		{
-			$location['thread_loc'] = $this->myresult("select globalid from ".THthreads_table." where id=".intval($threadid));
-		}
-		
-		return $location;
-	}
-	
-	function getsinglepost($id, $board)
-	{
-		$postassoc = array();
-		
-		// Try replies first
-		
-		$qstring = "SELECT * FROM " . THreplies_table . " WHERE globalid=" . intval($id) . 
-						" AND board=" . intval($board);
-		$postassoc = $this->myassoc($qstring);
-
-		if ($postassoc == null)
-		{
-			$qstring = "SELECT * FROM " . THthreads_table . " WHERE globalid=" . intval($id) . 
-						" AND board=" . intval($board);
-			$postassoc = $this->myassoc($qstring);
-		}
-	
-		return $postassoc;
 	}
 	
 	function movethread($id, $newboard)
