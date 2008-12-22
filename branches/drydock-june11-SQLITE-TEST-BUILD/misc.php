@@ -7,7 +7,12 @@
 		kinds of POST form submission.
 		
 		Things that take $_GET:
-			- nothing yet
+			- handle report (for moderators)
+				Handle report params:
+					- string $_GET['board'] - The board name
+					- int $_GET['post'] - The ID of the post
+					- int $_GET['status'] - The category to assign to these reports
+					- string $_GET['action'] = "handlereport"
 								
 		Things that take $_POST:
 			- delete (delete posts)
@@ -45,7 +50,63 @@
 	require_once("config.php");
 	require_once("common.php");
 	
-	if ($_POST['delete'] == "Delete" ) // Delete a post/posts
+	if ($_GET['action'] == "handlereport")
+	{
+		// First check if we even have the params we need
+		if (!isset ($_GET['post']) || !isset ($_GET['board']))
+		{
+			$message = "No post and/or board parameter, nothing to do!";
+		}
+		else
+		{
+			$db = new ThornModDBI();
+			
+			if ($db->checkban())
+			{
+				THdie("ADbanned");
+			} 
+			
+			// Get the board name.
+			$board_folder = trim($_GET['board']);
+			
+			// Check for local mod access or global mod/admin access.
+			if ((is_in_csl($board_folder, $_SESSION['mod_array']) != 1) 
+			&& ($_SESSION['admin'] != 1) && ($_SESSION['mod_global'] != 1))
+			{
+				$message = "You are not permitted to moderate posts on this board!";
+			}
+			elseif ( $board_folder == null )
+			{
+				$message = "Invalid board specified!";	
+			}
+			else
+			{
+				// Set some stuff up.
+				$board_id = $db->getboardnumber($board_folder);
+				$status = intval($_GET['status']);
+				$postid = intval($_GET['post']);
+				
+				if( $status < 1 || $status > 3)
+				{
+					$message = "Invalid status given!";
+				}
+				else
+				{
+					// Handle the reports, we're ok here
+					$db->touchreports($postid, $board_id, $status);
+					$message = "Reports for post ".$postid." in /".$board_folder."/ successfully handled.";
+				}
+			}
+		}
+		
+		$sm=sminit("popup.tpl");
+		$sm->assign("text",$message);
+		$sm->assign("timeout", 5000);
+		$sm->assign("title", "Report handler");
+		$sm->display("popup");
+		die();	
+	}
+	elseif ($_POST['delete'] == "Delete" ) // Delete a post/posts
 	{
 		$message = "what";
 		
@@ -276,7 +337,7 @@
 				THdie("ADbanned");
 			} 
 			
-			// Get the board ID.
+			// Get the board name.
 			$board_folder = trim($_POST['board']);
 			
 			// Check for local mod access or global mod/admin access.
@@ -288,7 +349,7 @@
 			else
 			{
 				// Set some stuff up.
-				$board_folder = $db->getboardname($board_id);
+				$board_id = $db->getboardnumber($board_folder);
 
 				// Make sure we retrieved a valid board folder
 				if ($board_folder == null)

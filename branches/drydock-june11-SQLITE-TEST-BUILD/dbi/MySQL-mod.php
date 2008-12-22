@@ -461,6 +461,7 @@ class ThornModDBI extends ThornDBI
 		{
 			$this->myquery("update " . THthreads_table . " set board=" . $change['to'] . " where board=" . $change['now']);
 			$this->myquery("update " . THreplies_table . " set board=" . $change['to'] . " where board=" . $change['now']);
+			$this->myquery("update " . THreports_table . " set board=" . $change['to'] . " where board=" . $change['now']); // handle reports
 		}
 	}
 	
@@ -550,22 +551,28 @@ class ThornModDBI extends ThornDBI
 	function fragboard($board)
 	{
 		$imgidxes = array ();
-		$hare = $this->myquery("select distinct imgidx from " . THthreads_table . " where board=" . $board . " && imgidx!=0");
-		while ($xyz = mysql_fetch_assoc($hare))
-		{
-			$imgidxes[] = $xyz['imgidx'];
-		}
-		$hare = $this->myquery("select distinct imgidx from " . THreplies_table . " where board=" . $board . " && imgidx!=0");
-		while ($xyz = mysql_fetch_assoc($hare))
-		{
-			$imgidxes[] = $xyz['imgidx'];
-		}
+		$threadimgs = $this->myarray("select distinct imgidx from " . THthreads_table . " where board=" . $board . " && imgidx!=0");
+		$replyimgs = $this->myarray("select distinct imgidx from " . THreplies_table . " where board=" . $board . " && imgidx!=0");
+		
+		$imgidxes = array_combine($imgidxes, $threadimgs, $replyimgs);
+
 		$this->myquery("delete from " . THthreads_table . " where board=" . $board);
 		$this->myquery("delete from " . THreplies_table . " where board=" . $board);
+		$this->myquery("update ".THreports_table . " set status = 3 where status = 0 and board=".$board); // Clear existing reports
+		
 		if (count($imgidxes) != 0)
 		{
+			// First clear extra information
+			$extra_info_entries = $this->myarray("select extra_info from " .THimages_table . " where extra_info != 0 and id in (" . implode(",", $imgidxes) . ")" );
+			
+			if( count($extra_info_entries) > 0)
+			{
+				$this->myquery("delete from " . THextrainfo_table . " where id in (" . implode(",", $extra_info_entries) . ")");
+			}
+						
 			$this->myquery("delete from " . THimages_table . " where id in (" . implode(",", $imgidxes) . ")");
 		}
+		
 		smclearcache($board, -1, -1, true); // clear EVERYTHING in the cache associated with this board
 		return ($imgidxes);
 	}

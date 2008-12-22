@@ -297,27 +297,39 @@ class ThornPostDBI extends ThornDBI
 	
 	function movethread($id, $newboard)
 	{
-		// Get the new board name
 		$newboard = intval($newboard); // Save a bit of time
+		$id = intval($id);
 		
-		$destboard_name = $this->getboardname($newboard);
+		$destboard_name = $this->getboardname($newboard); // Get the new board name
 		$newthreadspot = $this->getglobalid($destboard_name);
+		$threadinfo = $this->gettinfo($id);
 		
 		if( $newthreadspot == null )
 			return null;
 		
 		$this->myquery("update " . THthreads_table . " set globalid=" . $newthreadspot . ", " .
-				"board=" . intval($newboard) . " where id=" . intval($id));
+				"board=" . $newboard . " where id=" . $id);
+				
+		// Update reports table
+		$this->myquery("update " . THreports_table . " set postid=" . $newthreadspot . 
+				",board=" . $newboard . " where postid=" . $threadinfo['globalid'] . 
+				" and board =" . $threadinfo['board']);		
 	
 		// Get an array of reply IDs to move
 		$posts = array();
-		$posts = $this->myarray("select id from " . THreplies_table . " where thread=" . intval($id) . 
+		$posts = $this->mymultiarray("select id, globalid from " . THreplies_table . " where thread=" . $id . 
 									" order by globalid asc");
 	
 		foreach( $posts as $reply )
 		{
-			$db->myquery("update " . THreplies_table . " set globalid=" . $db->getglobalid($newboard) . 
-							",board=" . $newboard . " where id=" . intval($reply));
+			$newid = $this->getglobalid($newboard);
+			$this->myquery("update " . THreplies_table . " set globalid=" . $newid . 
+				",board=" . $newboard . " where id=" . $reply['id']);
+				
+			// Update reports table
+			$this->myquery("update " . THreports_table . " set postid=" . $newid . 
+				",board=" . $newboard . " where postid=" . $reply['globalid'] . 
+				" and board =" . $threadinfo['board']);
 		}
 		
 		return $newthreadspot;
@@ -325,10 +337,9 @@ class ThornPostDBI extends ThornDBI
 	
 	function updatepost($id, $board, $name, $trip, $link, $subject, $body, $visible, $pin, $lock, $permasage)
 	{
-		$isreply = $this->myresult("SELECT COUNT(*) FROM " . THreplies_table . 
-			" WHERE globalid=".intval($id)." AND board=".intval($board));
+		$loc = $this->findpost($id, $board);
 			
-		if( isreply )
+		if( $loc == 2 ) // reply
 		{
 			$querystring = "UPDATE " . THreplies_table . " SET ".
 					"name='".$this->escape_string($name)."'," .
@@ -341,7 +352,7 @@ class ThornPostDBI extends ThornDBI
 					" WHERE globalid=".intval($id).
 					" AND board=".intval($board);
 		}
-		else
+		elseif ( $loc == 1 ) // thread
 		{
 			$querystring = "UPDATE " . THreplies_table . " SET ".
 					"name='".$this->escape_string($name)."'," .
@@ -356,6 +367,11 @@ class ThornPostDBI extends ThornDBI
 					"unvisibletime=".time() + (THtimeoffset * 60).
 					" WHERE globalid=".intval($id).
 					" AND board=".intval($board);			
+		}
+		else
+		{
+			// Neither?  This is messed up.
+			return;
 		}
 		
 		$this->myquery($querystring);
