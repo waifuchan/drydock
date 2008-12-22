@@ -198,8 +198,10 @@ class ThornPostDBI extends ThornDBI
 	{
 		$board = $this->getbinfo($boardid);
 		
+		$threadcount = $this->myresult("SELECT COUNT(*) FROM " . THthreads_table . " WHERE board=" . $board['id'] . " AND pin=0");
+		
 		// Do we need to do anything?
-		if ($this->myresult("SELECT COUNT(*) FROM " . THthreads_table . " WHERE board=" . $board['id'] . " AND pin=0") > $board['tmax'])
+		if ($threadcount > $board['tmax'])
 		{
 			// An array of imgidxes
 			$badimgs = array ();
@@ -207,7 +209,7 @@ class ThornPostDBI extends ThornDBI
 			$threadids = array ();
 			
 			$targetthreads = $this->mymultiarray("SELECT * FROM " . THthreads_table . " WHERE board=" . $board['id'] . 
-					" AND pin=0 ORDER BY bump ASC LIMIT ". intval($board['tmax']));
+					" AND pin=0 ORDER BY bump ASC LIMIT ". ($threadcount - $board['tmax']));
 			
 			foreach ( $targetthreads as $thread )
 			{
