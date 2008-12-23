@@ -409,5 +409,28 @@ class ThornPostDBI extends ThornDBI
 			" and hash='" . $this->escape_string($hash) . "'");
 	}
 	
+	function postedwithintime($ip, $timeframe = 30)
+	{
+		$ip = intval($ip);
+		$searchtime = time() + (THtimeoffset * 60) - $timeframe; // Minimum time
+		
+		// Check replies first
+		if( $this->myresult("SELECT COUNT(*) FROM ".THreplies_table." WHERE ip=".$ip.
+				" AND time>=".$searchtime) > 0)
+		{
+			return true;
+		}
+		
+		// Check threads next
+		if( $this->myresult("SELECT COUNT(*) FROM ".THthreads_table." WHERE ip=".$ip.
+				" AND time>=".$searchtime) > 0)
+		{
+			return true;
+		}
+		
+		// Since we fell through, we must be OK
+		return false;
+	}
+	
 } //ThornPostDBI
 ?>

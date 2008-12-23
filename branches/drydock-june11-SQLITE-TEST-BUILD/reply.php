@@ -52,6 +52,13 @@
 	//check for banned keywords
 	if ($mod==false)
 	{
+		// First, flood protection
+		$longip = ip2long($_SERVER['REMOTE_ADDR']);
+		if( $db->postedwithintime($longip) == true )
+		{
+			THdie("You must wait a while before making another post.");
+		}
+		
 		// This should have the cached version of banned keywords in an array named $spamblacklist.
 		@include(THpath.'/cache/blacklist.php');
 		//You could use any website, or even CENSORED or some other text.  We picked GameFAQs.
@@ -67,7 +74,7 @@
 		{
 			// get out spambot >:[
 			$redhammer = new ThornModDBI();
-			$redhammer->banip(ip2long($_SERVER['REMOTE_ADDR']),0,"Suspected bot.","","Suspected bot.",$_POST['body'], -1, "autoban");
+			$redhammer->banip($longip,0,"Suspected bot.","","Suspected bot.",$_POST['body'], -1, "autoban");
 			THdie("Abnormal reply"); // heh heh
 		}
 		

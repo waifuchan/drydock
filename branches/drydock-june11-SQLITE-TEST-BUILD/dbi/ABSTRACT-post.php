@@ -1,4 +1,5 @@
 <?php
+
 /*
 	drydock imageboard script (http://code.573chan.org/)
 	File:           dbi/ABSTRACT-post.php
@@ -29,49 +30,49 @@ interface absThornPostDBI
 	 */
 	function gettinfo($t);
 
- 	/**
- 	 * Posts a reply to a thread, updates the "bump" column of the relevant thread, 
- 	 * and updates the last post time of the relevant board. Note that, as with 
- 	 * putthread, images are stored using the separate putimgs() function. The 
- 	 * relevant caches are cleared by this function.
- 	 * 
- 	 * @param string $name The poster's name
- 	 * @param string $tpass The poster's encoded tripcode
- 	 * @param int $board The board to which this post's thread belongs
- 	 * @param string $title The title for this thread
- 	 * @param string $body The body text of the post
-  	 * @param string $link The poster's link (could be mailto, could be sage, who knows!)
- 	 * @param int $ip The ip2long()'d IP address of the poster
- 	 * @param bool $mod Is the poster a mod/admin (for future maintainability)
- 	 * @param bool $pin Should the thread be auto-pinned?
- 	 * @param bool $lock Should the thread be auto-locked?
- 	 * @param bool $permasage Should the thread be auto-permasaged?
- 	 * @param string $password The password for post deletion (can be an empty string)
- 	 * @param int $tyme The timestamp at which to post, defaults to the current system time
- 	 *
- 	 * @return int The unique ID of the thread
- 	 */
+	/**
+	 * Posts a reply to a thread, updates the "bump" column of the relevant thread, 
+	 * and updates the last post time of the relevant board. Note that, as with 
+	 * putthread, images are stored using the separate putimgs() function. The 
+	 * relevant caches are cleared by this function.
+	 * 
+	 * @param string $name The poster's name
+	 * @param string $tpass The poster's encoded tripcode
+	 * @param int $board The board to which this post's thread belongs
+	 * @param string $title The title for this thread
+	 * @param string $body The body text of the post
+		 * @param string $link The poster's link (could be mailto, could be sage, who knows!)
+	 * @param int $ip The ip2long()'d IP address of the poster
+	 * @param bool $mod Is the poster a mod/admin (for future maintainability)
+	 * @param bool $pin Should the thread be auto-pinned?
+	 * @param bool $lock Should the thread be auto-locked?
+	 * @param bool $permasage Should the thread be auto-permasaged?
+	 * @param string $password The password for post deletion (can be an empty string)
+	 * @param int $tyme The timestamp at which to post, defaults to the current system time
+	 *
+	 * @return int The unique ID of the thread
+	 */
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password, $tyme = false);
-  
- 	/**
- 	 * Posts a reply to a thread, updates the "bump" column of the relevant thread, 
- 	 * and updates the last post time of the relevant board. Note that, as with 
- 	 * putthread, images are stored using the separate putimgs() function. The 
- 	 * relevant caches are cleared by this function.
- 	 * 
- 	 * @param string $name The poster's name
- 	 * @param string $tpass The poster's encoded tripcode
- 	 * @param string $link The poster's link (could be mailto, could be sage, who knows!)
- 	 * @param int $board The board to which this post's thread belongs
- 	 * @param int $thread The thread for which this post is a reply (unique ID, not globalid)
- 	 * @param string $body The body text of the post
- 	 * @param int $ip The ip2long()'d IP address of the poster
- 	 * @param bool $mod Is the poster a mod/admin (for future maintainability)
- 	 * @param string $password The password for post deletion (can be an empty string)
- 	 * @param int $tyme The timestamp at which to post, defaults to the current system time
- 	 *
- 	 * @return int The unique ID of the reply
- 	 */
+
+	/**
+	 * Posts a reply to a thread, updates the "bump" column of the relevant thread, 
+	 * and updates the last post time of the relevant board. Note that, as with 
+	 * putthread, images are stored using the separate putimgs() function. The 
+	 * relevant caches are cleared by this function.
+	 * 
+	 * @param string $name The poster's name
+	 * @param string $tpass The poster's encoded tripcode
+	 * @param string $link The poster's link (could be mailto, could be sage, who knows!)
+	 * @param int $board The board to which this post's thread belongs
+	 * @param int $thread The thread for which this post is a reply (unique ID, not globalid)
+	 * @param string $body The body text of the post
+	 * @param int $ip The ip2long()'d IP address of the poster
+	 * @param bool $mod Is the poster a mod/admin (for future maintainability)
+	 * @param string $password The password for post deletion (can be an empty string)
+	 * @param int $tyme The timestamp at which to post, defaults to the current system time
+	 *
+	 * @return int The unique ID of the reply
+	 */
 	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $password, $tyme = false);
 
 	/**
@@ -124,7 +125,7 @@ interface absThornPostDBI
 	 * @return int The number of found hashes
 	 */
 	function dupecheck($hashes);
-	
+
 	/**
 	 * This function gets a new global ID for the specified board.  It will
 	 * increment the current ID for that board by one.
@@ -134,7 +135,7 @@ interface absThornPostDBI
 	 * @return int The new ID, or null if the specified board does not exist
 	 */
 	function getglobalid($board);
-		
+
 	/**
 	 * Move a thread with a specified unique ID to a new board.
 	 * 
@@ -144,7 +145,7 @@ interface absThornPostDBI
 	 * @return int The new global ID of the thread, or null if the move failed
 	 */
 	function movethread($id, $newboard);
-	
+
 	/**
 	 * Update a pre-existing post in the DB with new information.  Note that no sort of
 	 * access checking is performed so it is assumed that the user has the proper authorization
@@ -164,7 +165,7 @@ interface absThornPostDBI
 	 * @param int $permasage The permasage status (only matters for threads)
 	 */
 	function updatepost($id, $board, $name, $trip, $link, $subject, $body, $visible, $pin, $lock, $permasage);
-	
+
 	/**
 	 * Remove a single image from the database, and optionally its corresponding
 	 * metadata info, if it has one
@@ -175,5 +176,18 @@ interface absThornPostDBI
 	 * to -1, which signifies no such entry.
 	 */
 	function deleteimage($imgidx, $hash, $extra_info = -1);
+
+	/**
+	 * Check if a particular IP has posted with a certain
+	 * number of seconds.
+	 * 
+	 * @param int $ip The (ip2longed) IP to search for
+	 * @param int $timeframe The timeframe within which to check,
+	 * in seconds.  Defaults to 30.
+	 * 
+	 * @return bool True if a post was found within the ramge
+	 * of now and now minus the timeframe
+	 */
+	function postedwithintime($ip, $timeframe = 30);
 }
 ?>
