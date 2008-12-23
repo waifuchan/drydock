@@ -406,6 +406,29 @@
 	}
 	
 	/**
+	 * Compare two posts and determine which is earlier based
+	 * on the "time" element of each
+	 * 
+	 * @param array $a An assoc-array containing post data
+	 * @param array $b An assoc-array containing post data
+	 * 
+	 * @return int 1 if $a comes before $b, 
+	 * -1 if $b comes before $a,
+	 * 0 if the two are equal
+	 */
+	function comp_post_times($a, $b)
+	{
+		$first=$a['time'];
+		$second=$b['time'];
+		if ($first == $second) 
+		{ //Unlikely, but possible
+			return 0;
+		}
+
+		return ($first < $second) ? 1 : -1;
+	}
+	
+	/**
 	* This function takes a string or array and
 	* replaces every instance of < and > with their HTML-encoded
 	* equivalent, so it doesn't mess up our HTML forms

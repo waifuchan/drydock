@@ -21,7 +21,7 @@
 				<td align=left width=50%><a href="recentposts.php?type=posts&offset={$offsetback}{$boardlink}">&lt;&lt;</a></td>
 			{/if}
 		{else} 
-			echo '<td align=left width=50%>&lt;&lt;</td>';
+			<td align=left width=50%>&lt;&lt;</td>
 		{/if}
 	
 		{if $beginning > 0}
@@ -109,7 +109,7 @@
 			{else} 
 				{* thread *}
 				{if $post.id != 0 ) 
-					echo 'Post {$post.globalid} in /{$boardz}/ 
+					Post {$post.globalid} in /{$boardz}/ 
 					{if $THuserewrite == true}
 						[<a href="{$THurl}{$boardz}/thread/{$post.globalid}">thread</a>]
 					{else} 
@@ -220,7 +220,7 @@
 				<td align=left width=50%><a href="recentposts.php?type=posts&offset={$offsetback}{$boardlink}">&lt;&lt;</a></td>
 			{/if}
 		{else} 
-			echo '<td align=left width=50%>&lt;&lt;</td>';
+			<td align=left width=50%>&lt;&lt;</td>
 		{/if}
 	
 		{if $beginning > 0}

@@ -22,7 +22,7 @@
 		
 		<tr>
 			<td><b>Private ID:</b>{$postarray.id}</td>
-			<td><b>Poster IP:</b>{$ipstring}</td>
+			<td><b>Poster IP:</b><a href="lookups.php?action=iplookup&ip={$ipstring}" target="_blank">{$ipstring}</a></td>
 		</tr>
 	
 		<tr>

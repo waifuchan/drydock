@@ -252,12 +252,14 @@ function rebuild_hovermenu()
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=hk>Housekeeping</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=t>Recent Pics</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=q>Recent Posts</a><br />' . "\n");
-	fwrite($sidelinks, '<a href=".THurl."admin.php?a=r>Reports</a><br /><br />";' . "\n");
+	fwrite($sidelinks, '<a href=".THurl."admin.php?a=r>Reports</a><br />' . "\n");
+	fwrite($sidelinks, '<a href=".THurl."admin.php?a=l>Lookup Tools</a><br /><br />";' . "\n");
 	fwrite($sidelinks, '} elseif($_SESSION["moderator"]){' . "\n");
 	fwrite($sidelinks, 'echo "' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."recentpics.php>Recent Pics</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."recentposts.php>Recent Posts</a><br />' . "\n");
-	fwrite($sidelinks, '<a href=".THurl."reports.php>Reports</a><br /><br />";' . "\n");
+	fwrite($sidelinks, '<a href=".THurl."reports.php>Reports</a><br />' . "\n");
+	fwrite($sidelinks, '<a href=".THurl."lookups.php>Lookup Tools</a><br /><br />";' . "\n");
 	fwrite($sidelinks, '} ?>' . "\n");
 	fwrite($sidelinks, '<a href="' . THurl . '">Site Index</a><br />' . "\n");
 	fwrite($sidelinks, '<?php if($_SESSION["username"]) {' . "\n" . 'echo "<a href=".THurl."profiles.php?action=logout>Log Out</a> / <a href=".THurl."profiles.php>Profiles</a>";' . "\n" . ' } else {' . "\n");

@@ -137,6 +137,6 @@ else
 	$sm->assign("showhidden", (bool)$showhidden);
 	
 	// Show it!
-	$sm->display("adminrecentposts",null);
+	$sm->display("adminrecentposts.tpl",null);
 	die();
 }

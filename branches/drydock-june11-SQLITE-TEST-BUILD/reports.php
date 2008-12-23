@@ -74,6 +74,6 @@ else
 	$sm->assign("board_folder", $board_folder); // name of the folder (for filtering)
 		
 	// Show it!
-	$sm->display("adminreports",null);
+	$sm->display("adminreports.tpl",null);
 	die();
 }

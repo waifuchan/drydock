@@ -810,6 +810,131 @@ class ThornModDBI extends ThornDBI
 	 	$this->myquery("UPDATE ".THreports_table." set status=".intval($status).
 			" where status=0 and postid=".intval($post)." and board=".intval($board));
 	 }
+	 
+	function recentreportsfromip($ip = null)
+	{	
+		// If it's null
+		if ($ip == null)
+		{
+			$ip = ip2long($_SERVER['REMOTE_ADDR']);
+		}
+		else
+		{
+			$ip = intval($ip);
+		}
+		
+		return $this->mymultiarray("SELECT * FROM ".THreports_table." WHERE status != 0 AND ip=".$ip.
+					" ORDER BY time DESC LIMIT 15");
+	}
+	
+	function recentpostsfromip($ip = null)
+	{
+		// If it's null
+		if ($ip == null)
+		{
+			$ip = ip2long($_SERVER['REMOTE_ADDR']);
+		}
+		else
+		{
+			$ip = intval($ip);
+		}
+		
+		// Set up some things
+		$initial_threads = array();
+		$initial_replies = array();
+		$initial_posts = array(); // This will contain the combination of the previous arrays
+		
+		$initial_threads = $this->myarray("SELECT time FROM ".THthreads_table.
+								" WHERE ip=".$ip." ORDER BY time DESC LIMIT 10");
+								
+		$initial_replies = $this->myarray("SELECT time FROM ".THreplies_table.
+								" WHERE ip=".$ip." ORDER BY time DESC LIMIT 10");
+								
+		$initial_posts = array_combine($initial_threads, $initial_replies);
+		
+		// Do we have to do filtering?
+		if( count($initial_posts) > 10 )
+		{
+			// We need to do filtering. Sort this array, find the minimum time
+			// (i.e. the time of the 10th element)
+			// and retrieve all the posts that fall within this
+			
+			rsort($initial_posts); // reverse because we want to go highest->lowest
+			$min_time = $initial_posts[9]; // 10th (least recent in our view) post
+			
+			$initial_threads = $this->mymultiarray("SELECT * FROM ".THthreads_table.
+								" WHERE ip=".$ip." AND time >= ".$min_time." LIMIT 10");
+								
+			$initial_replies = $this->mymultiarray("SELECT * FROM ".THreplies_table.
+								" WHERE ip=".$ip." AND time >= ".$min_time." LIMIT 10");
+							
+			$initial_posts = array_combine($initial_threads, $initial_replies);			
+		}
+		else
+		{
+			// No filtering required, just retrieve the assocs
+			$initial_threads = $this->mymultiarray("SELECT * FROM ".THthreads_table.
+									" WHERE ip=".$ip." ORDER BY time DESC LIMIT 10");
+									
+			$initial_replies = $this->mymultiarray("SELECT * FROM ".THreplies_table.
+									" WHERE ip=".$ip." ORDER BY time DESC LIMIT 10");
+									
+			$initial_posts = array_combine($initial_threads, $initial_replies);
+		}
+
+		// Don't bother sorting if we have 0 or 1 entries
+		if( count($initial_posts) > 1)
+		{
+			// Sort the $initial_posts array.  The implementation for this sort
+			// is in common.php
+			usort($initial_posts, 'comp_post_times');
+		}
+		
+		return $initial_posts;
+	}
+	
+	function getpostfromimgidx($imgidx)
+	{
+		$location = array(); // This will contain all of the information
+		$imgidx = intval($imgidx);
+		
+		// don't allow any funny business >:[
+		if( $imgidx == 0 )
+		{
+			return null;
+		}
+		
+		// Try replies first
+		$post_test = $this->myassoc("SELECT * FROM ".THreplies_table." WHERE imgidx=".$imgidx);
+		if( $post_test != null )
+		{
+			// Hah, found it.
+			$location['board'] = $post_test['board'];
+			$location['post_loc'] = $post_test['globalid'];
+			
+			// Get the thread globalid now.
+			$location['thread_loc'] = $this->myresult("SELECT globalid FROM ".THthreads_table." WHERE id=".$post_test['thread']);
+		}
+		else
+		{
+			// Didn't find it, try threads now
+			$post_test = $this->myassoc("SELECT * FROM ".THthreads_table." WHERE imgidx=".$imgidx);
+			if( $post_test != null )
+			{
+				$location['board'] = $post_test['board'];
+				$location['thread_loc'] = $post_test['globalid'];
+				$location['post_loc'] = $post_test['globalid'];
+			}
+			else
+			{
+				// Didn't find it.
+				return null;
+			}
+		}
+		
+		// We can assume everything was initialized OK, so just return this.
+		return $location;
+	}
 		
 } //class ThornModDBI
 ?>

@@ -188,11 +188,15 @@ interface absThornDBI
 	/**
 	 * 	Get ban information for a particular IP.  If the ban is a warning, or if the ban has 
 	 * expired, the ban will additionally be moved out of the active bans table and into the 
-	 * ban history table.
+	 * ban history table if $clear is set to true. $clear should typically be true unless
+	 * you're trying to view the current ban history for another IP as an administrator or
+	 * something.
 	 * 
 	 * @param mixed $ip  The IP address.  If it comes in as an int, long2ip will be used.  
 	 * If it comes in as a string, no additionally conversion is performed.  If it comes in 
 	 * as null, it will default to $_SERVER['REMOTE_ADDR'].
+	 * @param bool $clear If this is set to true, warnings and expired bans will be moved
+	 * to the ban history table. This defaults to true.
 	 *
 	 * @return array An associative array of ban information
 	 */

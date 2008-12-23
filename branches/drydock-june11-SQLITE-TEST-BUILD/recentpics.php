@@ -84,7 +84,7 @@ else
 	$sm->assign("offsetback", $offsetback);
 
 	// Show it!
-	$sm->display("adminrecentpics", null);
+	$sm->display("adminrecentpics.tpl", null);
 	die();
 }
 ?>

@@ -21,6 +21,7 @@
 	 * "t" - Thornlight (recent pics)
 	 * "q" - Thornquasilight (recent posts)
 	 * "r" - Reports (redirect)
+	 * "l" - Lookups (redirect)
 	 * "c" - Capcode options
 	 * "w" - Wordfilter options
 	 * "p" - Profile options
@@ -245,6 +246,10 @@
 		elseif ($_GET['a']=="r") //oh hello reports
 		{
 			include("reports.php");
+		}
+		elseif ($_GET['a']=="l") // Lookups
+		{
+			include("lookups.php");
 		}
 		elseif ($_GET['a']=="c") //Capcodes
 		{

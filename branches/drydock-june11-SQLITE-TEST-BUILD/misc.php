@@ -99,11 +99,11 @@
 			}
 		}
 		
-		$sm=sminit("popup.tpl");
+		$sm=sminit("popup");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", 5000);
 		$sm->assign("title", "Report handler");
-		$sm->display("popup");
+		$sm->display("popup.tpl");
 		die();	
 	}
 	elseif ($_POST['delete'] == "Delete" ) // Delete a post/posts
@@ -157,11 +157,11 @@
 			}
 		}
 		
-		$sm=sminit("popup.tpl");
+		$sm=sminit("popup");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", "5000"); // 5000 ms
 		$sm->assign("title", "Post deletion form");
-		$sm->display("popup");
+		$sm->display("popup.tpl");
 		die();
 	}
 	elseif($_POST['report'] == "Report" ) // Report a post
@@ -247,11 +247,11 @@
 			}
 		}
 		
-		$sm=sminit("popup.tpl");
+		$sm=sminit("popup");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", $timeout);
 		$sm->assign("title", "Post reporting form");
-		$sm->display("popup");
+		$sm->display("popup.tpl");
 		die();
 	}
 	elseif( $_POST['report'] == "report2") // Second stage, with category submission
@@ -314,11 +314,11 @@
 			}
 		}
 		
-		$sm=sminit("popup.tpl");
+		$sm=sminit("popup");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", 5000);
 		$sm->assign("title", "Post reporting form");
-		$sm->display("popup");
+		$sm->display("popup.tpl");
 		die();	
 	}
 	elseif( $_POST['quickmod'] == "quickmod")
@@ -430,11 +430,11 @@
 			}
 		}
 		
-		$sm=sminit("popup.tpl");
+		$sm=sminit("popup");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", 5000);
 		$sm->assign("title", "Moderation action");
-		$sm->display("popup");
+		$sm->display("popup.tpl");
 		die();	
 	}
 

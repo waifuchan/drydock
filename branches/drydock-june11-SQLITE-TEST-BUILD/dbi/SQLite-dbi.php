@@ -314,7 +314,7 @@ class ThornDBI implements absThornDBI
 		
 	}
 
-	function getban($ip = null)
+	function getban($ip = null, $clear = true)
 	{
 		// If it's null
 		if ($ip == null)
@@ -335,41 +335,14 @@ class ThornDBI implements absThornDBI
 			AND `ip_octet2`=" . intval($octets[1]) . " 
 			AND (`ip_octet3`=" . intval($octets[2]) . " || `ip_octet3` = -1 )
 			AND (`ip_octet4`=" . intval($octets[3]) . " || `ip_octet4` = -1 )");
-
-		// Move old bans to the ban history table
-		foreach( $bans as $singleban )
+			
+		// Clear old bans if $clear is true
+		if( $clear == true )
 		{
-			if( $singleban['duration'] == 0 ) // Warning
+			// Move old bans to the ban history table
+			foreach( $bans as $singleban )
 			{
-				// Move to ban history table
-				$history = "insert into `".THbanhistory_table."` 
-				set ip_octet1=" . $singleban['ip_octet1'] . ",
-				ip_octet2=" . $singleban['ip_octet2'] . ",
-				ip_octet3=" . $singleban['ip_octet3'] . ",
-				ip_octet4=" . $singleban['ip_octet4'] . ",
-				privatereason='" . $this->clean($singleban['privatereason']) . "', 
-				publicreason='" . $this->clean($singleban['publicreason']) . "', 
-				adminreason='" . $this->clean($singleban['adminreason']) . "', 
-				postdata='" . $this->clean($singleban['postdata']) . "', 
-				duration='" . $singleban['duration'] . "', 
-				bantime=" . $singleban['bantime'] . ", 
-				bannedby='" . $singleban['bannedby'] . "',
-				unbaninfo='viewed'";
-			
-				$this->myquery($history);
-				
-				// Delete this ban from the active bans table
-				$this->myquery("delete from ".THbans_table." where id=".intval($singleban['id']));
-			}
-			else if( $singleban['duration'] != -1 ) // May have expired, so we'll have to check
-			{
-				//we'll need to know the difference between the ban time and the duration for actually expiring the bans
-				$offset = THtimeoffset*60;
-				$now = time()+$offset;
-				$banoffset = $singleban['duration']*3600; // convert to hours
-				$expiremath = $banoffset+$singleban['bantime'];
-			
-				if($now>$expiremath) // It expired.
+				if( $singleban['duration'] == 0 ) // Warning
 				{
 					// Move to ban history table
 					$history = "insert into `".THbanhistory_table."` 
@@ -384,15 +357,45 @@ class ThornDBI implements absThornDBI
 					duration='" . $singleban['duration'] . "', 
 					bantime=" . $singleban['bantime'] . ", 
 					bannedby='" . $singleban['bannedby'] . "',
-					unbaninfo='expired'";
+					unbaninfo='viewed'";
 				
 					$this->myquery($history);
 					
-					// Delete from active bans table
+					// Delete this ban from the active bans table
 					$this->myquery("delete from ".THbans_table." where id=".intval($singleban['id']));
-				} 
+				}
+				else if( $singleban['duration'] != -1 ) // May have expired, so we'll have to check
+				{
+					//we'll need to know the difference between the ban time and the duration for actually expiring the bans
+					$offset = THtimeoffset*60;
+					$now = time()+$offset;
+					$banoffset = $singleban['duration']*3600; // convert to hours
+					$expiremath = $banoffset+$singleban['bantime'];
+				
+					if($now>$expiremath) // It expired.
+					{
+						// Move to ban history table
+						$history = "insert into `".THbanhistory_table."` 
+						set ip_octet1=" . $singleban['ip_octet1'] . ",
+						ip_octet2=" . $singleban['ip_octet2'] . ",
+						ip_octet3=" . $singleban['ip_octet3'] . ",
+						ip_octet4=" . $singleban['ip_octet4'] . ",
+						privatereason='" . $this->clean($singleban['privatereason']) . "', 
+						publicreason='" . $this->clean($singleban['publicreason']) . "', 
+						adminreason='" . $this->clean($singleban['adminreason']) . "', 
+						postdata='" . $this->clean($singleban['postdata']) . "', 
+						duration='" . $singleban['duration'] . "', 
+						bantime=" . $singleban['bantime'] . ", 
+						bannedby='" . $singleban['bannedby'] . "',
+						unbaninfo='expired'";
+					
+						$this->myquery($history);
+						
+						// Delete from active bans table
+						$this->myquery("delete from ".THbans_table." where id=".intval($singleban['id']));
+					} 
+				}
 			}
-			
 		}
 		
 		return $bans;

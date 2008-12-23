@@ -454,6 +454,6 @@
 	$sm->assign("ipstring", $ipstring);
 	
 	// Show it!
-	$sm->display("adminedit", null);
+	$sm->display("adminedit.tpl", null);
 	die();
 ?>

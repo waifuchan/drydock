@@ -17,7 +17,7 @@
 		{if $offset > 0}
 			<td align=left width=50%><a href="recentpics.php?offset={$offsetback}{$boardlink}">&lt;&lt;</a></td>
 		{else} 
-			echo '<td align=left width=50%>&lt;&lt;</td>';
+			<td align=left width=50%>&lt;&lt;</td>
 		{/if}
 	
 		{if $beginning > 0}
@@ -156,7 +156,7 @@ No images found!<br />
 		{if $offset > 0}
 			<td align=left width=50%><a href="recentpics.php?offset={$offsetback}{$boardlink}">&lt;&lt;</a></td>
 		{else} 
-			echo '<td align=left width=50%>&lt;&lt;</td>';
+			<td align=left width=50%>&lt;&lt;</td>
 		{/if}
 	
 		{if $beginning > 0}

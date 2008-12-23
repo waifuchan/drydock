@@ -1,4 +1,5 @@
 <?php
+
 /*
 	drydock imageboard script (http://code.573chan.org/)
 	File:           dbi/ABSTRACT-mod.php
@@ -34,9 +35,9 @@ interface absThornModDBI
 	 * @param string $bannedby Who performed the banning
 	 * 
 	 * @return bool True if the ban succeeded, false if it failed (if it already exists in the DB or something)
-	 */	
+	 */
 	function banip($ip, $subnet, $privatereason, $publicreason, $adminreason, $postdata, $duration, $bannedby);
-	
+
 	/**
 	 * Append a public ban message to the end of a post, with HTML formatting and the like.
 	 * 
@@ -61,9 +62,9 @@ interface absThornModDBI
 	 * @param string $bannedby Who performed the banning
 	 * 
 	 * @return bool True if the ban succeeded, false if it failed
-	 */	
+	 */
 	function banipfrompost($id, $isthread, $subnet, $privatereason, $publicreason, $adminreason, $duration, $bannedby);
-	
+
 	/**
 	 * Ban an entire thread.  Calls banipfrompost().
 	 * 
@@ -73,7 +74,7 @@ interface absThornModDBI
 	 * @param string $adminreason The reason shown to admins (used for notes)
 	 * @param int $duration The duration of the ban. 0 for warning, -1 for perma, anything else is in hours
 	 * @param string $bannedby Who performed the banning
-	 */	
+	 */
 	function banipfromthread($id, $privatereason, $publicreason, $adminreason, $duration, $bannedby);
 
 	/**
@@ -82,8 +83,8 @@ interface absThornModDBI
 	 * @param int $id The ID of the ban to delete
 	 * @param string $reason Why the ban is getting lifted (defaults to "None provided")
 	 */
-	function delban($id, $reason="None provided");
-	
+	function delban($id, $reason = "None provided");
+
 	/**
 	 * Retrieve a ban from the database based on ID
 	 * 
@@ -92,7 +93,7 @@ interface absThornModDBI
 	 * @return array An assoc-array with the ban data
 	 */
 	function getbanfromid($id);
-	
+
 	/**
 	 * Get ban history information for a particular IP.  Note that this does not include
 	 * active bans.
@@ -175,7 +176,7 @@ interface absThornModDBI
 	 * @param array $boards An array of assoc-arrays with a board's information in each assoc
 	 */
 	function updateboards($boards);
-	
+
 	/**
 	 * Delete all the threads, posts, and image information from a certain board.
 	 * It will return a list of the image indexes so that they can be deleted
@@ -186,7 +187,7 @@ interface absThornModDBI
 	 * @return array A one-dimensional array of image indices
 	 */
 	function fragboard($board);
-	
+
 	/**
 	 * Delete the board entirely.  Note that this is different from fragboard, and
 	 * it will assume you have already called fragboard. Obviously, you should
@@ -194,8 +195,8 @@ interface absThornModDBI
 	 * 
 	 * @param int $board The ID of the board to delete
 	 */
-	 function removeboard($board);
-	
+	function removeboard($board);
+
 	/**
 	 * Insert either a blotter post (type 1), capcode (type 2), or wordfilter (type 3),
 	 * based upon the passed type parameter.
@@ -221,7 +222,7 @@ interface absThornModDBI
 	 * @return int The resulting insertion ID
 	 */
 	function insertBCW($type = -1, $field1 = "", $field2 = "", $field3 = "");
-	
+
 	/**
 	 * Update either a blotter post (type 1), capcode (type 2), or wordfilter (type 3),
 	 * based upon the passed type parameter and selected by the particular ID.
@@ -246,7 +247,7 @@ interface absThornModDBI
 	 * For wordfilters: notes
 	 */
 	function updateBCW($type = -1, $id, $field1 = "", $field2 = "", $field3 = "");
-	
+
 	/**
 	 * Delete either a blotter post (type 1), capcode (type 2), or wordfilter (type 3),
 	 * based upon the passed type parameter and selected by the particular ID.
@@ -256,7 +257,7 @@ interface absThornModDBI
 	 * @param int $id The ID of the item to delete
 	 */
 	function deleteBCW($type = -1, $id);
-	
+
 	/**
 	 * Retrieve either all blotter posts (type 1), capcodes (type 2), or wordfilters (type 3),
 	 * based upon the passed type parameter.
@@ -267,7 +268,7 @@ interface absThornModDBI
 	 * @return array An array of assoc-arrays
 	 */
 	function fetchBCW($type = -1);
-	
+
 	/**
 	 * Attempt to delete all the specified posts in the array
 	 * using a specified password.  It will clear the caches for
@@ -282,7 +283,7 @@ interface absThornModDBI
 	 * @return int The number of posts deleted
 	 */
 	function userdelpost($posts, $board, $password);
-	
+
 	/**
 	 * Update the specified post's unvisibletime to indicate
 	 * that some moderation action has already been performed on it.
@@ -293,7 +294,7 @@ interface absThornModDBI
 	 * current time.
 	 */
 	function touchpost($id, $isthread, $time = null);
-	
+
 	/**
 	 * Retrieve the 20 "top" reports (technically aggregates of reports) in assoc-array form.
 	 * Only one report will be retrieved for each post, with two extra fields returned for each
@@ -311,18 +312,54 @@ interface absThornModDBI
 	 * 
 	 * @return array An array of assoc-arrays containing report information
 	 */
-	 function gettopreports($board=0);
-	 
-	 /**
-	  * Alter all reports in the table for a particular post to have a certain
-	  * status (1 for found valid, 2 for found entirely invalid, 3 as a catchall
-	  * for neither outright valid or invalid, or when the user deletes their own
-	  * post)
-	  * 
-	  * @param int $post The post globalid
-	  * @param int $board The board ID
-	  * @param int $status The new status for all relevant reports (defaults to 3)
-	  */
-	 function touchreports($post, $board, $status=3);
+	function gettopreports($board = 0);
+
+	/**
+	 * Alter all reports in the table for a particular post to have a certain
+	 * status (1 for found valid, 2 for found entirely invalid, 3 as a catchall
+	 * for neither outright valid or invalid, or when the user deletes their own
+	 * post)
+	 * 
+	 * @param int $post The post globalid
+	 * @param int $board The board ID
+	 * @param int $status The new status for all relevant reports (defaults to 3)
+	 */
+	function touchreports($post, $board, $status = 3);
+
+	/**
+	 * Fetch the 15 most recently-reviewed reports for a particular IP.
+	 * 
+	 * @param int $ip The (ip2longed) IP to perform a lookup for.  If $ip is null, it will
+	 * use $_SERVER['REMOTE_ADDR']
+	 * 
+	 * @return array An array of assoc-arrays containing report data
+	 */
+	function recentreportsfromip($ip = null);
+
+	/**
+	 * Fetch the 10 most recent posts (both threads and replies) for a particular IP.
+	 * 
+	 * @param int $ip The (ip2longed) IP to perform a lookup for.  If $ip is null, it will
+	 * use $_SERVER['REMOTE_ADDR']
+	 * 
+	 * @return array An array of assoc-arrays containing post data, which will also contain
+	 * the element "thread_globalid" for each reply
+	 */
+	function recentpostsfromip($ip = null);
+
+	/**
+	 * This function retrieves the location of a post based on a given image index. It will
+	 * retrieve the thread location, the board ID, and, if the post is a reply, the specific
+	 * post location (in the event of it being a thread this would be redundant).
+	 * 
+	 * @param int $imgidx The image index by which to search
+	 * 
+	 * @return array If the post is a reply, this returns an array with the elements 'post_loc', 
+	 * 'thread_loc', and 'board'. If it is a reply, it returns an array with the elements 
+	 * 'thread_loc' and 'board'.  All of these elements correspond to global IDs.  If no match
+	 * was found, the array will return null.
+	 */
+	function getpostfromimgidx($imgidx);
+	
 }
 ?>

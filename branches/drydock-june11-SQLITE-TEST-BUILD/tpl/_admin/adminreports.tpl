@@ -48,7 +48,7 @@ Filter by board:
 			{else} 
 				{* thread *}
 				{if $report.post.id != 0 ) 
-					echo 'Post {$report.post.globalid} in /{$boardz}/ 
+					Post {$report.post.globalid} in /{$boardz}/ 
 					{if $THuserewrite == true}
 						[<a href="{$THurl}{$boardz}/thread/{$report.post.globalid}">thread</a>]
 					{else} 
