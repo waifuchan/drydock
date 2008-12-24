@@ -890,6 +890,49 @@ class ThornModDBI extends ThornDBI
 		// We can assume everything was initialized OK, so just return this.
 		return $location;
 	}
+	
+	function addstaticpage($name, $title)
+	{
+		$this->myquery('INSERT INTO ' . THpages_table . ' ( name, title, content, publish ) VALUES ("' .
+			$this->clean($name) . '","' . $this->clean($title) . '","This is a blank page.", 0);');
+			
+		return $this->lastid();
+	}
+
+	function checkstaticpagename($name, $id=null)
+	{
+		$count = 0;
+		
+		if( $id == null )
+		{
+			$count = $this->myresult("SELECT COUNT(*) FROM ".THpages_table.
+						" WHERE name='".$this->clean($name)."'");			
+		}
+		else // Check for a different ID as well
+		{
+			$count = $this->myresult("SELECT COUNT(*) FROM ".THpages_table.
+						" WHERE name='".$this->clean($name)."' AND id!=".intval($id));					
+		}
+		
+		return ($count > 0);	
+	}
+	
+	function delstaticpage($id)
+	{
+		$this->myquery("DELETE FROM ".THpages_table." WHERE id=".intval($id));
+	}
+	
+	function editstaticpage($id, $name, $title, $content, $publish)
+	{
+		$this->myquery("UPDATE ".THpages_table." SET name='".$this->clean($name)."',
+				title='".$this->clean($title)."', content='".$this->clean($content)."',
+				publish=".intval($publish)." WHERE id=".intval($id));
+	}
+	
+	function getstaticpages()
+	{
+		return $this->mymultiarray("SELECT * FROM ".THpages_table);
+	}
 
 } //class ThornModDBI
 ?>

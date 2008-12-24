@@ -6,6 +6,7 @@ CREATE TABLE ~THcapcodes_table~ ( id INTEGER PRIMARY KEY, capcodefrom VARCHAR(11
 CREATE TABLE ~THextrainfo_table~ ( id INTEGER PRIMARY KEY, extra_info LONGTEXT );
 CREATE TABLE ~THfilters_table~ ( id INTEGER PRIMARY KEY, filterfrom TEXT, filterto TEXT, notes TEXT );
 CREATE TABLE ~THimages_table~ ( id INT , hash VARCHAR(40), name TINYBLOB, width SMALLINT(5) , height SMALLINT(5) , tname TINYTBLOB, twidth SMALLINT(5) , theight SMALLINT(5) , fsize SMALLINT(5) , anim TINYINT(1) , extrainfo INT(11) );
+CREATE TABLE ~THpages_table~ ( id INTEGER PRIMARY KEY, name varchar(50), title TEXT, content LONGTEXT, publish SMALLINT(5) );
 CREATE TABLE ~THreplies_table~ ( id INTEGER PRIMARY KEY, globalid INT, board SMALLINT(5), thread INT, title TEXT, name TEXT, trip VARCHAR(11), body LONGTEXT, time INT(11), ip INT(11), pin TINYINT(1), lawk TINYINT(1), bump INT(11), imgidx MEDIUMINT(8), visible TINYINT(1), unvisibletime INT(11), permasage TINYINT(1), link TEXT, password VARCHAR(32) );
 CREATE TABLE ~THreports_table~ ( id INTEGER PRIMARY KEY, ip INT(11), time INT(11), postid INT, board SMALLINT(5), category TINYINT(1), status TINYINT(1) );
 CREATE TABLE ~THthreads_table~ ( id INTEGER PRIMARY KEY, globalid INT, board SMALLINT(5), thread INT, title TEXT, name TEXT, trip VARCHAR(11), body LONGTEXT, time INT(11), ip INT(11), pin TINYINT(1), lawk TINYINT(1), bump INT(11), imgidx MEDIUMINT(8), visible TINYINT(1), unvisibletime INT(11), permasage TINYINT(1), link TEXT, password VARCHAR(32) );

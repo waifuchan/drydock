@@ -4,15 +4,38 @@
 =Database tables list=
 
 The aim of this page is to document the creation and administration of the SQL database.
-  
-http://code.google.com/p/drydock/source/browse/branches/drydock-june11-SQLITE-TEST-BUILD/dbi/MySQL-setup.sql
-http://code.google.com/p/drydock/source/browse/branches/drydock-june11-SQLITE-TEST-BUILD/dbi/SQLite-setup.sql
 
-==THbans_table==
-This table holds banned IP addresses. *Note: proposed changes are listed at the end of this document*
+==THbanhistory_table==
+This is a new table that contains all expired bans, thus making it easier to verify the history for a particular IP or IP range.  It works a lot like THbans_table. *_Added for drydock 0.3.1_*
+
 || Field name || MySQL declaration || SQLite declaration || Description ||
-|| ip || {{{ `ip` int unsigned NOT NULL }}} || {{{ ip INT PRIMARY KEY }}} || IP address we are banning ||
-|| subnet || {{{ `subnet` tinyint(3) unsigned NOT NULL default '0' }}} || {{{ subnet TINYINT(3) }}} || Used for subnet bans ||
+|| id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Now necessary just because the _combination_ of octet fields forms a unique identifier, as opposed to a single IP ||
+|| ip_octet1 || {{{ `ip_octet1` int NOT NULL }}} || {{{ ip_octet1 INT }}} || The first octet (i.e. ???.xxx.xxx.xxx) of the banned IP address. ||
+|| ip_octet2 || {{{ `ip_octet2` int NOT NULL }}} || {{{ ip_octet2 INT }}} || The second octet (i.e. xxx.???.xxx.xxx) of the banned IP address. ||
+|| ip_octet3 || {{{ `ip_octet3` int NOT NULL }}} || {{{ ip_octet3 INT }}} || The third octet (i.e. xxx.xxx.???.xxx) of the banned IP address.  Set to -1 to ban the class C subnet. ||
+|| ip_octet4 || {{{ `ip_octet4` int NOT NULL }}} || {{{ ip_octet4 INT }}} || The fourth octet (i.e. xxx.xxx.xxx.???) of the banned IP address.  Set to -1 to ban the subnet, which would be the equivalent of the subnet bit in the old THbans_table. ||
+|| publicreason || {{{ `publicreason` text  NOT NULL }}} || {{{ publicreason TEXT }}} || (User was banned for this reason) ||
+|| privatereason || {{{ `privatereason` text  NOT NULL }}} || {{{ privatereason TEXT }}} || Seen only by the person banned, used for sending notes to the person banned ||
+|| adminreason || {{{ `adminreason` text  NOT NULL }}} || {{{ adminreason TEXT }}} || Displayed in the admin ban page, can be used for sending notes on the ban to other admins ||
+|| postdata || {{{ `postdata` longtext  NOT NULL }}} || {{{ postdata LONGTEXT }}} || The contents of the post ||
+|| duration || {{{ `duration` int(11) NOT NULL default '-1' }}} || {{{ duration INT(11) }}} || Duration of ban in hours.  Default -1 is permaban, 0 is just a warning that will expire on viewing ||
+|| bantime || {{{ `bantime` int(11) unsigned NOT NULL }}} || {{{ bantime INT(11)  }}} || The time the ban was set ||
+|| bannedby || {{{ `bannedby` varchar(100)  NOT NULL }}} || {{{ bannedby VARCHAR(100) }}} || Who did the banning? ||
+|| unbaninfo || {{{ `unbaninfo` text  NOT NULL }}} || {{{ unbaninfo TEXT }}} || Used to explain why this ban is expired (either naturally, or because an admin manually removed it- in which case, they should probably include a rationale). ||
+
+|| Additional MySQL declarations ||
+|| {{{ PRIMARY KEY  (`id`) }}} ||
+
+  
+==THbans_table==
+This is the new version of the bans table, created such that subnet banning is easier. *_Added for drydock 0.3.1_*
+
+|| Field name || MySQL declaration || SQLite declaration || Description ||
+|| id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Now necessary just because the _combination_ of octet fields forms a unique identifier, as opposed to a single IP ||
+|| ip_octet1 || {{{ `ip_octet1` int NOT NULL }}} || {{{ ip_octet1 INT }}} || The first octet (i.e. ???.xxx.xxx.xxx) of the banned IP address. ||
+|| ip_octet2 || {{{ `ip_octet2` int NOT NULL }}} || {{{ ip_octet2 INT }}} || The second octet (i.e. xxx.???.xxx.xxx) of the banned IP address. ||
+|| ip_octet3 || {{{ `ip_octet3` int NOT NULL }}} || {{{ ip_octet3 INT }}} || The third octet (i.e. xxx.xxx.???.xxx) of the banned IP address.  Set to -1 to ban the class C subnet. ||
+|| ip_octet4 || {{{ `ip_octet4` int NOT NULL }}} || {{{ ip_octet4 INT }}} || The fourth octet (i.e. xxx.xxx.xxx.???) of the banned IP address.  Set to -1 to ban the subnet, which would be the equivalent of the subnet bit in the old THbans_table. ||
 || publicreason || {{{ `publicreason` text  NOT NULL }}} || {{{ publicreason TEXT }}} || (User was banned for this reason) ||
 || privatereason || {{{ `privatereason` text  NOT NULL }}} || {{{ privatereason TEXT }}} || Seen only by the person banned, used for sending notes to the person banned ||
 || adminreason || {{{ `adminreason` text  NOT NULL }}} || {{{ adminreason TEXT }}} || Displayed in the admin ban page, can be used for sending notes on the ban to other admins ||
@@ -21,8 +44,8 @@ This table holds banned IP addresses. *Note: proposed changes are listed at the 
 || bantime || {{{ `bantime` int(11) unsigned NOT NULL }}} || {{{ bantime INT(11)  }}} || The time the ban was set ||
 || bannedby || {{{ `bannedby` varchar(100)  NOT NULL }}} || {{{ bannedby VARCHAR(100) }}} || Who did the banning? ||
 
-||Additional MySQL declarations||
-||{{{ PRIMARY KEY  (`ip`) }}}||
+|| Additional MySQL declarations ||
+|| {{{ PRIMARY KEY  (`id`) }}} ||
 
 
 ==THblotter_table==
@@ -69,6 +92,7 @@ The boards we have set up
 
 ||Additional MySQL declarations||
 ||{{{ PRIMARY KEY  (`id`) }}}||
+
 
 ==THcapcodes_table==
 Capcodes
@@ -123,58 +147,17 @@ Posted images
 ||{{{ PRIMARY KEY  (`id`) }}}||
 
 
-==THusers_table==
-Registered (or unregistered, as the case may be) users
-|| Field name || MySQL declaration || SQLite declaration || Description ||
-|| username || {{{ `username` varchar(30) NOT NULL default '' }}} || {{{ username VARCHAR(30) PRIMARY KEY }}} || Username ||
-|| passsword || {{{ `password` varchar(32) default NULL }}} || {{{ password VARCHAR(32) }}} || Password (after MD5 hashing, utilizing the secret salt) ||
-|| userid || {{{ `userid` varchar(32) default NULL }}} || {{{ userid VARCHAR(32) }}} || 32-char user ID (unique, updated upon userlogins) ||
-|| userlevel || {{{ `userlevel` tinyint(1) unsigned NOT NULL default '1' }}} || {{{ userlevel TINYINT(1)  }}} || Userlevel (for future userlevels - it is envisioned that admin status will be 9)  ||
-|| email || {{{ `email` varchar(50) default NULL }}} || {{{ email VARCHAR(50) }}} || Email address ||
-|| mod_array || {{{ `mod_array` varchar(100) NOT NULL default '0' }}} || {{{ mod_array VARCHAR(100) }}} || Where can they mod?  ||
-|| mod_global || {{{ `mod_global` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ mod_global TINYINT(1)  }}} || Global moderator? ||
-|| mod_admin || {{{ `mod_admin` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ mod_admin TINYINT(1)  }}} || Global administrator? ||
-|| timestamp || {{{ `timestamp` int(11) unsigned NOT NULL default '0' }}} || {{{ timestamp INT(11)  }}} || Timestamp of last login ||
-|| age || {{{ `age` tinyint(3)  default NULL }}} || {{{ age VARCHAR(3) }}} || User's age ||
-|| gender || {{{ `gender` varchar(1)  default NULL }}} || {{{ gender VARCHAR(1) }}} || User's gender ||
-|| location || {{{ `location` text  }}} || {{{ location TEXT }}} || User's location ||
-|| contact || {{{ `contact` longtext  }}} || {{{ contact LONGTEXT }}} || Other contact info ||
-|| description || {{{ `description` longtext  }}} || {{{ description LONGTEXT }}} || Whatever the user wants to say about him/her/itself ||
-|| capcode || {{{ `capcode` varchar(11)  default NULL }}} || {{{ capcode VARCHAR(11) }}} || If the user has been granted a capcode, this is their hash for it (this corresponds with a capcodefrom entry in the capcodes table) ||
-|| has_picture || {{{ `has_picture` varchar(4)  default NULL }}} || {{{ has_picture VARCHAR(4) }}} || Picture is in images/profiles and matches the filename pattern username.ext - this field holds ext (jpg/png/etc) ||
-|| approved || {{{ `approved` tinyint(1) NOT NULL default '0' }}} || {{{ approved TINYINT(1) }}} || Approved user? Set to 0 for unapproved, 1 for approved, and -1 for locked out (good for keeping already-used emails in the database without giving the corresponding users active status)  ||
-|| pic_pending || {{{ `pic_pending` varchar(4)  default NULL }}} || {{{ pic_pending VARCHAR(4) }}} || Has a pending picture, format is same as has_picture ||
-|| proposed_capcode || {{{ `proposed_capcode` text  default NULL }}} || {{{ proposed_capcode TEXT  }}} || The user has proposed this for their capcodeto value (if approved, the capcodeto corresponding with the row that has a capcodefrom value matching this user's capcode gets altered) ||
-
-||Additional MySQL declarations||
-||{{{ PRIMARY KEY  (`username`) }}}||
-
-
-==THthreads_table==
-Threads table
+==THpages_table==
+Static pages
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID for tracking ||
-|| globalid || {{{ `globalid` int unsigned NOT NULL default '0' }}} || {{{ globalid INT }}} || The publically displayed ID (board-specific, so not unique) ||
-|| board || {{{ `board` smallint(5) unsigned NOT NULL default '0' }}} || {{{ board SMALLINT(5) }}} || What board it is on (ID) ||
-|| thread || {{{ `thread` int unsigned NOT NULL default '0' }}} || {{{ thread INT }}} || What thread does it apply to (this should be 0, it's to preserve parallel structure with the replies table) ||
-|| title || {{{ `title` text }}} || {{{ title TEXT }}} || Title of the post ||
-|| name || {{{ `name` text  NOT NULL }}} || {{{ name TEXT }}} || Name associated with the post ||
-|| trip || {{{ `trip` varchar(11) NOT NULL default '' }}} || {{{ trip VARCHAR(11) }}} || Hash of tripcode used ||
-|| body || {{{ `body` longtext  NOT NULL }}} || {{{ body LONGTEXT }}} || Post content ||
-|| time || {{{ `time` int(11) unsigned NOT NULL default '0' }}} || {{{ time INT(11) }}} || When thread was posted ||
-|| ip || {{{ `ip` int(11) NOT NULL default '0' }}} || {{{ ip INT(11) }}} || Poster's IP ||
-|| pin || {{{ `pin` tinyint(1) NOT NULL }}} || {{{ pin TINYINT(1) }}} || Has this been stickied? ||
-|| lawk || {{{ `lawk` tinyint(1) NOT NULL }}} ||{{{ lawk TINYINT(1) }}}  || Has this been locked? ||
-|| bump || {{{ `bump` tinyint(1) unsigned NOT NULL default '1' }}} || {{{ bump INT(11) }}} || When thread was last bumped ||
-|| imgidx || {{{ `imgidx` mediumint(8) unsigned NOT NULL default '0' }}} || {{{ imgidx MEDIUMINT(8) }}} || Matches image ID in images table ||
-|| visible || {{{ `visible` tinyint(1) NOT NULL default '1' }}} || {{{ visible TINYINT(1) }}} || Is this post visible? ||
-|| unvisibletime || {{{ `unvisibletime` int(11) NOT NULL default '0' }}} || {{{ unvisibletime INT(11) }}} || When post was hidden ||
-|| permasage || {{{ `permasage` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ permasage TINYINT(1) }}} || Has this been permasaged? ||
-|| link || {{{ `link` text  NOT NULL }}} || {{{ link TEXT  }}} || The link field (example: "sage") ||
-|| password || {{{`password` varchar(32) default NULL}}} || {{{ password VARCHAR(32)}}} || The password associated with this post, used for later deletion as requested, Wakaba-style (null for legacy posts). *_Added for drydock 0.3.1_* ||
+|| name || {{{ `name` varchar(50) NOT NULL }}} || {{{ name VARCHAR(50) }}} || The unique name of the page ||
+|| title || {{{ `title` TEXT NOT NULL }}} || {{{ title TEXT }}} || The title to display ||
+|| content || {{{ `content` LONGTEXT NOT NULL }}} || {{{ content LONGTEXT }}} || The content of the page  ||
+|| publish || {{{ `publish` smallint(5) unsigned NOT NULL default '0' }}} || {{{ publish SMALLINT(5) }}} || Publish status (0 for admin-viewable only, 1 for moderator-viewable only, 2 for registered-user viewable only, 3 for publically viewable) ||
 
-|| Additional MySQL declarations ||
-|| {{{ PRIMARY KEY  (`id`) }}} ||
+||Additional MySQL declarations||
+||{{{ PRIMARY KEY  (`id`) }}}||
 
 
 ==THreplies_table==
@@ -204,50 +187,7 @@ Replies to threads
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
 
-==New THbans_table==
-This is the proposed new version of the bans table, such that subnet banning is easier. *_Added for drydock 0.3.1_*
-
-|| Field name || MySQL declaration || SQLite declaration || Description ||
-|| id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Now necessary just because the _combination_ of octet fields forms a unique identifier, as opposed to a single IP ||
-|| ip_octet1 || {{{ `ip_octet1` int NOT NULL }}} || {{{ ip_octet1 INT }}} || The first octet (i.e. ???.xxx.xxx.xxx) of the banned IP address. ||
-|| ip_octet2 || {{{ `ip_octet2` int NOT NULL }}} || {{{ ip_octet2 INT }}} || The second octet (i.e. xxx.???.xxx.xxx) of the banned IP address. ||
-|| ip_octet3 || {{{ `ip_octet3` int NOT NULL }}} || {{{ ip_octet3 INT }}} || The third octet (i.e. xxx.xxx.???.xxx) of the banned IP address.  Set to -1 to ban the class C subnet. ||
-|| ip_octet4 || {{{ `ip_octet4` int NOT NULL }}} || {{{ ip_octet4 INT }}} || The fourth octet (i.e. xxx.xxx.xxx.???) of the banned IP address.  Set to -1 to ban the subnet, which would be the equivalent of the subnet bit in the old THbans_table. ||
-|| publicreason || {{{ `publicreason` text  NOT NULL }}} || {{{ publicreason TEXT }}} || (User was banned for this reason) ||
-|| privatereason || {{{ `privatereason` text  NOT NULL }}} || {{{ privatereason TEXT }}} || Seen only by the person banned, used for sending notes to the person banned ||
-|| adminreason || {{{ `adminreason` text  NOT NULL }}} || {{{ adminreason TEXT }}} || Displayed in the admin ban page, can be used for sending notes on the ban to other admins ||
-|| postdata || {{{ `postdata` longtext  NOT NULL }}} || {{{ postdata LONGTEXT }}} || The contents of the post ||
-|| duration || {{{ `duration` int(11) NOT NULL default '-1' }}} || {{{ duration INT(11) }}} || Duration of ban in hours.  Default -1 is permaban, 0 is just a warning that will expire on viewing ||
-|| bantime || {{{ `bantime` int(11) unsigned NOT NULL }}} || {{{ bantime INT(11)  }}} || The time the ban was set ||
-|| bannedby || {{{ `bannedby` varchar(100)  NOT NULL }}} || {{{ bannedby VARCHAR(100) }}} || Who did the banning? ||
-
-|| Additional MySQL declarations ||
-|| {{{ PRIMARY KEY  (`id`) }}} ||
-
-
-==New THbanshistory_table==
-This is a new table that contains all expired bans, thus making it easier to verify the history for a particular IP or IP range.  It works a lot like the proposed THbans_table. *_Added for drydock 0.3.1_*
-
-|| Field name || MySQL declaration || SQLite declaration || Description ||
-|| id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Now necessary just because the _combination_ of octet fields forms a unique identifier, as opposed to a single IP ||
-|| ip_octet1 || {{{ `ip_octet1` int NOT NULL }}} || {{{ ip_octet1 INT }}} || The first octet (i.e. ???.xxx.xxx.xxx) of the banned IP address. ||
-|| ip_octet2 || {{{ `ip_octet2` int NOT NULL }}} || {{{ ip_octet2 INT }}} || The second octet (i.e. xxx.???.xxx.xxx) of the banned IP address. ||
-|| ip_octet3 || {{{ `ip_octet3` int NOT NULL }}} || {{{ ip_octet3 INT }}} || The third octet (i.e. xxx.xxx.???.xxx) of the banned IP address.  Set to -1 to ban the class C subnet. ||
-|| ip_octet4 || {{{ `ip_octet4` int NOT NULL }}} || {{{ ip_octet4 INT }}} || The fourth octet (i.e. xxx.xxx.xxx.???) of the banned IP address.  Set to -1 to ban the subnet, which would be the equivalent of the subnet bit in the old THbans_table. ||
-|| publicreason || {{{ `publicreason` text  NOT NULL }}} || {{{ publicreason TEXT }}} || (User was banned for this reason) ||
-|| privatereason || {{{ `privatereason` text  NOT NULL }}} || {{{ privatereason TEXT }}} || Seen only by the person banned, used for sending notes to the person banned ||
-|| adminreason || {{{ `adminreason` text  NOT NULL }}} || {{{ adminreason TEXT }}} || Displayed in the admin ban page, can be used for sending notes on the ban to other admins ||
-|| postdata || {{{ `postdata` longtext  NOT NULL }}} || {{{ postdata LONGTEXT }}} || The contents of the post ||
-|| duration || {{{ `duration` int(11) NOT NULL default '-1' }}} || {{{ duration INT(11) }}} || Duration of ban in hours.  Default -1 is permaban, 0 is just a warning that will expire on viewing ||
-|| bantime || {{{ `bantime` int(11) unsigned NOT NULL }}} || {{{ bantime INT(11)  }}} || The time the ban was set ||
-|| bannedby || {{{ `bannedby` varchar(100)  NOT NULL }}} || {{{ bannedby VARCHAR(100) }}} || Who did the banning? ||
-|| unbaninfo || {{{ `unbaninfo` text  NOT NULL }}} || {{{ unbaninfo TEXT }}} || Used to explain why this ban is expired (either naturally, or because an admin manually removed it- in which case, they should probably include a rationale). ||
-
-|| Additional MySQL declarations ||
-|| {{{ PRIMARY KEY  (`id`) }}} ||
-
-
-==Proposed new THreports_table==
+==THreports_table==
 This is a new table that contains user-generated reports. *_Added for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
@@ -261,3 +201,57 @@ This is a new table that contains user-generated reports. *_Added for drydock 0.
 
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
+
+
+==THthreads_table==
+Threads table
+|| Field name || MySQL declaration || SQLite declaration || Description ||
+|| id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID for tracking ||
+|| globalid || {{{ `globalid` int unsigned NOT NULL default '0' }}} || {{{ globalid INT }}} || The publically displayed ID (board-specific, so not unique) ||
+|| board || {{{ `board` smallint(5) unsigned NOT NULL default '0' }}} || {{{ board SMALLINT(5) }}} || What board it is on (ID) ||
+|| thread || {{{ `thread` int unsigned NOT NULL default '0' }}} || {{{ thread INT }}} || What thread does it apply to (this should be 0, it's to preserve parallel structure with the replies table) ||
+|| title || {{{ `title` text }}} || {{{ title TEXT }}} || Title of the post ||
+|| name || {{{ `name` text  NOT NULL }}} || {{{ name TEXT }}} || Name associated with the post ||
+|| trip || {{{ `trip` varchar(11) NOT NULL default '' }}} || {{{ trip VARCHAR(11) }}} || Hash of tripcode used ||
+|| body || {{{ `body` longtext  NOT NULL }}} || {{{ body LONGTEXT }}} || Post content ||
+|| time || {{{ `time` int(11) unsigned NOT NULL default '0' }}} || {{{ time INT(11) }}} || When thread was posted ||
+|| ip || {{{ `ip` int(11) NOT NULL default '0' }}} || {{{ ip INT(11) }}} || Poster's IP ||
+|| pin || {{{ `pin` tinyint(1) NOT NULL }}} || {{{ pin TINYINT(1) }}} || Has this been stickied? ||
+|| lawk || {{{ `lawk` tinyint(1) NOT NULL }}} ||{{{ lawk TINYINT(1) }}}  || Has this been locked? ||
+|| bump || {{{ `bump` tinyint(1) unsigned NOT NULL default '1' }}} || {{{ bump INT(11) }}} || When thread was last bumped ||
+|| imgidx || {{{ `imgidx` mediumint(8) unsigned NOT NULL default '0' }}} || {{{ imgidx MEDIUMINT(8) }}} || Matches image ID in images table ||
+|| visible || {{{ `visible` tinyint(1) NOT NULL default '1' }}} || {{{ visible TINYINT(1) }}} || Is this post visible? ||
+|| unvisibletime || {{{ `unvisibletime` int(11) NOT NULL default '0' }}} || {{{ unvisibletime INT(11) }}} || When post was hidden ||
+|| permasage || {{{ `permasage` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ permasage TINYINT(1) }}} || Has this been permasaged? ||
+|| link || {{{ `link` text  NOT NULL }}} || {{{ link TEXT  }}} || The link field (example: "sage") ||
+|| password || {{{`password` varchar(32) default NULL}}} || {{{ password VARCHAR(32)}}} || The password associated with this post, used for later deletion as requested, Wakaba-style (null for legacy posts). *_Added for drydock 0.3.1_* ||
+
+|| Additional MySQL declarations ||
+|| {{{ PRIMARY KEY  (`id`) }}} ||
+
+
+==THusers_table==
+Registered (or unregistered, as the case may be) users
+|| Field name || MySQL declaration || SQLite declaration || Description ||
+|| username || {{{ `username` varchar(30) NOT NULL default '' }}} || {{{ username VARCHAR(30) PRIMARY KEY }}} || Username ||
+|| passsword || {{{ `password` varchar(32) default NULL }}} || {{{ password VARCHAR(32) }}} || Password (after MD5 hashing, utilizing the secret salt) ||
+|| userid || {{{ `userid` varchar(32) default NULL }}} || {{{ userid VARCHAR(32) }}} || 32-char user ID (unique, updated upon userlogins) ||
+|| userlevel || {{{ `userlevel` tinyint(1) unsigned NOT NULL default '1' }}} || {{{ userlevel TINYINT(1)  }}} || Userlevel (for future userlevels - it is envisioned that admin status will be 9)  ||
+|| email || {{{ `email` varchar(50) default NULL }}} || {{{ email VARCHAR(50) }}} || Email address ||
+|| mod_array || {{{ `mod_array` varchar(100) NOT NULL default '0' }}} || {{{ mod_array VARCHAR(100) }}} || Where can they mod?  ||
+|| mod_global || {{{ `mod_global` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ mod_global TINYINT(1)  }}} || Global moderator? ||
+|| mod_admin || {{{ `mod_admin` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ mod_admin TINYINT(1)  }}} || Global administrator? ||
+|| timestamp || {{{ `timestamp` int(11) unsigned NOT NULL default '0' }}} || {{{ timestamp INT(11)  }}} || Timestamp of last login ||
+|| age || {{{ `age` tinyint(3)  default NULL }}} || {{{ age VARCHAR(3) }}} || User's age ||
+|| gender || {{{ `gender` varchar(1)  default NULL }}} || {{{ gender VARCHAR(1) }}} || User's gender ||
+|| location || {{{ `location` text  }}} || {{{ location TEXT }}} || User's location ||
+|| contact || {{{ `contact` longtext  }}} || {{{ contact LONGTEXT }}} || Other contact info ||
+|| description || {{{ `description` longtext  }}} || {{{ description LONGTEXT }}} || Whatever the user wants to say about him/her/itself ||
+|| capcode || {{{ `capcode` varchar(11)  default NULL }}} || {{{ capcode VARCHAR(11) }}} || If the user has been granted a capcode, this is their hash for it (this corresponds with a capcodefrom entry in the capcodes table) ||
+|| has_picture || {{{ `has_picture` varchar(4)  default NULL }}} || {{{ has_picture VARCHAR(4) }}} || Picture is in images/profiles and matches the filename pattern username.ext - this field holds ext (jpg/png/etc) ||
+|| approved || {{{ `approved` tinyint(1) NOT NULL default '0' }}} || {{{ approved TINYINT(1) }}} || Approved user? Set to 0 for unapproved, 1 for approved, and -1 for locked out (good for keeping already-used emails in the database without giving the corresponding users active status)  ||
+|| pic_pending || {{{ `pic_pending` varchar(4)  default NULL }}} || {{{ pic_pending VARCHAR(4) }}} || Has a pending picture, format is same as has_picture ||
+|| proposed_capcode || {{{ `proposed_capcode` text  default NULL }}} || {{{ proposed_capcode TEXT  }}} || The user has proposed this for their capcodeto value (if approved, the capcodeto corresponding with the row that has a capcodefrom value matching this user's capcode gets altered) ||
+
+||Additional MySQL declarations||
+||{{{ PRIMARY KEY  (`username`) }}}||

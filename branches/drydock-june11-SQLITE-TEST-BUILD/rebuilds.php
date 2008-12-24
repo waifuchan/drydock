@@ -86,6 +86,7 @@ function rebuild_config($configpost)
 	fwrite($config, 'define("THextrainfo_table","' . THextrainfo_table . '");' . "\n");
 	fwrite($config, 'define("THfilters_table","' . THfilters_table . '");' . "\n");
 	fwrite($config, 'define("THimages_table","' . THimages_table . '");' . "\n");
+	fwrite($config, 'define("THpages_table","' . THpages_table . '");' . "\n");
 	fwrite($config, 'define("THreplies_table","' . THreplies_table . '");' . "\n");
 	fwrite($config, 'define("THreports_table","' . THreports_table . '");' . "\n");
 	fwrite($config, 'define("THthreads_table","' . THthreads_table . '");' . "\n");
@@ -245,6 +246,7 @@ function rebuild_hovermenu()
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=g>Global Settings</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=b>Board Setup</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=bl>Blotter Posts</a><br />' . "\n");
+	fwrite($sidelinks, '<a href=".THurl."admin.php?a=sp>Static Pages</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=x>Bans</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=c>Capcodes</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=w>Filters</a><br />' . "\n");

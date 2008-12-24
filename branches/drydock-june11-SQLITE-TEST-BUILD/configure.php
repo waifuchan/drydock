@@ -429,6 +429,7 @@ If everything here looks good, go ahead and hit continue.<br><br>
 			fwrite($config, 'define("THextrainfo_table","'.$configarray['THdbprefix']."extrainfo".'");'."\n");
 			fwrite($config, 'define("THfilters_table","'.$configarray['THdbprefix']."filters".'");'."\n");
 			fwrite($config, 'define("THimages_table","'.$configarray['THdbprefix']."images".'");'."\n");
+			fwrite($config, 'define("THpages_table","'.$configarray['THdbprefix']."pages".'");'."\n");
 			fwrite($config, 'define("THreplies_table","'.$configarray['THdbprefix']."replies".'");'."\n");
 			fwrite($config, 'define("THreports_table","'.$configarray['THdbprefix']."reports".'");'."\n");
 			fwrite($config, 'define("THthreads_table","'.$configarray['THdbprefix']."threads".'");'."\n");

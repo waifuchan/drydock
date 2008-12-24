@@ -292,5 +292,6 @@ interface absThornDBI
 	 * If $postid is not defined, returns an array with the element 'thread_loc'
 	 */
 	function getpostlocation($threadid, $postid = -1);
+	
 }
 ?>

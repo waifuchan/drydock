@@ -13,6 +13,10 @@
 					- int $_GET['post'] - The ID of the post
 					- int $_GET['status'] - The category to assign to these reports
 					- string $_GET['action'] = "handlereport"
+			- view static page
+				View static page params:
+					- string $_GET['page'] - The page name
+					- string $_GET['action'] = "getpage"					
 								
 		Things that take $_POST:
 			- delete (delete posts)
@@ -105,6 +109,65 @@
 		$sm->assign("title", "Report handler");
 		$sm->display("popup.tpl");
 		die();	
+	}
+	elseif ($_GET['action'] == "getpage") // View a static page
+	{
+		if(!isset($_GET['page']) || trim($_GET['page']) == "")
+		{
+			THdie("No page provided!");
+		}
+		else
+		{
+			$db = new ThornToolsDBI();
+			$page = trim($_GET['page']);
+			
+			$pagedata = $db->getstaticpage($page);
+			
+			if( $pagedata == null )
+			{
+				THdie("A page by that name was not found!");
+			}
+			else
+			{
+				// Found a valid page.  Do access checking if necessary.
+				switch( $pagedata['publish'] )
+				{
+					case 0: // Admin-only
+						if( $_SESSION['admin'] != 1 )
+						{
+							THdie("You are not permitted to access that page.");
+						}
+						break;
+						
+					case 1: // Admin or mod-only
+						if( $_SESSION['admin'] != 1 && $_SESSION['mod_global'] != 1 )
+						{
+							THdie("You are not permitted to access that page.");
+						}
+						break;
+						
+					case 2: // Registered user only
+						if( !$_SESSION['username'] )
+						{
+							THdie("You must be registered to that page.");
+						}
+						
+					// $pagedata['publish'] == 3 is publically viewable
+					// so we need no checks for that
+				}	
+			
+				// Since we haven't died yet, we can go ahead and display this.
+				
+				// Caching ID format: p<pageid>
+				$cid="p".$pagedata['id'];
+				
+				// Initialize the Smarty object, display the object, and go
+				$sm=sminit("staticpage.tpl",$cid,THtplset);
+				$sm->display("staticpage.tpl",$cid);
+				$sm->display("bottombar.tpl",$cid);
+				die();
+			}
+		}
 	}
 	elseif ($_POST['delete'] == "Delete" ) // Delete a post/posts
 	{

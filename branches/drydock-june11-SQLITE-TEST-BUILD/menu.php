@@ -6,6 +6,7 @@
 <a href=".THurl."admin.php?a=g>Global Settings</a><br />
 <a href=".THurl."admin.php?a=b>Board Setup</a><br />
 <a href=".THurl."admin.php?a=bl>Blotter Posts</a><br />
+<a href=".THurl."admin.php?a=sp>Static Pages</a><br />
 <a href=".THurl."admin.php?a=x>Bans</a><br />
 <a href=".THurl."admin.php?a=c>Capcodes</a><br />
 <a href=".THurl."admin.php?a=w>Filters</a><br />

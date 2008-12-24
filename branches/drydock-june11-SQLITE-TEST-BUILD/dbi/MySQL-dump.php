@@ -30,6 +30,7 @@
 			<a href="'.THurl.'dump-mysql.php?table=extra">Extra info table (metadata)</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=filters">Wordfilters table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=images">Images table</a> | 
+			<a href="'.THurl.'dump-mysql.php?table=pages">Static pages table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=replies">Replies table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=reports">Reports table</a> | 
 			<a href="'.THurl.'dump-mysql.php?table=threads">Threads table</a> | 
@@ -118,10 +119,13 @@
 		case "images":
 			dumptable(THimages_table);
 			break;
+		case "pages":
+			dumptable(THpages_table);
+			break;
 		case "replies":
 			dumptable(THreplies_table);
 			break;
-		case "reporrts":
+		case "reports":
 			dumptable(THreports_table);
 			break;
 		case "threads":
@@ -139,6 +143,7 @@
 			dumptable(THextrainfo_table);
 			dumptable(THfilters_table);
 			dumptable(THimages_table);
+			dumptable(THpages_table);
 			dumptable(THreplies_table);
 			dumptable(THreports_table);
 			dumptable(THthreads_table);

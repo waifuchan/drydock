@@ -66,7 +66,7 @@
 	{
 		$dbi = new ThornDBI();
 	
-		// Add new tables (use THdbprefix)
+		// Add banhistory table (use THdbprefix)
 		$query = "CREATE TABLE IF NOT EXISTS `".THdbprefix."banhistory` 
 		( 
 		`id` int unsigned NOT NULL auto_increment, 
@@ -93,7 +93,7 @@
 			die ("CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
 		}
 
-		// Add new tables (use THdbprefix)
+		// Add reports table
 		$query = "CREATE TABLE IF NOT EXISTS `".THdbprefix."reports` 
 		( 
 		`id` int unsigned NOT NULL auto_increment, 
@@ -112,12 +112,31 @@
 		{
 			die ("CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
 		}
+		
+		// Add pages table
+		$query = "CREATE TABLE IF NOT EXISTS `".THdbprefix."pages` 
+		( 
+		`id` int unsigned NOT NULL auto_increment, 
+		`name` varchar(50) NOT NULL, 
+		`title` TEXT NOT NULL, 
+		`content` LONGTEXT NOT NULL, 
+		`publish` smallint(5) unsigned NOT NULL default '0', 
+		PRIMARY KEY (`id`) 
+		) ENGINE=MyISAM character set utf8 collate utf8_unicode_ci;";
+		
+		$result = $dbi->myquery($query);
+		
+		if($result === null)
+		{
+			die ("CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
+		}
 			
 		// Rewrite config.php (just a simple append, but I guess it will do for now)
 		$addition = 
 		'<?php 
 		define("THbanhistory_table","'.THdbprefix.'banhistory");
 		define("THreports_table","'.THdbprefix.'reports");
+		define("THpages_table","'.THdbprefix.'pages");
 		?>';
 		
 		// We want to append the two new table names to config.php, so this will do for now (it'll look nicer after the next config.php rebuild, whenever that happens)
@@ -337,8 +356,8 @@ post deletion.
 <div id="link_1"><a href="#" onclick="javascript:RequestUpgrade('1');">Perform upgrade</a></div>
 <div id="action_1" style="display: hidden;"></div>
 <hr>
-<!-- ACTION 2: Add new tables - ban history and report tables -->
-This upgrade will attempt to add the ban history and report tables to the database.  Config.php will
+<!-- ACTION 2: Add new tables - ban history, report, and static page tables -->
+This upgrade will attempt to add the ban history, report, and static page tables to the database.  Config.php will
 be edited as a result.
 <div id="link_2"><a href="#" onclick="javascript:RequestUpgrade('2');">Perform upgrade</a></div>
 <div id="action_2" style="display: hidden;"></div>

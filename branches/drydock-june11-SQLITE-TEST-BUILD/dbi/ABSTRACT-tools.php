@@ -99,5 +99,14 @@ interface absThornToolsDBI
 	 * @param int $category The category of violation
 	 */
 	function reportpost($post, $board, $category);
+	
+	/**
+	 * Retrieve a static page with a given name
+	 * 
+	 * @param string $name The (unique) name of the page
+	 * 
+	 * @return array An assoc-array with the static page information
+	 */
+	function getstaticpage($name);
 }
 ?>

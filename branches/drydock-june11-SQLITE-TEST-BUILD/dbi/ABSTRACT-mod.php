@@ -361,5 +361,59 @@ interface absThornModDBI
 	 */
 	function getpostfromimgidx($imgidx);
 	
+	/**
+	 * Add a page with the given name and title into the static
+	 * pages table.  The publishing status will default to
+	 * admin-only.
+	 * 
+	 * @param string $name The name of the page, used as an identifier, must be unique
+	 * @param string $title The title of the page, shown in the HTML
+	 * 
+	 * @return int The page ID
+	 */
+	function addstaticpage($name, $title);
+	
+	/**
+	 * Check if a page name exists, optionally if it exists with a certain ID.
+	 * If you want to check before making a new page, only use $name. Use $id
+	 * for editing when you want to verify that you're not changing the name
+	 * of a page to something that belongs to another page.
+	 * 
+	 * @param string $name The name to check for
+	 * @param int $id The ID to optionally check for
+	 * 
+	 * @return bool If $id is null, this will return true if a page has a name
+	 * equal to $name.  If $id is not null, this will return true if a page has
+	 * a name equal to $name and NOT equal to $id.
+	 */
+	function checkstaticpagename($name, $id=null);
+	
+	/**
+	 * Delete a static page with the given ID.  Make sure to clean
+	 * the cached version afterwards.
+	 * 
+	 * @param int $id The ID of the page to delete
+	 */
+	function delstaticpage($id);
+	
+	/**
+	 * Edit a static page with the given ID.  Make sure to clean
+	 * the cached version afterwards.
+	 * 
+	 * @param int $id The ID of the page to edit
+	 * @param string $name The name of the page
+	 * @param string $title The title of the page to show
+	 * @param string $content The body of the page
+	 * @param int $publish The publishing status of the page
+	 */
+	function editstaticpage($id, $name, $title, $content, $publish);
+	
+	/**
+	 * Retrieve all static pages in an array of assoc-arrays.
+	 * 
+	 * @return array An array of assoc-arrays containing static page info
+	 */
+	function getstaticpages();
+	
 }
 ?>

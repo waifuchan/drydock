@@ -30,8 +30,8 @@
 	 * "mp" - Manager post
 	 * "hk" - Housekeeping options
 	 * "hkc" - Housekeeping options submissions
-	 * 
-	 * 
+	 * "sp" - Static pages list
+	 * "spe" - Edit particular static page
 	 * 
 	 * $_GET['t'] is typically used for receiving form submissions.
 	 * 
@@ -49,6 +49,9 @@
 	 * "g" - Rebuild config (gen. options edit)
 	 * "bl" - Add blotter post
 	 * "ble" - Edit blotter
+	 * "spa" - Add static page
+	 * "spx" - Delete static page
+	 * "spe" - Edit static page (receiver)
  	 */
 	
 	require_once("config.php");
@@ -550,6 +553,43 @@ var_dump($boardarray);
 			$sm->assign("boards",$db->getindex(array('full'=>true),$sm));
 			$sm->display("admingen.tpl");
 		}
+		elseif ($_GET['a'] == "sp") // Static pages list
+		{
+			$static_pages = $db->getstaticpages();
+			$single_page = null;
+			$sm->assign_by_ref("pages",$static_pages);
+			$sm->assign("single_page", $single_page);
+			$sm->display("adminstatic.tpl");
+		}
+		elseif ($_GET['a'] == "spe") // Edit specific static page
+		{
+			if(!isset($_GET['id']))
+			{
+				THdie("No static page ID specified!");
+			}
+			
+			$static_pages = $db->getstaticpages();
+			$single_page = null;
+			
+			// Search through looking for a specific page
+			foreach($static_pages as $static_page)
+			{
+				if( $static_page['id'] == $id )
+				{
+					$single_page = $static_page;
+					break;
+				}
+			}
+			
+			if( $single_page == null )
+			{
+				THdie("Invalid static page ID specified!");
+			}
+			
+			$sm->assign_by_ref("pages",$static_pages);
+			$sm->assign("single_page", $single_page);
+			$sm->display("adminstatic.tpl");
+		}
 		else
 		{
 			THdie("Where are you going?");
@@ -971,5 +1011,109 @@ var_dump($boardarray);
 			THdie($errorstring);
 		}
 			THdie("Username field must not be blank.");
+	}
+	elseif( $_GET['t'] == "spa") // Add static page
+	{
+		// verify parameters
+		if( !isset($_POST['name']) || !isset($_POST['title']))
+		{
+			THdie("Name and/or title parameter not specified!");
+		}
+		
+		$name = trim($_POST['name']);
+		$title = trim($_POST['title']);
+		
+		if( $title == "" || $name == "")
+		{
+			THdie("Invalid name and/or title parameter provided.");
+		}
+		
+		// Now we check if it exists
+		if( $db->checkstaticpagename($name) == true )
+		{
+			THdie("Another static page already has name '".$name."'.");
+		}
+		
+		// I guess this is OK. Add it.
+		$pageid = $db->addstaticpage($name, $title);
+		
+		// Redirect!
+		header("Location: ".THurl."admin.php?a=spe&id=".$pageid);
+	}
+	elseif( $_GET['t'] == "spx") // Delete static page
+	{
+		// verify parameters
+		if( !isset($_GET['id']) )
+		{
+			THdie("ID parameter not specified!");
+		}
+		
+		$id = intval($_GET['id']);
+		
+		// Clear the cache
+		smclearpagecache($id);
+		// Delete it from the DB
+		$db->delstaticpage($id);
+		
+		// Redirect to the static pages list
+		header("Location: ".THurl."admin.php?a=sp");
+	}
+	elseif( $_GET['t'] == "spe") // Edit static page (POST receiver)
+	{
+		// Verify parameters
+		if( !isset($_POST['id']) )
+		{
+			THdie("ID parameter not specified!");
+		}
+		
+		if( !isset($_POST['name']) || !isset($_POST['title']))
+		{
+			THdie("Name and/or title parameter not specified!");
+		}
+
+		if( !isset($_POST['publish']) || !isset($_POST['content']))
+		{
+			THdie("Publish and/or content parameter not specified!");
+		}		
+		
+		// Don't bother checking if the id actually
+		// refers to something that exists - the way our SQL
+		// queries work, it won't make a difference because in
+		// that case there will be nothing matching the "WHERE ID=___"
+		// clause.
+		
+		// Clean up the incoming parameters
+		$id = intval($_POST['id']);
+		$name = trim($_POST['name']);
+		$title = trim($_POST['title']);
+		$content = $_POST['content'];
+		$publish = intval($_POST['publish']);
+		
+		// Check name/title aren't empty
+		if( $name == "" || $title == "")
+		{
+			THdie("Invalid name and/or title parameter provided.");
+		}
+		
+		// Now we check if it exists (we check with ID because we don't
+		// want to match the current page we're editing)
+		if( $db->checkstaticpagename($name, $id) == true )
+		{
+			THdie("Another static page already has name '".$name."'.");
+		}
+		
+		// Check publish parameter
+		if( $publish < 0 || $publish > 3)
+		{
+			THdie("Invalid publish option specified!");
+		}
+		
+		// Everything checked out, so let's clear the cache and update
+		// the info
+		smclearpagecache($id);
+		$db->editstaticpage($id, $name, $title, $content, $publish);
+		
+		// Redirect!
+		header("Location: ".THurl."admin.php?a=spe&id=".$id);
 	}
 ?>

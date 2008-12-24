@@ -326,6 +326,16 @@
 			unlink($deletion);
 		}
 	}
+	
+	/**
+	 * Delete a cache for a static page, given its ID.
+	 * 
+	 * @param int $pageid The ID of the static page
+	 */
+	function smclearpagecache($pageid)
+	{
+		@unlink(THpath."cache/p".$pageid);
+	}
 
 	/**
 	 * Delete images from the images folder.  The 

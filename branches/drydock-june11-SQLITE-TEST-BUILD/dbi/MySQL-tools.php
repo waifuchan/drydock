@@ -252,6 +252,11 @@ class ThornToolsDBI extends ThornDBI
 				", board=".intval($board).", category=".intval($category).", status=0");
 	 	}
 	 }
+	 
+	 function getstaticpage($name)
+	 {
+	 	return $this->myassoc("SELECT * FROM ".THpages_table." WHERE name='".$this->clean($name)."''");
+	 }
 
 } //class ThornToolsDBI
 ?>
