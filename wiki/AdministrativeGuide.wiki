@@ -17,17 +17,61 @@ From this page, administrators are capable of adding new boards, modifying the s
 
 From this page, administrators are capable of viewing, making, and modifying "blotter" posts, which are small blurbs of text which appear below the main posting form and above the contents of a thread or board.  These are useful for short news updates.
 
+== Blotter Edit ==
+
+This section lists all of the current blotter entries.  For each blotter entry, one may elect to delete it, alter the text of the blotter entry, or alter the board to which it was posted (or modify it to display for all boards).
+
+== Blotter Add ==
+
+This section allows an administrator to add a new blotter entry, which will be visible for the selected board (or all boards, if that option is selected).
+
 = Static Pages (admin.php) =
 
-TODO
+From this page, administrators are capable of viewing, making, and modifying static pages, which are pages that may contain HTML (but not PHP) and are made entirely within the software.  Each page has a unique name.  For example, a given static page with the name "rules" and the title "Global Rules" would be accessible through the following URL: {{{misc.php?action=getpage&page=rules}}} and would display with the title "Global Rules".
+
+== Static Pages List ==
+
+This section contains a list of all static pages in existence.  As previously mentioned, each page has a unique name, by which it may be accessed through misc.php, a title, which does not have to be unique, and a visibility setting.  By default only administrators may view a static page.  However, one may configure a page to instead be viewable to global moderators and administrators only, registered users only, or everyone (i.e. public).  To edit or delete a static page, click the relevant link next to each page.
+
+== Add Static Page ==
+
+This section is the method by which new pages are created.  New pages must have a unique name, which is verified before the page is created.  By default, new pages have blank content and are only visible to administrators.
+
+== Edit Static Page ==
+
+This only displays if an administrator has elected to edit a single page.  The name of any static page may be changed, so long as it is unique.  The title, content, and visibility status of a single page may be changed as well.  The content is the text that will be displayed for the page.  It may contain HTML but not PHP.
 
 = Bans (admin.php) =
 
-TODO
+This section allows administrators to view, add, and delete current bans.
+
+== Ban list ==
+
+This will display one of two things.  If no specific ban has been selected, abbreviated information for all current bans will be shown, with the option to delete that ban or view specific information about each ban.  If a specific ban has been selected, all information about that ban will be displayed, with all history affecting the banned IP included.  A rationale field is included so that administrators can explain why they are removing a particular ban or bans.
+
+== Add New Ban ==
+
+This section allows an administrator to add a new ban.  This is useful if an administrator notices a steady source of abuse from a particular IP or IP range.  The duration field is an integer - 0 for a warning, -1 for a permaban, or any other value for a duration in hours.
+
+== Ban Lookup ==
+
+This section allows an administrator to view specific ban information for a particular IP.  Note that if multiple active bans are affecting a particular IP, the administrator will be redirected to only one such ban.
 
 = Capcodes (admin.php) =
 
-TODO
+Capcodes are a special tool for users to hide their traditional username and tripcode combinations.  Explanations are provided in the following sections.
+
+== The CAPCODE system ==
+
+For a user to use a CAPCODE, they must type {{{CAPCODE#normal tripcode}}}. This will trigger the replacement code and display the user's CAPCODE in place of their name/tripcode.   For example, given the user "Joe!QkO1sgFXdY" who wished to have the "Joe ## COOLER THAN COOL 8)" capcode for his tripcode of "#cool" would have "QkO1sgFXdY" (the hashed value of "#cool") in the capcode from field, with "Joe ## COOLER THAN COOL" in the capcode to field.
+
+== Capcodes list ==
+
+This is a list of all current capcodes.  Through this, one may modify or delete existing entries as appropriate.  The capcodefrom field should contain the user's hashed tripcode.  The capcodeto field should contain valid HTML and is what will be displayed in place of the traditional username/tripcode.  Notes fields for information about each capcode are provided, but are optional.
+
+== Add New Capcode ==
+
+This section allows an administrator to add a new capcode.  The fields are the same as previously mentioned.
 
 = Filters (admin.php) =
 
