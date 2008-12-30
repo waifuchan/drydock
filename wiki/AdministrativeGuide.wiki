@@ -1,0 +1,66 @@
+#summary A guide for moderation and administration of a drydock-based imageboard.
+#labels Phase-Support,Phase-Deploy
+
+= Introduction =
+
+This wiki page is intended to give a broad overview of the many options made available to administrators and moderators of a drydock-based imageboard.
+
+= Global Settings (admin.php) =
+
+From this page, administrators are capable of viewing and modifying various basic settings related to the everyday functionality of a drydock imageboard.  More information can be found in the GlobalSettings wiki page.
+
+= Board Setup (admin.php) =
+
+From this page, administrators are capable of adding new boards, modifying the settings of existing boards, and even deleting existing boards.  More information can be found in the BoardSettings wiki page.
+
+= Blotter Posts (admin.php) =
+
+From this page, administrators are capable of viewing, making, and modifying "blotter" posts, which are small blurbs of text which appear below the main posting form and above the contents of a thread or board.  These are useful for short news updates.
+
+= Static Pages (admin.php) =
+
+TODO
+
+= Bans (admin.php) =
+
+TODO
+
+= Capcodes (admin.php) =
+
+TODO
+
+= Filters (admin.php) =
+
+TODO
+
+= Profile Admin (admin.php) =
+
+TODO
+
+= Housekeeping (admin.php) =
+
+TODO
+
+= Log Viewer (logviewer.php) =
+
+Various significant actions, such as the addition, deletion, or modification of boards, moderation actions, or other such changes to the settings, are stored in various logs (available in the /unlinked/ subdirectory).  Individual logs may be viewed and paged through in this tool.
+
+= Recent Pics (recentpics.php) =
+
+TODO
+
+= Recent Posts (recentposts.php) =
+
+TODO
+
+= Reports (reports.php) =
+
+TODO
+
+= Lookup Tools (lookups.php) =
+
+TODO
+
+= Moderator Window (editpost.php) =
+
+TODO
