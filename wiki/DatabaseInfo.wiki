@@ -1,11 +1,14 @@
 #summary Information regarding the design of the SQL database.
 #labels Phase-Implementation,Phase-Design
 
-=Database tables list=
+*Table of contents:*
+<wiki:toc max_depth="1" />
 
 The aim of this page is to document the creation and administration of the SQL database.
 
-==THbanhistory_table==
+----
+
+=THbanhistory_table=
 This is a new table that contains all expired bans, thus making it easier to verify the history for a particular IP or IP range.  It works a lot like THbans_table. *_Added for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
@@ -26,8 +29,9 @@ This is a new table that contains all expired bans, thus making it easier to ver
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
-  
-==THbans_table==
+----
+
+=THbans_table=
 This is the new version of the bans table, created such that subnet banning is easier. *_Added for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
@@ -47,8 +51,9 @@ This is the new version of the bans table, created such that subnet banning is e
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
+----
 
-==THblotter_table==
+=THblotter_table=
 The update blotter (viewable on board view in most templates under the post block)
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` mediumint(8) unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID number for tracking ||
@@ -59,8 +64,9 @@ The update blotter (viewable on board view in most templates under the post bloc
 ||Additional MySQL declarations||
 ||{{{ PRIMARY KEY  (`id`) }}}||
 
+----
 
-==THboards_table==
+=THboards_table=
 The boards we have set up
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` smallint(5) unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || Board ID for tracking ||
@@ -93,8 +99,9 @@ The boards we have set up
 ||Additional MySQL declarations||
 ||{{{ PRIMARY KEY  (`id`) }}}||
 
+----
 
-==THcapcodes_table==
+=THcapcodes_table=
 Capcodes
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` smallint(5) unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID number for db tracking ||
@@ -105,8 +112,9 @@ Capcodes
 ||Additional MySQL declarations||
 ||{{{ PRIMARY KEY  (`id`) }}}||
 
+----
 
-==THextrainfo_table==
+=THextrainfo_table=
 EXIF and metadata info
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} ||  ID for tracking ||
@@ -115,8 +123,9 @@ EXIF and metadata info
 ||Additional MySQL declarations||
 ||{{{ PRIMARY KEY  (`id`) }}}||
 
+----
 
-==THfilters_table==
+=THfilters_table=
 Wordfilters
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID for tracking ||
@@ -127,8 +136,9 @@ Wordfilters
 ||Additional MySQL declarations||
 ||{{{ PRIMARY KEY  (`id`) }}}||
 
+----
 
-==THimages_table==
+=THimages_table=
 Posted images
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL }}} || {{{ id INT  }}} || ID for finding them to pair with posts ||
@@ -146,8 +156,9 @@ Posted images
 ||Additional MySQL declarations||
 ||{{{ PRIMARY KEY  (`id`) }}}||
 
+----
 
-==THpages_table==
+=THpages_table=
 Static pages
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID for tracking ||
@@ -159,8 +170,9 @@ Static pages
 ||Additional MySQL declarations||
 ||{{{ PRIMARY KEY  (`id`) }}}||
 
+----
 
-==THreplies_table==
+=THreplies_table=
 Replies to threads
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID for tracking ||
@@ -186,8 +198,9 @@ Replies to threads
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
+----
 
-==THreports_table==
+=THreports_table=
 This is a new table that contains user-generated reports. *_Added for drydock 0.3.1_*
 
 || Field name || MySQL declaration || SQLite declaration || Description ||
@@ -202,8 +215,9 @@ This is a new table that contains user-generated reports. *_Added for drydock 0.
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
+----
 
-==THthreads_table==
+=THthreads_table=
 Threads table
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || id || {{{ `id` int unsigned NOT NULL auto_increment }}} || {{{ id INTEGER PRIMARY KEY }}} || ID for tracking ||
@@ -229,8 +243,9 @@ Threads table
 || Additional MySQL declarations ||
 || {{{ PRIMARY KEY  (`id`) }}} ||
 
+----
 
-==THusers_table==
+=THusers_table=
 Registered (or unregistered, as the case may be) users
 || Field name || MySQL declaration || SQLite declaration || Description ||
 || username || {{{ `username` varchar(30) NOT NULL default '' }}} || {{{ username VARCHAR(30) PRIMARY KEY }}} || Username ||
