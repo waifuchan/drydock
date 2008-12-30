@@ -1,5 +1,5 @@
 #summary Additional settings
-#labels Phase-Deploy
+#labels Phase-Deploy,Deprecated
 =CAPCODE Settings=
 ===Setting capcodes===
   * The first box should include the user's hashed tripcode.  This means the !RTV242.ddt value, not the #passphrase value.
