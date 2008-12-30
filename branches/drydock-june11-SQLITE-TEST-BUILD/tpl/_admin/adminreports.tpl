@@ -94,7 +94,7 @@ Filter by board:
 			<table>
 			<tr>
 				<td>
-					Classification of report:
+					Average classification of report:
 					{if $report.category == 1}
 					Illegal content
 					{elsif $report.category == 2}

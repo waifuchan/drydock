@@ -59,6 +59,9 @@ else
 		
 		// Add in images
 		$report['post']['images'] = $db->getimgs($report['post']['imgidx']);
+		
+		// Round off report information
+		$report['category'] = round($report['avg_category']);
 	}
 	
 	// Get the boards array, to show a list for filtering

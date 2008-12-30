@@ -771,7 +771,7 @@ class ThornModDBI extends ThornDBI
 						*,
 						COUNT(DISTINCT ip) AS reporter_count,
 						MIN(time) AS earliest_report,
-						MIN(category) AS lowest_category
+						AVG(category) AS avg_category
 					FROM 
 						".THreports_table."
 					WHERE 
@@ -779,7 +779,7 @@ class ThornModDBI extends ThornDBI
 					GROUP BY 
 						postid, board 
 					ORDER BY 
-						lowest_category ASC,
+						avg_category ASC,
 						reporter_count DESC,
 						earliest_report ASC
 					LIMIT 20");
@@ -790,7 +790,7 @@ class ThornModDBI extends ThornDBI
 						*,
 						COUNT(DISTINCT ip) AS reporter_count,
 						MIN(time) AS earliest_report,
-						MIN(category) AS lowest_category
+						AVG(category) AS avg_category
 					FROM 
 						".THreports_table."
 					WHERE 
@@ -798,7 +798,7 @@ class ThornModDBI extends ThornDBI
 					GROUP BY 
 						postid, board 
 					ORDER BY 
-						lowest_category ASC,
+						avg_category ASC,
 						reporter_count DESC,
 						earliest_report ASC
 					LIMIT 20");	 		

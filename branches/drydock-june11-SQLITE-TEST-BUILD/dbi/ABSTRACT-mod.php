@@ -300,7 +300,7 @@ interface absThornModDBI
 	 * Only one report will be retrieved for each post, with two extra fields returned for each
 	 * record: "reporter_count", an int indicating the number of people who have reported
 	 * a particular post, "earliest_report", another int indicating the time it was first
-	 * reported, and "lowest_category", another int indicating the lowest category that a post
+	 * reported, and "avg_category", another int indicating the average category that a post
 	 * was reported for.  Optionally this will filter by a board.
 	 * 
 	 * The sorting methodology to determine "top":
