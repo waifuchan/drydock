@@ -1,11 +1,11 @@
 #summary A guide for moderation and administration of a drydock-based imageboard.
 #labels Phase-Support,Phase-Deploy
 
+<wiki:toc max_depth="1" />
+
 = Introduction =
 
 This wiki page is intended to give a broad overview of the many options made available to administrators and moderators of a drydock-based imageboard.
-
-<wiki:toc max_depth="1" />
 
 = Global Settings (admin.php) =
 
@@ -65,7 +65,7 @@ Capcodes are a special tool for users to hide their traditional username and tri
 
 == The CAPCODE system ==
 
-For a user to use a CAPCODE, they must type {{{CAPCODE#_normal tripcode_}}}. This will trigger the replacement code and display the user's CAPCODE in place of their name/tripcode.   For example, given the user "Joe!QkO1sgFXdY" who wished to have the "Joe ## COOLER THAN COOL 8)" capcode for his tripcode of "#cool" would have "QkO1sgFXdY" (the hashed value of "#cool") in the capcode from field, with "Joe ## COOLER THAN COOL" in the capcode to field.
+For a user to use a CAPCODE, they must type {{{CAPCODE#normal tripcode}}}. This will trigger the replacement code and display the user's CAPCODE in place of their name/tripcode.   For example, given the user "Joe!QkO1sgFXdY" who wished to have the "Joe ## COOLER THAN COOL 28]" capcode for his tripcode of "#cool" would have "QkO1sgFXdY" (the hashed value of "#cool") in the capcode from field, with "Joe ## COOLER THAN COOL 28]" in the capcode to field.
 
 == Capcodes list ==
 
@@ -126,20 +126,60 @@ Various significant actions, such as the addition, deletion, or modification of 
 
 = Recent Pics (recentpics.php) =
 
-TODO
+This section allows administrators and moderators to view the most recent pictures that have been posted, in an attempt to quickly locate illegal/rulebreaking content.  These pictures are paged, and administrators and moderators may move back and forth between pages.  A (currently experimental) board filtering option is also provided.  A small form for each image is provided to allow quick moderation.
 
 = Recent Posts (recentposts.php) =
 
-TODO
+This section allows administrators and moderators to view the most recent threads or replies that have been posted, in an attempt to quickly locate illegal/rulebreaking content.  These posts are paged, and administrators and moderators may move back and forth between pages.  A board filtering option is also provided.  A small form for each post is provided to allow quick moderation.  If a post has already been moderated, it will be noted as such.
 
 = Reports (reports.php) =
 
-TODO
+This tool allows administrators and moderators to view the "top" reports.  Reports are first sorted by their average category ascending, so that reports with an average category of 1 (illegal content) will appear first.  The second criteria for sorting is the number of reporters descending, so that the more a post is reported the higher a priority it will have.  The final criteria for sorting is the time it was first reported, so that older items will be addressed first.  The reports page is stylistically very similar to the recent posts page, and the information displayed on both have much in common.
 
 = Lookup Tools (lookups.php) =
 
-TODO
+These tools allow administrators and moderators to perform various lookup functions to aid in their moderation duties.
+
+== Find post from image ==
+
+This section will, given a full image URL (including domain and all), attempt to locate the post to which the image belongs and immediately redirect the user to it for easy moderation and the like.
+
+== Look up history from IP ==
+
+This section will look up the recent history associated with an IP.  This history includes:
+
+ * Most recent posts (up to 10)
+ * Most recently reviewed reports (up to 15)
+ * Current bans affecting the IP (if any)
+ * Ban history associated with the IP
+ 
+This is intended to allow moderators to look at an IP's past history when evaluating what moderation actions to perform.
 
 = Moderator Window (editpost.php) =
 
-TODO
+This section allows a moderator or administrator to perform a wide variety of actions related to a post.
+
+Using this, moderators are able to:
+ * Ban the poster
+ * Hide the post
+ * Sticky, lock, or permasage the post (only takes effect if it is the OP of a thread)
+ 
+Administrators are able to do all of the prior actions plus:
+ * Deleting the post
+ * Deleting images in the post
+ * Editing the contents of the post
+ * Banning everyone who posted in a thread (only if the post in question is the OP of a thread)
+ 
+An explanation of the different types of banning reasons:
+<dl>
+<dt>Admin reason
+<dd>The reason shown only in the bans section, not shown to the banned user</dd>
+</dt>
+<dt>Public reason
+<dd>The reason publically shown (appended to the post content)</dd>
+</dt>
+<dt>Private reason
+<dd>The reason shown only to administrators and the banned user</dd>
+</dt>
+</dl>
+ 
