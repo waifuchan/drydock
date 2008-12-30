@@ -252,6 +252,7 @@ function rebuild_hovermenu()
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=w>Filters</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=p>Profile Admin</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=hk>Housekeeping</a><br />' . "\n");
+	fwrite($sidelinks, '<a href=".THurl."admin.php?a=lv>Log Viewer</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=t>Recent Pics</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=q>Recent Posts</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=r>Reports</a><br />' . "\n");

@@ -12,6 +12,7 @@
 <a href=".THurl."admin.php?a=w>Filters</a><br />
 <a href=".THurl."admin.php?a=p>Profile Admin</a><br />
 <a href=".THurl."admin.php?a=hk>Housekeeping</a><br />
+<a href=".THurl."admin.php?a=lv>Log Viewer</a><br />
 <a href=".THurl."admin.php?a=t>Recent Pics</a><br />
 <a href=".THurl."admin.php?a=q>Recent Posts</a><br />
 <a href=".THurl."admin.php?a=r>Reports</a><br />

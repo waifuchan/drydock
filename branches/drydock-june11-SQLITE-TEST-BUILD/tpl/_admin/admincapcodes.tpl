@@ -35,13 +35,13 @@
 								<input type="hidden" name="id{$capcodes.id}" size="15" value='{$capcodes.id}' />
                             </td>
                             <td>
-								<input type="text" name="from{$capcodes.id}" size="15" value='{$capcodes.capcodefrom}' />
+								<input type="text" name="from{$capcodes.id}" size="10" value='{$capcodes.capcodefrom}' />
                             </td>
                             <td>
-                                <input type="text" name="to{$capcodes.id}" size="40" value='{$capcodes.capcodeto}' />
+                                <input type="text" name="to{$capcodes.id}" value='{$capcodes.capcodeto}' />
                             </td>
                             <td>
-                                <input type="text" name="notes{$capcodes.id}" size="25" value='{$capcodes.notes}' />
+                                <input type="text" name="notes{$capcodes.id}" value='{$capcodes.notes}' />
                             </td>
                         </tr>
     {/foreach}

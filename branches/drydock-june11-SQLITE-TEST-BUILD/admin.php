@@ -32,6 +32,7 @@
 	 * "hkc" - Housekeeping options submissions
 	 * "sp" - Static pages list
 	 * "spe" - Edit particular static page
+	 * "lv" - Log viewer (redirect)
 	 * 
 	 * $_GET['t'] is typically used for receiving form submissions.
 	 * 
@@ -253,6 +254,10 @@
 		elseif ($_GET['a']=="l") // Lookups
 		{
 			include("lookups.php");
+		}
+		elseif ($_GET['a']=="lv") // Logviewer
+		{
+			include("logviewer.php");
 		}
 		elseif ($_GET['a']=="c") //Capcodes
 		{
