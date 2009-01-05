@@ -56,7 +56,18 @@
 			}
 			else
 			{
-				echo "Success!";
+				// Since that worked, alter the users table	
+				$query = "ALTER TABLE `".THposts_table."` CHANGE `mod_array` `mod_array` TEXT;";
+				$result = $dbi->myquery($query);
+				
+				if($result === null)
+				{
+					echo "Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n";
+				}
+				else
+				{
+					echo "Success!";
+				}
 			}
 		}
 	}

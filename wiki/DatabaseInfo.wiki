@@ -253,7 +253,7 @@ Registered (or unregistered, as the case may be) users
 || userid || {{{ `userid` varchar(32) default NULL }}} || {{{ userid VARCHAR(32) }}} || 32-char user ID (unique, updated upon userlogins) ||
 || userlevel || {{{ `userlevel` tinyint(1) unsigned NOT NULL default '1' }}} || {{{ userlevel TINYINT(1)  }}} || Userlevel (for future userlevels - it is envisioned that admin status will be 9)  ||
 || email || {{{ `email` varchar(50) default NULL }}} || {{{ email VARCHAR(50) }}} || Email address ||
-|| mod_array || {{{ `mod_array` varchar(100) NOT NULL default '0' }}} || {{{ mod_array VARCHAR(100) }}} || Where can they mod?  ||
+|| mod_array || {{{ `mod_array` text }}} || {{{ mod_array TEXT }}} || Where can they mod? *_Modified for drydock 0.3.1_* ||
 || mod_global || {{{ `mod_global` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ mod_global TINYINT(1)  }}} || Global moderator? ||
 || mod_admin || {{{ `mod_admin` tinyint(1) unsigned NOT NULL default '0' }}} || {{{ mod_admin TINYINT(1)  }}} || Global administrator? ||
 || timestamp || {{{ `timestamp` int(11) unsigned NOT NULL default '0' }}} || {{{ timestamp INT(11)  }}} || Timestamp of last login ||

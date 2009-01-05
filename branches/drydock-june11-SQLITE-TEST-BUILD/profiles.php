@@ -734,9 +734,13 @@ else
 
 							$nameexists = $db->userexists($username);
 
-							if ($nameexists || in_array(strtolower($username), $reserved_words))
+							foreach( $reserved_words as $reserved )
 							{
-								$errorstring .= "Sorry, an account with this name already exists.<br>\n";
+								if( stripos($username, $reserved) !== false || $nameexists )
+								{
+									$errorstring .= "Sorry, an account with this name already exists.<br>\n";
+									break;
+								}
 							}
 
 							$namelength = strlen($username);
