@@ -60,7 +60,7 @@ IP:
 				{/if}			
 			{else} 
 				{* thread *}
-				{if $post.id != 0 ) 
+				{if $post.id != 0 }
 					Post {$post.globalid} in /{$boardz}/
 					{if $THuserewrite == true}
 						[<a href="{$THurl}{$boardz}/thread/{$post.globalid}">thread</a>]
@@ -119,7 +119,7 @@ IP:
 								height="{$image.theight}" alt="{$image.name}" class="thumb" />
 						{else}
 							<img src="{$THurl}static/file_deleted.png" alt="File deleted" width="100" height="16" class="thumb" />
-						{/else}
+						{/if}
 						</a>
 					<br />
 					</td></tr>
@@ -170,7 +170,7 @@ IP:
 				<td>
 					{if $report.category == 1}
 					Illegal content
-					{elsif $report.category == 2}
+					{elseif $report.category == 2}
 					Rule violation
 					{else}
 					Low-quality posting
@@ -182,7 +182,7 @@ IP:
 				<td>
 					{if $report.status == 1}
 					Valid
-					{elsif $report.status == 2}
+					{elseif $report.status == 2}
 					Invalid
 					{else}
 					Reviewed
@@ -193,7 +193,7 @@ IP:
 		</table>
 	{else}
 	No recent reports found.
-	{/else}
+	{/if}
 	
 	{* Show current ban(s) *}
 	<div class="pgtitle">Current ban(s):</div>

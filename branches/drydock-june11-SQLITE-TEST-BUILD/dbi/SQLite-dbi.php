@@ -202,12 +202,12 @@ class ThornDBI implements absThornDBI
 		
 		$imgs = array ();
 		
-		$querystring = "select ". THimages_table .".*, ".THextrainfo_table.".extra_info AS exif_text FROM"
+		$querystring = "select ". THimages_table .".*, ".THextrainfo_table.".extra_info AS exif_text FROM "
 				 . THimages_table ." LEFT OUTER JOIN ".THextrainfo_table. " on ".THimages_table
-				 .".extra_info = ".THextrainfo_table.".id WHERE id=".intval($imgidx);
+				 .".extrainfo = ".THextrainfo_table.".id WHERE ".THimages_table.".id=".intval($imgidx);
 
 		$imgs = $this->mymultiarray($querystring);
-		
+		var_dump($imgs);
 		return ($imgs);
 	}
 
@@ -330,11 +330,11 @@ class ThornDBI implements absThornDBI
 		$octets = explode(".", $ip, 4);
 
 		//Retrieve the bans
-		$bans = $this->mymultiarray("select * from `" . THbans_table . "` where 
-			`ip_octet1`=" . intval($octets[0]) . " 
-			AND `ip_octet2`=" . intval($octets[1]) . " 
-			AND (`ip_octet3`=" . intval($octets[2]) . " || `ip_octet3` = -1 )
-			AND (`ip_octet4`=" . intval($octets[3]) . " || `ip_octet4` = -1 )");
+		$bans = $this->mymultiarray("select * from '" . THbans_table . "' where 
+			'ip_octet1'=" . intval($octets[0]) . " 
+			AND 'ip_octet2'=" . intval($octets[1]) . " 
+			AND ('ip_octet3'=" . intval($octets[2]) . " || 'ip_octet3' = -1 )
+			AND ('ip_octet4'=" . intval($octets[3]) . " || 'ip_octet4' = -1 )");
 			
 		// Clear old bans if $clear is true
 		if( $clear == true )
@@ -345,7 +345,7 @@ class ThornDBI implements absThornDBI
 				if( $singleban['duration'] == 0 ) // Warning
 				{
 					// Move to ban history table
-					$history = "insert into `".THbanhistory_table."` 
+					$history = "insert into '".THbanhistory_table."' 
 					set ip_octet1=" . $singleban['ip_octet1'] . ",
 					ip_octet2=" . $singleban['ip_octet2'] . ",
 					ip_octet3=" . $singleban['ip_octet3'] . ",
@@ -375,7 +375,7 @@ class ThornDBI implements absThornDBI
 					if($now>$expiremath) // It expired.
 					{
 						// Move to ban history table
-						$history = "insert into `".THbanhistory_table."` 
+						$history = "insert into '".THbanhistory_table."' 
 						set ip_octet1=" . $singleban['ip_octet1'] . ",
 						ip_octet2=" . $singleban['ip_octet2'] . ",
 						ip_octet3=" . $singleban['ip_octet3'] . ",

@@ -189,9 +189,9 @@ class ThornDBI
 		}
 		$imgs = array ();
 		
-		$querystring = "select ". THimages_table .".*, ".THextrainfo_table.".extra_info AS exif_text FROM"
+		$querystring = "select ". THimages_table .".*, ".THextrainfo_table.".extra_info AS exif_text FROM "
 		 . THimages_table ." LEFT OUTER JOIN ".THextrainfo_table. " on ".THimages_table
-		 .".extra_info = ".THextrainfo_table.".id WHERE id=".intval($imgidx);
+		 .".extrainfo = ".THextrainfo_table.".id WHERE ".THimages_table.".id=".intval($imgidx);
 
 		$imgs = $this->mymultiarray($querystring);
 		
