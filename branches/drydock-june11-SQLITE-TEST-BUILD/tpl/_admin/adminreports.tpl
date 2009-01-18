@@ -97,7 +97,7 @@ Filter by board:
 					Average classification of report:
 					{if $report.category == 1}
 					Illegal content
-					{elsif $report.category == 2}
+					{elseif $report.category == 2}
 					Rule violation
 					{else}
 					Low-quality posting

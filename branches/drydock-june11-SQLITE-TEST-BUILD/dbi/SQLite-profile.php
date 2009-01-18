@@ -291,7 +291,7 @@ class ThornProfileDBI extends ThornDBI
 	
 	function getprofilemodqueue()
 	{
-		return $this->mymultiassoc("SELECT * FROM ".THusers_table.
+		return $this->mymultiarray("SELECT * FROM ".THusers_table.
 			" WHERE pic_pending IS NOT NULL OR proposed_capcode IS NOT NULL OR approved=0");
 	}
 

@@ -46,9 +46,9 @@
                         <td>
                             {if $page.publish == 0}
                             Admins
-                            {elsif $page.publish == 1}
+                            {elseif $page.publish == 1}
                             Mods/Admins
-                            {elsif $page.publish == 2}
+                            {elseif $page.publish == 2}
                             Registered Users
                             {else}
                             Public
