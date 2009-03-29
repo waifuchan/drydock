@@ -120,9 +120,7 @@
         		</tr>
         	</table>
         	Content:<br>
-        	<textarea name="content" cols="48" rows="6" >
-        		{$single_page.content|escape:"html":"UTF-8"}
-        	</textarea>
+        	<textarea name="content" cols="48" rows="6" >{$single_page.content|escape:"html":"UTF-8"}</textarea>
         	<input type="hidden" value="{$single_page.id}" name="id">
         	<input type="submit" value="Edit" />
         </form>

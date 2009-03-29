@@ -913,7 +913,7 @@ else
 								writelog($actionstring, "profiles");
 
 								// This way, it will only send an email if the password reset was actually successful
-								if ($db->resetuserpass($username, $pass))
+								if ($db->setuserpass($username, $pass))
 								{
 									sendnewpass($_POST['user'], $user['email'], $pass, $_SERVER['REMOTE_ADDR']);
 									echo "Your password has been reset and emailed to your specified address.<br><br>\n";

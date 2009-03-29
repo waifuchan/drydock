@@ -141,7 +141,7 @@ class ThornProfileDBI extends ThornDBI
 	function setuserpass($username, $password)
 	{
 		return $this->myquery("UPDATE " . THusers_table . " SET password='" . $this->escape_string(md5(THsecret_salt.$password)) .
-		"' WHERE username='" . $this->escape_string($username) . "' AND mod_admin = 0");
+		"' WHERE username='" . $this->escape_string($username) . "'");
 	}
 
 	function suspenduser($username)

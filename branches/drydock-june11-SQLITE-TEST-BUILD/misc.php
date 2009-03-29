@@ -163,8 +163,8 @@
 				
 				// Initialize the Smarty object, display the object, and go
 				$sm=sminit("staticpage.tpl",$cid,THtplset);
+				$sm->assign_by_ref("page",$pagedata);
 				$sm->display("staticpage.tpl",$cid);
-				$sm->display("bottombar.tpl",$cid);
 				die();
 			}
 		}

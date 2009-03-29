@@ -38,7 +38,7 @@ class ThornDBI
 		$call = htmlspecialchars($call);
 		if (get_magic_quotes_gpc() == 0)
 		{
-			$call = escape_string($call);
+			$call = $this->escape_string($call);
 		}
 		$call = trim($call);
 		return ($call);
@@ -66,55 +66,55 @@ class ThornDBI
 	
 	function myassoc($call)
 	{
-		echo("myassoc: $call<br />");
+		//echo("myassoc: $call<br />");
 		$dog = @ mysql_fetch_assoc(mysql_query($call)); // or return null;
 		if ($dog === false)
 		{
 			return (null);
 		}
-		var_dump($dog);echo"<br>";
+		//var_dump($dog);echo"<br>";
 		return ($dog);
 	}
 
 	function myarray($call)
 	{
-		echo("myarray: $call<br />");
+		//echo("myarray: $call<br />");
 		$manta = @ mysql_fetch_array(mysql_query($call)); // or return null;
 		if ($manta === false)
 		{
 			return (null);
 		}
-		var_dump($manta);echo"<br>";
+		//var_dump($manta);echo"<br>";
 		return ($manta);
 	}
 
 	function myresult($call)
 	{
-		echo("myresult: $call<br />");
+		//echo("myresult: $call<br />");
 		$dog = mysql_query($call); // or die(mysql_error()."<br />".$call);
 		if ($dog === false || mysql_num_rows($dog) == 0)
 		{
 			return (null);
 		}
-		var_dump(mysql_result($dog, 0));echo"<br>";
+		//var_dump(mysql_result($dog, 0));echo"<br>";
 		return (mysql_result($dog, 0));
 	}
 
 	function myquery($call)
 	{
-		echo("myquery: $call<br />");
+		//echo("myquery: $call<br />");
 		$dog = mysql_query($call); // or die(mysql_error()."<br />".$call);
 		if ($dog === false)
 		{
 			return (null);
 		}
-		var_dump($dog);echo"<br>";
+		//var_dump($dog);echo"<br>";
 		return ($dog);
 	}
 
 	function mymultiarray($call)
 	{
-		echo("mymultiarray: $call<br />");
+		//echo("mymultiarray: $call<br />");
 
 		$multi = array ();
 
@@ -127,7 +127,7 @@ class ThornDBI
 			}
 		}
 
-		var_dump($multi);echo"<br>";
+		//var_dump($multi);echo"<br>";
 		return $multi;
 	}
 
@@ -195,7 +195,7 @@ class ThornDBI
 
 		$imgs = $this->mymultiarray($querystring);
 		
-		echo"<b>";var_dump($imgs);echo"</b>";
+		//echo"<b>";var_dump($imgs);echo"</b>";
 		return ($imgs);
 	}
 

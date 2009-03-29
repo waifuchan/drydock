@@ -28,12 +28,14 @@ class ThornPostDBI extends ThornDBI
 
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password = "", $tyme = false)
 	{
+		$boardnumber = $this->getboardnumber($board);
+	
 		if ($tyme === false)
 		{
 			$tyme = time() + (THtimeoffset * 60);
 		}
 		$q = "INSERT INTO " . THthreads_table . " ( board, title, body";
-		$v = " VALUES ( " . $this->getboardnumber($board) . " ,'" . $this->escape_string($title) . "','";
+		$v = " VALUES ( " .   . " ,'" . $this->escape_string($title) . "','";
 		$v .= $this->escape_string($body);
 		$q .= ", ip, pin, permasage, lawk, time, bump";
 		$v .= "'," . $ip . " , " . $pin . " , " . $permasage . " , " . $lock . " , " . $tyme . " , " . $tyme;
@@ -77,11 +79,11 @@ class ThornPostDBI extends ThornDBI
 		$v .= "," . $tyme . "," . $visible . ")";
 		$built = $q . $v;
 		$this->myquery($built) or THdie("DBpost");
-		if ($board == THnewsboard)
+		if ($boardnumber == THnewsboard)
 		{
 			rebuild_rss();
 		}
-		smclearcache($board, -1, -1); // clear the cache for this board
+		smclearcache($boardnumber, -1, -1); // clear the cache for this board
 		$tnum = sqlite_last_insert_rowid(THdblitefn); //help
 		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board ."'") or THdie("DBpost");
 		return ($tnum);
@@ -89,8 +91,10 @@ class ThornPostDBI extends ThornDBI
 
 	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $password = "", $tyme = false)
 	{
+		$boardnumber = $this->getboardnumber($board);
+	
 		$q = "INSERT INTO " . THreplies_table . " (thread,board,body";
-		$v = " ) VALUES (" . $thread . ",'" . intval($board) . "','";
+		$v = " ) VALUES (" . $thread . ",'" . $boardnumber . "','";
 		$v .= $this->escape_string($body);
 		
 		$bump = preg_match("/^(mailto:)?sage$/", $link); // sage check
@@ -142,8 +146,8 @@ class ThornPostDBI extends ThornDBI
 			$this->myquery("update " . THthreads_table . " set bump=" . $tyme . " where id=" . $thread . " and permasage = 0");
 		}
 		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board."'") or THdie("DBpost");
-		smclearcache($board, -1, -1); // clear cache for the board
-		smclearcache($board, -1, $thread); // and for the thread
+		smclearcache($boardnumber, -1, -1); // clear cache for the board
+		smclearcache($boardnumber, -1, $thread); // and for the thread
 		return ($pnum);
 	}
 

@@ -15,7 +15,7 @@
 
 require_once ("ABSTRACT-board.php"); // abstract interface
 
-class ThornBoardDBI implements absThornBoardDBI
+class ThornBoardDBI extends ThornDBI
 {
 	function ThornBoardDBI($bored, $payj, $on = array ())
 	{

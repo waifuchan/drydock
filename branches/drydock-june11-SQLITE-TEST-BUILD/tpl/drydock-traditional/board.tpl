@@ -10,34 +10,6 @@
 {* we're at top, no return possible *}
 {include file=postblock.tpl comingfrom=$comingfrom}
 <hr />
-{literal}
-<script type="text/javascript">
-	<!--
-		var n=readCookie("{/literal}{$THcookieid}{literal}-name");
-		var t=readCookie("{/literal}{$THcookieid}{literal}-tpass");
-		var d=readCookie("{/literal}{$THcookieid}{literal}-th-goto");
-		var l=readCookie("{/literal}{$THcookieid}{literal}-link");
-		var p=readCookie("{/literal}{$THcookieid}{literal}-password");
-		
-		if (n!=null)
-		{
-			document.forms['postform'].elements['nombre'].value=unescape(n).replace(/\+/g," ");
-        }
-		if (t!=null)
-		{
-			document.forms['postform'].elements['tpass'].value=unescape(t).replace(/\+/g," ");
-        }
-		if (d!=null)
-		{
-			document.forms['postform'].elements['todo'].value=d;
-        }
-		if (l!=null)
-		{
-			document.forms['postform'].elements['link'].value=unescape(l).replace(/\+/g," ");
-		}
-	//-->
-</script>
-{/literal}
 
 {* Beginning of form for post deletion/reporting/whatever else we might want in the future *}
 <form target="_blank" action="misc.php" method="POST" id="delform">
@@ -73,5 +45,55 @@ Password: <input type="password" name="password" value=""><br>
 <input type="submit" name="report" value="Report"><input type="submit" name="delete" value="Delete">
 </div>
 </form>
+
+
+{literal}
+<script type="text/javascript">
+	<!--
+		var n=readCookie("{/literal}{$THcookieid}{literal}-name");
+		var t=readCookie("{/literal}{$THcookieid}{literal}-tpass");
+		var d=readCookie("{/literal}{$THcookieid}{literal}-th-goto");
+		var l=readCookie("{/literal}{$THcookieid}{literal}-link");
+		var p=readCookie("{/literal}{$THcookieid}{literal}-password");
+		
+		if (n!=null)
+		{
+			document.forms['postform'].elements['nombre'].value=unescape(n).replace(/\+/g," ");
+        }
+		if (t!=null)
+		{
+			document.forms['postform'].elements['tpass'].value=unescape(t).replace(/\+/g," ");
+        }
+		if (d!=null)
+		{
+			document.forms['postform'].elements['todo'].value=d;
+        }
+		if (l!=null)
+		{
+			document.forms['postform'].elements['link'].value=unescape(l).replace(/\+/g," ");
+		}
+		
+		if (p!= null)
+		{
+			document.forms['postform'].elements['password'].value=unescape(p).replace(/\+/g," ");
+			document.forms['delform'].elements['password'].value=unescape(p).replace(/\+/g," ");
+		}
+		else
+		{
+			var chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+			var pass='';
+
+			for(var i=0;i<8;i++)
+			{
+				var rnd=Math.floor(Math.random()*chars.length);
+				pass+=chars.substring(rnd,rnd+1);
+			}
+
+			document.forms['postform'].elements['password'].value=pass;
+			document.forms['delform'].elements['password'].value=pass;			
+		}
+	//-->
+</script>
+{/literal}
 
 {* include_php file="linkbar.php" *} {* tyam - gives us quicklinks - take the asterisks out if you want them*}

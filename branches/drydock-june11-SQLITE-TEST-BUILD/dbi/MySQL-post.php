@@ -28,12 +28,14 @@ class ThornPostDBI extends ThornDBI
 
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password= "",$tyme = false)
 	{
+		$boardnumber = $this->getboardnumber($board); 
+	
 		if ($tyme === false)
 		{
 			$tyme = time() + (THtimeoffset * 60);
 		}
 		$q = "insert into " . THthreads_table . " set board='" . $this->getboardnumber($board) . "', title='" . $this->clean($title) . "', body='";
-		if ($board == THnewsboard || $board == THmodboard) //don't filter the news board nor the mod board
+		if ($boardnumber == THnewsboard || $boardnumber == THmodboard) //don't filter the news board nor the mod board
 		{
 			$q .= $this->escape_string($body);
 		}
@@ -74,20 +76,22 @@ class ThornPostDBI extends ThornDBI
 //			$q .= ", link='" . $this->clean($link) . "'";
 //		}
 		$this->myquery($q) or THdie("DBpost");
-		if ($board == THnewsboard)
+		if ($boardnumber == THnewsboard)
 		{
 			rebuild_rss();
 		}
-		smclearcache($board, -1, -1); // clear the cache for this board
+		smclearcache($boardnumber, -1, -1); // clear the cache for this board
 		$tnum = mysql_insert_id();
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id=" . ($board)) or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board . "'") or THdie("DBpost");
 		return ($tnum);
 	}
 
 	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $password = "", $tyme = false)
 	{
-		$q = "insert into " . THreplies_table . " set thread=" . $thread . ", board=" . intval($board) . ", body='";
-		if ($board == THmodboard) //don't filter the mod board since it should be all locked up anyway
+		$boardnumber = $this->getboardnumber($board);
+	
+		$q = "insert into " . THreplies_table . " set thread=" . $thread . ", board=" . $boardnumber . ", body='";
+		if ($boardnumber == THmodboard) //don't filter the mod board since it should be all locked up anyway
 		{
 			$q .= $this->escape_string($body);
 		}
@@ -135,9 +139,9 @@ class ThornPostDBI extends ThornDBI
 		{
 			$this->myquery("update " . THthreads_table . " set bump=" . $tyme . " where id=" . $thread . " and permasage = 0");
 		}
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id=" . $board) or THdie("DBpost");
-		smclearcache($board, -1, -1); // clear cache for the board
-		smclearcache($board, -1, $thread); // and for the thread
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board . "'") or THdie("DBpost");
+		smclearcache($boardnumber, -1, -1); // clear cache for the board
+		smclearcache($boardnumber, -1, $thread); // and for the thread
 		return ($pnum);
 	}
 

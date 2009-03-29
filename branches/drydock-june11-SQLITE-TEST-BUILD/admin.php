@@ -579,7 +579,7 @@ var_dump($boardarray);
 			// Search through looking for a specific page
 			foreach($static_pages as $static_page)
 			{
-				if( $static_page['id'] == $id )
+				if( $static_page['id'] == $_GET['id'] )
 				{
 					$single_page = $static_page;
 					break;

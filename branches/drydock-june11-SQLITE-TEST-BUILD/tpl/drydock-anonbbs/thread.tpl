@@ -4,6 +4,35 @@
 {it->getreplies assign="posts"}
 <div id="main">
 
+{* Beginning of form for post deletion/reporting/whatever else we might want in the future *}
+<form target="_blank" action="misc.php" method="POST" id="delform">
+<input type="hidden" name="board" value="{$binfo.folder}" />
+
+{include file="viewblock.tpl"}
+    </div>
+</div>
+{literal}
+<script type="text/javascript" defer="defer">
+	<!--
+		function visfile(thisone)
+		{
+			if (document.getElementById("file"+(thisone+1)))
+			{
+				document.getElementById("file"+(thisone+1)).style.display="block";
+			}
+		}
+	-->
+</script>
+{/literal}
+
+{* End of form for post deletion/reporting/whatever else *}
+<div style="text-align:right">
+Password: <input type="password" name="password" value=""><br>
+<input type="submit" name="report" value="Report"><input type="submit" name="delete" value="Delete">
+</div>
+</form>
+
+
 {literal}
 <script type="text/javascript">
 	<!--
@@ -52,31 +81,3 @@
 	//-->
 </script>
 {/literal}
-
-{* Beginning of form for post deletion/reporting/whatever else we might want in the future *}
-<form target="_blank" action="misc.php" method="POST" id="delform">
-<input type="hidden" name="board" value="{$binfo.folder}" />
-
-{include file="viewblock.tpl"}
-    </div>
-</div>
-{literal}
-<script type="text/javascript" defer="defer">
-	<!--
-		function visfile(thisone)
-		{
-			if (document.getElementById("file"+(thisone+1)))
-			{
-				document.getElementById("file"+(thisone+1)).style.display="block";
-			}
-		}
-	-->
-</script>
-{/literal}
-
-{* End of form for post deletion/reporting/whatever else *}
-<div style="text-align:right">
-Password: <input type="password" name="password" value=""><br>
-<input type="submit" name="report" value="Report"><input type="submit" name="delete" value="Delete">
-</div>
-</form>

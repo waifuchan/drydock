@@ -179,7 +179,6 @@
 	
 				{* Is this a thread and are we admin? *}
 				{if $postarray.thread == 0 && $adminpowers > 0} 
-				{
 					<br><b>Move thread:</b><br>
 					<select name="movethread">
 					<option value="nil" selected="selected">&#8212;</option>
@@ -188,6 +187,7 @@
 						<option value="{$board.id}">
 							Move to /{$board.folder}/
 						</option>
+						{/if}
 					{/foreach}
 					</select>
 					<br><b>Warning:</b> hiding/deleting this post will hide/delete all replies.

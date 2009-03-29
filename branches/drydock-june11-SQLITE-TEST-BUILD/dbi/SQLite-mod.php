@@ -299,6 +299,13 @@ class ThornModDBI extends ThornDBI
 			$this->myquery("delete from " . THthreads_table . " where ip=" . $ip);
 		}
 
+		if( $reply_imgidx == null )
+			$reply_imgidx = array();
+			
+		if( $thread_imgidx == null )
+			$thread_imgidx = array();
+		
+		
 		// $affimgs will hold imgidxes to delete later by other functions
 		$affimgs = array ();
 		$affimgs = array_merge($affimgs, $reply_imgidx, $thread_imgidx);
@@ -508,7 +515,13 @@ class ThornModDBI extends ThornDBI
 		$threadimgs = $this->myarray("select distinct imgidx from " . THthreads_table . " where board=" . $board . " AND imgidx!=0");
 		$replyimgs = $this->myarray("select distinct imgidx from " . THreplies_table . " where board=" . $board . " AND imgidx!=0");
 
-		$imgidxes = array_combine($imgidxes, $threadimgs, $replyimgs);
+		if( $threadimgs == null )
+			$threadimgs = array();
+			
+		if( $replyimgs == null )
+			$replyimgs = array();
+		
+		$imgidxes = array_merge($imgidxes, $threadimgs, $replyimgs);
 
 		$this->myquery("delete from " . THthreads_table . " where board=" . $board);
 		$this->myquery("delete from " . THreplies_table . " where board=" . $board);
@@ -795,15 +808,20 @@ class ThornModDBI extends ThornDBI
 		}
 
 		// Set up some things
-		$initial_threads = array ();
-		$initial_replies = array ();
 		$initial_posts = array (); // This will contain the combination of the previous arrays
 
 		$initial_threads = $this->myassoc("SELECT time FROM " . THthreads_table .
 		" WHERE ip=" . $ip . " ORDER BY time DESC LIMIT 10");
 		$initial_replies = $this->myassoc("SELECT time FROM " . THreplies_table .
 		" WHERE ip=" . $ip . " ORDER BY time DESC LIMIT 10");
-		$initial_posts = array_combine($initial_threads, $initial_replies);
+		
+		if( $initial_threads == null )
+			$initial_threads = array();
+			
+		if( $initial_replies == null )
+			$initial_replies = array();
+		
+		$initial_posts = array_merge($initial_threads, $initial_replies);
 
 		// Do we have to do filtering?
 		if (count($initial_posts) > 10)
@@ -820,8 +838,15 @@ class ThornModDBI extends ThornDBI
 
 			$initial_replies = $this->mymultiarray("SELECT * FROM " . THreplies_table .
 			" WHERE ip=" . $ip . " AND time >= " . $min_time . " LIMIT 10");
+			
+			if( $initial_threads == null )
+				$initial_threads = array();
+			
+			if( $initial_replies == null )
+				$initial_replies = array();
+			
 
-			$initial_posts = array_combine($initial_threads, $initial_replies);
+			$initial_posts = array_merge($initial_threads, $initial_replies);
 		}
 		else
 		{
@@ -831,8 +856,14 @@ class ThornModDBI extends ThornDBI
 
 			$initial_replies = $this->mymultiarray("SELECT * FROM " . THreplies_table .
 			" WHERE ip=" . $ip . " ORDER BY time DESC LIMIT 10");
+			
+			if( $initial_threads == null )
+				$initial_threads = array();
+			
+			if( $initial_replies == null )
+				$initial_replies = array();
 
-			$initial_posts = array_combine($initial_threads, $initial_replies);
+			$initial_posts = array_merge($initial_threads, $initial_replies);
 		}
 
 		// Don't bother sorting if we have 0 or 1 entries

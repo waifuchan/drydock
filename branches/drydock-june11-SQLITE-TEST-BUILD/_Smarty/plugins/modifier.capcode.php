@@ -13,6 +13,6 @@ $capcodes=array();
 function smarty_modifier_capcode($trip)
 {
 	@include(THpath.'/cache/capcodes.php');
-	return($capcodes[$trip]);
+	return(html_entity_decode($capcodes[$trip]));
 }
 ?>

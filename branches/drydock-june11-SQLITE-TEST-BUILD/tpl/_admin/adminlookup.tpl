@@ -43,7 +43,7 @@ IP:
 	{if $posthistory}
 		{foreach from=$posthistory item=post}
 			<table>
-			{assign var=boardz value=`{$boards[$post.board].folder}`} {* for brevity's sake *}
+			{assign var=boardz value=$boards[$post.board].folder} {* for brevity's sake *}
 						
 			{* Link to thread *}
 			{if $post.thread != 0} {* This is a reply *}	

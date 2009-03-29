@@ -70,13 +70,13 @@
 	$db = new ThornPostDBI();
 	
 	// Set some stuff up.
-	$board_folder = $db->getboardname($board_id);
+	$board_id = $db->getboardnumber($board_folder);
 	$postid = intval($_GET['post']); // SQL injection protection :]
 	$threadid = 0; // set this up later once we get some post data
 	$ipstring = "";
 	
-	// Make sure we retrieved a valid board folder
-	if ($board_folder == null)
+	// Make sure we retrieved a valid board id
+	if ($board_id == null)
 	{
 		THdie("That board does not exist!");
 	}

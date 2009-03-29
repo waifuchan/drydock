@@ -259,7 +259,7 @@ class ThornToolsDBI extends ThornDBI
 	
 	function getstaticpage($name)
 	{
-	 	return $this->myassoc("SELECT * FROM ".THpages_table." WHERE name='".$this->clean($name)."''");
+	 	return $this->myassoc("SELECT * FROM ".THpages_table." WHERE name='".$this->clean($name)."'");
 	}
 
 } //class ThornToolsDBI
