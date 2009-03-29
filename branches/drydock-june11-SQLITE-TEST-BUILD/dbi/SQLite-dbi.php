@@ -17,7 +17,7 @@ define("THdblitefn", sqlite_open(THpath . "unlinked/drydock.sqlite", 0666, $sqli
 require_once ("config.php");
 require_once ("common.php");
 require_once ("ABSTRACT-dbi.php"); // abstract interface
-define("DDDEBUG",1);
+define("DDDEBUG",0); // Could break things if enabled
 
 
 class ThornDBI implements absThornDBI
@@ -207,7 +207,7 @@ class ThornDBI implements absThornDBI
 				 .".extrainfo = ".THextrainfo_table.".id WHERE ".THimages_table.".id=".intval($imgidx);
 
 		$imgs = $this->mymultiarray($querystring);
-		var_dump($imgs);
+		//var_dump($imgs);
 		return ($imgs);
 	}
 
@@ -424,7 +424,25 @@ class ThornDBI implements absThornDBI
 			$querystring = $querystring . "folder='" . $this->escape_string($folder) . "'";
 		}
 		
-		return $this->mymultiarray($querystring);
+		if( $id == 0 && $folder == "" )
+		{
+			$multi = array ();
+
+			$queryresult = $this->myquery($querystring);
+			if ($queryresult != null)
+			{
+				while ($entry = sqlite_fetch_array($queryresult))
+				{
+					$multi[$entry['id']] = $entry;
+				}
+			}
+			
+			return $multi;
+		}
+		else
+		{
+			return $this->mymultiarray($querystring);
+		}
 	}
 	
 	function getboardname($number)

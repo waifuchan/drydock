@@ -15,6 +15,7 @@
 
 require_once ("config.php");
 require_once ("common.php");
+require_once ("ABSTRACT-dbi.php"); // abstract interface
 
 class ThornDBI
 {
@@ -411,7 +412,27 @@ class ThornDBI
 			$querystring = $querystring . "folder='" . $this->clean($folder) . "'";
 		}
 		
-		return $this->mymultiarray($querystring);
+		if( $id == 0 && $folder == "" )
+		{
+			$multi = array ();
+	
+			$queryresult = $this->myquery($querystring);
+			if ($queryresult != null)
+			{
+				while ($entry = mysql_fetch_array($queryresult))
+				{
+					$multi[$entry['id']] = $entry;
+				}
+			}
+		
+			//var_dump($multi);echo"<br>";
+		
+			return $multi;
+		}
+		else
+		{
+			return $this->mymultiarray($querystring);
+		}
 	}
 	
 	function getboardname($number)

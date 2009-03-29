@@ -136,7 +136,7 @@ class ThornBoardDBI extends ThornDBI
 			$th['images'] = $this->getimgs($th['imgidx']);
 			$threads[] = $th;
 		}
-echo"<b>";var_dump($threads);echo"</b>";
+		//echo"<b>";var_dump($threads);echo"</b>";
 		return ($threads);
 	}
 

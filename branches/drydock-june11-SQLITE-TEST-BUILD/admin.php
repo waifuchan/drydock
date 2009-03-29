@@ -58,7 +58,7 @@
 	require_once("config.php");
 	require_once("common.php");
 	checkadmin(); //make sure the person trying to access this file is allowed to
-	var_dump($_POST);
+	//var_dump($_POST);
 	$db=new ThornModDBI();
 	if(isset($_GET['rebuild']))
 	{
@@ -443,7 +443,7 @@
 			{
 				// Should return an array of assoc-arrays
 				$boardarray = $db->getboard(0, $_GET['board']);
-var_dump($boardarray);
+				//var_dump($boardarray);
 				if($boardarray)
 				{
 					$sm->assign("binfo",$boardarray[0],$sm);
@@ -725,8 +725,8 @@ var_dump($boardarray);
 
 				// Add the assoc-array with the updated information into the array
 				$boards_to_update[] = $updated_board;
-								var_dump($updated_board);echo "<hr>";
-								var_dump($boards_to_update);
+								//var_dump($updated_board);echo "<hr>";
+								//var_dump($boards_to_update);
 				$db->updateboards($boards_to_update);
 				$actionstring = "Board edit\tid:".$boardnumber;
 				writelog($actionstring,"admin");

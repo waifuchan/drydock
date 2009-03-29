@@ -148,9 +148,9 @@ interface absThornProfileDBI
 	function proposeusercapcode($username, $capcode);
 
 	/**
-	 * Reset a (non-admin) user's password
+	 * Set a user's password to the specified string
 	 * 
-	 * @param string $username The user whose password will be reset
+	 * @param string $username The user whose password will be set
 	 * @param string $password The (unsalted) password
 	 */
 	function setuserpass($username, $password);

@@ -42,7 +42,7 @@
 	}
 */
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
-	var_dump($_POST);
+	//var_dump($_POST);
 	$db=new ThornPostDBI;
 	if ($db->checkban()) 
 	{
@@ -67,7 +67,7 @@
 		
 		// This should have the cached version of banned keywords in an array named $spamblacklist.
 		@include(THpath.'/cache/blacklist.php');
-		//You could use any website, or even CENSORED or some other text.  We picked GameFAQs.
+		//You could use any website, or even CENSORED or some other text.
 		if(count($spamblacklist) > 0)
 		{
 			$_POST['subj'] = str_replace($spamblacklist, "xxxxx", $_POST['subj']);

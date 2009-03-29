@@ -208,7 +208,8 @@ interface absThornDBI
 	 * @param int $id The board ID to optionally filter by
 	 * @param string $folder The board filter to optionally filter by
 	 * 
-	 * @return array An array of assoc-arrays containing board info
+	 * @return array An array of assoc-arrays containing board info.  The index of each
+	 * element corresponds with the ID of the board, if the ID and folder are not specified.
 	 */
 	function getboard($id = 0, $folder = "");
 

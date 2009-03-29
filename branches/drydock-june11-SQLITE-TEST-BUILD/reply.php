@@ -32,7 +32,7 @@
 	require_once("post-common.php");
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
 
-	var_dump($_POST);
+	//var_dump($_POST);
 	$db=new ThornPostDBI();
 	if ($db->checkban())
 	{
