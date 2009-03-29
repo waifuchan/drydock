@@ -30,7 +30,6 @@
 
 {* Show filtering links *}
 
-{if $isthread == true}
 Filter by board: <select name="board">
 <option value="" onclick="window.location='window.location='recentposts.php'">All boards</option>
 {foreach from=$boards item=board}
@@ -63,7 +62,7 @@ Filter by board: <select name="board">
 			
 				{if $thisimage.reply_board > 0}
 
-					{assign var=boardz value=`{$boards[$thisimage.reply_board].folder}`} {* for brevity's sake *}
+					{assign var=boardz value=$boards[$thisimage.reply_board].folder} {* for brevity's sake *}
 
 					{if $boardz != false}
 						/{$boardz}/
@@ -71,7 +70,7 @@ Filter by board: <select name="board">
 
 					<a 
 					{if $THuserewrite == true}
-						href="{$THurl}board={$boardz}/edit/$thisimage.reply_globalid"
+						href="{$THurl}{$boardz}/edit/$thisimage.reply_globalid"
 					{else} 
 						href="{$THurl}editpost.php?board={$boardz}&post=$thisimage.reply_globalid"
 					{/if}
@@ -79,7 +78,7 @@ Filter by board: <select name="board">
 					
 					{* Show quick-moderation panel *}
 					[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$thisimage.reply_id}'))'">Quickmod</a>]
-					<span id="quickmod{$thisimage.reply_id}" style="hidden" class="modblock">
+					<div id="quickmod{$thisimage.reply_id}" style="display: none;" class="modblock">
 						<form target="_blank" action="misc.php" method="POST">
 							<input type="hidden" name="board" value="{$boardz}" />
 							<input type="hidden" name="post" value="{$thisimage.reply_globalid}" />
@@ -89,7 +88,7 @@ Filter by board: <select name="board">
 							<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
 							<input type="submit" name="quickmod" value="quickmod">
 						</form>
-					</span>
+					</div>
 					
 				{else} {* No board found.  Weird. *}
 					No board (UID {$thisimage.reply_id})
@@ -99,23 +98,23 @@ Filter by board: <select name="board">
 			
 				{if $thisimage.thread_board > 0}
 
-					{assign var=boardz value=`{$boards[$thisimage.thread_board].folder}`} {* for brevity's sake *}
+					{assign var=boardz value=$boards[$thisimage.thread_board].folder} {* for brevity's sake *}
 
 					{if $boardz != false}
 						/{$boardz}/
 					{/if}
 
-					<a 
+					
 					{if $THuserewrite == true}
-						href="{$THurl}board={$boardz}/edit/{$thisimage.thread_globalid}"
+						<a href="{$THurl}{$boardz}/edit/{$thisimage.thread_globalid}">Edit</a>]
 					{else} 
-						href="{$THurl}editpost.php?board={$boardz}&post={$thisimage.thread_globalid}"
+						<a href="{$THurl}editpost.php?board={$boardz}&post={$thisimage.thread_globalid}">Edit</a>]
 					{/if}
-					>edit</a>]
+					
 					
 					{* Show quick-moderation panel *}
 					[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$thisimage.thread_id}'))">Quickmod</a>]
-					<span id="quickmod{$thisimage.thread_id}" style="hidden" class="modblock">
+					<div id="quickmod{$thisimage.thread_id}" style="display: none;" class="modblock">
 						<form target="_blank" action="misc.php" method="POST">
 							<input type="hidden" name="board" value="{$boardz}" />
 							<input type="hidden" name="post" value="{$thisimage.thread_globalid}" />
@@ -125,7 +124,7 @@ Filter by board: <select name="board">
 							<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
 							<input type="submit" name="quickmod" value="quickmod">
 						</form>
-					</span>
+					</div>
 					
 				{else} {* No board found.  Weird. *}
 					No board (UID {$thisimage.thread_id})

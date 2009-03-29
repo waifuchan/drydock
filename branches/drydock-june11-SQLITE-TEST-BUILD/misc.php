@@ -255,10 +255,10 @@
 			else
 			{			
 				$found_post = -1;
-				
+
 				foreach(array_keys($_POST) as $entry)
 				{
-					if(preg_match('/^chkpost\d+$/', $entry ) && $_POST['entry'] != 0 )
+					if(preg_match('/^chkpost\d+$/', $entry ) && $_POST[$entry] != 0 )
 					{
 						// strip out the leading "chkpost" and set the integer value to $found_post
 						$found_post = intval(preg_replace('/^chkpost/', '', $entry ));

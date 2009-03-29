@@ -45,7 +45,7 @@
 	// First check if we even have the params we need
 	if (!isset ($_GET['post']) || !isset ($_GET['board']))
 	{
-		THdie("No thread and/or board parameter, nothing to do!");
+		THdie("No post and/or board parameter, nothing to do!");
 	}
 	
 	// Get the board ID.

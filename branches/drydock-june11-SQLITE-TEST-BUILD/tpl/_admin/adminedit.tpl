@@ -13,6 +13,7 @@
             p.{$postid}</a> in thread {$threadid} in /{$boardname}/
         </div>
         
+    <form action="{$THurl}editpost.php?board={$boardname}&post={$postid}" method="POST">
 	<table width="80%"><tbody>
 	
 		<tr>

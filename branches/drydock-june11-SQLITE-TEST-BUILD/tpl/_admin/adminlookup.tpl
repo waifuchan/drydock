@@ -51,25 +51,25 @@ IP:
 					Post {$post.globalid} in thread {$post.thread_globalid} on /{$boardz}/
 					
 					{if $THuserewrite == true}
-						[<a href="{$THurl}{$boardz}/thread/{$post.thread_globalid}#{$post.globalid}">thread</a>]
+						[<a href="{$THurl}{$boardz}/thread/{$post.thread_globalid}#{$post.globalid}">Thread</a>]
 					{else} 
-						[<a href="{$THurl}drydock.php?b='{$boardz}&i={$post.thread_globalid}#{$post.globalid}">thread</a>]
+						[<a href="{$THurl}drydock.php?b={$boardz}&i={$post.thread_globalid}#{$post.globalid}">Thread</a>]
 					{/if}
 				{else} {* No board found, weird *}		
-					Post {$post.globalid} in [<a href="{$THurl}drydock.php?t=$post.thread">thread</a>]				
+					Post {$post.globalid} in [<a href="{$THurl}drydock.php?t=$post.thread">Thread</a>]				
 				{/if}			
 			{else} 
 				{* thread *}
 				{if $post.id != 0 }
 					Post {$post.globalid} in /{$boardz}/
 					{if $THuserewrite == true}
-						[<a href="{$THurl}{$boardz}/thread/{$post.globalid}">thread</a>]
+						[<a href="{$THurl}{$boardz}/thread/{$post.globalid}">Thread</a>]
 					{else} 
-						[<a href="{$THurl}drydock.php?b='{$boardz}&i={$post.globalid}">thread</a>]
+						[<a href="{$THurl}drydock.php?b={$boardz}&i={$post.globalid}">Thread</a>]
 					{/if}
 					
 				{else}
-					[thread]
+					[Thread]
 				{/if}			
 			{/if}
 			
@@ -269,9 +269,9 @@ IP:
 		{foreach from=$banhistory item=ban}
 					<tr>
 						<td>
-							<a href="{$THurl}admin.php?a=x&banselect={$ban.id}">{$ban.ip_octet1}.{$ban.ip_octet2}.
+							{$ban.ip_octet1}.{$ban.ip_octet2}.
 							{if $ban.ip_octet3=="-1"}*{else}{$ban.ip_octet3}{/if}.
-							{if $ban.ip_octet4=="-1"}*{else}{$ban.ip_octet4}{/if}</a>
+							{if $ban.ip_octet4=="-1"}*{else}{$ban.ip_octet4}{/if}
 						</td>
 						<td>
 							{$ban.privatereason}

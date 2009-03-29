@@ -91,7 +91,7 @@
     {if $posts!=null}
 		{foreach from=$posts item=post}
 			<table>
-			{assign var=boardz value=`{$boards[$post.board].folder}`} {* for brevity's sake *}
+			{assign var=boardz value=$boards[$post.board].folder} {* for brevity's sake *}
 						
 			{* Link to thread *}
 			{if $post.thread != 0} {* This is a reply *}	
@@ -99,40 +99,39 @@
 					Post {$post.globalid} in thread {$post.thread_globalid} on /{$boardz}/
 					
 					{if $THuserewrite == true}
-						[<a href="{$THurl}{$boardz}/thread/{$post.thread_globalid}#{$post.globalid}">thread</a>]
+						[<a href="{$THurl}{$boardz}/thread/{$post.thread_globalid}#{$post.globalid}">Thread</a>]
 					{else} 
-						[<a href="{$THurl}drydock.php?b='{$boardz}&i={$post.thread_globalid}#{$post.globalid}">thread</a>]
+						[<a href="{$THurl}drydock.php?b={$boardz}&i={$post.thread_globalid}#{$post.globalid}">Thread</a>]
 					{/if}
 				{else} {* No board found, weird *}		
-					Post {$post.globalid} in [<a href="{$THurl}drydock.php?t=$post.thread">thread</a>]				
+					Post {$post.globalid} in [<a href="{$THurl}drydock.php?t={$post.thread}">Thread</a>]				
 				{/if}			
 			{else} 
 				{* thread *}
 				{if $post.id != 0 } 
 					Post {$post.globalid} in /{$boardz}/ 
 					{if $THuserewrite == true}
-						[<a href="{$THurl}{$boardz}/thread/{$post.globalid}">thread</a>]
+						[<a href="{$THurl}{$boardz}/thread/{$post.globalid}">Thread</a>]
 					{else} 
-						[<a href="{$THurl}drydock.php?b='{$boardz}&i={$post.globalid}">thread</a>]
+						[<a href="{$THurl}drydock.php?b={$boardz}&i={$post.globalid}">Thread</a>]
 					{/if}
-					
 				{else}
-					[thread]
+					[Thread]
 				{/if}			
 			{/if}
 			
 			{* Show edit link *}
-			<a 
+			 
 			{if $THuserewrite == true}
-				href="{$THurl}board={$boardz}/edit/{$post.globalid}"
+				[<a href="{$THurl}{$boardz}/edit/{$post.globalid}">Edit</a>]
 			{else} 
-				href="{$THurl}editpost.php?board={$boardz}&post={$post.globalid}"
+				[<a href="{$THurl}editpost.php?board={$boardz}&post={$post.globalid}">Edit</a>]
 			{/if}
-			>edit</a>]
+			
 			
 			{* Show quick-moderation panel *}
 			[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$post.id}'))">Quickmod</a>]
-			<span id="quickmod{$post.id}" style="hidden" class="modblock">
+			<div id="quickmod{$post.id}" style="display: none;" class="modblock">
 				<form target="_blank" action="misc.php" method="POST">
 					<input type="hidden" name="board" value="{$boardz}" />
 					<input type="hidden" name="post" value="{$post.globalid}" />
@@ -142,7 +141,7 @@
 					<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
 					<input type="submit" name="quickmod" value="quickmod">
 				</form>
-			</span>
+			</div>
 			
 			{* Mark if a post has already been moderated *}
 			{if $post.unvisibletime != 0}

@@ -107,6 +107,7 @@ else
 	// DB abstraction is amazing.
 	$posts=array();
 	$posts = $db->getposts($beginning, $isthread, $boardid, $showhidden);
+	
 	usort($posts, 'comp_post_ids'); // THIS SHOULD WORK?
 		
 	// Add images to each post

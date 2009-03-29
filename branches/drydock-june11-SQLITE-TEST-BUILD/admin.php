@@ -57,6 +57,8 @@
 	
 	require_once("config.php");
 	require_once("common.php");
+	require_once("rebuilds.php");
+	
 	checkadmin(); //make sure the person trying to access this file is allowed to
 	//var_dump($_POST);
 	$db=new ThornModDBI();
@@ -616,7 +618,7 @@
 	}
 	elseif ($_GET['t']=="bl") //Update (add) blotter
 	{		
-		$db->insertBCW(THbcw_blotter, $_POST['post'], $_POST['postto']);
+		$db->insertBCW(THbcw_blotter, $_POST['post'], $_POST['postto'] );
 		
 		$actionstring = "Blotter post";
 		writelog($actionstring,"admin");
@@ -943,6 +945,7 @@
 		}
 		
 		rebuild_filters();
+		
 		header("Location: ".THurl."admin.php?a=w");
 	}
 	elseif ($_GET['t']=="au") // Manually add user

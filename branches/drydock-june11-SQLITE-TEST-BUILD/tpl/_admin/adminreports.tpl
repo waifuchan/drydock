@@ -30,48 +30,48 @@ Filter by board:
     {if $reports!=null}
 		{foreach from=$reports item=report}
 			<table>
-			{assign var=boardz value=`{$boards[$report.board].folder}`} {* for brevity's sake *}
-						
+			{assign var=boardz value=$boards[$report.board].folder} {* for brevity's sake *}
+									
 			{* Link to thread *}
 			{if $report.post.thread != 0} {* This is a reply *}	
 				{if $boardz != false }				
 					Post {$report.postid} in thread {$report.post.thread_globalid} on /{$boardz}/
 					
 					{if $THuserewrite == true}
-						[<a href="{$THurl}{$boardz}/thread/{$report.post.thread_globalid}#{$report.post.globalid}">thread</a>]
+						[<a href="{$THurl}{$boardz}/thread/{$report.post.thread_globalid}#{$report.post.globalid}">Thread</a>]
 					{else} 
-						[<a href="{$THurl}drydock.php?b='{$boardz}&i={$report.post.thread_globalid}#{$report.post.globalid}">thread</a>]
+						[<a href="{$THurl}drydock.php?b={$boardz}&i={$report.post.thread_globalid}#{$report.post.globalid}">Thread</a>]
 					{/if}
 				{else} {* No board found, weird *}		
-					Post {$report.post.globalid} in [<a href="{$THurl}drydock.php?t=$report.post.thread">thread</a>]				
+					Post {$report.post.globalid} in [<a href="{$THurl}drydock.php?t={$report.post.thread}">Thread</a>]				
 				{/if}			
 			{else} 
 				{* thread *}
 				{if $report.post.id != 0 } 
 					Post {$report.post.globalid} in /{$boardz}/ 
 					{if $THuserewrite == true}
-						[<a href="{$THurl}{$boardz}/thread/{$report.post.globalid}">thread</a>]
+						[<a href="{$THurl}{$boardz}/thread/{$report.post.globalid}">Thread</a>]
 					{else} 
-						[<a href="{$THurl}drydock.php?b='{$boardz}&i={$report.post.globalid}">thread</a>]
+						[<a href="{$THurl}drydock.php?b={$boardz}&i={$report.post.globalid}">Thread</a>]
 					{/if}
 					
 				{else}
-					[thread]
+					[Thread]
 				{/if}			
 			{/if}
 			
 			{* Show edit link *}
-			<a 
+			
 			{if $THuserewrite == true}
-				href="{$THurl}board={$boardz}/edit/{$report.post.globalid}"
+				[<a href="{$THurl}{$boardz}/edit/{$report.post.globalid}">Edit</a>]
 			{else} 
-				href="{$THurl}editpost.php?board={$boardz}&post={$report.post.globalid}"
+				[<a href="{$THurl}editpost.php?board={$boardz}&post={$report.post.globalid}">Edit</a>]
 			{/if}
-			>edit</a>]
+			
 			
 			{* Show quick-moderation panel *}
 			[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$report.post.id}'))">Quickmod</a>]
-			<span id="quickmod{$report.post.id}" style="hidden" class="modblock">
+			<div id="quickmod{$report.post.id}" style="hidden" class="modblock">
 				<form target="_blank" action="misc.php" method="POST">
 					<input type="hidden" name="board" value="{$boardz}" />
 					<input type="hidden" name="post" value="{$report.post.globalid}" />
@@ -81,7 +81,7 @@ Filter by board:
 					<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
 					<input type="submit" name="quickmod" value="quickmod">
 				</form>
-			</span>
+			</div>
 			
 			{* Mark if a post has already been moderated - shouldn't happen but let's cover the bases *}
 			{if $report.post.unvisibletime != 0}

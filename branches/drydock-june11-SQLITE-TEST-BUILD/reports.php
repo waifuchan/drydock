@@ -62,6 +62,7 @@ else
 		
 		// Round off report information
 		$report['category'] = round($report['avg_category']);
+		
 	}
 	
 	// Get the boards array, to show a list for filtering

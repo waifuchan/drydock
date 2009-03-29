@@ -211,6 +211,9 @@ class ThornModDBI extends ThornDBI
 			
 			// Retrieve these for report updating at the end
 			$reply_ids = $this->myarray("select globalid from " . THreplies_table . " where thread=". $id);
+					
+			if($reply_ids == null)
+				$reply_ids = array();
 						
 			// Make an array of image indexes, starting with the replies (because then we can just optionally
 			// add on the thread OP's imgidx at the end, instead of having to jump through hoops like before)
