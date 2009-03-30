@@ -87,10 +87,11 @@
 <hr>
 	
 {* Show posts *}
-    <div align="center">
+    <div>
     {if $posts!=null}
 		{foreach from=$posts item=post}
 			<table>
+			<tr><td>
 			{assign var=boardz value=$boards[$post.board].folder} {* for brevity's sake *}
 						
 			{* Link to thread *}
@@ -119,20 +120,22 @@
 					[Thread]
 				{/if}			
 			{/if}
+			</td>
 			
 			{* Show edit link *}
-			 
+			<td> 
 			{if $THuserewrite == true}
 				[<a href="{$THurl}{$boardz}/edit/{$post.globalid}">Edit</a>]
 			{else} 
 				[<a href="{$THurl}editpost.php?board={$boardz}&post={$post.globalid}">Edit</a>]
 			{/if}
-			
+			</td>
 			
 			{* Show quick-moderation panel *}
+			<td>
+			<form target="_blank" action="misc.php" method="POST">
 			[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$post.id}'))">Quickmod</a>]
-			<div id="quickmod{$post.id}" style="display: none;" class="modblock">
-				<form target="_blank" action="misc.php" method="POST">
+			<span id="quickmod{$post.id}" style="display: none;" class="modblock">
 					<input type="hidden" name="board" value="{$boardz}" />
 					<input type="hidden" name="post" value="{$post.globalid}" />
 					<input type="checkbox" name="doban" value="1"> Ban poster<br>
@@ -140,15 +143,18 @@
 					Duration: <input type="text" name="duration" value="0"><br>
 					<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
 					<input type="submit" name="quickmod" value="quickmod">
-				</form>
-			</div>
+			</span>
+			</form>
 			
 			{* Mark if a post has already been moderated *}
 			{if $post.unvisibletime != 0}
-			&nbsp;<i><b>Previously moderated</b></i>
+			<i><b>Previously moderated</b></i>
 			{/if}
 			
-			<br>
+			</td>
+			</tr>
+			
+			<tr><td>
 			
 			{* Show stuff like name, link field, etc *}
 			

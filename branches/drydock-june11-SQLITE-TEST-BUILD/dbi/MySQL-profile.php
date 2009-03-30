@@ -48,7 +48,7 @@ class ThornProfileDBI extends ThornDBI
 
 	function getuserlist()
 	{
-		return $this->mymultiarray("SELECT * FROM " . THusers_table);
+		return $this->mymultiarray("SELECT * FROM " . THusers_table . " WHERE approved=1");
 	}
 
 	function getusercapcode($capcode)
@@ -77,7 +77,7 @@ class ThornProfileDBI extends ThornDBI
 				"INSERT INTO " . THusers_table . 
 				"(username, password, userlevel, email, approved) VALUES ('" .
 				$this->escape_string($username) . "','" . 
-				$this->escape_string(THsecret_salt.$password) . "'," . 
+				$this->escape_string(md5(THsecret_salt.$password)) . "'," . 
 				intval($userlevel) . ",'" . 
 				$this->escape_string($email) . "',".
 				intval($approved).")"
@@ -146,7 +146,7 @@ class ThornProfileDBI extends ThornDBI
 
 	function suspenduser($username)
 	{
-		$this>myquery("UPDATE " . THusers_table . " SET approved = '-2' WHERE username='" . $this->escape_string($username) . "'");
+		$this->myquery("UPDATE " . THusers_table . " SET approved = '-2' WHERE username='" . $this->escape_string($username) . "'");
 	}
 
 	function userexists($username)

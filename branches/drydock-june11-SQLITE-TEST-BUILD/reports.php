@@ -26,6 +26,7 @@ else
 	$board_folder = trim($_GET['board']); //trim the board name from get
 	$boardid = 0;
 	$reports = array();
+	$processed_reports = array();
 
 	if($board_folder && $db->getboardnumber($board_folder) )
 	{
@@ -63,6 +64,7 @@ else
 		// Round off report information
 		$report['category'] = round($report['avg_category']);
 		
+		$processed_reports[] = $report;
 	}
 	
 	// Get the boards array, to show a list for filtering
@@ -71,8 +73,11 @@ else
 
 	$sm=sminit("adminreports",null,"_admin",true); // Admin mode means NO caching. (and we provided a null id anyway)
 	
+	$sm->debugging = true; // debug for now
+	$sm->debug_tpl = THpath."_Smarty/debug.tpl";
+	
 	// These can be pretty big, so we're going to assign by reference.
-	$sm->assign_by_ref("reports",$reports);
+	$sm->assign_by_ref("reports",$processed_reports);
 	$sm->assign_by_ref("boards",$boards);
 	
 	$sm->assign("board_folder", $board_folder); // name of the folder (for filtering)

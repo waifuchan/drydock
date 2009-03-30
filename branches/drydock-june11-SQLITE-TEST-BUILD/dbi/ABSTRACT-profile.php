@@ -58,7 +58,8 @@ interface absThornProfileDBI
 	function updateuser($username, $id);
 
 	/**
-	 * Retrieve a list of all the users
+	 * Retrieve a list of all the users whose approval status is equal to 1
+	 * (i.e. approved, not banned)
 	 * 
 	 * @return array An array of assoc-arrays containg individual users
 	 */

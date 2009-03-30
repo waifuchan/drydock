@@ -30,21 +30,21 @@ class ThornToolsDBI extends ThornDBI
 			$querystring = "SELECT 
 				COUNT(*)
 			FROM 
-				images 
+				".THimages_table." 
 			LEFT OUTER JOIN 
-    			threads 
+    			".THthreads_table." 
 			ON 
-				images.id = threads.imgidx
+				".THimages_table.".id = ".THthreads_table.".imgidx
 			LEFT OUTER JOIN 
-    			replies 
+    			".THreplies_table."  
 			ON
-				images.id = replies.imgidx
+				".THimages_table.".id = ".THreplies_table.".imgidx
 			WHERE 
-				threads.board = ".intval($board)." || replies.board = ".intval($board);
+				".THthreads_table." .board = ".intval($board)." || ".THreplies_table.".board = ".intval($board);
 		}
 		else
 		{
-			$querystring = "SELECT COUNT(*) FROM images WHERE 1";			
+			$querystring = "SELECT COUNT(*) FROM ".THimages_table." WHERE 1";			
 		}
 		
 		return $this->myresult($querystring);		
@@ -97,53 +97,55 @@ class ThornToolsDBI extends ThornDBI
 		if( $board > 0 )
 		{
 			$querystring = "SELECT 
-				images.*,
-				threads.board AS thread_board,
-				threads.id AS thread_id,
-				threads.globalid AS thread_globalid,
-				replies.board AS reply_board,
-				replies.id AS reply_id,
-				replies.globalid AS reply_globalid
+				".THimages_table.".*,
+				".THthreads_table.".board AS thread_board,
+				".THthreads_table.".id AS thread_id,
+				".THthreads_table.".globalid AS thread_globalid,
+				".THreplies_table.".board AS reply_board,
+				".THreplies_table.".id AS reply_id,
+				".THreplies_table.".globalid AS reply_globalid
 			FROM 
-				images 
+				".THimages_table." 
 			LEFT OUTER JOIN 
-    			threads 
+    			".THthreads_table." 
 			ON 
-				images.id = threads.imgidx
+				".THimages_table.".id = ".THthreads_table.".imgidx
 			LEFT OUTER JOIN 
-    			replies 
+    			".THreplies_table." 
 			ON
-				images.id = replies.imgidx
+				".THimages_table.".id = ".THreplies_table.".imgidx
 			WHERE 
-				threads.board = ".intval($board)." || replies.board = ".intval($board)."
+				".THthreads_table.".board = ".intval($board)." OR ".THreplies_table.".board = ".intval($board)."
 			ORDER BY 
 				id ASC LIMIT ".intval($offset).", 40;";
 		}
 		else
 		{
 			$querystring = "SELECT 
-				images.*,
-				threads.board AS thread_board,
-				threads.id AS thread_id,
-				threads.globalid AS thread_globalid,
-				replies.board AS reply_board,
-				replies.id AS reply_id,
-				replies.globalid AS reply_globalid
+				".THimages_table.".*,
+				".THthreads_table.".board AS thread_board,
+				".THthreads_table.".id AS thread_id,
+				".THthreads_table.".globalid AS thread_globalid,
+				".THreplies_table.".board AS reply_board,
+				".THreplies_table.".id AS reply_id,
+				".THreplies_table.".globalid AS reply_globalid
 			FROM 
-				images 
+				".THimages_table." 
 			LEFT OUTER JOIN 
-    			threads 
+    			".THthreads_table." 
 			ON 
-				images.id = threads.imgidx
+				".THimages_table.".id = ".THthreads_table.".imgidx
 			LEFT OUTER JOIN 
-    			replies 
+    			".THreplies_table." 
 			ON
-				images.id = replies.imgidx
+				".THimages_table.".id = ".THreplies_table.".imgidx
 			WHERE 
 				1
 			ORDER BY 
 				id ASC LIMIT ".intval($offset).", 40;";			
 		}
+		
+		echo $querystring;
 		
 		return $this->mymultiarray($querystring);
 	}
@@ -163,11 +165,11 @@ class ThornToolsDBI extends ThornDBI
 		{
 			if( $boardquery == "" )
 			{
-				$boardquery = "hidden = 0";
+				$boardquery = "visible = 1";
 			}
 			else
 			{
-				$boardquery .= ",hidden = 0";
+				$boardquery .= ",visible = 1";
 			}
 		}
 			

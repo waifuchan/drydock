@@ -42,16 +42,16 @@ Filter by board: <select name="board">
 <hr>
 	
 {* Show pictures *}
-<div align="center">
+<div style="align: center;">
 {if $imgs!=null}
 	<table BORDER="0" CELLPADDING="5"><tr>
 	{counter name="imgcount" assign="imgcount" start="0"} {* start a new table row after every 5th picture *}
-	{foreach from=$imgs item=thisimg}
+	{foreach from=$imgs item=thisimage}
 		{if ($imgcount mod 5 == 4)}</tr><tr>{/if}
 		<td>
-			<a class=info href="images/{$thisimage.id}/{$thisimage.name}">
+			<a class="info" href="{$THurl}images/{$thisimage.id}/{$thisimage.name}">
 			{if $thisimage.hash != "deleted" }
-				<img src="images/{$thisimage.id}/{$thisimage.tname}" border=0>
+				<img src="{$THurl}images/{$thisimage.id}/{$thisimage.tname}" border=0 />
 			{else}
 				<img src="{$THurl}static/file_deleted.png" alt="File Deleted" border=0 />
 			{/if}
@@ -68,18 +68,16 @@ Filter by board: <select name="board">
 						/{$boardz}/
 					{/if}
 
-					<a 
 					{if $THuserewrite == true}
-						href="{$THurl}{$boardz}/edit/$thisimage.reply_globalid"
+						[<a href="{$THurl}{$boardz}/edit/$thisimage.reply_globalid">Edit</a>]
 					{else} 
-						href="{$THurl}editpost.php?board={$boardz}&post=$thisimage.reply_globalid"
+						[<a href="{$THurl}editpost.php?board={$boardz}&post=$thisimage.reply_globalid">Edit</a>]
 					{/if}
-					>edit</a>]
-					
+										
 					{* Show quick-moderation panel *}
 					[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$thisimage.reply_id}'))'">Quickmod</a>]
-					<div id="quickmod{$thisimage.reply_id}" style="display: none;" class="modblock">
-						<form target="_blank" action="misc.php" method="POST">
+					<form target="_blank" action="misc.php" method="POST">
+					<span id="quickmod{$thisimage.reply_id}" style="display: none;" class="modblock">
 							<input type="hidden" name="board" value="{$boardz}" />
 							<input type="hidden" name="post" value="{$thisimage.reply_globalid}" />
 							<input type="checkbox" name="doban" value="1"> Ban poster<br>
@@ -87,8 +85,8 @@ Filter by board: <select name="board">
 							Duration: <input type="text" name="duration" value="0"><br>
 							<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
 							<input type="submit" name="quickmod" value="quickmod">
-						</form>
-					</div>
+					</span>
+					</form>
 					
 				{else} {* No board found.  Weird. *}
 					No board (UID {$thisimage.reply_id})
@@ -103,19 +101,18 @@ Filter by board: <select name="board">
 					{if $boardz != false}
 						/{$boardz}/
 					{/if}
-
 					
 					{if $THuserewrite == true}
-						<a href="{$THurl}{$boardz}/edit/{$thisimage.thread_globalid}">Edit</a>]
+						[<a href="{$THurl}{$boardz}/edit/{$thisimage.thread_globalid}">Edit</a>]
 					{else} 
-						<a href="{$THurl}editpost.php?board={$boardz}&post={$thisimage.thread_globalid}">Edit</a>]
+						[<a href="{$THurl}editpost.php?board={$boardz}&post={$thisimage.thread_globalid}">Edit</a>]
 					{/if}
 					
 					
 					{* Show quick-moderation panel *}
+					<form target="_blank" action="misc.php" method="POST">
 					[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$thisimage.thread_id}'))">Quickmod</a>]
-					<div id="quickmod{$thisimage.thread_id}" style="display: none;" class="modblock">
-						<form target="_blank" action="misc.php" method="POST">
+					<span id="quickmod{$thisimage.thread_id}" style="display: none;" class="modblock">
 							<input type="hidden" name="board" value="{$boardz}" />
 							<input type="hidden" name="post" value="{$thisimage.thread_globalid}" />
 							<input type="checkbox" name="doban" value="1"> Ban poster<br>
@@ -123,8 +120,8 @@ Filter by board: <select name="board">
 							Duration: <input type="text" name="duration" value="0"><br>
 							<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
 							<input type="submit" name="quickmod" value="quickmod">
-						</form>
-					</div>
+					</span>
+					</form>
 					
 				{else} {* No board found.  Weird. *}
 					No board (UID {$thisimage.thread_id})

@@ -23,16 +23,19 @@ Filter by board:
 {/foreach}		
 </select> {* Close off the select tag.  Heh.*}
 
-<hr>
+<hr />
 	
 {* Show posts *}
-    <div align="center">
+    <div style="align: center;">
     {if $reports!=null}
 		{foreach from=$reports item=report}
 			<table>
+			<tr>
+			
 			{assign var=boardz value=$boards[$report.board].folder} {* for brevity's sake *}
 									
 			{* Link to thread *}
+			<td>
 			{if $report.post.thread != 0} {* This is a reply *}	
 				{if $boardz != false }				
 					Post {$report.postid} in thread {$report.post.thread_globalid} on /{$boardz}/
@@ -59,20 +62,22 @@ Filter by board:
 					[Thread]
 				{/if}			
 			{/if}
+			</td>
 			
 			{* Show edit link *}
-			
+			<td>
 			{if $THuserewrite == true}
 				[<a href="{$THurl}{$boardz}/edit/{$report.post.globalid}">Edit</a>]
 			{else} 
 				[<a href="{$THurl}editpost.php?board={$boardz}&post={$report.post.globalid}">Edit</a>]
 			{/if}
-			
+			</td>
 			
 			{* Show quick-moderation panel *}
+			<td>
+			<form target="_blank" action="misc.php" method="post">
 			[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$report.post.id}'))">Quickmod</a>]
-			<div id="quickmod{$report.post.id}" style="hidden" class="modblock">
-				<form target="_blank" action="misc.php" method="POST">
+			<span id="quickmod{$report.post.id}" class="modblock">
 					<input type="hidden" name="board" value="{$boardz}" />
 					<input type="hidden" name="post" value="{$report.post.globalid}" />
 					<input type="checkbox" name="doban" value="1"> Ban poster<br>
@@ -80,18 +85,17 @@ Filter by board:
 					Duration: <input type="text" name="duration" value="0"><br>
 					<input type="checkbox" name="del" value="1"> Delete this post (requires admin)<br>
 					<input type="submit" name="quickmod" value="quickmod">
-				</form>
-			</div>
+			</span>
+			</form>
 			
 			{* Mark if a post has already been moderated - shouldn't happen but let's cover the bases *}
 			{if $report.post.unvisibletime != 0}
-			&nbsp;<i><b>Previously moderated</b></i>
+			<i><b>Previously moderated</b></i>
 			{/if}
 			
-			<br>
+			</td></tr>
 			
 			{* Show reporting info *}
-			<table>
 			<tr>
 				<td>
 					Average classification of report:
@@ -110,7 +114,6 @@ Filter by board:
 					First reported: {$report.earliest_report|date_format:$THdatetimestring}
 				</td>
 			</tr>
-			</table>
 			
 			{* Show stuff like name, link field, etc *}
 			

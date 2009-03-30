@@ -117,7 +117,7 @@ class Smarty
      *
      * @var string
      */
-    var $debug_tpl       =  '';
+    var $debug_tpl       =  'debug.tpl';
 
     /**
      * This determines if debugging is enable-able from the browser.

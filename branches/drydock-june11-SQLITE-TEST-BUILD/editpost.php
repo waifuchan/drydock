@@ -437,6 +437,9 @@
 	
 	$sm = sminit("adminedit", null, "_admin", true); // Admin mode means NO caching. (and we provided a null id anyway)
 	
+	$sm->debugging = true; // debug for now
+	$sm->debug_tpl = THpath."_Smarty/debug.tpl";
+	
 	// These can be pretty big, so we're going to assign by reference.
 	$sm->assign_by_ref("boards", $boards);
 	$sm->assign_by_ref("postarray", $postarray); // Contains all the post data

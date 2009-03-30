@@ -48,7 +48,7 @@ class ThornProfileDBI extends ThornDBI
 
 	function getuserlist()
 	{
-		return $this->mymultiarray("SELECT * FROM " . THusers_table);
+		return $this->mymultiarray("SELECT * FROM " . THusers_table . " WHERE approved=1");
 	}
 
 	function getusercapcode($capcode)

@@ -133,7 +133,7 @@ class ThornBoardDBI extends ThornDBI
 			{
 				$th['date'] = getdate($th['time']);
 			}
-			$th['images'] = $this->getimgs($th['imgidx']);
+			//$th['images'] = $this->getimgs($th['imgidx']);
 			$threads[] = $th;
 		}
 		//echo"<b>";var_dump($threads);echo"</b>";
@@ -236,7 +236,7 @@ class ThornBoardDBI extends ThornDBI
 				foreach ($thread_replies as $reply)
 				{
 					unset ($reply['ip']);
-					$reply['images'] = $this->getimgs($reply['imgidx']);
+					$reply['images'] = $this->getimgs( $reply['imgidx']);
 					$th['reps'][] = $reply;
 				}
 				$th['scount'] = count($th['reps']);
