@@ -50,7 +50,7 @@
 	}
 
 	$binfo=$db->getbinfo($db->getboardnumber($_POST['board']));
-	
+
 	// Die if the board doesn't exist.
 	if( $binfo == null )
 		die("Specified board does not exist.");
@@ -170,7 +170,7 @@
 	//hopefully this doesn't break it! -tyam
 	if ($_POST['todo']=="board")
 	{
-		if (THuserewrite) { $location = THurl.$board; } else { $location = THurl."drydock.php?b=$board"; }
+		if (THuserewrite) { $location = THurl.$_POST['board']; } else { $location = THurl."drydock.php?b=".$_POST['board']; }
 		header("Location: ".$location);
 	}
 	elseif ($_POST['todo']=="thread")
