@@ -204,9 +204,7 @@ IP:
 	        <table>
 	            <tr>
 	                <tr><td>
-	                    Ban is for: </td><td>{$singlecurban.ip_octet1}.{$singlecurban.ip_octet2}.
-						{if $ban.ip_octet3=="-1"}*{else}{$singlecurban.ip_octet3}{/if}.
-						{if $ban.ip_octet4=="-1"}*{else}{$singlecurban.ip_octet4}{/if}
+	                    Ban is for: </td><td>{$singlecurban.ip_octet1}.{$singlecurban.ip_octet2}.{if $ban.ip_octet3=="-1"}*{else}{$singlecurban.ip_octet3}{/if}.{if $ban.ip_octet4=="-1"}*{else}{$singlecurban.ip_octet4}{/if}
 	                </td></tr>
 	                <tr><td>
 	                    Public Reason</td><td>{$singlecurban.publicreason}
@@ -269,9 +267,7 @@ IP:
 		{foreach from=$banhistory item=ban}
 					<tr>
 						<td>
-							{$ban.ip_octet1}.{$ban.ip_octet2}.
-							{if $ban.ip_octet3=="-1"}*{else}{$ban.ip_octet3}{/if}.
-							{if $ban.ip_octet4=="-1"}*{else}{$ban.ip_octet4}{/if}
+							{$ban.ip_octet1}.{$ban.ip_octet2}.{if $ban.ip_octet3=="-1"}*{else}{$ban.ip_octet3}{/if}.{if $ban.ip_octet4=="-1"}*{else}{$ban.ip_octet4}{/if}
 						</td>
 						<td>
 							{$ban.privatereason}

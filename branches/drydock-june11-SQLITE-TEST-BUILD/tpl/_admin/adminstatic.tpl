@@ -29,6 +29,9 @@
                         	Visibility
                         </td>
                         <td>
+                        	Location
+                        </td>
+                        <td>
                             Edit?
                         </td>
                         <td>
@@ -53,6 +56,9 @@
                             {else}
                             Public
                             {/if}
+                        </td>
+                        <td>
+                        	<a href="misc.php?action=getpage&page={$page.name}">View</a>
                         </td>
                         <td>
 							<a href="admin.php?a=spe&id={$page.id}">Edit this page</a>
@@ -117,6 +123,14 @@
         				<option value="3" {if $single_page.publish == 3}selected{/if}>Public</option>
         				</select>
         			</td>
+        		</tr>
+        		<tr>
+        			<td>
+        			URL:
+        			</td>
+				    <td>
+	                	<a href="misc.php?action=getpage&page={$single_page.name}">misc.php?action=getpage&page={$single_page.name}</a>
+	                </td>
         		</tr>
         	</table>
         	Content:<br>

@@ -203,9 +203,9 @@ class ThornBoardDBI extends ThornDBI
 		$orderby .= " limit " . ($this->page * $this->binfo['perpg']) . "," . $this->binfo['perpg'];
 
 		$sthreads = array ();
-		$sthreads = $this->mymultiarray("select * from " . THthreads_table . " where board=" . $this->binfo['id'] . $orderby);
+		$result = $this->myquery("select * from " . THthreads_table . " where board=" . $this->binfo['id'] . $orderby);
 
-		foreach ($sthreads as $th)
+		while ($th = mysql_fetch_assoc($result)) 
 		{
 			unset ($th['ip']);
 			$th['images'] = $this->getimgs($th['imgidx']);
@@ -239,9 +239,10 @@ class ThornBoardDBI extends ThornDBI
 					$reply['images'] = $this->getimgs( $reply['imgidx']);
 					$th['reps'][] = $reply;
 				}
-				$th['scount'] = count($th['reps']);
+				$th['scount'] = count($th['reps']);			
 			}
-
+			
+			$sthreads[] = $th;
 			//var_dump($th);
 		}
 		return ($sthreads);
