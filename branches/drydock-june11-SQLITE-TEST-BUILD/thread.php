@@ -20,7 +20,7 @@
 		$_POST['subj'] (string for the post subject)
 		$_POST['link'] (string for the link field)
 		$_POST['nombre'] (string for the post name if forced_anon is off)
-		$_POST['board'] (string for the board folder)
+		$_POST['board'] (for the board id)
 		$_POST['password'] (string for post deletion)
 	
 		THINGS THAT MIGHT ALSO COME IN:
@@ -130,7 +130,7 @@
 	$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
 
 	$tnum=$db->putthread(
-		$usethese['nombre'],$usethese['trip'],$binfo['folder'],$_POST['subj'],
+		$usethese['nombre'],$usethese['trip'],$binfo['id'],$_POST['subj'],
 		$_POST['body'],$_POST['link'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage,
 		$_POST['password']);
 

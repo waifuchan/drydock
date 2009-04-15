@@ -26,10 +26,8 @@ class ThornPostDBI extends ThornDBI
 		return ($this->myassoc("select * from " . THthreads_table . " where id=" . intval($t)));
 	}
 
-	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password = "", $tyme = false)
+	function putthread($name, $tpass, $boardnumber, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password = "", $tyme = false)
 	{
-		$boardnumber = $this->getboardnumber($board);
-	
 		if ($tyme === false)
 		{
 			$tyme = time() + (THtimeoffset * 60);
@@ -89,10 +87,8 @@ class ThornPostDBI extends ThornDBI
 		return ($tnum);
 	}
 
-	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $password = "", $tyme = false)
+	function putpost($name, $tpass, $link, $boardnumber, $thread, $body, $ip, $mod, $password = "", $tyme = false)
 	{
-		$boardnumber = $this->getboardnumber($board);
-	
 		$q = "INSERT INTO " . THreplies_table . " (thread,board,body";
 		$v = " ) VALUES (" . $thread . ",'" . $boardnumber . "','";
 		$v .= $this->escape_string($body);
@@ -100,7 +96,7 @@ class ThornPostDBI extends ThornDBI
 		$bump = preg_match("/^(mailto:)?sage$/", $link); // sage check
 		
 		//FIX THE REST OF THIS QUERY
-		$glob = $this->getglobalid($board);
+		$glob = $this->getglobalid($boardnumber);
 		$q .= ",ip,bump,globalid";
 		$v .= "'," . $ip . "," . (int) $bump . "," . $glob;
 		if ($name != null)

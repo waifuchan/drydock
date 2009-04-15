@@ -26,10 +26,8 @@ class ThornPostDBI extends ThornDBI
 		return ($this->myassoc("select * from " . THthreads_table . " where id=" . intval($t)));
 	}
 
-	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password= "",$tyme = false)
+	function putthread($name, $tpass, $boardnumber, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password= "",$tyme = false)
 	{
-		$boardnumber = $this->getboardnumber($board);
-	
 		if ($tyme === false)
 		{
 			$tyme = time() + (THtimeoffset * 60);
@@ -86,10 +84,8 @@ class ThornPostDBI extends ThornDBI
 		return ($tnum);
 	}
 
-	function putpost($name, $tpass, $link, $board, $thread, $body, $ip, $mod, $password = "", $tyme = false)
+	function putpost($name, $tpass, $link, $boardnumber, $thread, $body, $ip, $mod, $password = "", $tyme = false)
 	{
-		$boardnumber = $this->getboardnumber($board);
-	
 		$q = "insert into " . THreplies_table . " set thread=" . $thread . ", board=" . $boardnumber . ", body='";
 		if ($boardnumber == THmodboard) //don't filter the mod board since it should be all locked up anyway
 		{
