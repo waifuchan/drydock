@@ -442,25 +442,25 @@ class ThornModDBI extends ThornDBI
 				. "', about='" . $this->escape_string($board['about']) 
 				. "', rules='" . $this->escape_string($board['rules'])
 				. "', boardlayout ='" . $this->escape_string($board['boardlayout'])
-				. "', perpg=" . $board['perpg'] 
-				. ", perth=" . $board['perth'] 
-				. ", allowedformats = ". $board['allowedformats']	
-				. ", tpix=" . $board['tpix'] 
-				. ", rpix=" . $board['rpix'] 
-				. ", tmax=" . $board['tmax'] 							
-				. ", thumbres=" . $board['thumbres']
-				. ", maxfilesize=" . $board['maxfilesize']
-				. ", maxres=" . $board['maxres']
-				. ", pixperpost=" . $board['pixperpost']	
-				. ", forced_anon=" . $board['forced_anon'] 
-				. ", customcss=" . $board['customcss'] 
-				. ", allowvids=" . $board['allowvids'] 
-				. ", filter=" . $board['filter']
-				. ", requireregistration=" . $board['requireregistration'] 
-				. ", hidden=" . $board['hidden'] 
-				. ", tlock=" . $board['tlock'] 
-				. ", rlock=" . $board['rlock'] 
-				. " where id=".$board['oldid'];
+				. "', perpg='" . $board['perpg'] 
+				. "', perth='" . $board['perth'] 
+				. "', allowedformats = '". $board['allowedformats']	
+				. "', tpix='" . $board['tpix'] 
+				. "', rpix='" . $board['rpix'] 
+				. "', tmax='" . $board['tmax'] 							
+				. "', thumbres='" . $board['thumbres']
+				. "', maxfilesize='" . $board['maxfilesize']
+				. "', maxres='" . $board['maxres']
+				. "', pixperpost='" . $board['pixperpost']	
+				. "', forced_anon='" . $board['forced_anon'] 
+				. "', customcss='" . $board['customcss'] 
+				. "', allowvids='" . $board['allowvids'] 
+				. "', filter='" . $board['filter']
+				. "', requireregistration='" . $board['requireregistration'] 
+				. "', hidden='" . $board['hidden'] 
+				. "', tlock='" . $board['tlock'] 
+				. "', rlock='" . $board['rlock'] 
+				. "' where id=".$board['oldid'];
 				
 			print_r($query);
 			$this->myquery($query);
