@@ -127,7 +127,7 @@
 	{
 		$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
 		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],
-			$binfo['id'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),
+			$binfo['folder'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),
 			$mod, $_POST['password']);
 		movefiles($goodfiles, $pnum, false, $binfo, $db);
 	}

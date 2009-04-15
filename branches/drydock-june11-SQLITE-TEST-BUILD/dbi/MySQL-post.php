@@ -28,13 +28,13 @@ class ThornPostDBI extends ThornDBI
 
 	function putthread($name, $tpass, $board, $title, $body, $link, $ip, $mod, $pin, $lock, $permasage, $password= "",$tyme = false)
 	{
-		$boardnumber = $this->getboardnumber($board); 
+		$boardnumber = $this->getboardnumber($board);
 	
 		if ($tyme === false)
 		{
 			$tyme = time() + (THtimeoffset * 60);
 		}
-		$q = "insert into " . THthreads_table . " set board='" . $this->getboardnumber($board) . "', title='" . $this->clean($title) . "', body='";
+		$q = "insert into " . THthreads_table . " set board='" . $boardnumber . "', title='" . $this->clean($title) . "', body='";
 		if ($boardnumber == THnewsboard || $boardnumber == THmodboard) //don't filter the news board nor the mod board
 		{
 			$q .= $this->escape_string($body);
@@ -44,7 +44,7 @@ class ThornPostDBI extends ThornDBI
 			$q .= $this->clean($body);
 		}
 		$q .= "', ip=" . $ip . ", pin=" . $pin . ", permasage=" . $permasage . ", lawk=" . $lock . ", time=" . $tyme . ", bump=" . $tyme;
-		$globalid = $this->getglobalid($board);
+		$globalid = $this->getglobalid($boardnumber);
 		$q .= ", globalid=" . $globalid;
 		if ($name != null)
 		{
@@ -70,7 +70,7 @@ class ThornPostDBI extends ThornDBI
 		}
 		
 		//echo($q.", time=".$tyme);
-		//echo $q;
+		echo $q;
 //		if ($link != null)
 //		{
 //			$q .= ", link='" . $this->clean($link) . "'";
@@ -82,7 +82,7 @@ class ThornPostDBI extends ThornDBI
 		}
 		smclearcache($boardnumber, -1, -1); // clear the cache for this board
 		$tnum = mysql_insert_id();
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board . "'") or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id='" . $boardnumber . "'") or THdie("DBpost");
 		return ($tnum);
 	}
 
@@ -103,7 +103,8 @@ class ThornPostDBI extends ThornDBI
 		$bump = preg_match("/^(mailto:)?sage$/", $link); // sage check
 		
 		$q .= "', ip=" . $ip . ", bump=" . (int) $bump;
-		$globalid = $this->getglobalid($board);
+		$globalid = $this->getglobalid($boardnumber);
+
 		$q .= ", globalid=" . $globalid;
 		if ($name != null)
 		{
@@ -131,7 +132,7 @@ class ThornPostDBI extends ThornDBI
 		{
 			$q .= ", password='" . $this->escape_string(md5(THsecret_salt.$password)) . "'";
 		}
-		//echo($q);
+		echo($q);
 		$this->myquery($q . ", time=" . $tyme) or THdie("DBpost");
 		//if ($board == THnewsboard) { buildnews(); }	
 		$pnum = mysql_insert_id();
@@ -139,7 +140,7 @@ class ThornPostDBI extends ThornDBI
 		{
 			$this->myquery("update " . THthreads_table . " set bump=" . $tyme . " where id=" . $thread . " and permasage = 0");
 		}
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board . "'") or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id='" . $boardnumber . "'") or THdie("DBpost");
 		smclearcache($boardnumber, -1, -1); // clear cache for the board
 		smclearcache($boardnumber, -1, $thread); // and for the thread
 		return ($pnum);
@@ -295,16 +296,16 @@ class ThornPostDBI extends ThornDBI
 	
 	function getglobalid($board)
 	{
-		$sql = "select globalid from " . THboards_table . " where folder='" . $this->escape_string($board)."'";
+		$sql = "select globalid from " . THboards_table . " where id='" . $board."'";
 		$globalid = $this->myresult($sql);
-		
+		echo $sql;
 		if( $globalid == null )
 		{
 			return null;
 		}
 		
 		$globalid++;
-		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where folder='" . $this->escape_string($board) . "'";
+		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where id='" . $board . "'";
 		$this->myquery($newsql);
 		return ($globalid);
 	}
@@ -314,8 +315,7 @@ class ThornPostDBI extends ThornDBI
 		$newboard = intval($newboard); // Save a bit of time
 		$id = intval($id);
 		
-		$destboard_name = $this->getboardname($newboard); // Get the new board name
-		$newthreadspot = $this->getglobalid($destboard_name);
+		$newthreadspot = $this->getglobalid($newboard);
 		$threadinfo = $this->gettinfo($id);
 		
 		if( $newthreadspot == null )

@@ -85,7 +85,7 @@ class ThornPostDBI extends ThornDBI
 		}
 		smclearcache($boardnumber, -1, -1); // clear the cache for this board
 		$tnum = sqlite_last_insert_rowid(THdblitefn); //help
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board ."'") or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id='" . $boardnumber ."'") or THdie("DBpost");
 		return ($tnum);
 	}
 
@@ -145,7 +145,7 @@ class ThornPostDBI extends ThornDBI
 		{
 			$this->myquery("update " . THthreads_table . " set bump=" . $tyme . " where id=" . $thread . " and permasage = 0");
 		}
-		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where folder='" . $board."'") or THdie("DBpost");
+		$this->myquery("update " . THboards_table . " set lasttime=" . $tyme . " where id='" . $boardnumber."'") or THdie("DBpost");
 		smclearcache($boardnumber, -1, -1); // clear cache for the board
 		smclearcache($boardnumber, -1, $thread); // and for the thread
 		return ($pnum);
@@ -306,7 +306,7 @@ class ThornPostDBI extends ThornDBI
 	
 	function getglobalid($board)
 	{
-		$sql = "select globalid from " . THboards_table . " where folder='" . $this->escape_string($board) ."'";
+		$sql = "select globalid from " . THboards_table . " where id='" . $board ."'";
 		$globalid = $this->myresult($sql);
 		
 		if( $globalid == null )
@@ -315,7 +315,7 @@ class ThornPostDBI extends ThornDBI
 		}
 		
 		$globalid++;
-		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where folder='" . $this->escape_string($board) ."'";
+		$newsql = "update " . THboards_table . " set globalid=" . $globalid . " where id='" . $board ."'";
 		$this->myquery($newsql);
 		return ($globalid);
 	}
