@@ -4,6 +4,7 @@
   * The most recent version of PHP 5 is suggested, as some PHP 5-only functions are used in certain sections of the code
   * MySQL 5 and, as of 0.3.0, SQLite are the only supported DBIs
   * The GD image library (typically part of PHP) is required to thumbnail images.
+  * The Smarty template engine is no longer included with drydock and must be downloaded separately 
 
 =Admin functions=
   * PHP with libcurl enabled is currently required to automate [http://wakaba.c3.cx/antispam/ the blacklisting of certain keywords].  However, placing URLs, one for each line, in a file named "spam.txt" in the /unlinked/ folder will achieve the same result.  One may even use both simultaneously, in case there are specific URLs that one wishes to block _in addition_ to those provided by WAHa.06x36.
