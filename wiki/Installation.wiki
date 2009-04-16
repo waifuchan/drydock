@@ -3,7 +3,7 @@
 
 =Pre installation checklist=
 Drydock has some important files that it uses in its default setup that you'll need to have installed and correctly configured in order to achieve the best results.
-   * Smarty template engine (http://smarty.net) - any version should work, but we have tested 2.6 builds (2.6.22 being the latest tested).  This is not currently included in the download packages (as of svn128).  Please unpack the Smarty files (internals/, plugins/, Config_File.php and others) to the _Smarty/ directory
+   * Smarty template engine (http://smarty.net) - any version should work, but we have tested 2.6 builds (2.6.22 being the latest tested).  This is not currently included in the download packages (as of svn128).  Please unpack the Smarty files (internals/, plugins/, Config_File.php and others) to the `_`Smarty/ directory
    * The newest version of PHP5 with GD enabled
    * The newest version of MySQL 5 or SQLite (_as of 0.3.0_)
    * Apache - IIS SHOULD work, but I do not do extensive testing or development on the machine here with IIS.  I know it runs stock Thorn code just fine once PHP is installed.  Windows machines must use C:/htdocs/drydock/ or similar layout using forward slashes instead of backward slashes. You must also be sure to have some way of preventing outside users from accessing the /unlinked/ folder (the provided .htaccess will do this for Apache)
