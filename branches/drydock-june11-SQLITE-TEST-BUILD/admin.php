@@ -696,11 +696,11 @@
 				}
 				
 				// String values
-				$updated_board['name'] = $_POST['name'.$oldid];
-				$updated_board['folder'] = $folder; // we already did the stuff above
+				$updated_board['name'] = replacequote($_POST['name'.$oldid]);
+				$updated_board['folder'] = replacequote($folder); // we already did the stuff above
 				$updated_board['about'] = strip_tags(replacequote($_POST['about'.$oldid]), 
 					'<i><b><u><strike><p><br><font><a><ul><ol><li><marquee>');
-				$updated_board['rules'] = $_POST['rules'.$oldid];
+				$updated_board['rules'] = replacequote($_POST['rules'.$oldid]);
 				$updated_board['boardlayout'] =$_POST['boardlayout'.$oldid];			
 					
 				// Integer values
@@ -729,10 +729,11 @@
 				$boards_to_update[] = $updated_board;
 								//var_dump($updated_board);echo "<hr>";
 								//var_dump($boards_to_update);
-				$db->updateboards($boards_to_update);
-				$actionstring = "Board edit\tid:".$boardnumber;
-				writelog($actionstring,"admin");
-				$location=THurl."admin.php?a=b&boardselect=".$folder;
+				//$db->updateboards($boards_to_update);
+				var_dump($boards_to_update); die();
+				//$actionstring = "Board edit\tid:".$boardnumber;
+				//writelog($actionstring,"admin");
+				//$location=THurl."admin.php?a=b&boardselect=".$folder;
 			}
 		}
 		else

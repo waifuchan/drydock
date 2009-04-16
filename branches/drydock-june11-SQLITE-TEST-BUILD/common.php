@@ -471,7 +471,7 @@
 	{
 		// ~simple and clean is the way that you're making me feel tonight~
 		// ^-- imagine tyam singing this while wearing a dress...
-		return str_replace("'", "&#039;", $filter);
+		return str_replace("\'", "&#039;", $filter);
 		// ...or a tank top
 
 		//oh hello i found this comment thanks diff ~tyam
