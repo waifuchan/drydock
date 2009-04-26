@@ -9,7 +9,7 @@
 {if $title == ""}
 <title>{$THname}</title>
 {else}
-<title>$title</title>
+<title>{$title}</title>
 {/if}
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 

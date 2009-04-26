@@ -682,8 +682,8 @@ class ThornModDBI extends ThornDBI
 		// Get the threads deleted so we can clear their caches!
 		$threads_deleted = array ();
 		$threads_deleted = $this->mymultiarray("SELECT id,globalid FROM " . THthreads_table . " WHERE board=" . intval($board) . " " .
-		"AND globalid IN (" . implode(",", $posts) . ") AND password=" .
-		$this->escape_string(md5(THsecret_salt . $password)) . " AND password IS NOT NULL");
+		"AND globalid IN (" . implode(",", $posts) . ") AND password='" .
+		$this->escape_string(md5(THsecret_salt . $password)) . "' AND password IS NOT NULL");
 
 		if ($threads_deleted != null && count($threads_deleted) > 0)
 		{
@@ -697,8 +697,8 @@ class ThornModDBI extends ThornDBI
 
 		$posts_deleted = array ();
 		$posts_deleted = $this->myarray("SELECT id FROM " . THreplies_table . " WHERE board=" . intval($board) . " " .
-		"AND globalid IN (" . implode(",", $posts) . ") AND password=" .
-		$this->escape_string(md5(THsecret_salt . $password)) . " AND password IS NOT NULL");
+		"AND globalid IN (" . implode(",", $posts) . ") AND password='" .
+		$this->escape_string(md5(THsecret_salt . $password)) . "' AND password IS NOT NULL");
 
 		if ($posts_deleted != null && count($posts_deleted) > 0)
 		{

@@ -201,7 +201,7 @@
 				
 				foreach(array_keys($_POST) as $entry)
 				{
-					if(preg_match('/^chkpost\d+$/', $entry ) && $_POST['entry'] != 0 )
+					if(preg_match('/^chkpost\d+$/', $entry ) && $_POST[$entry] != 0 )
 					{
 						// strip out the leading "chkpost" and add the id to the posts_to_delete array
 						$posts_to_delete[] = intval(preg_replace('/^chkpost/', '', $entry ));

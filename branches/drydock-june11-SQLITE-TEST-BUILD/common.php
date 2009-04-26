@@ -347,22 +347,25 @@
 	 */
 	function delimgs($badimgs)
 	{
-		//Delete these images
-		foreach ($badimgs as $bad)
+		if($badimgs != null)
 		{
-			$bad=(int)$bad;
-			if($bad!=0)
+			//Delete these images
+			foreach ($badimgs as $bad)
 			{
-				$pyath=THpath."images/".$bad."/";
-				$it=opendir($pyath);
-				while (($img=readdir($it))!==false)
+				$bad=(int)$bad;
+				if($bad!=0)
 				{
-					if ($img{0}!=".")
+					$pyath=THpath."images/".$bad."/";
+					$it=opendir($pyath);
+					while (($img=readdir($it))!==false)
 					{
-						unlink($pyath.$img);
+						if ($img{0}!=".")
+						{
+							unlink($pyath.$img);
+						}
 					}
+					rmdir($pyath);
 				}
-				rmdir($pyath);
 			}
 		}
 	}
