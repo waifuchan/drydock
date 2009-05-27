@@ -23,7 +23,7 @@ require_once ("common.php");
 //functions below are responsible for rebuilding certain files
 
 /**
- * Rebuild the cached capcodes file (in cache/capcodes.php)
+ * Rebuild the cached capcodes file (in unlinked/capcodes.php)
  */
 function rebuild_capcodes()
 {
@@ -39,7 +39,7 @@ function rebuild_capcodes()
 	}
 
 	// And write it to the cache file.
-	$fp_cache = fopen(THpath . "cache/capcodes.php", "w");
+	$fp_cache = fopen(THpath . "unlinked/capcodes.php", "w");
 	if ($fp_cache)
 	{
 		fprintf($fp_cache, "<?php\n" . '$capcodes' . " =\n");
@@ -48,7 +48,7 @@ function rebuild_capcodes()
 	}
 	else
 	{
-		die("Could not open cache/capcodes.php for writing!");
+		die("Could not open unlinked/capcodes.php for writing!");
 	}
 	fclose($fp_cache);
 
@@ -164,7 +164,7 @@ function rebuild_config($configpost)
 }
 
 /**
- * Rebuild the cached wordfilters file (in cache/filters.php)
+ * Rebuild the cached wordfilters file (in unlinked/filters.php)
  */
 function rebuild_filters()
 {
@@ -183,7 +183,7 @@ function rebuild_filters()
 	}
 
 	// And write it to the wordfilter cache file.
-	$fp_cache = fopen(THpath . "cache/filters.php", "w");
+	$fp_cache = fopen(THpath . "unlinked/filters.php", "w");
 	if ($fp_cache)
 	{
 		fprintf($fp_cache, "<?php\n" . '$to' . " =\n");
@@ -194,7 +194,7 @@ function rebuild_filters()
 	}
 	else
 	{
-		die("Could not open cache/filters.php for writing!");
+		die("Could not open unlinked/filters.php for writing!");
 	}
 	fclose($fp_cache);
 }
@@ -442,7 +442,7 @@ function rebuild_rss()
 }
 
 /**
- * Rebuild the cached spam blacklist file (in cache/blacklist.php).  This
+ * Rebuild the cached spam blacklist file (in unlinked/blacklist.php).  This
  * will take the items contained in unlinked/spam.txt (one URL a line format)
  * and possibly download Wakaba's anti-spam list as well, combining these two
  * elements into a single array of prohibited URLs
@@ -494,7 +494,7 @@ function rebuild_spamlist()
 		}
 	}
 	
-	$fp_cache = fopen(THpath . "cache/blacklist.php", "w");
+	$fp_cache = fopen(THpath . "unlinked/blacklist.php", "w");
 	if ($fp_cache)
 	{
 		fprintf($fp_cache, "<?php\n" . '$spamblacklist' . "=array(\n");

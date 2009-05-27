@@ -124,7 +124,7 @@
 	}
 	
 	include("version.php");  //for version infos
-	$path=str_replace("install.php", "", $_SERVER['SCRIPT_FILENAME']);
+	$path=dirname (__FILE__) . "/";
 	@header('Content-type: text/html; charset=utf-8');
 	if (function_exists("mb_internal_encoding")) {
 		//Unicode support :]
@@ -193,6 +193,13 @@ p.centertext {
 			The server (specifically the <b>user</b> that the http server runs as) needs to be able to read and write these.");
 	}
 
+	if(@!file_exists($path."_Smarty/Smarty.class.php"))
+	{
+		die("Smarty templating engine is either not present, or is in the wrong place.<br />
+			Please download the latest version of Smarty from <a href=\"http://smarty.net\" target=\"_top\">the Smarty homepage</a>.<br/>
+			Place the contents of smarty.zip/lib into ".$path."_Smarty/ (so you have something like _Smarty/Smarty.class.php and _Smarty/Smarty_Compiler.class.php) and try again.");
+	}
+
 ?>
 Welcome to the drydock image board script interactive setup.  Thank you for your choice to set sail with us.<br /><br />
 If you have not already done so, please read as much of the documentation as you can.  While we will not help you set up drydock on your own server (as in, we will not do it for you), we will be more than happy to answer any questions you might have.<br/><br/>
@@ -201,8 +208,36 @@ If you make a mistake, you'll likely get an error along with possible solutions 
 To continue, click the button below.
 <form method="post" enctype="multipart/form-data" action="install.php?p=1">
 <input type="submit" value="Continue">
+</form><?php } elseif($_GET['p']==1) { 
+
+	//Well, we've already been using $path, but let's go ahead and make sure we're good.
+	if ($path{strlen($path)-1}!="/") { $path.="/"; }
+	//In most cases, this will provide us with the desired output.
+	$url=str_replace("install.php", "", $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+	$url=str_replace("?".$_SERVER['QUERY_STRING'], "", $url);
+	if ($url{strlen($url)-1}!="/") { $url.="/"; }
+
+?>
+<div class="logo">location settings</div>
+<form method="post" enctype="multipart/form-data" action="install.php?p=2">
+The script will attempt to guess these values (in fact, it has already been using the assumed path) but often times you will need to adjust them.<br />
+<b>If these values are incorrect, the script will not function as expected.</b>
+If you are installing on a Windows system, forward slashes may not work (but they should).
+Be sure to double check these values before you continue.<br />
+Your image board file path (<b>with trailing slash</b>):<br />
+<input type="text" name="THpath" size="60" value="<?php echo $path; ?>" ><br />
+Your image board URL:<br />
+<input type="text" name="THurl" size="60" value="http://<?php echo $url; ?>" ><br />
+<input type="submit" value="Continue">
 </form>
-<?php } elseif($_GET['p']==1) { 
+
+<?php } elseif($_GET['p']==2) { 
+	//pass our current info on to the next page
+	$configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
+	$post = array('THurl' => $_POST['THurl'], 'THpath' => $_POST['THpath']);
+	$configarray = serialize($_POST);
+
+//var_dump($_POST);
 	//Prep our dbtypes from the dbi directory and shove them into an array for selection purposes
 	$sets=array();
 	$it=opendir("dbi/");
@@ -215,7 +250,7 @@ To continue, click the button below.
 	}
 	?>
 <div class="logo">database type</div>
-<form method="post" enctype="multipart/form-data" action="install.php?p=2">
+<form method="post" enctype="multipart/form-data" action="install.php?p=3">
 Database type <select name="THdbtype">
 <?php
 	//Output selection boxes
@@ -226,71 +261,26 @@ Database type <select name="THdbtype">
 	}
 ?>
 	</select>
+<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
 <br />
 <input type="submit" value="Continue">
 </form>
-<?php } elseif($_GET['p']==2) { 
+<?php } elseif($_GET['p']==3) { 
 
-	//Well, we've already been using $path, but let's go ahead and make sure we're good.
-	if ($path{strlen($path)-1}!="/") { $path.="/"; }
-	//In most cases, this will provide us with the desired output.
-	$url=str_replace("install.php", "", $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-	$url=str_replace("?".$_SERVER['QUERY_STRING'], "", $url);
-	if ($url{strlen($url)-1}!="/") { $url.="/"; }
-	$configarray = serialize($_POST);
-
-?>
-<div class="logo">location settings</div>
-<form method="post" enctype="multipart/form-data" action="install.php?p=3">
-The script will attempt to guess these values (in fact, it has already been using the assumed path) but often times you will need to adjust them.<br />
-<b>If these values are incorrect, the script will not function as expected.</b>
-If you are installing on a Windows system, forward slashes may not work (but they should).
-Be sure to double check these values before you continue.<br />
-Your image board file path (<b>with trailing slash</b>):<br />
-<input type="text" name="THpath" size="60" value="<?php echo $path; ?>" ><br />
-Your image board URL:<br />
-<input type="text" name="THurl" size="60" value="http://<?php echo $url; ?>" ><br />
-<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
-<input type="submit" value="Continue">
-</form>
-<?php } elseif($_GET['p']==3) {
+//var_dump($_POST);
 
 //pass our current info on to the next page
+//var_dump($_POST);
 $configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
-$post = array('THurl' => $_POST['THurl'], 'THpath' => $_POST['THpath']);
-$configarray = array_merge($post,$configarray);
-$configarray = serialize($configarray);
+$post = array('THdbtype' => $_POST['THdbtype']);
 
-?>
-<div class="logo">admin settings</div>
-<form method="post" enctype="multipart/form-data" action="install.php?p=4">
-In order to access the admin panel and do various moderation related tasks, you must set up a super user account.  This will be your main administrative account.<br/>
-	Admin name: <input type="text" name="adminname" size="12" /><br />
-	Admin pass: <input type="password" name="adminpass" size="12" /><br />
-	Verify pass: <input type="password" name="adminpassver" size="12" /><br />
-	<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
-<input type="submit" value="Continue">
-</form>
-<?php } elseif($_GET['p']==4) { 
-
-		if ($_POST['adminpassver'] == $_POST['adminpass']) {
-			if($_POST['adminpassver'] == "") {
-				die("Administrator password is not set.");
-			}
-		} else {
-			die("Passwords do not match.");
-		}
-
-//pass our current info on to the next page
-$configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
-$post = array('adminpass' => $_POST['adminpass'], 'adminname' => $_POST['adminname']);
 $configarray = array_merge($post,$configarray);
 $configarray = serialize($configarray);
 $check = unserialize($configarray);
 
 ?>
 <div class="logo">database settings</div>
-<form method="post" enctype="multipart/form-data" action="install.php?p=5">
+<form method="post" enctype="multipart/form-data" action="install.php?p=4">
 
 If you will be running more than one drydock installation, feel free to specify a different prefix.  Do not begin this with a number, include any weird characters, or any symbols other than underscores.<br /><br />
 Database prefix: <input type="text" name="THdbprefix" size="12" value="drydock_"/><br />
@@ -310,19 +300,56 @@ Database prefix: <input type="text" name="THdbprefix" size="12" value="drydock_"
 	<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
 <input type="submit" value="Continue">
 </form>
-<?php } elseif($_GET['p']==5) { 
-	if($_POST['THdbtype']=="MySQL") {
-		if ($_POST['THdbpass'] == $_POST['THdbpassver']) {
-			if($_POST['THdbpassver'] == "") {
+
+<?php } elseif($_GET['p']==4) {
+//var_dump($_POST);
+//pass our current info on to the next page
+$configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
+$post = array('THdbprefix' => $_POST['THdbprefix'], 'THdbserver' => $_POST['THdbserver'], 'THdbuser' => $_POST['THdbuser'], 'THdbpass' => $_POST['THdbpass'], 'THdbbase' => $_POST['THdbbase']);
+$configarray = array_merge($post,$configarray);
+$configarray = serialize($configarray);
+$check = unserialize($configarray);
+
+	if($check['THdbtype']=="MySQL")
+	{
+		if ($_POST['THdbpass'] == $_POST['THdbpassver'])
+		{
+			if($_POST['THdbpassver'] == "")
+			{
 				die("Database password is not set.  If your database user does not have a password, you can not install this script without disabling this check.  This is extremely unsecure.");
 			}
 		} else {
 			die("Passwords do not match.");
 		}
+		$link = @mysql_connect($_POST['THdbserver'], $_POST['THdbuser'],  $_POST['THdbpass']);
+		if (!$link) {
+		    die('Could not connect: ' . mysql_error() ."<br />Check your settings on the previous page.");
+		}
+		mysql_close($link);
 	}
+
+?>
+<div class="logo">admin settings</div>
+<form method="post" enctype="multipart/form-data" action="install.php?p=5">
+In order to access the admin panel and do various moderation related tasks, you must set up a super user account.  This will be your main administrative account.<br/>
+	Admin name: <input type="text" name="adminname" size="12" /><br />
+	Admin pass: <input type="password" name="adminpass" size="12" /><br />
+	Verify pass: <input type="password" name="adminpassver" size="12" /><br />
+	<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
+<input type="submit" value="Continue">
+</form>
+<?php } elseif($_GET['p']==5) { 
+//var_dump($_POST);
+		if ($_POST['adminpassver'] == $_POST['adminpass']) {
+			if($_POST['adminpassver'] == "") {
+				die("Administrator password is not set.");
+			}
+		} else {
+			die("Passwords do not match.");
+		}
 //pass our current info on to the next page
 $configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
-$post = array('THdbprefix' => $_POST['THdbprefix'], 'THdbserver' => $_POST['THdbserver'], 'THdbuser' => $_POST['THdbuser'], 'THdbpass' => $_POST['THdbpass'], 'THdbbase' => $_POST['THdbbase']);
+$post = array('adminpass' => $_POST['adminpass'], 'adminname' => $_POST['adminname']);
 $configarray = array_merge($post,$configarray);
 $configarray = serialize($configarray);
 
@@ -333,18 +360,19 @@ Everything should work just fine if you leave these defaults in place, but in ce
 better for you to change it.  	<br /><br />
 The following features require external libraries that we do not distribute or control. SVG support is
 currently limited to ImageMagick.  The next release should allow you to select different programs (such as rsvg).<br />
-Please see the documentation for more information about these settings.  If you're not sure, leave them blank.<br />
+Please see the documentation for more information about these settings.  If you're not sure, leave them blank.<br /><br />
 	Path to PEAR <input type="text" name="THpearpath" size="12" /><br />
+	Enable cURL support (for automated spam list filter) <input type="checkbox" name="THusecURL" checked><br />
 	Enable SWF metatag support (requires PEAR libraries) <input type="checkbox" name="THuseSWFmeta" ><br />
 	Enable SVG support (requires PEAR libraries and rsvg, ImageMagick, or other external library) <input type="checkbox" name="THuseSVG" ><br />
 	<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
 <input type="submit" value="Continue">
 </form>
 <?php } elseif($_GET['p']==6) { 
-
+//var_dump($_POST);
 //pass our current info on to the next page
 $configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
-$post = array('THpearpath' => $_POST['THpearpath'], 'THuseSWFmeta' => $_POST['THuseSWFmeta'], 'THuseSVG' => $_POST['THuseSVG']);
+$post = array('THpearpath' => $_POST['THpearpath'], 'THusecURL' => $_POST['THusecURL'], 'THuseSWFmeta' => $_POST['THuseSWFmeta'], 'THuseSVG' => $_POST['THuseSVG']);
 $configarray = array_merge($post,$configarray);
 $configarray = serialize($configarray);
 $check = unserialize($configarray);
@@ -368,8 +396,9 @@ If everything here looks good, go ahead and hit continue.<br><br>
 	echo "Administrator username: ".$check['adminname']."<br>";
 
 	echo "PEAR path: ".$check['THpearpath']."<br>";
-	echo "Enable SWF metatags: "."<br>"; //THuseSWFmeta
-	echo "Enable SVG support: "."<br>"; //THuseSVG
+	echo "Enable cURL: ".$check['THusecURL']."<br>"; //THusecURL
+	echo "Enable SWF metatags: ".$check['THuseSWFmeta']."<br>"; //THuseSWFmeta
+	echo "Enable SVG support: ".$check['THuseSVG']."<br>"; //THuseSVG
 ?>
 <br>
 <form method="post" enctype="multipart/form-data" action="install.php?p=7">
@@ -452,14 +481,14 @@ If everything here looks good, go ahead and hit continue.<br><br>
 			fwrite($config, 'define("THSVGthumbnailer",0);'."\n");
 			//this is a mess, i won't fix it later so i won't promise to   ~tyam :]
 			fwrite($config, "define(\"THuserewrite\", 0);\ndefine(\"THpearpath\",");
-			fwrite($config, "\"".$_POST['THpearpath']."\"");
+			fwrite($config, "\"".$configarray['THpearpath']."\"");
 			fwrite($config, ");\ndefine(\"THuseSWFmeta\",");
-			if($_POST['THuseSWFmeta']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
+			if($configarray['THuseSWFmeta']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
 			fwrite($config, ");\ndefine(\"THuseSVG\",");
-			if($_POST['THuseSVG']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
+			if($configarray['THuseSVG']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
 			fwrite($config, ");\ndefine(\"THusePDF\",0);");
 			fwrite($config, "\ndefine(\"THusecURL\",");
-			if($_POST['THusecURL']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
+			if($configarray['THusecURL']=="on"){fwrite($config, "1");}else{fwrite($config, "0");}
 			fwrite($config, ");\n");
 			fwrite($config, 'define("THprofile_adminlevel",9);'."\n");
 			fwrite($config, 'define("THprofile_userlevel",1);'."\n");

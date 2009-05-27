@@ -68,7 +68,7 @@ class ThornPostDBI extends ThornDBI
 		}
 		
 		//echo($q.", time=".$tyme);
-		echo $q;
+//		echo $q;
 //		if ($link != null)
 //		{
 //			$q .= ", link='" . $this->clean($link) . "'";
@@ -128,7 +128,7 @@ class ThornPostDBI extends ThornDBI
 		{
 			$q .= ", password='" . $this->escape_string(md5(THsecret_salt.$password)) . "'";
 		}
-		echo($q);
+		//echo($q);
 		$this->myquery($q . ", time=" . $tyme) or THdie("DBpost");
 		//if ($board == THnewsboard) { buildnews(); }	
 		$pnum = mysql_insert_id();
@@ -294,7 +294,7 @@ class ThornPostDBI extends ThornDBI
 	{
 		$sql = "select globalid from " . THboards_table . " where id='" . $board."'";
 		$globalid = $this->myresult($sql);
-		echo $sql;
+//		echo $sql;
 		if( $globalid == null )
 		{
 			return null;

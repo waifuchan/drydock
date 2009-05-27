@@ -12,7 +12,6 @@
 	
 	require_once("common.php");
 	require_once("post-common.php");
-	
 	/*
 		THINGS THAT WE EXPECT TO COME IN:
 	
@@ -66,7 +65,7 @@
 		}
 		
 		// This should have the cached version of banned keywords in an array named $spamblacklist.
-		@include(THpath.'/cache/blacklist.php');
+		@include(THpath.'/unlinked/blacklist.php');
 		//You could use any website, or even CENSORED or some other text.
 		if(count($spamblacklist) > 0)
 		{
