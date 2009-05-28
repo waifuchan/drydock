@@ -12,7 +12,7 @@
 {/if}
 
 <a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">
-{if $binfo.forced_anon == "0"}
+{if $binfo.forced_anon != 1}
 {$thread.title|escape:'html':'UTF-8'|default:"No Subject"}
 {else}
 No Subject
@@ -26,7 +26,7 @@ No Subject
 
 <input type="checkbox" name="chkpost{$thread.globalid}" value="1"> {* Deletion/reporting checkbox *}
 
-{		if $binfo.forced_anon == "0"} {* begin forced_anon *}
+{		if $binfo.forced_anon!=1} {* begin forced_anon *}
 
  Name: 
 {			if $thread.link}<a href="{$thread.link}">{/if}
@@ -70,7 +70,7 @@ No Subject
 {/if}
     <div class="postbody"><blockquote>
         {assign value=$thread.body|THtrunc:2000 var=bodey}
-{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
+{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter!=1}
 {		$bodey.text|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {	else}
 {		$bodey.text|filters_new|wrapper|quotereply:"$binfo":"$post":"$thread"}
@@ -94,7 +94,7 @@ No Subject
     
 <input type="checkbox" name="chkpost{$post.globalid}" value="1"> {* Deletion/reporting checkbox *}   
  
-{		if $binfo.forced_anon == "0"} {* begin forced_anon *}
+{		if $binfo.forced_anon != 1} {* begin forced_anon *}
  Name: 
 {			if $post.link}<a href="{$post.link}">{/if}
 {			if $post.name == "CAPCODE"}
@@ -121,7 +121,7 @@ No Subject
 	<blockquote>
         {assign value=$post.body|THtrunc:2000 var=bodey}
 
-{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
+{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter!=1}
 {		$bodey.text|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {	else}
 {		$bodey.text|filters_new|wrapper|quotereply:"$binfo":"$post":"$thread"}

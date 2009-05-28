@@ -96,20 +96,20 @@
 		fwrite($sidelinks, '</div>'."\n");
 		fclose($sidelinks);
 		
-		$fp_cache = fopen($path."cache/filters.php", "w") or die("Could not open cache/filters.php for writing.");
+		$fp_cache = fopen($path."unlinked/filters.php", "w") or die("Could not open unlinked/filters.php for writing.");
 		fwrite($fp_cache, "<?php\n");
 		fwrite($fp_cache, '$to'."=();\n");
 		fwrite($fp_cache, '$from'."=();\n");
 		fwrite($fp_cache, "?>");
 		fclose($fp_cache);		
 		
-		$fp_cache = fopen($path."cache/capcodes.php", "w") or die("Could not open cache/capcodes.php for writing.");
+		$fp_cache = fopen($path."unlinked/capcodes.php", "w") or die("Could not open unlinked/capcodes.php for writing.");
 		fwrite($fp_cache, "<?php\n");
 		fwrite($fp_cache, '$capcodes'."=();\n");
 		fwrite($fp_cache, "?>");
 		fclose($fp_cache);		
 
-		$fp_cache = fopen($path."cache/blacklist.php", "w") or die("Could not open cache/blacklist.php for writing.");
+		$fp_cache = fopen($path."unlinked/blacklist.php", "w") or die("Could not open unlinked/blacklist.php for writing.");
 		fwrite($fp_cache, "<?php\n");
 		fwrite($fp_cache, '$spamblacklist'."=();\n");
 		fwrite($fp_cache, "?>");
@@ -189,7 +189,7 @@ p.centertext {
 	if (count($chmod)>0) {
 		die("There seems to be a problem writting files to the server.<br />
 			See the documentation for more information about chmod.  These files must be writable:<br /><br />".implode("<br />",$chmod)."<br />
-			If you have shell access, you can try this (or do it manually): <br />chmod 0777 ".implode(" ",$chmod)."<br />
+			If you have shell access, you can try this (or do it manually): <br /><br />chmod 0777 ".implode(" ",$chmod)."<br /><br />
 			The server (specifically the <b>user</b> that the http server runs as) needs to be able to read and write these.");
 	}
 
@@ -211,6 +211,8 @@ To continue, click the button below.
 </form><?php } elseif($_GET['p']==1) { 
 
 	//Well, we've already been using $path, but let's go ahead and make sure we're good.
+	//Let's do a little hack here for windows, because I've seen forward slashes fail half the time
+	$path = str_replace('\\','/',$path);
 	if ($path{strlen($path)-1}!="/") { $path.="/"; }
 	//In most cases, this will provide us with the desired output.
 	$url=str_replace("install.php", "", $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
@@ -220,9 +222,8 @@ To continue, click the button below.
 ?>
 <div class="logo">location settings</div>
 <form method="post" enctype="multipart/form-data" action="install.php?p=2">
-The script will attempt to guess these values (in fact, it has already been using the assumed path) but often times you will need to adjust them.<br />
-<b>If these values are incorrect, the script will not function as expected.</b>
-If you are installing on a Windows system, forward slashes may not work (but they should).
+The script will attempt to guess these values (in fact, it has already been using the assumed path) but often times you will need to adjust them. <b>If these values are incorrect, the script will not function as expected.</b><br /><br />
+If you are installing on a Windows system, forward slashes may not work (but they should).  If you experience problems during the install, try replacing these forward slashes with back slashes.<br /><br />
 Be sure to double check these values before you continue.<br />
 Your image board file path (<b>with trailing slash</b>):<br />
 <input type="text" name="THpath" size="60" value="<?php echo $path; ?>" ><br />
@@ -237,7 +238,6 @@ Your image board URL:<br />
 	$post = array('THurl' => $_POST['THurl'], 'THpath' => $_POST['THpath']);
 	$configarray = serialize($_POST);
 
-//var_dump($_POST);
 	//Prep our dbtypes from the dbi directory and shove them into an array for selection purposes
 	$sets=array();
 	$it=opendir("dbi/");
@@ -267,13 +267,9 @@ Database type <select name="THdbtype">
 </form>
 <?php } elseif($_GET['p']==3) { 
 
-//var_dump($_POST);
-
 //pass our current info on to the next page
-//var_dump($_POST);
 $configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
 $post = array('THdbtype' => $_POST['THdbtype']);
-
 $configarray = array_merge($post,$configarray);
 $configarray = serialize($configarray);
 $check = unserialize($configarray);

@@ -57,7 +57,7 @@ function smarty_modifier_filters_new($filt)
 	
 	$filt=checkspoilers($filt);
 	//WOOHOO WE'RE CACHED
-	@include(THpath.'cache/filters.php');
+	@include(THpath.'unlinked/filters.php');
 	return @nl2br(preg_replace($from, $to, $filt));
 
 }

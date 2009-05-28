@@ -21,13 +21,13 @@
 	<table>
 		<tbody>
 			<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
-{				if $binfo.forced_anon == "0"} {* begin forced_anon *}
+{				if $binfo.forced_anon!=1} {* begin forced_anon *}
 				<tr>
 					<td class="postblock">Name</td>
 					<td><input type="text" name="nombre" size="40" maxlength="40"/><span style="font-size:x-small;"><input type="checkbox" name="mem" style="font-size:x-small;" value="on" />Remember</span></td>
 				</tr>
 {				/if} {* end forced_anon *}
-{				if $binfo.forced_anon=="0" and $comingfrom=="board"} {* begin forced_anon / boardorthread check*}
+{				if $binfo.forced_anon!=1 and $comingfrom=="board"} {* begin forced_anon / boardorthread check*}
 				<tr>
 					<td class="postblock">Subject</td>
 					<td><input type="text" name="subj" size="40" maxlength="40"/></td>

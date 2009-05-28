@@ -499,9 +499,18 @@ class ThornModDBI extends ThornDBI
 				$max++;
 			}
 
-			$query = "update " . THboards_table . " set id=" . $board['id'] . ", globalid=" . $board['globalid'] . ", name='" . $this->escape_string($board['name']) . "', folder='" . $this->escape_string($board['folder']) . "', about='" . $this->escape_string($board['about']) . "', rules='" . $this->escape_string($board['rules']) . "', boardlayout ='" . $this->escape_string($board['boardlayout']) . "', perpg=" . $board['perpg'] . ", perth=" . $board['perth'] . ", allowedformats = " . $board['allowedformats'] . ", tpix=" . $board['tpix'] . ", rpix=" . $board['rpix'] . ", tmax=" . $board['tmax'] . ", thumbres=" . $board['thumbres'] . ", maxfilesize=" . $board['maxfilesize'] . ", maxres=" . $board['maxres'] . ", pixperpost=" . $board['pixperpost'] . ", forced_anon='" . $board['forced_anon'] . "', customcss='" . $board['customcss'] . "', allowvids='" . $board['allowvids'] . "', filter='" . $board['filter'] . "', requireregistration='" . $board['requireregistration'] . "', hidden='" . $board['hidden'] . "', tlock='" . $board['tlock'] . "', rlock='" . $board['rlock'] . "' where id=" . $board['oldid'];
+			$query = "update " . THboards_table . " set id=" . $board['id'] . ", globalid=" . $board['globalid'] . ", name='" 
+				. $this->escape_string($board['name']) . "', folder='" . $this->escape_string($board['folder']) . "', about='" 
+				. $this->escape_string($board['about']) . "', rules='" . $this->escape_string($board['rules']) . "', boardlayout ='" 
+				. $this->escape_string($board['boardlayout']) . "', perpg=" . $board['perpg'] . ", perth=" . $board['perth'] 
+				. ", allowedformats = " . $board['allowedformats'] . ", tpix=" . $board['tpix'] . ", rpix=" . $board['rpix'] 
+				. ", tmax=" . $board['tmax'] . ", thumbres=" . $board['thumbres'] . ", maxfilesize=" . $board['maxfilesize'] 
+				. ", maxres=" . $board['maxres'] . ", pixperpost=" . $board['pixperpost'] . ", forced_anon='" . $board['forced_anon'] 
+				. "', customcss='" . $board['customcss'] . "', allowvids='" . $board['allowvids'] . "', filter='" . $board['filter'] 
+				. "', requireregistration='" . $board['requireregistration'] . "', hidden='" . $board['hidden'] . "', tlock='" 
+				. $board['tlock'] . "', rlock='" . $board['rlock'] . "' where id=" . $board['oldid'];
 
-			print_r($query);
+			//print_r($query);
 			$this->myquery($query);
 		}
 		foreach ($boardchanges as $change)
