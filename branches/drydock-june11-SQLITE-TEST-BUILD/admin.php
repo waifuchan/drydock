@@ -729,11 +729,11 @@
 				$boards_to_update[] = $updated_board;
 								//var_dump($updated_board);echo "<hr>";
 								//var_dump($boards_to_update);
-				//$db->updateboards($boards_to_update);
-				var_dump($boards_to_update); die();
-				//$actionstring = "Board edit\tid:".$boardnumber;
-				//writelog($actionstring,"admin");
-				//$location=THurl."admin.php?a=b&boardselect=".$folder;
+				$db->updateboards($boards_to_update);
+				//var_dump($boards_to_update); die();
+				$actionstring = "Board edit\tid:".$boardnumber;
+				writelog($actionstring,"admin");
+				$location=THurl."admin.php?a=b&boardselect=".$folder;
 			}
 		}
 		else
