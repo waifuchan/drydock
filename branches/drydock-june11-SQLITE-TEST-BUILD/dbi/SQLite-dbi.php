@@ -17,7 +17,7 @@ define("THdblitefn", sqlite_open(THpath . "unlinked/drydock.sqlite", 0666, $sqli
 require_once ("config.php");
 require_once ("common.php");
 require_once ("ABSTRACT-dbi.php"); // abstract interface
-define("DDDEBUG",0); // Could break things if enabled
+define("DDDEBUG",1); // Could break things if enabled
 
 
 class ThornDBI implements absThornDBI
@@ -53,7 +53,7 @@ class ThornDBI implements absThornDBI
 	/*  provided by Mell03d0ut from anonib */
 	function clean($call)
 	{
-		$call = escape_string($call);
+		$call = $this->escape_string($call);
 		$call = trim($call);
 		return ($call);
 	}	
