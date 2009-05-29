@@ -172,7 +172,7 @@ p.centertext {
 	//List of places that must be writable at least by the server
 	$paths=array($path,$path."compd/",$path."cache/",$path."captchas/",$path."images/",$path."unlinked/");
 	foreach ($paths as $pith) {
-		if (touch($pith."test")==false){
+		if (@touch($pith."test")==false){
 			$chmod[]=$pith;
 		} else {
 			unlink($pith."test");
@@ -181,7 +181,7 @@ p.centertext {
 	//Attempt to touch single files that need to be written in
 	$files=array($path."menu.php",$path."linkbar.php",$path."rss.xml",$path.".htaccess",$path."unlinked/.htaccess");
 	foreach ($files as $file){
-		if (touch($file)==false){
+		if (@touch($file)==false){
 			$chmod[]=$file;
 		}
 	}
