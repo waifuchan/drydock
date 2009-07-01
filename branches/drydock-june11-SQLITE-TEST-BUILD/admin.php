@@ -656,6 +656,7 @@
 	{
 		if($_POST['boardselect'])
 		{
+			echo '<pre>' . var_export($_POST,true).'</code></pre>';
 			$boardnumber = $db->getboardnumber($_POST['boardselect']);
 			
 			if ($_POST['delete'.$boardnumber]==TRUE) //Delete images on that board; nuke it from db
@@ -687,10 +688,8 @@
 				// Make sure we don't have a folder name conflict.
 				$folder = trim($_POST['folder'.$oldid]);
 				$folder_id = $db->getboardnumber($folder);
-				
-				// It's ok if it's equal to the old ID, because that just means
-				// it's retrieving the number for its own board
-				if( $folder_id != $oldid )
+				// If we return a number on $folder_id it means there's already an id of that folder name being used, so don't let them collide
+				if( $folder_id )
 				{
 					THdie("An existing board already has a folder named \"".$folder."\"!");
 				}

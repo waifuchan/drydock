@@ -189,10 +189,27 @@ class ThornDBI
 			return (array ());
 		}
 		$imgs = array ();
-		
+		/*
 		$querystring = "select ". THimages_table .".*, ".THextrainfo_table.".extra_info AS exif_text FROM "
 		 . THimages_table ." LEFT OUTER JOIN ".THextrainfo_table. " on ".THimages_table
 		 .".extra_info = ".THextrainfo_table.".id WHERE ".THimages_table.".id=".intval($imgidx);
+		*/
+		
+		$querystring = "select "
+				 . THimages_table .".id as id, "
+				 . THimages_table .".hash as hash, "
+				 . THimages_table .".name as name, "
+				 . THimages_table .".width as width, "
+				 . THimages_table .".height as height, "
+				 . THimages_table .".tname as tname, "
+				 . THimages_table .".twidth as twidth, "
+				 . THimages_table .".theight as theight, "
+				 . THimages_table .".fsize as fsize, "
+				 . THimages_table .".anim as anim, "
+				 . THextrainfo_table.".extra_info AS exif_text"
+				 . " FROM ". THimages_table ." LEFT OUTER JOIN ".THextrainfo_table. " on "
+				 . THimages_table.".extra_info = ".THextrainfo_table.".id WHERE "
+				 . THimages_table.".id=".intval($imgidx);
 
 		$imgs = $this->mymultiarray($querystring);
 		
