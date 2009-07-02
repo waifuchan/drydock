@@ -108,5 +108,15 @@ interface absThornToolsDBI
 	 * @return array An assoc-array with the static page information
 	 */
 	function getstaticpage($name);
+
+
+	/**
+	 * Retrieve a count for the threads posted in the specified board
+	 * 
+	 * @param string $board The folder id of the board
+	 * 
+	 * @return int count of threads on that board
+	 */
+	function getthreadcount($board);
 }
 ?>

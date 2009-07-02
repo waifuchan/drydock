@@ -14,6 +14,8 @@
 	http://www.opensource.org/licenses/artistic-license-2.0.php
 */
 
+include("config.php"); // For THnewsboard
+
 class ThornToolsDBI extends ThornDBI
 {
 
@@ -61,15 +63,15 @@ class ThornToolsDBI extends ThornDBI
 		}
 			
 		// Handle hidden filtering
-		if($showhidden == false)
+		if($showhidden == true)
 		{
 			if( $boardquery == "" )
 			{
-				$boardquery = "hidden = 0";
+				$boardquery = "visible != 1";
 			}
 			else
 			{
-				$boardquery .= ",hidden = 0";
+				$boardquery .= ",visible != 1";
 			}
 		}
 			
@@ -161,15 +163,15 @@ class ThornToolsDBI extends ThornDBI
 		}
 			
 		// Handle hidden filtering
-		if($showhidden == false)
+		if($showhidden == true)
 		{
 			if( $boardquery == "" )
 			{
-				$boardquery = "visible = 1";
+				$boardquery = "visible != 1";
 			}
 			else
 			{
-				$boardquery .= ",visible = 1";
+				$boardquery .= ",visible != 1";
 			}
 		}
 			
@@ -260,5 +262,9 @@ class ThornToolsDBI extends ThornDBI
 	 	return $this->myassoc("SELECT * FROM ".THpages_table." WHERE name='".$this->clean($name)."'");
 	 }
 
+	function getthreadcount($board)
+	{
+		return $this->myresult("SELECT COUNT(board) FROM ".THthreads_table." where board=1");
+	}
 } //class ThornToolsDBI
 ?>
