@@ -689,11 +689,13 @@
 				$folder = trim($_POST['folder'.$oldid]);
 				$folder_id = $db->getboardnumber($folder);
 				// If we return a number on $folder_id it means there's already an id of that folder name being used, so don't let them collide
-				if( $folder_id )
+				if($_POST['boardselect']!=$folder)  //hm...
 				{
-					THdie("An existing board already has a folder named \"".$folder."\"!");
+					if( $folder_id )
+					{
+						THdie("An existing board already has a folder named \"".$folder."\"!");
+					}
 				}
-				
 				// String values
 				$updated_board['name'] = replacequote($_POST['name'.$oldid]);
 				$updated_board['folder'] = replacequote($folder); // we already did the stuff above
