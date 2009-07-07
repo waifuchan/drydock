@@ -149,12 +149,12 @@ Please see the documentation for more information about these settings.  If you'
 		// It's 4:30 AM and I can't think of a better way to generate a random character string (generated via the Mersenne Twister algorithm), to be used for
 		// salting passwords before they're hashed and entered into the DB.
 		// so uh, this is pretty kludgy.  but it works.  16-character salt.
-		sprintf($secret_salt, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
-				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
-				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126),		
-				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), 
+		//WELL IT DIDN'T WORK SO GUESS WHO HAD TO COME TO THE RESCUE THAT'S RIGHT IT WAS TYAM  :[
+		$secret_salt = sprintf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126),
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126),
+				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126),
 				mt_rand(40,126), mt_rand(40,126), mt_rand(40,126), mt_rand(40,126) );
-				
 		$cookieid = "dd".$seed;
 		//Let's make the initial config file
 		$sm=smsimple();
