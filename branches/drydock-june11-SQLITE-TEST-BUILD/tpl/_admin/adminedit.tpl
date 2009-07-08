@@ -69,7 +69,7 @@
 
 					<tr>
 						<td>
-						{if $postarray.lock}
+						{if $postarray.lawk}
 							<input type="checkbox" name="lawk" checked="checked" value="1">Locked
 						{else}
 							<input type="checkbox" name="lawk" value="1">Locked

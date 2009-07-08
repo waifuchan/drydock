@@ -84,7 +84,7 @@
 	// $postarray will hold the assoc containing post data
 	$postarray = array ();
 	$postarray = $db->getsinglepost($postid, $board_id);
-	
+
 	// Make sure it exists
 	if ($postarray == null)
 	{
@@ -121,7 +121,7 @@
 		$visible = $postarray['visible'];
 	
 		$_POST['pin'] = intval($_POST['pin']);
-		$_POST['lock'] = intval($_POST['lock']);
+		$_POST['lawk'] = intval($_POST['lawk']);
 		$_POST['permasage'] = intval($_POST['permasage']);
 	
 		// We'll use these to keep track of what types of log messages
@@ -188,12 +188,12 @@
 			}
 	
 			// Lock status
-			if (isset ($_POST['lock']) && $lock != $_POST['lock']) // Cover an explicit change (unchecked->checked)
+			if (isset ($_POST['lawk']) && $lock != $_POST['lawk']) // Cover an explicit change (unchecked->checked)
 			{
-				$lock = $_POST['lock'];
+				$lock = $_POST['lawk'];
 				$lockdelta = 1;
 			}
-			elseif (isset ($_POST['lock']) == false && $lock == true) // Cover an implicit change (checked->unchecked)
+			elseif (isset ($_POST['lawk']) == false && $lock == true) // Cover an implicit change (checked->unchecked)
 			{
 				$lock = false;
 				$lockdelta = 1;
