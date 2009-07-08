@@ -375,7 +375,7 @@ class ThornPostDBI extends ThornDBI
 		}
 		elseif( $loc == 1 ) // thread
 		{
-			$querystring = "UPDATE " . THreplies_table . " SET ".
+			$querystring = "UPDATE " . THthreads_table . " SET ".
 					"name='".$this->escape_string($name)."'," .
 					"trip='".$this->escape_string($trip)."'," .
 					"title='".$this->escape_string($subject)."'," .
