@@ -358,11 +358,11 @@ class ThornPostDBI extends ThornDBI
 					"link='".$this->escape_string($link)."'," .
 					"body='".$this->escape_string($body)."'," .
 					"visible=".intval($visible)."," .
-					"unvisibletime=".time() + (THtimeoffset * 60).
+					"unvisibletime=".(time() + (THtimeoffset * 60)).
 					" WHERE globalid=".intval($id).
 					" AND board=".intval($board);
 		}
-		elseif ( $loc == 1 ) // thread
+		elseif( $loc == 1 ) // thread
 		{
 			$querystring = "UPDATE " . THreplies_table . " SET ".
 					"name='".$this->escape_string($name)."'," .
@@ -374,7 +374,7 @@ class ThornPostDBI extends ThornDBI
 					"pin=".intval($pin)."," .
 					"lawk=".intval($lock)."," .
 					"permasage=".intval($permasage)."," .
-					"unvisibletime=".time() + (THtimeoffset * 60).
+					"unvisibletime=".(time() + (THtimeoffset * 60)).
 					" WHERE globalid=".intval($id).
 					" AND board=".intval($board);			
 		}

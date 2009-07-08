@@ -14,7 +14,7 @@
 	
 	require_once ("config.php");
 	require_once ("common.php");
-	
+		
 	/*
 		OKAY HERE COMES THE HUGE LIST OF PARAMETERS THAT CAN BE PASSED TO THIS FUNCTION (aka: documentation)
 		board -			The name of the board (its folder)
@@ -83,7 +83,6 @@
 	
 	// $postarray will hold the assoc containing post data
 	$postarray = array ();
-	
 	$postarray = $db->getsinglepost($postid, $board_id);
 	
 	// Make sure it exists
@@ -108,7 +107,7 @@
 	}
 	
 	// only bother if we're receiving POST data
-	if (isset ($_POST['permsub']))
+	if (isset ($_POST['editsub']))
 	{
 		// Initialize some params for the updatepost call
 		$name = $postarray['name'];

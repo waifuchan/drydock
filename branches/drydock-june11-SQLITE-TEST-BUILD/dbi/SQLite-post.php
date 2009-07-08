@@ -369,7 +369,7 @@ class ThornPostDBI extends ThornDBI
 					"link='".$this->escape_string($link)."'," .
 					"body='".$this->escape_string($body)."'," .
 					"visible=".intval($visible)."," .
-					"unvisibletime=".time() + (THtimeoffset * 60).
+					"unvisibletime=".(time() + (THtimeoffset * 60)).
 					" WHERE globalid=".intval($id).
 					" AND board=".intval($board);
 		}
@@ -385,7 +385,7 @@ class ThornPostDBI extends ThornDBI
 					"pin=".intval($pin)."," .
 					"lawk=".intval($lock)."," .
 					"permasage=".intval($permasage)."," .
-					"unvisibletime=".time() + (THtimeoffset * 60).
+					"unvisibletime=".(time() + (THtimeoffset * 60)).
 					" WHERE globalid=".intval($id).
 					" AND board=".intval($board);			
 		}
@@ -394,7 +394,7 @@ class ThornPostDBI extends ThornDBI
 			// Neither?  This is messed up.
 			return;
 		}
-		
+
 		$this->myquery($querystring);
 	}
 	
