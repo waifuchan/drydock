@@ -17,7 +17,7 @@ define("THdblitefn", sqlite_open(THpath . "unlinked/drydock.sqlite", 0666, $sqli
 require_once ("config.php");
 require_once ("common.php");
 require_once ("ABSTRACT-dbi.php"); // abstract interface
-define("DDDEBUG",0); // Could break things if enabled
+define("DDDEBUG",1); // Could break things if enabled
 
 
 class ThornDBI implements absThornDBI
@@ -321,8 +321,8 @@ class ThornDBI implements absThornDBI
 		if ($this->myresult("select count(*) from " . THbans_table . " where 
 			ip_octet1=" . intval($octets[0]) . " 
 			AND ip_octet2=" . intval($octets[1]) . " 
-			AND (ip_octet3=" . intval($octets[2]) . " || ip_octet3 = -1 )
-			AND (ip_octet4=" . intval($octets[3]) . " || ip_octet4 = -1 )
+			AND (ip_octet3=" . intval($octets[2]) . " OR ip_octet3 = -1 )
+			AND (ip_octet4=" . intval($octets[3]) . " OR ip_octet4 = -1 )
 		") > 0)
 		{
 			return (true);
@@ -353,8 +353,8 @@ class ThornDBI implements absThornDBI
 		$bans = $this->mymultiarray("select * from '" . THbans_table . "' where 
 			'ip_octet1'=" . intval($octets[0]) . " 
 			AND 'ip_octet2'=" . intval($octets[1]) . " 
-			AND ('ip_octet3'=" . intval($octets[2]) . " || 'ip_octet3' = -1 )
-			AND ('ip_octet4'=" . intval($octets[3]) . " || 'ip_octet4' = -1 )");
+			AND ('ip_octet3'=" . intval($octets[2]) . " OR 'ip_octet3' = -1 )
+			AND ('ip_octet4'=" . intval($octets[3]) . " OR 'ip_octet4' = -1 )");
 			
 		// Clear old bans if $clear is true
 		if( $clear == true )

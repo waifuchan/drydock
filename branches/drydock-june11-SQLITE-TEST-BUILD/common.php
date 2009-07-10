@@ -141,7 +141,7 @@
 	
 			if($unbanned == 1)
 			{
-				echo '<a href="'.THurl.'">Continue to the main index</a>';
+				echo '<div align="center"><a href="'.THurl.'">Continue to the main index</a></div>';
 			} 
 			else 
 			{

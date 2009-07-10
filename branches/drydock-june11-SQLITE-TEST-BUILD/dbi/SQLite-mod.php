@@ -35,8 +35,8 @@ class ThornModDBI extends ThornDBI
 		}
 
 		// Start messing around with the octets
-		$octets = explode(".", long2ip($ip), 4);
-
+		$octets = explode(".", $ip, 4);
+		
 		$octets[0] = intval($octets[0]);
 		$octets[1] = intval($octets[1]);
 

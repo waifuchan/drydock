@@ -75,13 +75,18 @@
 			$_POST['name'] = str_replace($spamblacklist, "xxxxx", $_POST['name']);
 		}
 		
-		// The email field will have a big "IF YOU ARE HUMAN DO NOT FILL THIS IN" next to it.
-		if(isset($_POST['email']) && $_POST['email'] != "")
+		//This should be for CAPTCHA
+		if(THvc==1) {
+			checkvc();
+		}
+		
+		// The "email" field will have a big "IF YOU ARE HUMAN DO NOT FILL THIS IN" next to it.  Bots might get tricked.
+		if(THvc==2 && isset($_POST['email']) && $_POST['email'] != "")
 		{
 			// get out spambot >:[
 			$redhammer = new ThornModDBI();
 			$redhammer->banip($longip,0,"Suspected bot.","","Suspected bot.",$_POST['body'], 4, "autoban");
-			THdie("Abnormal reply"); // heh heh
+			THdie("Abnormal reply"); // :getprophet:
 		}
 		
 		// Prevent people from posting new threads if it's the mod or news board
@@ -101,10 +106,6 @@
 	if ($binfo['tlock']==1 && $mod==false) 
 	{
 		THdie("POnonewth");
-	}
-
-	if ($mod==false && THvc==true) {
-		checkvc();
 	}
 
 	//File checking and processing here, I suppose.
