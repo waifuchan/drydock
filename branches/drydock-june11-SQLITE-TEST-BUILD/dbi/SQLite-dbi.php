@@ -350,13 +350,21 @@ class ThornDBI implements absThornDBI
 		$octets = explode(".", $ip, 4);
 
 		//Retrieve the bans
-		$bans = $this->mymultiarray("select * from '" . THbans_table . "' where 
+	/*	$bans = $this->mymultiarray("select * from '" . THbans_table . "' where 
 			'ip_octet1'=" . intval($octets[0]) . " 
 			AND 'ip_octet2'=" . intval($octets[1]) . " 
 			AND ('ip_octet3'=" . intval($octets[2]) . " OR 'ip_octet3' = -1 )
 			AND ('ip_octet4'=" . intval($octets[3]) . " OR 'ip_octet4' = -1 )");
 			
-		// Clear old bans if $clear is true
+	*/		
+		$bans = $this->mymultiarray("SELECT *
+			FROM " . THbans_table . "
+			WHERE ip_octet1 = " . intval($octets[0]) . "
+			AND ip_octet2 = " . intval($octets[1]) . "
+			AND ( ip_octet3 = " . intval($octets[2]) . " OR ip_octet3 = -1 ) 
+			AND ( ip_octet4 = " . intval($octets[3]) . " OR ip_octet4 = -1 )");
+
+			// Clear old bans if $clear is true
 		if( $clear == true )
 		{
 			// Move old bans to the ban history table
@@ -366,18 +374,19 @@ class ThornDBI implements absThornDBI
 				{
 					// Move to ban history table
 					$history = "insert into '".THbanhistory_table."' 
-					set ip_octet1=" . $singleban['ip_octet1'] . ",
-					ip_octet2=" . $singleban['ip_octet2'] . ",
-					ip_octet3=" . $singleban['ip_octet3'] . ",
-					ip_octet4=" . $singleban['ip_octet4'] . ",
-					privatereason='" . $this->clean($singleban['privatereason']) . "', 
-					publicreason='" . $this->clean($singleban['publicreason']) . "', 
-					adminreason='" . $this->clean($singleban['adminreason']) . "', 
-					postdata='" . $this->clean($singleban['postdata']) . "', 
-					duration='" . $singleban['duration'] . "', 
-					bantime=" . $singleban['bantime'] . ", 
-					bannedby='" . $singleban['bannedby'] . "',
-					unbaninfo='viewed'";
+					(ip_octet1,ip_octet2,ip_octet3,ip_octet4,privatereason,publicreason,adminreason,postdata,duration,bantime,bannedby,unbaninfo) values (
+					" . $singleban['ip_octet1'] . ",
+					" . $singleban['ip_octet2'] . ",
+					" . $singleban['ip_octet3'] . ",
+					" . $singleban['ip_octet4'] . ",
+					'" . $this->clean($singleban['privatereason']) . "', 
+					'" . $this->clean($singleban['publicreason']) . "', 
+					'" . $this->clean($singleban['adminreason']) . "', 
+					'" . $this->clean($singleban['postdata']) . "', 
+					'" . $singleban['duration'] . "', 
+					" . $singleban['bantime'] . ", 
+					'" . $singleban['bannedby'] . "',
+					'viewed')";
 				
 					$this->myquery($history);
 					
@@ -396,18 +405,19 @@ class ThornDBI implements absThornDBI
 					{
 						// Move to ban history table
 						$history = "insert into '".THbanhistory_table."' 
-						set ip_octet1=" . $singleban['ip_octet1'] . ",
-						ip_octet2=" . $singleban['ip_octet2'] . ",
-						ip_octet3=" . $singleban['ip_octet3'] . ",
-						ip_octet4=" . $singleban['ip_octet4'] . ",
-						privatereason='" . $this->clean($singleban['privatereason']) . "', 
-						publicreason='" . $this->clean($singleban['publicreason']) . "', 
-						adminreason='" . $this->clean($singleban['adminreason']) . "', 
-						postdata='" . $this->clean($singleban['postdata']) . "', 
-						duration='" . $singleban['duration'] . "', 
-						bantime=" . $singleban['bantime'] . ", 
-						bannedby='" . $singleban['bannedby'] . "',
-						unbaninfo='expired'";
+						(ip_octet1,ip_octet2,ip_octet3,ip_octet4,privatereason,publicreason,adminreason,postdata,duration,bantime,bannedby,unbaninfo) values (
+						" . $singleban['ip_octet1'] . ",
+						" . $singleban['ip_octet2'] . ",
+						" . $singleban['ip_octet3'] . ",
+						" . $singleban['ip_octet4'] . ",
+						'" . $this->clean($singleban['privatereason']) . "', 
+						'" . $this->clean($singleban['publicreason']) . "', 
+						'" . $this->clean($singleban['adminreason']) . "', 
+						'" . $this->clean($singleban['postdata']) . "', 
+						'" . $singleban['duration'] . "', 
+						" . $singleban['bantime'] . ", 
+						'" . $singleban['bannedby'] . "',
+						'expired')";
 					
 						$this->myquery($history);
 						
