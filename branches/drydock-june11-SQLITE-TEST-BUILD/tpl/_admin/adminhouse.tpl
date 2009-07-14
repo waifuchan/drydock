@@ -26,6 +26,8 @@ Housekeeping Functions
 			</tr><tr>
 				<td><input type="submit" name="cp" style="width:20em;" value="Rebuild capcodes"></td>
 {if THnewsboard!=0}<td><input type="submit" name="rs" style="width:20em;" value="Rebuild news page RSS feed"></td>{/if}
+			</tr><tr>
+				<td><input type="submit" name="al" style="width:20em;" value="Rebuild EVERYTHING"></td>
             </tr></table>
 			</form>
 {*  //we need to support dumping of both dbis here

@@ -483,6 +483,18 @@
 			if($_POST['sp']) { rebuild_spamlist(); }
 			if($_POST['fl']) { rebuild_filters(); }
 			if($_POST['cp']) { rebuild_capcodes(); }
+			if($_POST['al']) {
+				//Do EVERYTHING
+				$sm->clear_all_cache();
+				$sm->clear_compiled_tpl();
+				rebuild_rss();
+				rebuild_htaccess();
+				rebuild_hovermenu();
+				rebuild_linkbars();
+				rebuild_filters();
+				rebuild_capcodes();				
+				rebuild_spamlist();  //save this for last just in case
+			}
 			$actionstring = "Housekeeping";
 			writelog($actionstring,"admin");		
 			header("Location: ".THurl."admin.php?a=hk");
