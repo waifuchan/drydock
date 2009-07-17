@@ -13,10 +13,6 @@ function readCookie(name)
 }
 
 function vctest() {
-    if (document.getElementById("mpass").value!="") {
-        document.getElementById("postform").submit();
-        return(null);
-        }
     it=getit();
     if (it) {
         vcf=document.getElementById("vc");

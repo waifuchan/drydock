@@ -38,7 +38,7 @@
 					<td><input type="text" name="link" size="40" maxlength="40"/>
 		{if $THvc==1}
                     <script type="text/javascript"><!--
-                    document.write('<input type="button" value="Post" id="subbtn" onclick="vctest()" />');
+                    document.write('<input type="button" value="Submit" id="subbtn" onclick="vctest()" />');
                     // /--></script></td>
 				</tr>
 				<tr>
