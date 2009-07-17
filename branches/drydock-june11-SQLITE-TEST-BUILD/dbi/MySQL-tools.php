@@ -42,7 +42,7 @@ class ThornToolsDBI extends ThornDBI
 			ON
 				".THimages_table.".id = ".THreplies_table.".imgidx
 			WHERE 
-				".THthreads_table." .board = ".intval($board)." || ".THreplies_table.".board = ".intval($board);
+				".THthreads_table." .board = ".intval($board)." or ".THreplies_table.".board = ".intval($board);
 		}
 		else
 		{

@@ -71,11 +71,11 @@ class ThornBoardDBI extends ThornDBI
 		$q = "select * from " . THthreads_table . " where board=" . $this->binfo['id'];
 		if ($p['start'] != false)
 		{
-			$q .= " && time>=" . $p['start'];
+			$q .= " and time>=" . $p['start'];
 		}
 		if ($p['end'] != false)
 		{
-			$q .= " && time<" . $p['end'];
+			$q .= " and time<" . $p['end'];
 		}
 
 		if (isset ($this->on['year']))
@@ -84,16 +84,16 @@ class ThornBoardDBI extends ThornDBI
 			{
 				if (isset ($this->on['day']))
 				{
-					$q .= " && time>=" . mktime(0, 0, 0, $this->on['month'], $this->on['day'], $this->on['year']) . " && time<" . mktime(0, 0, 0, $this->on['month'], $this->on['day'] + 1, $this->on['year']);
+					$q .= " and time>=" . mktime(0, 0, 0, $this->on['month'], $this->on['day'], $this->on['year']) . " and time<" . mktime(0, 0, 0, $this->on['month'], $this->on['day'] + 1, $this->on['year']);
 				}
 				else
 				{
-					$q .= " && time>=" . mktime(0, 0, 0, $this->on['month'], 1, $this->on['year']) . " && time<" . mktime(0, 0, 0, $this->on['month'] + 1, 1, $this->on['year']);
+					$q .= " and time>=" . mktime(0, 0, 0, $this->on['month'], 1, $this->on['year']) . " and time<" . mktime(0, 0, 0, $this->on['month'] + 1, 1, $this->on['year']);
 				}
 			}
 			else
 			{
-				$q .= " && time>=" . mktime(0, 0, 0, 1, 1, $this->on['year']) . " && time<" . mktime(0, 0, 0, 1, 1, $this->on['year'] + 1);
+				$q .= " and time>=" . mktime(0, 0, 0, 1, 1, $this->on['year']) . " and time<" . mktime(0, 0, 0, 1, 1, $this->on['year'] + 1);
 			}
 		}
 
@@ -161,16 +161,16 @@ class ThornBoardDBI extends ThornDBI
 			{
 				if (isset ($this->on['day']))
 				{
-					$orderby = " && time>=" . mktime(0, 0, 0, $this->on['month'], $this->on['day'], $this->on['year']) . " && time<" . mktime(0, 0, 0, $this->on['month'], $this->on['day'] + 1, $this->on['year']);
+					$orderby = " and time>=" . mktime(0, 0, 0, $this->on['month'], $this->on['day'], $this->on['year']) . " and time<" . mktime(0, 0, 0, $this->on['month'], $this->on['day'] + 1, $this->on['year']);
 				}
 				else
 				{
-					$orderby = " && time>=" . mktime(0, 0, 0, $this->on['month'], 1, $this->on['year']) . " && time<" . mktime(0, 0, 0, $this->on['month'] + 1, 1, $this->on['year']);
+					$orderby = " and time>=" . mktime(0, 0, 0, $this->on['month'], 1, $this->on['year']) . " and time<" . mktime(0, 0, 0, $this->on['month'] + 1, 1, $this->on['year']);
 				}
 			}
 			else
 			{
-				$orderby = " && time>=" . mktime(0, 0, 0, 1, 1, $this->on['year']) . " && time<" . mktime(0, 0, 0, 1, 1, $this->on['year'] + 1);
+				$orderby = " and time>=" . mktime(0, 0, 0, 1, 1, $this->on['year']) . " and time<" . mktime(0, 0, 0, 1, 1, $this->on['year'] + 1);
 			}
 		}
 		else

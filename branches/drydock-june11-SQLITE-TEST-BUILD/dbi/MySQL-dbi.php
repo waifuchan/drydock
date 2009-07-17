@@ -137,11 +137,11 @@ class ThornDBI
 	{
 		if (isset ($this->binfo))
 		{
-			return ($this->myresult("select count(*) from " . THthreads_table . " where board=" . $this->binfo['id'] . " && time>=" . $start . " && time<=" . $end));
+			return ($this->myresult("select count(*) from " . THthreads_table . " where board=" . $this->binfo['id'] . " and time>=" . $start . " and time<=" . $end));
 		}
 		else
 		{
-			return ($this->myresult("select count(*) from " . THthreads_table . " where time>=" . $start . " && time<=" . $end));
+			return ($this->myresult("select count(*) from " . THthreads_table . " where time>=" . $start . " and time<=" . $end));
 		}
 	}
 	
@@ -153,7 +153,7 @@ class ThornDBI
 			//Will there be cases where this will be called without binfo being set?
 			if ($since != null)
 			{
-				$yay = $this->myquery("select time from " . THthreads_table . " where board=" . $this->binfo['id'] . " && time>=" . $since);
+				$yay = $this->myquery("select time from " . THthreads_table . " where board=" . $this->binfo['id'] . " and time>=" . $since);
 			}
 			else
 			{
@@ -309,9 +309,9 @@ class ThornDBI
 		//Check already banned...
 		if ($this->myresult("select count(*) from `" . THbans_table . "` where 
 			`ip_octet1`=" . intval($octets[0]) . " 
-			&& `ip_octet2`=" . intval($octets[1]) . " 
-			&& (`ip_octet3`=" . intval($octets[2]) . " OR `ip_octet3` = -1 )
-			&& (`ip_octet4`=" . intval($octets[3]) . " OR `ip_octet4` = -1 )
+			and `ip_octet2`=" . intval($octets[1]) . " 
+			and (`ip_octet3`=" . intval($octets[2]) . " OR `ip_octet3` = -1 )
+			and (`ip_octet4`=" . intval($octets[3]) . " OR `ip_octet4` = -1 )
 			") > 0)
 		{
 			return (true);
@@ -340,9 +340,9 @@ class ThornDBI
 		//Retrieve the bans
 		$bans = $this->mymultiarray("select * from `" . THbans_table . "` where 
 			`ip_octet1`=" . intval($octets[0]) . " 
-			&& `ip_octet2`=" . intval($octets[1]) . " 
-			&& (`ip_octet3`=" . intval($octets[2]) . " OR `ip_octet3` = -1 )
-			&& (`ip_octet4`=" . intval($octets[3]) . " OR `ip_octet4` = -1 )");
+			and `ip_octet2`=" . intval($octets[1]) . " 
+			and (`ip_octet3`=" . intval($octets[2]) . " OR `ip_octet3` = -1 )
+			and (`ip_octet4`=" . intval($octets[3]) . " OR `ip_octet4` = -1 )");
 
 		// Clear old bans if $clear is true
 		if( $clear == true )

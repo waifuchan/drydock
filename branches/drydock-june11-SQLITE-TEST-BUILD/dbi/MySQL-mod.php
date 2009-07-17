@@ -182,9 +182,9 @@ class ThornModDBI extends ThornDBI
 		//Retrieve the bans
 		$bans = $this->mymultiarray("select * from `" . THbanhistory_table . "` where 
 			`ip_octet1`=" . intval($octets[0]) . " 
-			&& `ip_octet2`=" . intval($octets[1]) . " 
-			&& (`ip_octet3`=" . intval($octets[2]) . " || `ip_octet3` = -1 )
-			&& (`ip_octet4`=" . intval($octets[3]) . " || `ip_octet4` = -1 )");
+			and `ip_octet2`=" . intval($octets[1]) . " 
+			and (`ip_octet3`=" . intval($octets[2]) . " or `ip_octet3` = -1 )
+			and (`ip_octet4`=" . intval($octets[3]) . " or `ip_octet4` = -1 )");
 		
 		return $bans;
 	}
@@ -218,7 +218,7 @@ class ThornModDBI extends ThornDBI
 			// Make an array of image indexes, starting with the replies (because then we can just optionally
 			// add on the thread OP's imgidx at the end, instead of having to jump through hoops like before)
 			$affimg = array();
-			$affimg = $this->myarray("select distinct imgidx from " . THreplies_table . " where thread=" . $id . " && imgidx!=0");
+			$affimg = $this->myarray("select distinct imgidx from " . THreplies_table . " where thread=" . $id . " and imgidx!=0");
 			
 			// Add the OP's imgidx to $affimg if it's nonzero
 			if ($postarray['imgidx'] != 0)
@@ -296,8 +296,8 @@ class ThornModDBI extends ThornDBI
 			$submax = $sub +255;
 			
 			// Get the imgidxes for the affected posts
-			$reply_imgidx = $this->myarray("select distinct imgidx from " . THreplies_table . " where ip between " . $sub . " and " . $submax . " && imgidx!=0");
-			$thread_imgidx = $this->myarray("select distinct imgidx from " . THthreads_table . " where ip between " . $sub . " and " . $submax . " && imgidx!=0");
+			$reply_imgidx = $this->myarray("select distinct imgidx from " . THreplies_table . " where ip between " . $sub . " and " . $submax . " and imgidx!=0");
+			$thread_imgidx = $this->myarray("select distinct imgidx from " . THthreads_table . " where ip between " . $sub . " and " . $submax . " and imgidx!=0");
 			
 			// Get the affected replies/threads
 			$affreplies = $this->mymultiarray("select id, globalid, board from " . THreplies_table . " where ip between " . $sub . " and " . $submax);
@@ -310,8 +310,8 @@ class ThornModDBI extends ThornDBI
 		else
 		{
 			// Get the imgidxes for the affected posts
-			$reply_imgidx = $this->myarray("select distinct imgidx from " . THreplies_table . " where ip=" . $ip . " && imgidx!=0");
-			$thread_imgidx = $this->myarray("select distinct imgidx from " . THthreads_table . " where ip=" . $ip . " && imgidx!=0");
+			$reply_imgidx = $this->myarray("select distinct imgidx from " . THreplies_table . " where ip=" . $ip . " and imgidx!=0");
+			$thread_imgidx = $this->myarray("select distinct imgidx from " . THthreads_table . " where ip=" . $ip . " and imgidx!=0");
 			
 			// Get the affected replies/threads
 			$affreplies = $this->mymultiarray("select id, globalid, board from " . THreplies_table . " where ip=" . $ip);
@@ -560,8 +560,8 @@ class ThornModDBI extends ThornDBI
 	function fragboard($board)
 	{
 		$imgidxes = array ();
-		$threadimgs = $this->myarray("select distinct imgidx from " . THthreads_table . " where board=" . $board . " && imgidx!=0");
-		$replyimgs = $this->myarray("select distinct imgidx from " . THreplies_table . " where board=" . $board . " && imgidx!=0");
+		$threadimgs = $this->myarray("select distinct imgidx from " . THthreads_table . " where board=" . $board . " and imgidx!=0");
+		$replyimgs = $this->myarray("select distinct imgidx from " . THreplies_table . " where board=" . $board . " and imgidx!=0");
 		
 		if( $threadimgs == null )
 			$threadimgs = array();

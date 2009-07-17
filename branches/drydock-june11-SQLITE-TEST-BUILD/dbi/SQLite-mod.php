@@ -161,8 +161,8 @@ class ThornModDBI extends ThornDBI
 		$bans = $this->mymultiarray("select * from " . THbanhistory_table . " where 
 					ip_octet1=" . intval($octets[0]) . " 
 					AND ip_octet2=" . intval($octets[1]) . " 
-					AND (ip_octet3=" . intval($octets[2]) . " || ip_octet3 = -1 )
-					AND (ip_octet4=" . intval($octets[3]) . " || ip_octet4 = -1 )");
+					AND (ip_octet3=" . intval($octets[2]) . " or ip_octet3 = -1 )
+					AND (ip_octet4=" . intval($octets[3]) . " or ip_octet4 = -1 )");
 
 		return $bans;
 	}
