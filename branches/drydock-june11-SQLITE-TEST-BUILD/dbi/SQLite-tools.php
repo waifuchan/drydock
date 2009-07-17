@@ -100,7 +100,17 @@ class ThornToolsDBI extends ThornDBI
 		if( $board > 0 )
 		{
 			$querystring = "SELECT 
-				".THimages_table.".*,
+				 ".THimages_table .".id as id,
+				 ".THimages_table .".hash as hash,
+				 ".THimages_table .".name as name,
+				 ".THimages_table .".width as width,
+				 ".THimages_table .".height as height,
+				 ".THimages_table .".tname as tname,
+				 ".THimages_table .".twidth as twidth,
+				 ".THimages_table .".theight as theight,
+				 ".THimages_table .".fsize as fsize,
+				 ".THimages_table .".anim as anim, 
+				 
 				".THthreads_table.".board AS thread_board,
 				".THthreads_table.".id AS thread_id,
 				".THthreads_table.".globalid AS thread_globalid,
@@ -120,12 +130,22 @@ class ThornToolsDBI extends ThornDBI
 			WHERE 
 				".THthreads_table.".board = ".intval($board)." OR ".THreplies_table.".board = ".intval($board)."
 			ORDER BY 
-				id ASC LIMIT ".intval($offset).", 40;";
+				".THimages_table.".id ASC LIMIT ".intval($offset).", 40;";
 		}
 		else
 		{
 			$querystring = "SELECT 
-				".THimages_table.".*,
+				 ".THimages_table .".id as id,
+				 ".THimages_table .".hash as hash,
+				 ".THimages_table .".name as name,
+				 ".THimages_table .".width as width,
+				 ".THimages_table .".height as height,
+				 ".THimages_table .".tname as tname,
+				 ".THimages_table .".twidth as twidth,
+				 ".THimages_table .".theight as theight,
+				 ".THimages_table .".fsize as fsize,
+				 ".THimages_table .".anim as anim, 
+				
 				".THthreads_table.".board AS thread_board,
 				".THthreads_table.".id AS thread_id,
 				".THthreads_table.".globalid AS thread_globalid,
@@ -145,7 +165,7 @@ class ThornToolsDBI extends ThornDBI
 			WHERE 
 				1
 			ORDER BY 
-				id ASC LIMIT ".intval($offset).", 40;";			
+				".THimages_table.".id ASC LIMIT ".intval($offset).", 40;";			
 		}
 		
 		return $this->mymultiarray($querystring);

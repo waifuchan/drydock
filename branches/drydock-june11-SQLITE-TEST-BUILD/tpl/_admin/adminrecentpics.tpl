@@ -69,9 +69,9 @@ Filter by board: <select name="board">
 					{/if}
 
 					{if $THuserewrite == true}
-						[<a href="{$THurl}{$boardz}/edit/$thisimage.reply_globalid">Edit</a>]
+						[<a href="{$THurl}{$boardz}/edit/{$thisimage.reply_globalid}">Edit</a>]
 					{else} 
-						[<a href="{$THurl}editpost.php?board={$boardz}&post=$thisimage.reply_globalid">Edit</a>]
+						[<a href="{$THurl}editpost.php?board={$boardz}&post={$thisimage.reply_globalid}">Edit</a>]
 					{/if}
 										
 					{* Show quick-moderation panel *}
