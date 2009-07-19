@@ -9,8 +9,15 @@
 
 			$sm->display($tpl,$cid);			// Display mod-specific stuff
 			if(($_SESSION['admin'] == 1) || ($_SESSION['moderator'] == 1) || ($modvar)) 			{ 				$sm->display("modscript.tpl",$cid); 			}
-			echo $sm->display("bottombar.tpl",$cid);
+			$sm->display("bottombar.tpl",$cid);
 
 			//$sm->display($tpl,$cid);			die();    		} //get=b		else 		{ 
 			include("news.php");
-		}//no argument given after index	}//ban check ends here?>
+		}//no argument given after index	}//ban check ends here
+
+
+function insert_navmenu()
+{
+include(THpath."menu.php");
+return $menustring;
+}?>

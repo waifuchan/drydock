@@ -18,4 +18,3 @@
 		</div>
 		<div>
 			{$page.content}
-{include file="bottombar.tpl"} {* This closes up the rest for us *}
