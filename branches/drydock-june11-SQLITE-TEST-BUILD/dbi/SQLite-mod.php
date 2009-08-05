@@ -29,7 +29,7 @@ class ThornModDBI extends ThornDBI
 			return (false);
 		}
 
-		if (is_int($ip)) // If it's an int, change it back over to the other format
+		if (is_numeric($ip)) // If it's an int, change it back over to the other format
 		{
 			$ip = long2ip($ip);
 		}
@@ -68,7 +68,7 @@ class ThornModDBI extends ThornDBI
 	{
 		if ($publicbanreason)
 		{
-			$publicbanreason = '<br /><br /><b><span class=ban>(' . $publicbanreason . ')</span></b>';
+			$publicbanreason = '<br /><br /><span class=ban>(' . $publicbanreason . ')</span>';
 		}
 		else
 		{
@@ -118,12 +118,15 @@ class ThornModDBI extends ThornDBI
 
 	function banipfromthread($id, $privatereason, $publicreason, $adminreason, $duration, $bannedby)
 	{
-		$this->banipfrompost($id, true, 0, $privatereason, $publicreason, $adminreason, $duration, $bannedby);
+		$this->banipfrompost($id, true, 0, $privatereason, $publicreason, $adminreason, 
+				$duration, $bannedby);
 
 		$replies = $this->myarray("select id from " . THreplies_table . " where thread=" . $id);
+		echo "<pre>".var_export($replies, true)."</pre><br/>";
 		foreach ($replies as $reply)
 		{
-			$this->banipfrompost($reply, false, 0, $privatereason, $publicreason, $adminreason, $duration, $bannedby);
+			$this->banipfrompost($reply, false, 0, $privatereason, $publicreason, $adminreason, 
+				$duration, $bannedby);
 		}
 	}
 

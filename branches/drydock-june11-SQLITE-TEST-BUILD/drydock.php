@@ -5,19 +5,12 @@
 				$sm->register_object("it",$db,array("getreplies","getindex","binfo","head","blotterentries"));								//$sm->display($threadtpl,$cid);
 				$sm->display($threadtpl,$cid);								// display extra mod stuff if they have access
 				if(($_SESSION['admin'] ==1) || ($_SESSION['moderator'] ==1) || ($modvar)) 				{ 					$sm->display("modscript.tpl",$cid); 				}				
-				$sm->display("bottombar.tpl",$cid);				die();			}			elseif (isset($_GET['g'])==true)			{				//This page of the board...				$page=abs((int)$_GET['g']);			} 			else 			{				$page=0;			}			$tpl="board.tpl";			// Caching ID format: b<board>-<page>-<template>			$cid="b".$boardid."-".$page."-".$template;			$modvar = is_in_csl($boardid, $_SESSION['mod_array']); // individual board moderator						$sm=sminit($tpl,$cid,$template,false,$modvar);			//var_dump($obj);			$db=new ThornBoardDBI($boardid,$page,$on);													$sm->debugging = true; // debug for now			$sm->debug_tpl = THpath."_Smarty/debug.tpl";					$sm->register_object("it",$db,array("getallthreads","getsthreads","getindex","binfo","page","allthreadscalmerge","blotterentries"));			$sm->assign('template', $template);			//here we go with a bunch of retarded variables that later we can turn into an array  (looks like i kopiped this)            $sm->assign('username',$_SESSION['username']);           			$sm->assign('comingfrom',"board");			if (isset($ogd)==true)			{				$sm->assign("on",$ogd);			}
+				$sm->display("bottombar.tpl");				die();			}			elseif (isset($_GET['g'])==true)			{				//This page of the board...				$page=abs((int)$_GET['g']);			} 			else 			{				$page=0;			}			$tpl="board.tpl";			// Caching ID format: b<board>-<page>-<template>			$cid="b".$boardid."-".$page."-".$template;			$modvar = is_in_csl($boardid, $_SESSION['mod_array']); // individual board moderator						$sm=sminit($tpl,$cid,$template,false,$modvar);			//var_dump($obj);			$db=new ThornBoardDBI($boardid,$page,$on);													$sm->debugging = true; // debug for now			$sm->debug_tpl = THpath."_Smarty/debug.tpl";					$sm->register_object("it",$db,array("getallthreads","getsthreads","getindex","binfo","page","allthreadscalmerge","blotterentries"));			$sm->assign('template', $template);			//here we go with a bunch of retarded variables that later we can turn into an array  (looks like i kopiped this)            $sm->assign('username',$_SESSION['username']);           			$sm->assign('comingfrom',"board");			if (isset($ogd)==true)			{				$sm->assign("on",$ogd);			}
 
 			$sm->display($tpl,$cid);			// Display mod-specific stuff
 			if(($_SESSION['admin'] == 1) || ($_SESSION['moderator'] == 1) || ($modvar)) 			{ 				$sm->display("modscript.tpl",$cid); 			}
-			$sm->display("bottombar.tpl",$cid);
+			$sm->display("bottombar.tpl");
 
 			//$sm->display($tpl,$cid);			die();    		} //get=b		else 		{ 
 			include("news.php");
-		}//no argument given after index	}//ban check ends here
-
-
-function insert_navmenu()
-{
-include(THpath."menu.php");
-return $menustring;
-}?>
+		}//no argument given after index	}//ban check ends here?>

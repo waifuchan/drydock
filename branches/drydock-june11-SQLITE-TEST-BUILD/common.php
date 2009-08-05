@@ -86,7 +86,11 @@
 			
 				if( $singleban['postdata'] )
 				{
-					echo 'Associated post:<br />'.$singleban['postdata'].'<br /><br />';
+					$fixbody = str_replace("&gt;",">",$singleban['postdata']);
+					$fixbody = str_replace("&amp;gt;",">",$fixbody);
+					$fixbody = str_replace("&lt;","<",$fixbody);
+					$fixbody = str_replace("&amp;lt;","<",$fixbody);
+					echo 'Associated post:<br />'.$fixbody.'<br /><br />';
 				}
 				
 				$reason = "";

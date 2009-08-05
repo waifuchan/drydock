@@ -29,7 +29,7 @@ class ThornModDBI extends ThornDBI
 			return (false);
 		}
 
-		if ( is_int($ip) ) // If it's an int, change it back over to the other format
+		if ( is_numeric($ip) ) // If it's an int, change it back over to the other format
 		{
 			$ip = long2ip($ip);
 		}
@@ -65,7 +65,7 @@ class ThornModDBI extends ThornDBI
 		duration='" . intval($duration) . "', 
 		bantime=" . $when . ", 
 		bannedby='" . $this->clean($bannedby) . "'";
-		
+
 		$this->myquery($banquery);
 		
 		return (true);
@@ -75,7 +75,7 @@ class ThornModDBI extends ThornDBI
 	{
 		if ($publicbanreason)
 		{
-			$publicbanreason = '<br /><br /><b><span class=ban>(' . $publicbanreason . ')</span></b>';
+			$publicbanreason = '<br /><br /><span class=ban>(' . $publicbanreason . ')</span>';
 		}
 		else // return if we don't have one
 		{
@@ -85,8 +85,6 @@ class ThornModDBI extends ThornDBI
 		if ($isthread)
 		{
 			$thebody = $this->myresult("select body from " . THthreads_table . " where id=" . $id);
-			//$thebody = escape_string($thebody);
-			//$thebody.=' (USER HAS BEEN BANNED FOR THIS POST)';
 			$thebody .= $publicbanreason;
 			$updatequery = "update " . THthreads_table . " set body='" . $this->escape_string(nl2br($thebody)) . "' where id=" . $id;
 			$myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
@@ -94,8 +92,6 @@ class ThornModDBI extends ThornDBI
 		else
 		{
 			$thebody = $this->myresult("select body from " . THreplies_table . " where id=" . $id);
-			//$thebody = escape_string($thebody);
-			//$thebody.=' (USER HAS BEEN BANNED FOR THIS POST)';
 			$thebody .= $publicbanreason;
 			$updatequery = "update " . THreplies_table . " set body='" . $this->escape_string(nl2br($thebody)) . "' where id=" . $id;
 			$myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
@@ -134,7 +130,7 @@ class ThornModDBI extends ThornDBI
 				$duration, $bannedby);
 			
 		$replies = $this->myarray("select id from " . THreplies_table . " where thread=" . $id);		
-		foreach($replies as $reply)
+		foreach ($replies as $reply)
 		{
 			$this->banipfrompost($reply, false, 0, $privatereason, $publicreason, $adminreason, 
 				$duration, $bannedby);		
