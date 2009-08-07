@@ -90,7 +90,7 @@
 					$fixbody = str_replace("&amp;gt;",">",$fixbody);
 					$fixbody = str_replace("&lt;","<",$fixbody);
 					$fixbody = str_replace("&amp;lt;","<",$fixbody);
-					echo 'Associated post:<br />'.$fixbody.'<br /><br />';
+					echo 'Associated post:<br />'.nl2br($fixbody).'<br /><br />';
 				}
 				
 				$reason = "";

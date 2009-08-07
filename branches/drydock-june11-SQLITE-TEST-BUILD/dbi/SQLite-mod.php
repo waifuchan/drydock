@@ -66,6 +66,7 @@ class ThornModDBI extends ThornDBI
 
 	function banbody($id, $isthread, $publicbanreason = "USER HAS BEEN BANNED FOR THIS POST")
 	{
+		echo "banbody";
 		if ($publicbanreason)
 		{
 			$publicbanreason = '<br /><br /><span class=ban>(' . $publicbanreason . ')</span>';
@@ -78,14 +79,14 @@ class ThornModDBI extends ThornDBI
 		{
 			$thebody = $this->myresult("select body from " . THthreads_table . " where id=" . $id);
 			$thebody .= $publicbanreason;
-			$updatequery = "update " . THthreads_table . " set body='" . $this->escape_string(nl2br($thebody)) . "' where id=" . $id;
+			$updatequery = "update " . THthreads_table . " set body='" . $thebody . "' where id=" . $id;
 			$myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
 		}
 		else
 		{
 			$thebody = $this->myresult("select body from " . THreplies_table . " where id=" . $id);
 			$thebody .= $publicbanreason;
-			$updatequery = "update " . THreplies_table . " set body='" . $this->escape_string(nl2br($thebody)) . "' where id=" . $id;
+			$updatequery = "update " . THreplies_table . " set body='" . $thebody . "' where id=" . $id;
 			$myresult = $this->myquery($updatequery); //or die('Could not add to post body. Another mod may have already deleted this post');
 		}
 		return;
@@ -100,19 +101,19 @@ class ThornModDBI extends ThornDBI
 			$q2 = "select globalid,board,body from " . THthreads_table . " where id=" . $id;
 			$postdata = $this->myassoc($q2);
 			$postdata = 'Post ' . $postdata['globalid'] . ' in /' . $this->getboardname($postdata['board']) .
-			"/:<br />" . nl2br($postdata['body']);
+			"/:<br />" . $postdata['body'];
 		}
 		else
 		{
 			$ip = $this->myresult("select ip from " . THreplies_table . " where id=" . $id);
 			$postdata = $this->myassoc("select globalid,board,body from " . THreplies_table . " where id=" . $id);
 			$postdata = 'Post ' . $postdata['globalid'] . ' in /' . $this->getboardname($postdata['board']) .
-			"/:<br />" . nl2br($postdata['body']);
+			"/:<br />" . $postdata['body'];
 		}
 		$this->banbody($id, $isthread, $publicreason);
 		$this->touchpost($id, $isthread); // Mark a moderation action as performed
 		$this->touchreports($postdata['globalid'], $postdata['board'], 1); // Mark as valid all reports for this post
-		//		echo $result; die();		
+
 		return ($this->banip($ip, $subnet, $privatereason, $publicreason, $adminreason, $postdata, $duration, $bannedby));
 	}
 
@@ -122,7 +123,7 @@ class ThornModDBI extends ThornDBI
 				$duration, $bannedby);
 
 		$replies = $this->myarray("select id from " . THreplies_table . " where thread=" . $id);
-		echo "<pre>".var_export($replies, true)."</pre><br/>";
+
 		foreach ($replies as $reply)
 		{
 			$this->banipfrompost($reply, false, 0, $privatereason, $publicreason, $adminreason, 

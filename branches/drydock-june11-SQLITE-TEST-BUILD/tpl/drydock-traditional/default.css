@@ -66,4 +66,4 @@ form { margin-bottom: 0px }
 .box { padding-left:10px; margin-bottom:10px; border-style:none; border-color:black; border-width:1px; }
 .bline { font-family:sans-serif; font-size:xx-small; text-align:center; }
 .bottomAdTitle { font-family: arial,helvetica, sans-serif; background: #EEEEEE; color: #333333; }
-.ban { color:red; }
+.ban { color:red; font-weight: bold; }
