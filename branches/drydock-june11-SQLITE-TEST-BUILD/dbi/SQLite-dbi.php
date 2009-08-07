@@ -90,16 +90,16 @@ class ThornDBI implements absThornDBI
 		return ($dog);
 	}
 	
-	//in mysql this is the same as above but sometimes sqlite craps itself and i don't want to work on it anymore
 	function myarray($call)
 	{
-		if(DDDEBUG==1) { echo ("myarray: " . $call . "<br />"); }
-		$manta = sqlite_fetch_array($call, SQLITE_ASSOC); // or return null;
-		if ($manta === false)
+		if(DDDEBUG==1) { echo ("myarray: " . $call . "<br />"); } 
+		$pup = sqlite_query(THdblitefn, $call);
+		$dog = sqlite_fetch_array($pup, SQLITE_NUM); // or return null;
+		if ($dog === false)
 		{
 			return (null);
 		}
-		return ($manta);
+		return ($dog);
 	}
 
 	function myresult($call)
