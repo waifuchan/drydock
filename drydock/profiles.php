@@ -41,8 +41,7 @@
 		{
 			$query = "SELECT * FROM ".THusers_table." WHERE username=\"".escape_string($_POST['name']).
 			"\" AND password=\"".escape_string(md5(THsecret_salt.$_POST['password']))."\" AND approved=1";
-			$userresult = $db->myquery($query);
-			$userdata=$db-> myassoc($userresult);
+			$userdata=$db->myassoc($query);
 
 			if($userdata != NULL)
 			{
