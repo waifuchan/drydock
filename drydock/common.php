@@ -219,8 +219,8 @@
 		{
 			//$smarty->display($tpl,$id);
 			echo $smarty->display($tpl,$id);
-			if(($_SESSION['admin']) || ($_SESSION['moderator']) || ($modvar)) { $smarty->display("modscript.tpl",$id); }
-			echo $smarty->display("bottombar.tpl",$id);
+			if(($_SESSION['admin']) || ($_SESSION['moderator']) || ($modvar)) { $smarty->display("modscript.tpl",null); }
+			echo $smarty->display("bottombar.tpl",null);
 			die("<!-- Loaded from cache /-->");
 		}
 		$smarty->assign_by_ref("THcname",$id);
