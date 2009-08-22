@@ -627,7 +627,7 @@ $query = "INSERT INTO ".THboards_table." ( id , globalid , name , folder , about
 VALUES (
 ".$db->clean($id).",".$globalid.",'".$db->clean($name)."','".$db->clean($folder)."','".$db->clean($about)."','".$db->clean($rules)."','".$perpg."','".$perth."','"
 .$hidden."','".$allowedformats."','".$forced_anon."','".$maxfilesize."','".$maxres."','".$thumbres."','".$pixperpost."','".$customcss."','".$allowvids."','"
-.$filter."','".$boardlayout."','".$requireregistration."','".$tlock."','".$rlock."','".$tpix."','".$rpix."','".$tmax."', NULL );";
+.$filter."','".$boardlayout."','".$requireregistration."','".$tlock."','".$rlock."','".$tpix."','".$rpix."','".$tmax."', 0 );";
 				$db->myquery($query);
 				$actionstring = "Board add\tid:".$id;
 				writelog($actionstring,"admin");
