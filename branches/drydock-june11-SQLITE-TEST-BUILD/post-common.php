@@ -536,7 +536,7 @@
         if($svgdata !== false)
         {
             // Instantiate the handler
-            $safehtml =& new HTML_Safe();
+            $safehtml = new HTML_Safe();
 
             // Style and title are okay tags
             $safehtml->deleteTags = array(
@@ -578,7 +578,7 @@
 
 		if(THuseSWFmeta)
 		{
-	        $flash = &new File_SWF($fyle['path']);
+	        $flash = new File_SWF($fyle['path']);
 			
 	        if($flash)
 	        {
@@ -660,7 +660,7 @@
 		// Is metadata enabled?
 		if(THusePDF>2)
 		{
-			$pdf =& new FPDI(); 
+			$pdf = new FPDI(); 
 			$pagecount = $pdf->setSourceFile($fyle['path']);
 			$extrainfo = intval($pagecount)." pages";
 			

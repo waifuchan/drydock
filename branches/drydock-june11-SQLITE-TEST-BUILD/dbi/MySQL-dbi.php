@@ -68,55 +68,51 @@ class ThornDBI
 	
 	function myassoc($call)
 	{
-		//echo("myassoc: $call<br />");
+		if(DDDEBUG==1) { echo ("myassoc: " . $call . "<br />"); } 
 		$dog = @ mysql_fetch_assoc(mysql_query($call)); // or return null;
 		if ($dog === false)
 		{
 			return (null);
 		}
-		//var_dump($dog);echo"<br>";
 		return ($dog);
 	}
 
 	function myarray($call)
 	{
-		//echo("myarray: $call<br />");
+		if(DDDEBUG==1) { echo ("myarray: " . $call . "<br />"); } 
 		$manta = @ mysql_fetch_array(mysql_query($call)); // or return null;
 		if ($manta === false)
 		{
 			return (null);
 		}
-		//var_dump($manta);echo"<br>";
 		return ($manta);
 	}
 
 	function myresult($call)
 	{
-		//echo("myresult: $call<br />");
+		if(DDDEBUG==1) { echo ("myresult: " . $call . "<br />"); }
 		$dog = mysql_query($call); // or die(mysql_error()."<br />".$call);
 		if ($dog === false || mysql_num_rows($dog) == 0)
 		{
 			return (null);
 		}
-		//var_dump(mysql_result($dog, 0));echo"<br>";
 		return (mysql_result($dog, 0));
 	}
 
 	function myquery($call)
 	{
-		//echo("myquery: $call<br />");
+		if(DDDEBUG==1) { echo ("myquery: " . $call . "<br />"); }
 		$dog = mysql_query($call); // or die(mysql_error()."<br />".$call);
 		if ($dog === false)
 		{
 			return (null);
 		}
-		//var_dump($dog);echo"<br>";
 		return ($dog);
 	}
 
 	function mymultiarray($call)
 	{
-		//echo("mymultiarray: $call<br />");
+		if(DDDEBUG==1) { echo ("mymultiarray: " . $call . "<br />"); } 
 
 		$multi = array ();
 
@@ -128,8 +124,6 @@ class ThornDBI
 				$multi[] = $entry;
 			}
 		}
-
-		//var_dump($multi);echo"<br>";
 		return $multi;
 	}
 

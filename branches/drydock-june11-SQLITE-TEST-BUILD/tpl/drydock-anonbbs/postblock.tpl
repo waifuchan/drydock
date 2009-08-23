@@ -56,8 +56,8 @@ Password: <input type="password" name="password" size="8" /><br> {* New password
                     <noscript>
                     <input type="submit" value="Post" />
                     </noscript> 
-{if $comingfrom == "board"}<input type="hidden" name="board" value="{$binfo.id}" />
-{else if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.id}" />{/if}
+<input type="hidden" name="board" value="{$binfo.folder}" />
+{if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.id}" />{/if}
                 </div>
             </form>
         </div>
