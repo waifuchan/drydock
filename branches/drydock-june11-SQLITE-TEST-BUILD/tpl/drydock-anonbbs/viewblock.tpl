@@ -24,8 +24,6 @@ No Subject
     </div>
     <div><span class="medtitle">{$thread.globalid}</span> 
 
-<input type="checkbox" name="chkpost{$thread.globalid}" value="1"> {* Deletion/reporting checkbox *}
-
 {		if $binfo.forced_anon!=1} {* begin forced_anon *}
 
  Name: 
@@ -49,6 +47,11 @@ No Subject
 :
 		<span class="timedate">{$thread.time|date_format:$THdatetimestring}</span>
 {			if $thread.link}</a>{/if}
+
+[<a href="misc.php?action=report&board={$binfo.folder}&postid={$thread.globalid}" target="_blank">Report</a>]
+
+<a name="jsmod" style="display:none;">{$binfo.folder},{$thread.globalid}</a>
+
     </div>
 {if $thread.images}
 <table>
@@ -91,8 +94,6 @@ No Subject
 {	/if}
 {foreach from=$location item=post}
     <div class="sslarge"><span class="medtitle">{$post.globalid}</span> 
-    
-<input type="checkbox" name="chkpost{$post.globalid}" value="1"> {* Deletion/reporting checkbox *}   
  
 {		if $binfo.forced_anon != 1} {* begin forced_anon *}
  Name: 
@@ -116,6 +117,11 @@ No Subject
 :
 		<span class="timedate">{$post.time|date_format:$THdatetimestring}</span>
 {			if $post.link}</a>{/if}
+
+[<a href="misc.php?action=report&board={$binfo.folder}&postid={$post.globalid}" target="_blank">Report</a>]
+
+<a name="jsmod" style="display:none;">{$binfo.folder},{$post.globalid}</a>
+
     </div>
     <div class="postbody">
 	<blockquote>

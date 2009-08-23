@@ -11,10 +11,6 @@
 {include file=postblock.tpl comingfrom=$comingfrom}
 <hr />
 
-{* Beginning of form for post deletion/reporting/whatever else we might want in the future *}
-<form target="_blank" action="misc.php" method="POST" id="delform">
-<input type="hidden" name="board" value="{$binfo.folder}" />
-
 <table width="100%">
 <tr width="100%">
 <th width=55% align=left>Subject</th><th with=20% align=left>Poster</th><th width=15% align=center>Timestamp</th><th width=10% align=center>Posts</th>
@@ -38,14 +34,6 @@
 	-->
 </script>
 {/literal}
-
-{* End of form for post deletion/reporting/whatever else *}
-<div style="text-align:right">
-Password: <input type="password" name="password" value=""><br>
-<input type="submit" name="report" value="Report"><input type="submit" name="delete" value="Delete">
-</div>
-</form>
-
 
 {literal}
 <script type="text/javascript">

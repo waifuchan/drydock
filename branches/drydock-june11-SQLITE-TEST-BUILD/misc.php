@@ -16,7 +16,12 @@
 			- view static page
 				View static page params:
 					- string $_GET['page'] - The page name
-					- string $_GET['action'] = "getpage"					
+					- string $_GET['action'] = "getpage"
+			- report (gets set to the relevant POST parameters)
+				Report params:
+					- string $_GET['action'] = "report"
+					- string $_GET['board'] - board folder
+					- int $_GET['postid'] - post globalid			
 								
 		Things that take $_POST:
 			- delete (delete posts)
@@ -53,6 +58,16 @@
 	
 	require_once("config.php");
 	require_once("common.php");
+	
+	// If we are attempting to report a post via $_GET:
+	// Map some $_GET parameters to $_POST parameters, so we don't
+	// have to duplicate the reporting code
+	if ($_GET['action'] == "report")
+	{
+		$_POST['report'] = "report";
+		$_POST['board'] = $_GET['board'];
+		$_POST['chkpost'.$_GET['postid']] = true;
+	}
 	
 	if ($_GET['action'] == "handlereport")
 	{

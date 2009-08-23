@@ -21,8 +21,6 @@
 	
 		</td><td>
 
-<input type="checkbox" name="chkpost{$thread.globalid}" value="1"> {* Deletion/reporting checkbox *}
-
 {*<a href="{$THurl}profiles.php?action=viewprofile&user={$thread.name|escape:'html':'UTF-8'}">*}{*this should only be used on forced-reg boards, so it's untested*}
 {				if !$thread.trip}
 {					if !$thread.name}
