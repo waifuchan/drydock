@@ -143,13 +143,13 @@ Filter by board:
 				{foreach from=$report.post.images item=image}
 					<td>
 					<div class="filesize">
-						File: <a href="images/{$post.imgidx}/{$image.name}" target="_blank">{$image.name}</a><br />
+						File: <a href="images/{$report.post.imgidx}/{$image.name}" target="_blank">{$image.name}</a><br />
 						{* Display file size, dimensions, and possible an a (for animated) *}
 						(<em>{$image.fsize} K, {$image.width}x{$image.height} {if $image.anim}a{/if}</em>)
 					</div>
-					File: <a class="info" href="images/{$post.imgidx}/{$image.name}" target="_blank">
+					File: <a class="info" href="images/{$report.post.imgidx}/{$image.name}" target="_blank">
 						{if $image.hash != "deleted"}
-							<img src="images/{$post.imgidx}/{$image.tname}" width="{$image.twidth}" 
+							<img src="images/{$report.post.imgidx}/{$image.tname}" width="{$image.twidth}" 
 								height="{$image.theight}" alt="{$image.name}" class="thumb" />
 						{else}
 							<img src="{$THurl}static/file_deleted.png" alt="File deleted" width="100" height="16" class="thumb" />
