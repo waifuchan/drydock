@@ -50,7 +50,6 @@
 		if (p!= null)
 		{
 			document.forms['postform'].elements['password'].value=unescape(p).replace(/\+/g," ");
-			document.forms['delform'].elements['password'].value=unescape(p).replace(/\+/g," ");
 		}
 		else
 		{
@@ -63,8 +62,7 @@
 				pass+=chars.substring(rnd,rnd+1);
 			}
 
-			document.forms['postform'].elements['password'].value=pass;
-			document.forms['delform'].elements['password'].value=pass;			
+			document.forms['postform'].elements['password'].value=pass;		
 		}
 	//-->
 </script>

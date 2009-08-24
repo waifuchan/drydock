@@ -103,7 +103,7 @@
 					<td><div class="rules">{include file=rules.tpl}</div></td>
 				</tr>
 <input type="hidden" name="board" value="{$binfo.folder}" />
-{if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.globalid}" />{/if}
+{if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.id}" />{/if}
 {if $blotter}
 <tr>
 <td class="postblock">Blotter</td>

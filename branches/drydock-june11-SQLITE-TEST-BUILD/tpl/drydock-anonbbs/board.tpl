@@ -18,7 +18,7 @@
 {counter name="upto" assign="upto" start="0"}
 {foreach from=$bthreads item=th}
 {counter name="upto"}
-<a href="#{$th.globalid}">{$th.globalid}: {if $th.title}{$th.title|escape:'html':'UTF-8'}{else}No Subject{/if} ({$th.rcount+1})</a> &nbsp;&nbsp;
+<a href="#{$th.globalid}">{$th.globalid}: {if $th.title}{$th.title|escape:'html':'UTF-8'}{else}No Subject{/if} ({$th.rcount+1})</a> <br />
 {foreachelse}
 (no threads)
 {/foreach}
@@ -81,7 +81,6 @@
 		if (p!= null)
 		{
 			document.forms['postform'].elements['password'].value=unescape(p).replace(/\+/g," ");
-			document.forms['delform'].elements['password'].value=unescape(p).replace(/\+/g," ");
 		}
 		else
 		{
@@ -94,8 +93,7 @@
 				pass+=chars.substring(rnd,rnd+1);
 			}
 
-			document.forms['postform'].elements['password'].value=pass;
-			document.forms['delform'].elements['password'].value=pass;			
+			document.forms['postform'].elements['password'].value=pass;	
 		}
 	//-->
 </script>
