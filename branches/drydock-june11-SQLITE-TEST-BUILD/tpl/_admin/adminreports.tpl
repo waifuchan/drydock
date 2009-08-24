@@ -102,9 +102,9 @@ Filter by board:
 					Low-quality posting
 					{/if}
 					</b>
-				&mdash;
+				+
 					Number of reporters: <b>{$report.reporter_count}</b>
-				&mdash;
+				+
 					First reported: <b>{$report.earliest_report|date_format:$THdatetimestring}</b>
 			</div>
 			
@@ -140,7 +140,7 @@ Filter by board:
 				
 				{counter name="imgcount" assign="imgcount" start="0"}
 				<tr>
-				{foreach from=$post.images item=image}
+				{foreach from=$report.post.images item=image}
 					<td>
 					<div class="filesize">
 						File: <a href="images/{$post.imgidx}/{$image.name}" target="_blank">{$image.name}</a><br />
@@ -175,11 +175,11 @@ Filter by board:
 					<a href="misc.php?action=handlereport&post={$report.postid}&board={$boardz}&status=1" target="_blank">
 					Mark as valid
 					</a>
-				&mdash;
+				+
 					<a href="misc.php?action=handlereport&post={$report.postid}&board={$boardz}&status=2" target="_blank">
 					Mark as invalid
 					</a>
-				&mdash;
+				+
 					<a href="misc.php?action=handlereport&post={$report.postid}&board={$boardz}&status=3" target="_blank">
 					Mark as reviewed (neither outright valid/invalid)
 					</a>
