@@ -3,25 +3,22 @@
 {it->binfo assign=binfo}
 {it->blotterentries assign=blotter}
 {* include_php file="linkbar.php" *} {* tyam - this way we have a list of boards to quicklink to - take the asterisks out if you want them*}
+{include file=pages.tpl}
 <br clear="all" />
 		<center>{include_php file="banners.php"}
 		<div class="pgtitle">
 			{$binfo.name}<br \>
-			<font color="red" size="-2">Last post: {if $binfo.lasttime>0}{$binfo.lasttime|date_format:$THdatetimestring}{else}unavailable{/if}</font><br />
 		</div>
 		</center><br />
-{if $binfo.about}{$binfo.about}<br />{/if}
-{include file=rules.tpl}
 <br/>{if $binfo.tlock}Only moderators and administrators are allowed to create new threads.<br />{/if}</br>
 <a name="tlist"></a>
 <hr />
     <div class="medtitle">
-{it->getallthreads assign="bthreads"}
+{it->getsthreads assign="bthreads"}
 {counter name="upto" assign="upto" start="0"}
 {foreach from=$bthreads item=th}
 {counter name="upto"}
-{*<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$th.globalid}">*}
-<a href="#{$th.globalid}">{$th.globalid}: {if $th.title}{$th.title|escape:'html':'UTF-8'}{else}No Subject{/if} ({$thread.rcount+1})</a> &nbsp;&nbsp;
+<a href="#{$th.globalid}">{$th.globalid}: {if $th.title}{$th.title|escape:'html':'UTF-8'}{else}No Subject{/if} ({$th.rcount+1})</a> &nbsp;&nbsp;
 {foreachelse}
 (no threads)
 {/foreach}
