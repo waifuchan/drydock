@@ -362,12 +362,28 @@
 					$it=opendir($pyath);
 					while (($img=readdir($it))!==false)
 					{
-						if ($img{0}!=".")
+						// Skip over the directory items
+						if ($img == "." || $img == ".." )
 						{
-							unlink($pyath.$img);
+							continue;	
+						}
+						
+						if( unlink($pyath.$img) == false )
+						{
+							// Handle error and write to rmfailures log
+							$error = error_get_last();
+							$errorstring = "file: ".$pyath.$img."\tmsg: ".$error['message'];
+							writelog($errorstring, "rmfailures");
 						}
 					}
-					rmdir($pyath);
+					
+					if( rmdir($pyath) == false )
+					{
+						// Handle error and write to rmfailures log
+						$error = error_get_last();
+						$errorstring = "dir: ".$pyath."\tmsg: ".$error['message'];
+						writelog($errorstring, "rmfailures");
+					}
 				}
 			}
 		}
@@ -631,7 +647,14 @@
 	{
 		$logfile = fopen("unlinked/".$type.".log", "a") or error_log("Could not write ".$type." log: ".$actionstring."\n",3,"error.log");
 		
-		fwrite($logfile, strftime("%m/%d/%y %H:%M:%S",time()+(THtimeoffset*60)).": ".$_SESSION['username']."\t".$_SERVER['REMOTE_ADDR']."\t");
+		$username = "(none)";
+		
+		if(isset($_SESSION['username'])) 
+		{
+			$username = $_SESSION['username'];
+		}
+		
+		fwrite($logfile, strftime("%m/%d/%y %H:%M:%S",time()+(THtimeoffset*60)).": ".$username."\t".$_SERVER['REMOTE_ADDR']."\t");
 		fwrite($logfile, $actionstring."\n");
 		fclose($logfile);
 	}
