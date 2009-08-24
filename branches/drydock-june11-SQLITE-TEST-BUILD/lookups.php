@@ -29,7 +29,7 @@ else
 		
 		// Generate a regex pattern that'll capture the image index
 		// from the directory name
-		$pattern = "/^".quotemeta(THurl)."images/(\d+)/*$/i";
+		$pattern = "/^".preg_quote(THurl, '/')."images\/(\d+)\/*$/i";
 		$matches = array(); // use this as a preg_match param
 		
 		// Die if we can't parse this properly

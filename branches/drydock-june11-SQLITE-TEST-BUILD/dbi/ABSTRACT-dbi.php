@@ -135,6 +135,16 @@ interface absThornDBI
 	function gettimessince($since);
 
 	/**
+	 * Get the last time anything was posted, either board or thread
+	 * 
+	 * @param int $thread The thread to search for
+	 * @param string $folder The board to search for by folder name
+	 * 
+	 * @return int time This is our timestamp
+	 */
+	function getlastposttime($thread,$folder);
+
+	/**
 	 * Get the images associated with a certain post by its image index.
 	 * 
 	 * @param int $imgidx The image index to search for

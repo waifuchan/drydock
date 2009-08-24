@@ -1,6 +1,6 @@
 {it->binfo assign=binfo}
 {* tyam - page links for top and bottom of page *}
-{it->getsthreads assign="bthreads"}
+{it->getallthreads assign="bthreads"}
 {assign value=$GET.g|default:0 var=thispg}
 <table border="1"><tbody><tr><td>
 {if $thispg!=0}<a href="{$THurl}{$binfo.folder}/{$thispg-1}">Previous</a>{else}Previous{/if}

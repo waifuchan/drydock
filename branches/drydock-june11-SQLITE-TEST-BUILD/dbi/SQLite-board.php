@@ -120,6 +120,12 @@ class ThornBoardDBI extends ThornDBI
 		while (@ $th = sqlite_fetch_array($rezs)) //help
 		{
 			unset ($th['ip']);
+			$th['rcount'] = $this->myresult($debug);
+			if ($th['rcount'] == 0 || $this->binfo['perth'] == 0)
+			{
+				$th['reps'] = null;
+				$th['scount'] = 0;
+			}
 			if ($p['full'] == true)
 			{
 				$th['images'] = $this->getimgs($th['imgidx']);

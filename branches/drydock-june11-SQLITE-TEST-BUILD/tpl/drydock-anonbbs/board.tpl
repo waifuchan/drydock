@@ -18,12 +18,15 @@
 {counter name="upto" assign="upto" start="0"}
 {foreach from=$bthreads item=th}
 {counter name="upto"}
-<a href="#{$th.globalid}">{$th.globalid}: {if $th.title}{$th.title|escape:'html':'UTF-8'}{else}No Subject{/if} ({$th.rcount+1})</a> <br />
+<a href="#{$th.globalid}">{$th.globalid}: {if $th.title}{$th.title|escape:'html':'UTF-8'}{else}No Subject{/if} ({$th.rcount+1})</a>&nbsp;&nbsp;
 {foreachelse}
 (no threads)
 {/foreach}
-	</div><br />
+<div align=right>
+<a href="#newthread">New thread</a>&nbsp;&nbsp;All threads&nbsp;
+</div>
 
+	</div><br />
 </div>
 
 {it->getsthreads assign="sthreads"}
@@ -35,6 +38,7 @@
 {/foreach}{*For each thread*}
 </div>
 <div class="box">
+<a name=newthread></a>
 {include file=postblock.tpl comingfrom=$comingfrom}
  </div>
 </div>

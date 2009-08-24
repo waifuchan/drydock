@@ -122,9 +122,16 @@ class ThornBoardDBI extends ThornDBI
 		$rezs = $this->myquery($q);
 
 		$threads = array ();
-		while (@ $th = $this->myarray($rezs))
+		while (@ $th = mysql_fetch_assoc($rezs))
 		{
 			unset ($th['ip']);
+			$th['images'] = $this->getimgs($th['imgidx']);
+			$th['rcount'] = $this->myresult("select count(*) from " . THreplies_table . " where thread=" . $th['id']);
+			if ($th['rcount'] == 0 || $this->binfo['perth'] == 0)
+			{
+				$th['reps'] = null;
+				$th['scount'] = 0;
+			}
 			if ($p['full'] == true)
 			{
 				$th['images'] = $this->getimgs($th['imgidx']);
