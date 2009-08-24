@@ -252,7 +252,7 @@ interface absThornDBI
 	/**
 	 * Insert metadata info into the extra info table, and return the ID
 	 * 
-	 * @param string $exif The metadata string to store
+	 * @param string $exif The (already HTML-escaped, but not DB-escaped) metadata string to store
 	 * 
 	 * @return int The insert ID, or 0 if it failed
 	 */

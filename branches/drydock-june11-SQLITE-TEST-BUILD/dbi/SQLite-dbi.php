@@ -516,7 +516,7 @@ class ThornDBI implements absThornDBI
 	function addexifdata($exif)
 	{
 		$ex_inf_result = 
-			$this->myquery("INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".$this->clean($exif)."')");
+			$this->myquery("INSERT INTO ".THextrainfo_table." ( id, extra_info ) VALUES (NULL, '".$this->escape_string($exif)."')");
 		
 		if($ex_inf_result)
 		{
