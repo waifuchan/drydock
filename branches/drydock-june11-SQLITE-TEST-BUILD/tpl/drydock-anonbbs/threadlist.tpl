@@ -18,43 +18,48 @@
 {/if}
 <script type="text/javascript" src="{$THurl}js.js"></script>
 </head>
+<body>
 <div id="main">
 	<div class="box">
 		<div class="pgtitle">
 			{$THname} - /{$binfo.folder}/ - thread list
 		</div>
 		<div>
-{it->binfo assign=binfo}
 
-<body>
-
-<br clear="all" />
-		<center>{include_php file="banners.php"}
-		<div class="pgtitle">
-			{$binfo.name}<br \>
-		</div>
-		</center><br />
-<a name="tlist"></a>
-<hr />
-    <div class="medtitle">
 [<a href="{$THurl}{if !$THuserewrite}drydock.php?b={/if}{$binfo.folder}">Return</a>]<br/>
-<table width=100%>
+<table width=50%>
+<thead>
 <tr>
-<td>Num</td><td>Title</td><td align=right>Posts</td><td>Last</td></tr>
+<th align=right>Num</th>
+<th>Title</th>
+<th align=right>Posts</th>
+<th>Last post</th>
+</tr>
+</thead>
+<tbody>
+<tr>
 {it->getallthreads assign="bthreads"}
 {counter name="upto" assign="upto" start="0"}
 {foreach from=$bthreads item=th}
 {counter name="upto"}
 <tr>
-<td>{$th.globalid}:</td>
+<td align=right>{$th.globalid}:</td>
 <td><a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$th.globalid}">{if $th.title}{$th.title|escape:'html':'UTF-8'}{else}No Subject{/if}</a></td>
 <td align=right><a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$th.globalid}">{$th.rcount+1}</a></td>
-<td>Some date format</td>
+<td align=right>
+<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$th.globalid}">
+{if $th.rcount>0}
+{$th.lastrep|date_format:$THdatetimestring}
+{else}
+{$th.time|date_format:$THdatetimestring}
+{/if}
+</a>
+</td>
 </tr>
 {foreachelse}
 (no threads)
 {/foreach}
+</tbody></table>
 	</div>
-</div>
 </div>
 </div>

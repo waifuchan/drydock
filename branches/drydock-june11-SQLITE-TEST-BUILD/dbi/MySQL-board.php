@@ -24,6 +24,7 @@ class ThornBoardDBI extends ThornDBI
 		$this->binfo = $this->myassoc("select * from " . THboards_table . " where id=" . $bored);
 		$this->on = $on;
 		$this->blotterentries = $this->getblotter($bored);
+		$this->getlastposttime = $this->getlastposttime(null,$bored);
 		//$this->st=$st;
 		//$this->et=$et;
 		//var_dump($this->on);
@@ -140,6 +141,8 @@ class ThornBoardDBI extends ThornDBI
 			{
 				$th['date'] = getdate($th['time']);
 			}
+			//Check replies for the last time
+			$th['lastrep'] = $this->myresult("SELECT time FROM ".THreplies_table." WHERE thread=".$th['id']." ORDER BY time DESC LIMIT 1");
 			//$th['images'] = $this->getimgs($th['imgidx']);
 			$threads[] = $th;
 		}
@@ -212,6 +215,7 @@ class ThornBoardDBI extends ThornDBI
 		$sthreads = array ();
 		$result = $this->myquery("select * from " . THthreads_table . " where board=" . $this->binfo['id'] . $orderby);
 
+
 		while ($th = mysql_fetch_assoc($result)) 
 		{
 			unset ($th['ip']);
@@ -240,6 +244,8 @@ class ThornBoardDBI extends ThornDBI
 				}
 
 				$thread_replies = $this->mymultiarray("select * from " . THreplies_table . " where thread=" . $th['id'] . $orderby);
+				//Check replies for the last time
+				$th['lastrep'] = $this->myresult("SELECT time FROM ".THreplies_table." WHERE thread=".$thread." ORDER BY time DESC LIMIT 1");
 				foreach ($thread_replies as $reply)
 				{
 					unset ($reply['ip']);

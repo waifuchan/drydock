@@ -13,6 +13,8 @@
 	http://www.opensource.org/licenses/artistic-license-2.0.php
 */
 
+require_once ("ABSTRACT-board.php"); // abstract interface
+
 class ThornBoardDBI extends ThornDBI
 {
 	function ThornBoardDBI($bored, $payj, $on = array ())
@@ -22,6 +24,7 @@ class ThornBoardDBI extends ThornDBI
 		$this->binfo = $this->myassoc("select * from " . THboards_table . " where id=" . $bored);
 		$this->on = $on;
 		$this->blotterentries = $this->getblotter($bored);
+		$this->getlastposttime = $this->getlastposttime(null,$bored);
 		//$this->st=$st;
 		//$this->et=$et;
 		//var_dump($this->on);
@@ -134,6 +137,8 @@ class ThornBoardDBI extends ThornDBI
 			{
 				$th['date'] = getdate($th['time']);
 			}
+			//Check replies for the last time
+			$th['lastrep'] = $this->myresult("SELECT time FROM ".THreplies_table." WHERE thread=".$th['id']." ORDER BY time DESC LIMIT 1");
 			$threads[] = $th;
 		}
 
@@ -216,6 +221,8 @@ class ThornBoardDBI extends ThornDBI
 					$orderby = " order by time limit " . $start . "," . $this->binfo['perth'];
 				}
 				$toad = $this->myquery("select * from " . THreplies_table . " where thread=" . $th['id'] . $orderby);
+				//Check replies for the last time
+				$th['lastrep'] = $this->myresult("SELECT time FROM ".THreplies_table." WHERE thread=".$thread." ORDER BY time DESC LIMIT 1");
 				while ($reply = sqlite_fetch_array($toad)) //help
 				{
 					unset ($reply['ip']);

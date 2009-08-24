@@ -298,6 +298,10 @@ function rebuild_htaccess()
 			fwrite($htaccess, 'RewriteRule ^' . $boardentry['folder'] . '/([0-9]{1,2})/?$ ' . THpath . 'drydock.php?g=$1&b=' . $boardentry['folder'] . "\n");
 			fwrite($htaccess, 'RewriteRule ^' . $boardentry['folder'] . '/thread/([0-9]{1,6})/?$ ' . THpath . 'drydock.php?i=$1&b=' . $boardentry['folder'] . "\n");
 			fwrite($htaccess, 'RewriteRule ^' . $boardentry['folder'] . '/edit/([0-9]{1,6})/?$ ' . THpath . 'editpost.php?post=$1&board=' . $boardentry['folder'] . "\n");
+			if($boardentry['boardlayout']=="drydock-anonbbs")
+			{ 
+				fwrite($htaccess, 'RewriteRule ^' . $boardentry['folder'] . '/tlist/?$ ' . THpath . 'drydock.php?tlist&b=' . $boardentry['folder'] . "\n");
+			} 
 		}
 	} //end block only needed for rewrite
 	fclose($htaccess);

@@ -10,9 +10,9 @@
 			{$binfo.name}<br \>
 		</div>
 		</center><br />
-<br/>{if $binfo.tlock}Only moderators and administrators are allowed to create new threads.<br />{/if}</br>
+<br/>{if $binfo.tlock}Only moderators and administrators are allowed to create new threads.<br />{/if}
 <a name="tlist"></a>
-<hr />
+Threads on this page:
     <div class="medtitle">
 {it->getsthreads assign="bthreads"}
 {counter name="upto" assign="upto" start="0"}
@@ -22,11 +22,11 @@
 {foreachelse}
 (no threads)
 {/foreach}
-<div align=right>
-<a href="#newthread">New thread</a>&nbsp;&nbsp;All threads&nbsp;
-</div>
-
-	</div><br />
+	</div>
+	<div align=right>
+		<a href="#newthread">New thread</a>&nbsp;&nbsp;
+		<a href="{$THurl}{if $THuserewrite}{$binfo.folder}/tlist{else}drydock.php?b={$binfo.folder}&tlist{/if}">All threads</a>
+	</div>
 </div>
 
 {it->getsthreads assign="sthreads"}
