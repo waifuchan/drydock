@@ -200,7 +200,7 @@
 							<img src="{$THurl}static/file_deleted.png" alt="File deleted" width="100" height="16" class="thumb" />
 						{/if}
 						</a>
-						</td></tr>
+						</td>
 				{if ($imgcount mod 4 == 3)}</tr><tr>{/if}
 				{counter name="imgcount"}
 				{/foreach}
