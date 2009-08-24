@@ -29,13 +29,12 @@ Filter by board:
     <div style="align: center;">
     {if $reports!=null}
 		{foreach from=$reports item=report}
-			<table>
-			<tr>
-			
+		
+			<div>
 			{assign var=boardz value=$boards[$report.board].folder} {* for brevity's sake *}
 									
 			{* Link to thread *}
-			<td>
+
 			{if $report.post.thread != 0} {* This is a reply *}	
 				{if $boardz != false }				
 					Post {$report.postid} in thread {$report.post.thread_globalid} on /{$boardz}/
@@ -62,19 +61,16 @@ Filter by board:
 					[Thread]
 				{/if}			
 			{/if}
-			</td>
 			
 			{* Show edit link *}
-			<td>
 			{if $THuserewrite == true}
 				[<a href="{$THurl}{$boardz}/edit/{$report.post.globalid}">Edit</a>]
 			{else} 
 				[<a href="{$THurl}editpost.php?board={$boardz}&post={$report.post.globalid}">Edit</a>]
 			{/if}
-			</td>
 			
 			{* Show quick-moderation panel *}
-			<td>
+
 			<form target="_blank" action="misc.php" method="post">
 			[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$report.post.id}'))">Quickmod</a>]
 			<span id="quickmod{$report.post.id}" class="modblock">
@@ -93,12 +89,11 @@ Filter by board:
 			<i><b>Previously moderated</b></i>
 			{/if}
 			
-			</td></tr>
-			
+			</div> {* end of ID, board, moderation links *}
+						
 			{* Show reporting info *}
-			<tr>
-				<td>
-					Average classification of report:
+			<div>
+					Average classification of report: <b>
 					{if $report.category == 1}
 					Illegal content
 					{elseif $report.category == 2}
@@ -106,16 +101,15 @@ Filter by board:
 					{else}
 					Low-quality posting
 					{/if}
-				</td>
-				<td>
-					Number of reporters: {$report.reporter_count}
-				</td>
-				<td>
-					First reported: {$report.earliest_report|date_format:$THdatetimestring}
-				</td>
-			</tr>
+					</b>
+				&mdash;
+					Number of reporters: <b>{$report.reporter_count}</b>
+				&mdash;
+					First reported: <b>{$report.earliest_report|date_format:$THdatetimestring}</b>
+			</div>
 			
 			{* Show stuff like name, link field, etc *}
+			<div>
 			
 			{if $report.post.link}<a href="{$report.post.link}">{/if}
 
@@ -138,56 +132,60 @@ Filter by board:
 						
 			{if $report.post.title != ''}<br><span class="filetitle">{$report.post.title}</span>{/if}
 			
+			</div> {* end of name, link field, etc *}
+			
 			{* Show images *}
 			{if $report.post.images}
-				<table><tbody>
-				{foreach from=$report.post.images item=image}
-					<tr><td>
+			<table>
+				
+				{counter name="imgcount" assign="imgcount" start="0"}
+				<tr>
+				{foreach from=$post.images item=image}
+					<td>
 					<div class="filesize">
-						File: <a href="images/{$report.post.imgidx}/{$image.name}" target="_blank">{$image.name}</a><br />
+						File: <a href="images/{$post.imgidx}/{$image.name}" target="_blank">{$image.name}</a><br />
 						{* Display file size, dimensions, and possible an a (for animated) *}
 						(<em>{$image.fsize} K, {$image.width}x{$image.height} {if $image.anim}a{/if}</em>)
 					</div>
-					File: <a class="info" href="images/{$report.post.imgidx}/{$image.name}" target="_blank">
+					File: <a class="info" href="images/{$post.imgidx}/{$image.name}" target="_blank">
 						{if $image.hash != "deleted"}
-							<img src="images/{$report.post.imgidx}/{$image.tname}" width="{$image.twidth}" 
+							<img src="images/{$post.imgidx}/{$image.tname}" width="{$image.twidth}" 
 								height="{$image.theight}" alt="{$image.name}" class="thumb" />
 						{else}
 							<img src="{$THurl}static/file_deleted.png" alt="File deleted" width="100" height="16" class="thumb" />
 						{/if}
 						</a>
-					<br />
-					</td></tr>
+						</td></tr>
+				{if ($imgcount mod 4 == 3)}</tr><tr>{/if}
+				{counter name="imgcount"}
 				{/foreach}
-				</tbody></table>
+				
+				</tr></table>
 			{/if}
-			</td></tr>
-			<tr><td> {* Split rest of post from post body *}
+			
+			{* Split rest of post from post body *}
+			<div> 
 				<blockquote>
 					{$report.post.body|nl2br}
 				</blockquote>
-			</td></tr>
+			</div>
 			
 			{* Show report handling links *}
-			<tr>
-				<td>
+			<div>
 					<a href="misc.php?action=handlereport&post={$report.postid}&board={$boardz}&status=1" target="_blank">
 					Mark as valid
 					</a>
-				</td>
-				<td>
+				&mdash;
 					<a href="misc.php?action=handlereport&post={$report.postid}&board={$boardz}&status=2" target="_blank">
 					Mark as invalid
 					</a>
-				</td>
-				<td>
+				&mdash;
 					<a href="misc.php?action=handlereport&post={$report.postid}&board={$boardz}&status=3" target="_blank">
 					Mark as reviewed (neither outright valid/invalid)
 					</a>
-				</td>			
-			</tr>
+			</div>
 			
-			</table><hr>
+			<hr>
 		{/foreach}
 	{else}
 	No reports match these filters.<br />

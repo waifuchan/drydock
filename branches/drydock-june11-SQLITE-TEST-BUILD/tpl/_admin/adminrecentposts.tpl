@@ -90,10 +90,9 @@
     <div>
     {if $posts!=null}
 		{foreach from=$posts item=post}
-			<table>
-			<tr><td>
 			{assign var=boardz value=$boards[$post.board].folder} {* for brevity's sake *}
-						
+			
+			<div>			
 			{* Link to thread *}
 			{if $post.thread != 0} {* This is a reply *}	
 				{if $boardz != false }				
@@ -120,19 +119,19 @@
 					[Thread]
 				{/if}			
 			{/if}
-			</td>
+			
 			
 			{* Show edit link *}
-			<td> 
+
 			{if $THuserewrite == true}
 				[<a href="{$THurl}{$boardz}/edit/{$post.globalid}">Edit</a>]
 			{else} 
 				[<a href="{$THurl}editpost.php?board={$boardz}&post={$post.globalid}">Edit</a>]
 			{/if}
-			</td>
+		
 			
 			{* Show quick-moderation panel *}
-			<td>
+
 			<form target="_blank" action="misc.php" method="POST">
 			[<a onclick="javascript:ToggItem(document.getElementById('quickmod{$post.id}'))">Quickmod</a>]
 			<span id="quickmod{$post.id}" style="display: none;" class="modblock">
@@ -151,12 +150,11 @@
 			<i><b>Previously moderated</b></i>
 			{/if}
 			
-			</td>
-			</tr>
-			
-			<tr><td>
+			</div> {* end of ID, board, moderation links *}
+				
 			
 			{* Show stuff like name, link field, etc *}
+			<div>
 			
 			{if $post.link}<a href="{$post.link}">{/if}
 
@@ -179,11 +177,16 @@
 						
 			{if $post.title != ''}<br><span class="filetitle">{$post.title}</span>{/if}
 			
+			</div> {* end of name, link field, etc *}
+			
 			{* Show images *}
-			{if $post.images}
-				<table><tbody>
+			{if $post.images}	
+				<table>
+				
+				{counter name="imgcount" assign="imgcount" start="0"}
+				<tr>
 				{foreach from=$post.images item=image}
-					<tr><td>
+					<td>
 					<div class="filesize">
 						File: <a href="images/{$post.imgidx}/{$image.name}" target="_blank">{$image.name}</a><br />
 						{* Display file size, dimensions, and possible an a (for animated) *}
@@ -197,18 +200,21 @@
 							<img src="{$THurl}static/file_deleted.png" alt="File deleted" width="100" height="16" class="thumb" />
 						{/if}
 						</a>
-					<br />
-					</td></tr>
+						</td></tr>
+				{if ($imgcount mod 4 == 3)}</tr><tr>{/if}
+				{counter name="imgcount"}
 				{/foreach}
-				</tbody></table>
+				
+				</tr></table>
 			{/if}
-			</td></tr>
-			<tr><td> {* Split rest of post from post body *}
+			
+			{* Split rest of post from post body *}
+			<div>
 				<blockquote>
 					{$post.body|nl2br}
 				</blockquote>
-			</td></tr>
-			</table><hr>
+			</div>
+						
 		{/foreach}
 	{else}
 	No posts match these filters.<br />
