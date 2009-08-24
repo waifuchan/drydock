@@ -749,7 +749,7 @@ else
 								$errorstring .= "Sorry, your name must be between 4 and 30 characters.<br>\n";
 							}
 
-							if (!eregi("^([0-9a-z\.-_])+$", $username))
+							if(!preg_match('/^([\w\.])+$/i', $username))
 							{
 								$errorstring .= "Sorry, your name must be alphanumeric and contain no spaces.<br>\n";
 							}
@@ -771,7 +771,7 @@ else
 							{
 
 								/* Check if valid email address */
-								if (!eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email))
+								if(!preg_match('/^[A-z0-9_\-]+\@(A-z0-9_-]+\.)+[A-z]{2,4}$/', $email))
 								{
 									$errorstring .= "You must provide a valid email address!<br>\n";
 								}

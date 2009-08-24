@@ -389,7 +389,7 @@
             //2ch-style tripcodes...
             //More or less stolen from Futallaby
             $salt=substr($trip."H.",1,2);
-            $salt=ereg_replace("[^\.-z]",".",$salt);
+            $salt=preg_replace("/[^\.-z]/",".",$salt);
             $salt=strtr($salt,":;<=>?@[\\]^_`","ABCDEFGabcdef"); 
             $trip=substr(crypt($trip,$salt),-10)."";
         } 
