@@ -187,11 +187,27 @@ class ThornToolsDBI extends ThornDBI
 		{
 			if( $boardquery == "" )
 			{
-				$boardquery = "visible != 1";
+				if($get_threads == false)
+				{
+					// We're doing some joins if we're not doing threads so we need to qualify the board name
+					$boardquery = THreplies_table.".visible != 1";
+				}
+				else
+				{
+					$boardquery = "visible != 1";
+				}
 			}
 			else
 			{
-				$boardquery .= ",visible != 1";
+				if($get_threads == false)
+				{
+					// We're doing some joins if we're not doing threads so we need to qualify the board name
+					$boardquery = ",".THreplies_table.".visible != 1";
+				}
+				else
+				{
+					$boardquery .= ",visible != 1";
+				}	
 			}
 		}
 			
@@ -205,7 +221,7 @@ class ThornToolsDBI extends ThornDBI
 		{
 			$postquery = "SELECT ".THreplies_table.".*, ".THthreads_table.".globalid AS thread_globalid FROM ".THreplies_table.
 			" LEFT OUTER JOIN ".THthreads_table." ON ".THreplies_table.".thread = ".THthreads_table.".id
-			WHERE ".$boardquery." order by id asc LIMIT ".$offset.", 20";
+			WHERE ".$boardquery." order by ".THreplies_table.".id asc LIMIT ".$offset.", 20";
 		}
 		else
 		{
