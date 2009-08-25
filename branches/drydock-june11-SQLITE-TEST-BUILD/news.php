@@ -24,6 +24,12 @@
 	*/
 	require_once("config.php");
 	require_once("common.php");
+
+
+	//Temp fix for 031, I'm remaking this entire page setup in 032 ~tyam	
+	//If we're using rss2html...
+	if ((THnewsboard!=0)&&(file_exists("rss2html.php")))
+	{ 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -41,8 +47,6 @@
 		</div>
 		<div>
 <?php
-	if ((THnewsboard!=0)&&(file_exists("rss2html.php")))
-	{ 
 		include("rss2html.php");
 			if (THuserewrite)  //compatibility~~~
 			{
@@ -52,9 +56,6 @@
 			}
 		$db = new ThornDBI();
 		 $archivelink .= $db->getboardname(THnewsboard).'">Full News Archive</a>';  //make our link
-	} else {
-		echo "<br />This site is powered by the drydock image board script.";
-	}
 ?>
 		</div>
 	</div>
@@ -64,8 +65,21 @@
 <?php if($archivelink) {
 		echo '<div align="center" style="font-family:verdana,century;font-size:10px;padding-bottom: 10px;">- '.$archivelink." -</div>\n";
 }
+	//Otherwise, we'll use static pages
+	} else {
+		
+		$db = new ThornToolsDBI();
+		$pagedata = $db->getstaticpage("FrontPage");
+		if( $pagedata == null )
+		{
+			$pagedata = "<br />This site is powered by the drydock image board script.";
+		}
+		// Caching ID format: p<pageid>
+		$cid="p".$pagedata['id'];
+			
+		// Initialize the Smarty object, display the object, and go
+		$sm=sminit("staticpage.tpl",$cid,THtplset);
+		$sm->assign_by_ref("page",$pagedata);
+		$sm->display("staticpage.tpl",$cid);
+	}
 ?>
-
-<div align="center">- <a href="http://thorn.pichan.org/" target="blank">Thorn</a> +
-<a href="http://wakaba.c3.cx/s/web/wakaba_kareha.html" target="_blank">Wakaba</a> +
-<a href="http://code.573chan.org/" target="_blank">drydock</a> -</div>

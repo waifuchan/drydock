@@ -26,6 +26,9 @@
 		$query = "INSERT INTO ".$configarray['THdbprefix']."users ( username , password , userid , userlevel , email , mod_array , mod_global , mod_admin , timestamp , age , gender , location , contact , description , capcode , has_picture , approved , pic_pending , proposed_capcode ) VALUES 
 			('".$configarray['adminname']."', '".$configarray['adminpass']."', '".$configarray['adminpass']."', '9', NULL , '0', '0', '1', '0', NULL , NULL , NULL , NULL , NULL , NULL , NULL , '1', NULL , NULL)";
 		if($configarray['THdbtype']=="MySQL") { mysql_query($query) or die("Database settings aren't correct"); } else { sqlite_query($link, $query) or die("Database settings aren't correct"); }
+		$pages = "INSERT INTO ".$configarray['THdbprefix']."pages ( id , name , title , content , publish ) VALUES (1, 'FrontPage', 'News Page', 'This site is powered by the drydock image board script.', 3)";
+		if($configarray['THdbtype']=="MySQL") { mysql_query($pages) or die("Database settings aren't correct"); } else { sqlite_query($link, $pages) or die("Database settings aren't correct"); }		
+		
 	}
 
 	function unlink_placeholders($path) {

@@ -142,6 +142,17 @@
 			die ("CREATE Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
 		}
 			
+			
+		//Add an entry for the front page into pages table
+		$query = "INSERT INTO `".THdbprefix."pages` (`id`, `name`, `title`, `content`, `publish`) VALUES (1, 'FrontPage', 'News Page', 'This site is powered by the drydock image board script.', 3)";
+		$result = $dbi->myquery($query);
+		if($result === null)
+		{
+			die ("INSERT Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
+		}
+
+		
+
 		// Rewrite config.php (just a simple append, but I guess it will do for now)
 		$addition = 
 		'<?php 
