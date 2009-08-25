@@ -18,7 +18,7 @@
 
 {if $timeout > 0}
 	{if $redirectURL != ""} {* Possibly redirect *}
-		<meta http-equiv="refresh" content="{$timeout};URL={$redirect}"> 
+		<meta http-equiv="refresh" content="{$timeout};URL={$redirectURL}"> 
 	{else} {* No redirect, just close *}
 		<script language="javascript">
 		<!--

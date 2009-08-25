@@ -174,11 +174,11 @@
 	{
 		if (THuserewrite) 
 		{ 
-			$location = THurl.$_POST['board']; 
+			$location = THurl.$binfo['folder']; 
 		} 
 		else 
 		{ 
-			$location = THurl."drydock.php?b=".$_POST['board']; 
+			$location = THurl."drydock.php?b=".$binfo['folder']; 
 		}
 	}
 	elseif ($_POST['todo']=="thread")
@@ -188,11 +188,11 @@
 
 		if (THuserewrite) 
 		{ 
-			$location = THurl.$board."/thread/".$loc_arr['thread_loc']; 
+			$location = THurl.$binfo['folder']."/thread/".$loc_arr['thread_loc']; 
 		} 
 		else 
 		{ 
-			$location = THurl."drydock.php?b=$board&i=".$loc_arr['thread_loc']; 
+			$location = THurl."drydock.php?b=".$binfo['folder']."&i=".$loc_arr['thread_loc']; 
 		}
 	}
 	

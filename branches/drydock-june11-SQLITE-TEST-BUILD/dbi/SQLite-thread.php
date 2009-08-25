@@ -24,7 +24,6 @@ class ThornThreadDBI extends ThornDBI
 		$this->head['images'] = $this->getimgs($this->head['imgidx']);
 		$this->binfo = $this->myassoc("select * from " . THboards_table . " where id=" . $this->head['board']);
 		$this->blotterentries = $this->getblotter($binfo['id']);
-		$this->getlastposttime = $this->getlastposttime($th,null);
 	}
 	
 	function getreplies($p, & $sm)
