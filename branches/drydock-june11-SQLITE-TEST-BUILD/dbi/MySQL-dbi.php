@@ -177,22 +177,6 @@ class ThornDBI
 		return ($wows);
 	}
 
-	function getlastposttime($thread,$folder)
-	{
-//Thinking about this wrong, so here's a workaround
-/*
-		//We can only pass one of these, so make sure we do this right
-		if($thread)
-		{
-			//Check replies for the last time
-*/			$this->myresult("SELECT time FROM ".THreplies_table." WHERE thread=".$thread." ORDER BY time DESC LIMIT 1");
-/*		} else {
-			//Check the board for the last time
-			$this->myresult("SELECT time FROM ".THthreads_table." WHERE folder=".$folder." ORDER BY time DESC LIMIT 1");
-		}
-*/		return $time;
-	}
-
 	function getimgs($imgidx)
 	{
 		if ($imgidx == 0 || $imgidx == null)
