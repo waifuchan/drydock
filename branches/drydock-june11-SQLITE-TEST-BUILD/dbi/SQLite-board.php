@@ -122,7 +122,7 @@ class ThornBoardDBI extends ThornDBI
 		while (@ $th = sqlite_fetch_array($rezs)) //help
 		{
 			unset ($th['ip']);
-			$th['rcount'] = $this->myresult($debug);
+			$th['rcount'] = $this->myresult("select count(*) from " . THreplies_table . " where thread=" . $th['id']);
 			if ($th['rcount'] == 0 || $this->binfo['perth'] == 0)
 			{
 				$th['reps'] = null;
@@ -195,9 +195,7 @@ class ThornBoardDBI extends ThornDBI
 			//print_r($th); echo "<br />";
 			unset ($th['ip']);
 			$th['images'] = $this->getimgs($th['imgidx']);
-			$debug = "select count(*) from " . THreplies_table . " where thread=" . $th['id'];
-			//echo $debug."<hr>";
-			$th['rcount'] = $this->myresult($debug);
+			$th['rcount'] = $this->myresult("select count(*) from " . THreplies_table . " where thread=" . $th['id']);
 			if ($th['rcount'] == 0 || $this->binfo['perth'] == 0)
 			{
 				$th['reps'] = null;
