@@ -118,7 +118,7 @@
 			}
 		}
 		
-		$sm=sminit("popup");
+		$sm=sminit("popup.tpl");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", 5); // 5s
 		$sm->assign("title", "Report handler");
@@ -235,7 +235,7 @@
 			}
 		}
 		
-		$sm=sminit("popup");
+		$sm=sminit("popup.tpl");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", "5"); // 5s
 		$sm->assign("title", "Post deletion form");
@@ -325,7 +325,7 @@
 			}
 		}
 		
-		$sm=sminit("popup");
+		$sm=sminit("popup.tpl");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", $timeout);
 		$sm->assign("title", "Post reporting form");
@@ -392,7 +392,7 @@
 			}
 		}
 		
-		$sm=sminit("popup");
+		$sm=sminit("popup.tpl");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", 5); // 5 s
 		$sm->assign("title", "Post reporting form");
@@ -508,7 +508,7 @@
 			}
 		}
 		
-		$sm=sminit("popup");
+		$sm=sminit("popup.tpl");
 		$sm->assign("text",$message);
 		$sm->assign("timeout", 5); // 5s
 		$sm->assign("title", "Moderation action");

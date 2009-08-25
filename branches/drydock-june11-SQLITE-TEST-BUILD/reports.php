@@ -71,7 +71,7 @@ else
 	$boards = array();
 	$boards = $db->getboard(); // No parameters means everything gets fetched
 
-	$sm=sminit("adminreports",null,"_admin",true); // Admin mode means NO caching. (and we provided a null id anyway)
+	$sm=sminit("adminreports.tpl",null,"_admin",true); // Admin mode means NO caching. (and we provided a null id anyway)
 	
 	$sm->debugging = true; // debug for now
 	$sm->debug_tpl = THpath."_Smarty/debug.tpl";

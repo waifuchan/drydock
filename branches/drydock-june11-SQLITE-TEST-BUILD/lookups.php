@@ -112,7 +112,7 @@ else
 			}
 		}
 		
-		$sm=sminit("adminlookup",null,"_admin",true); // Admin mode means NO caching. (and we provided a null id anyway)
+		$sm=sminit("adminlookup.tpl",null,"_admin",true); // Admin mode means NO caching. (and we provided a null id anyway)
 		
 		// These can be pretty big, so we're going to assign by reference.
 		$sm->assign_by_ref("posthistory",$posthistory);

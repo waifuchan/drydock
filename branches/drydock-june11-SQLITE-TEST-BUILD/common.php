@@ -156,9 +156,9 @@
 		} 
 		else 
 		{
-			$sm=sminit("error",$err);
+			$sm=sminit("error.tpl",$err);
 			$sm->assign_by_ref("error",$err);
-			$sm->display("error.tpl",$err);
+			$sm->display("error.tpl",null);
 			die();
 		}
 	}//THdie
@@ -196,7 +196,7 @@
 	 * used for caching, and with certain common variables, such as THurl,
 	 * intialized
 	 * 
-	 * @param string $tpl The template file to use
+	 * @param string $tpl The template file to use (make sure to include the .tpl)
 	 * @param string $id The ID to use for caching (will perform a lookup and may
 	 * even potentially result in a cached version being used if there is a match).
 	 * Defaults to null.

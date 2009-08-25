@@ -64,10 +64,11 @@
  	 * rather than just a simple file extension check.
  	 * 
 	 * @param array $binfo A reference to an assoc-array containing board information
+	 * @param array $errs A reference to an array of strings; populate with error messages for each file
  	 * 
  	 * @return array An array of files which are, at least at this stage "valid".
  	 */
-    function checkfiles(&$binfo) 
+    function checkfiles(&$binfo, &$errs) 
     {
         //Are the files we're uploading okay?
         global $db;
@@ -81,7 +82,8 @@
             {
                 if ($_FILES[$dis]['size']>$binfo['maxfilesize'])
                 {
-                    THdie("File too big >".$binfo['maxfilesize']);
+					$errs[] = $_FILES[$dis]['name'] . " is too big (> ".$binfo['maxfilesize']." bytes)";
+                   	continue;
                 } 
 				else 
 				{  
@@ -110,7 +112,8 @@
                                     if ( $svgelements->item(0) == null )
 									// Didn't find an SVG element, so it's not a valid file.
 									{
-										THdie("Error: attempted to upload malformed SVG file");
+										$errs[] = $_FILES[$dis]['name'] . " is a malformed SVG file";
+                   						continue;
 									}
                                 }
                             }
@@ -125,7 +128,8 @@
 										// It starts differing after 3 characters, but let's see if this will work for now.
 										if(fread($check_pointer, 3) != "\xFF\xD8\xFF")
 										{
-											THdie("Error: attempted to upload malformed JPG file");
+											$errs[] = $_FILES[$dis]['name'] . " is a malformed JPEG file";
+                   							continue;
 										}
 									}
 						        }
@@ -137,7 +141,8 @@
 									{
 										if(fread($check_pointer, 8) != "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
 										{
-											THdie("Error: attempted to upload malformed PNG file");
+											$errs[] = $_FILES[$dis]['name'] . " is a malformed PNG file";
+                   							continue;
 										}
 									}
 						        }
@@ -150,7 +155,8 @@
 										// It starts differing after 3 characters, but let's see if this will work for now.
 										if(fread($check_pointer, 3) != "GIF")
 										{
-											THdie("Error: attempted to upload malformed GIF file");
+											$errs[] = $_FILES[$dis]['name'] . " is a malformed GIF file";
+                   							continue;
 										}
 									}
 						        }
@@ -160,7 +166,8 @@
 								
 								if($width > $binfo['maxres'] or $height > $binfo['maxres'])
 								{
-									THdie("Error: image exceeds acceptable dimensions");
+									$errs[] = $_FILES[$dis]['name'] . " exceeds acceptable dimensions";
+           							continue;
 								}
 							}
 							else if( $ext=="swf" )
@@ -169,7 +176,8 @@
 								{
 									if(fread($check_pointer, 3) != "CWS")
 									{
-										THdie("Error: attempted to upload malformed SWF file");
+										$errs[] = $_FILES[$dis]['name'] . " is a malformed SWF file";
+               							continue;
 									}
 								}
 							}
@@ -179,13 +187,16 @@
 								{
 									if(fread($check_pointer, 4) != "%PDF")
 									{
-										THdie("Error: attempted to upload malformed PDF file");
+										$errs[] = $_FILES[$dis]['name'] . " is a malformed PDF file";
+               							continue;										
 									}
 								}
 							}
                             else
                             {
-                                THdie("Sorry! The filetype ".$ext." is not currently supported.");
+								$errs[] = "Sorry! The filetype ".$ext." is not currently supported (for file " . 
+									$_FILES[$dis]['name'] . ").";
+       							continue;
                             }
 							
 							fclose($check_pointer);
@@ -211,7 +222,9 @@
                         } // bitlookup
                         else 
                         {
-                            THdie("The filetype ".$ext." is not allowed on this board.");
+							$errs[] = "The filetype ".$ext." is not allowed on this board (for file " . 
+								$_FILES[$dis]['name'] . ").";                       
+                            continue;
                         }
                     }//dotpos
                 }//filesize

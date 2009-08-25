@@ -109,7 +109,8 @@
 	}
 
 	//File checking and processing here, I suppose.
-	$goodfiles=checkfiles($binfo);
+	$filemessages = array(); // Array of strings regarding "bad" files
+	$goodfiles=checkfiles($binfo, $filemessages);
 	//echo(count($goodfiles));
 	if ($binfo['tpix']==0 && count($goodfiles)>0 && $mod==false)
 	{
@@ -167,11 +168,18 @@
 		setcookie(THcookieid."-password", $_POST['password'],time()+THprofile_cookietime, THprofile_cookiepath);
 	}
 
-	//hopefully this doesn't break it! -tyam
+	// Initialize $location variable for HTTP redirects
+	$location = "drydock.php"; // Default
 	if ($_POST['todo']=="board")
 	{
-		if (THuserewrite) { $location = THurl.$_POST['board']; } else { $location = THurl."drydock.php?b=".$_POST['board']; }
-		header("Location: ".$location);
+		if (THuserewrite) 
+		{ 
+			$location = THurl.$_POST['board']; 
+		} 
+		else 
+		{ 
+			$location = THurl."drydock.php?b=".$_POST['board']; 
+		}
 	}
 	elseif ($_POST['todo']=="thread")
 	{
@@ -186,11 +194,33 @@
 		{ 
 			$location = THurl."drydock.php?b=$board&i=".$loc_arr['thread_loc']; 
 		}
-		
-		header("Location: ".$location);
-	} 
-	else 
-	{
-		header("Location: drydock.php");
 	}
+	
+	// Popup.tpl does redirects now
+	$sm=sminit("popup.tpl");
+	$sm->assign("redirectURL", $location); // Set redirect URL from $location
+	if(count($filemessages) > 0)
+	{
+		// There was some sort of error encountered when attempting to upload a file
+		
+		// Build a string based on the errors
+		$popuptext = "The following errors were encountered when attempting to upload files:<br><ul>\n";
+		foreach( $filemessages as $filemsg)
+		{
+			$popuptext = $popuptext . "<li>" . htmlspecialchars($filemsg) . "</li>\n";
+		}
+		$popuptext = $popuptext . '</ul><br>Click <a href="'.$location.'">here to proceed.';
+		
+		$sm->assign("text",$popuptext); // Stick into the template
+		
+		$sm->assign("timeout", 0); // No automatic redirect
+	} 
+	else
+	{
+		// No problems
+		$sm->assign("text","Updating page...");
+		$sm->assign("timeout", 3); // Redirect after 3 seconds
+	}
+	$sm->display("popup.tpl");
+
 ?>
