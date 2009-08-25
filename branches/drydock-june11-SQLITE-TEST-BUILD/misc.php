@@ -120,7 +120,7 @@
 		
 		$sm=sminit("popup");
 		$sm->assign("text",$message);
-		$sm->assign("timeout", 5000);
+		$sm->assign("timeout", 5); // 5s
 		$sm->assign("title", "Report handler");
 		$sm->display("popup.tpl");
 		die();	
@@ -237,7 +237,7 @@
 		
 		$sm=sminit("popup");
 		$sm->assign("text",$message);
-		$sm->assign("timeout", "5000"); // 5000 ms
+		$sm->assign("timeout", "5"); // 5s
 		$sm->assign("title", "Post deletion form");
 		$sm->display("popup.tpl");
 		die();
@@ -245,7 +245,7 @@
 	elseif($_POST['report'] == "Report" ) // Report a post
 	{
 		$message = "what";
-		$timeout = 5000; // we'll change it to something else if the report is ok so far
+		$timeout = 5; // we'll change it to something else if the report is ok so far
 		
 		if( !isset($_POST['board']) || $_POST['board'] == "")
 		{
@@ -394,7 +394,7 @@
 		
 		$sm=sminit("popup");
 		$sm->assign("text",$message);
-		$sm->assign("timeout", 5000);
+		$sm->assign("timeout", 5); // 5 s
 		$sm->assign("title", "Post reporting form");
 		$sm->display("popup.tpl");
 		die();	
@@ -510,7 +510,7 @@
 		
 		$sm=sminit("popup");
 		$sm->assign("text",$message);
-		$sm->assign("timeout", 5000);
+		$sm->assign("timeout", 5); // 5s
 		$sm->assign("title", "Moderation action");
 		$sm->display("popup.tpl");
 		die();	
