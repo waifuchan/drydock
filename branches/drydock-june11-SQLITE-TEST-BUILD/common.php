@@ -728,4 +728,20 @@
 //			unset($_SESSION['mod_array']);
 //		}
 	}
+	
+	/***
+	 * Check if an email address is valid or not
+	 * 
+	 * @param string $email The address to validate
+	 * 
+	 * @return bool True if the provided string is a valid email address
+	 */
+	function validateemail($email)
+	{
+		// based on the discussion at http://php.net/preg_match
+		
+		return preg_match('/^([a-z0-9])(([-a-z0-9._])*([a-z0-9]))*\@([a-z0-9])' .
+		'(([a-z0-9-])*([a-z0-9]))+' . '(\.([a-z0-9])([-a-z0-9_-])?([a-z0-9])+)+$/i', $email);
+	}
+	
 ?>

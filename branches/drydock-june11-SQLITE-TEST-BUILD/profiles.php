@@ -771,7 +771,7 @@ else
 							{
 
 								/* Check if valid email address */
-								if(!preg_match('/^[A-z0-9_\-]+\@(A-z0-9_-]+\.)+[A-z]{2,4}$/', $email))
+								if( ! validateemail($email) ) // Provided in common.php
 								{
 									$errorstring .= "You must provide a valid email address!<br>\n";
 								}
