@@ -18,12 +18,15 @@ class ThornThreadDBI extends ThornDBI
 	function ThornThreadDBI($th, $brd)
 	{
 		$this->ThornDBI();
-		//this should fix it!
-		$this->head = $this->myassoc("select * from " . THthreads_table . " where globalid=" . $th . " and board=" . $brd);
-		unset ($this->head['ip']);
-		$this->head['images'] = $this->getimgs($this->head['imgidx']);
-		$this->binfo = $this->myassoc("select * from " . THboards_table . " where id=" . $this->head['board']);
-		$this->blotterentries = $this->getblotter($binfo['id']);
+        //this should fix it!
+        $this->head = $this->myassoc("select * from " . THthreads_table . " where globalid=" . $th . " and board=" . $brd);
+        if( $this->head != null )
+        {
+            unset ($this->head['ip']);
+            $this->head['images'] = $this->getimgs($this->head['imgidx']);
+            $this->binfo = $this->myassoc("select * from " . THboards_table . " where id=" . $this->head['board']);
+            $this->blotterentries = $this->getblotter($binfo['id']);
+        }
 	}
 	
 	function getreplies($p, & $sm)
