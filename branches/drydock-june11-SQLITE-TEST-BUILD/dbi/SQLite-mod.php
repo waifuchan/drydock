@@ -753,7 +753,7 @@ class ThornModDBI extends ThornDBI
 		{
 			return $this->mymultiarray("SELECT 
 									*,
-									COUNT(DISTINCT ip) AS reporter_count,
+									(SELECT COUNT(ip) FROM (SELECT DISTINCT tbl.ip FROM " . THreports_table . " tbl WHERE tbl.postid = postid )) AS reporter_count, 
 									MIN(time) AS earliest_report,
 									AVG(category) AS avg_category
 								FROM 
@@ -772,7 +772,7 @@ class ThornModDBI extends ThornDBI
 		{
 			return $this->mymultiarray("SELECT 
 									*,
-									COUNT(DISTINCT ip) AS reporter_count,
+									(SELECT COUNT(ip) FROM (SELECT DISTINCT ip FROM " . THreports_table . " tbl WHERE tbl.postid = postid )) AS reporter_count, 
 									MIN(time) AS earliest_report,
 									AVG(category) AS avg_category
 								FROM 

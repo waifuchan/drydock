@@ -71,7 +71,7 @@ class ThornToolsDBI extends ThornDBI
 			}
 			else
 			{
-				$boardquery .= ",visible != 1";
+				$boardquery .= " AND visible != 1";
 			}
 		}
 			
@@ -202,11 +202,11 @@ class ThornToolsDBI extends ThornDBI
 				if($get_threads == false)
 				{
 					// We're doing some joins if we're not doing threads so we need to qualify the board name
-					$boardquery = ",".THreplies_table.".visible != 1";
+					$boardquery = " AND ".THreplies_table.".visible != 1";
 				}
 				else
 				{
-					$boardquery .= ",visible != 1";
+					$boardquery .= " AND visible != 1";
 				}	
 			}
 		}
@@ -256,14 +256,14 @@ class ThornToolsDBI extends ThornDBI
 		
 		// Has it already been reported by this user?
 		if($this->myresult("SELECT COUNT(*) FROM ".THreports_table.
-				" WHERE post=".$post." AND board=".$board." AND ip=".$longip) )
+				" WHERE postid=".$post." AND board=".$board." AND ip=".$longip) )
 		{
 			return 2;
 		}
 	 	
 		// Has it already been handled?
 		if($this->myresult("SELECT COUNT(*) FROM ".THreports_table.
-				" WHERE post=".$post." AND board=".$board." AND status>0") )
+				" WHERE postid=".$post." AND board=".$board." AND status>0") )
 		{
 			return 4;
 		}	 	
