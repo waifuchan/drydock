@@ -22,7 +22,7 @@
 	{else} {* No redirect, just close *}
 		<script language="javascript">
 		<!--
-		setTimeout("self.close();",{$timeout * 1000})
+		setTimeout("self.close();",{$timeout*1000})
 		//-->
 		</script> 
 	{/if}

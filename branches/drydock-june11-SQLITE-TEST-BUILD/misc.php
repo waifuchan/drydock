@@ -318,7 +318,6 @@
 							break;
 						default:
 							$message = "Unknown error!";
-							break;
 					}
 					
 				}
