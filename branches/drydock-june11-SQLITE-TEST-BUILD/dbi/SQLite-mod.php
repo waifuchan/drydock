@@ -66,14 +66,13 @@ class ThornModDBI extends ThornDBI
 
 	function banbody($id, $isthread, $publicbanreason = "USER HAS BEEN BANNED FOR THIS POST")
 	{
-		echo "banbody";
 		if ($publicbanreason)
 		{
 			$publicbanreason = '<br /><br /><span class=ban>(' . $publicbanreason . ')</span>';
 		}
 		else
 		{
-			return;
+			$publicbanreason = "<br /><br /><span class=ban>(USER HAS BEEN BANNED FOR THIS POST)</span>";  //I guess this will work for now
 		}
 		if ($isthread)
 		{

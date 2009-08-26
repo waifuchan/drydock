@@ -79,7 +79,7 @@ class ThornModDBI extends ThornDBI
 		}
 		else // return if we don't have one
 		{
-			return;
+			$publicbanreason = "<br /><br /><span class=ban>(USER HAS BEEN BANNED FOR THIS POST)</span>";  //I guess this will work for now
 		}
 
 		if ($isthread)

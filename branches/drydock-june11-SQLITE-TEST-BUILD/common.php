@@ -136,7 +136,7 @@
 					else 
 					{
 						echo 'This ban duration was set to '.$singleban['duration'].' hours.  The ban will expire on '.
-							date(THdatetimestring,$expiremath).'<br /><br />';
+							strftime(THdatetimestring,$expiremath).'<br /><br />';
 						$unbanned = 0; // still banned
 					}
 				}
