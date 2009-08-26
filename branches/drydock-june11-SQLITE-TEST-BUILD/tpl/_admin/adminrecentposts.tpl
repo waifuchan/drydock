@@ -43,7 +43,7 @@
 		<select name="board">
 		<option value="" onclick="window.location='recentposts.php?showhidden=1'">All boards</option>
 		{foreach from=$boards item=board}
-			<option value="{$board.folder}" 
+			<option value="{$board.folder}" {if $board_folder==$board.folder}selected{/if} 
 				onclick="window.location='recentposts.php?showhidden=1&board={$board.folder}'">
 				/{$board.folder}/
 			</option>
@@ -53,7 +53,7 @@
 		<select name="board">
 		<option value="" onclick="window.location='recentposts.php?type=posts&showhidden=1'">All boards</option>
 		{foreach from=$boards item=board}
-			<option value="{$board.folder}" 
+			<option value="{$board.folder}" {if $board_folder==$board.folder}selected{/if} 
 				onclick="window.location='recentposts.php?type=posts&showhidden=1&board={$board.folder}'">
 				/{$board.folder}/
 			</option>
@@ -63,9 +63,9 @@
 	{if $isthread == true}
 		- <a href="recentposts.php?type=posts">Pull posts</a> + Pull threads + <a href="recentposts.php?showhidden=1">Show only hidden</a> - Filter by board: 
 		<select name="board">
-		<option value="" onclick="window.location='window.location='recentposts.php'">All boards</option>
+		<option value="" onclick="window.location='recentposts.php'">All boards</option>
 		{foreach from=$boards item=board}
-			<option value="{$board.folder}" 
+			<option value="{$board.folder}" {if $board_folder==$board.folder}selected{/if} 
 				onclick="window.location='recentposts.php?board={$board.folder}'">
 				/{$board.folder}/
 			</option>
@@ -73,9 +73,9 @@
 	{else}
 		- Pull posts + <a href="recentposts.php">Pull threads</a> + <a href="recentposts.php?type=posts&showhidden=1">Show only hidden</a> - Filter by board: 
 		<select name="board">
-		<option value="" onclick="window.location='window.location='recentposts.php?type=posts'">All boards</option>
+		<option value="" onclick="window.location='recentposts.php?type=posts'">All boards</option>
 		{foreach from=$boards item=board}
-			<option value="{$board.folder}" 
+			<option value="{$board.folder}" {if $board_folder==$board.folder}selected{/if} 
 				onclick="window.location='recentposts.php?type=posts&board={$board.folder}'">
 				/{$board.folder}/
 			</option>

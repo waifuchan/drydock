@@ -41,9 +41,9 @@
                                 <input type="checkbox" name="del{$ban.id}" />
                             </td>
                             <td>
-                                <a href="{$THurl}admin.php?a=x&banselect={$ban.id}">{$ban.ip_octet1}.{$ban.ip_octet2}.
-								{if $ban.ip_octet3=="-1"}*{else}{$ban.ip_octet3}{/if}.
-								{if $ban.ip_octet4=="-1"}*{else}{$ban.ip_octet4}{/if}</a>
+                                <a href="{$THurl}admin.php?a=x&banselect={$ban.id}">{$ban.ip1}.{$ban.ip2}.
+								{if $ban.ip3=="-1"}*{else}{$ban.ip3}{/if}.
+								{if $ban.ip4=="-1"}*{else}{$ban.ip4}{/if}</a>
                             </td>
                             <td>
                                 {$ban.privatereason}

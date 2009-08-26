@@ -31,11 +31,11 @@
 {* Show filtering links *}
 
 Filter by board: <select name="board">
-<option value="" onclick="window.location='window.location='recentposts.php'">All boards</option>
+<option value="" onclick="window.location='recentpics.php'">All boards</option>
 {foreach from=$boards item=board}
-	<option value="{$board.folder}" 
+<option value="{$board.folder}" {if $board_folder==$board.folder}selected{/if} 
 		onclick="window.location='recentpics.php?board={$board.folder}'">
-		/{$board.folder}/
+		/{$board.folder}/ 
 	</option>
 {/foreach}
 </select>
