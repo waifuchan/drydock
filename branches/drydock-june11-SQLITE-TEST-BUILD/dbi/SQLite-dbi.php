@@ -30,24 +30,9 @@ class ThornDBI implements absThornDBI
 		}
 	}
 	
-	/*  suggested by Mell03d0ut from anonib - edited by us to add new ideas */
 	function escape_string($call)
 	{
-		if(DDDEBUG==1) { echo "0: $call<br>"; }
-		$call = htmlspecialchars($call);
-		if(DDDEBUG==1) { echo "1: $call<br>"; }
-		if (get_magic_quotes_gpc() == 0)
-		{
-			$call = sqlite_escape_string($call);
-			if(DDDEBUG==1) { echo "2: $call<br>"; }
-		}
-		$call = trim($call);
-		if(DDDEBUG==1) { echo "3: $call<br>"; }
-		$call = str_replace("\'", "&#039;", $call);
-		if(DDDEBUG==1) { echo "4: $call<br>"; }
-		$call = str_replace("\&quot;", "&#034;", $call);
-		if(DDDEBUG==1) { echo "5: $call<br>"; }
-		return ($call);
+		return sqlite_escape_string($call);
 	}
 	
 	/*  provided by Mell03d0ut from anonib */
