@@ -130,9 +130,16 @@
 
 	$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
 
+	if(preg_match("/^(mailto:)?noko$/", $_POST['link']))  //hide noko
+	{
+		$datlink = "";
+	} else {
+		$datlink = $_POST['link'];
+	}
+
 	$tnum=$db->putthread(
 		$usethese['nombre'],$usethese['trip'],$binfo['id'],$_POST['subj'],
-		$_POST['body'],$_POST['link'],ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage,
+		$_POST['body'],$datlink,ip2long($_SERVER['REMOTE_ADDR']),$mod,$pin,$lock,$permasage,
 		$_POST['password']);
 
 	movefiles($goodfiles,$tnum,true,$binfo,$db);
@@ -170,18 +177,7 @@
 
 	// Initialize $location variable for HTTP redirects
 	$location = "drydock.php"; // Default
-	if ($_POST['todo']=="board")
-	{
-		if (THuserewrite) 
-		{ 
-			$location = THurl.$binfo['folder']; 
-		} 
-		else 
-		{ 
-			$location = THurl."drydock.php?b=".$binfo['folder']; 
-		}
-	}
-	elseif ($_POST['todo']=="thread")
+	if (($_POST['todo']=="thread") || (preg_match("/^(mailto:)?noko$/", $_POST['link']))) // noko check
 	{
 		// Look up the global ID for this thread.
 		$loc_arr = $db->getpostlocation($tnum);
@@ -193,6 +189,18 @@
 		else 
 		{ 
 			$location = THurl."drydock.php?b=".$binfo['folder']."&i=".$loc_arr['thread_loc']; 
+		}
+	}
+
+	elseif ($_POST['todo']=="board")
+	{
+		if (THuserewrite) 
+		{ 
+			$location = THurl.$binfo['folder']; 
+		} 
+		else 
+		{ 
+			$location = THurl."drydock.php?b=".$binfo['folder']; 
 		}
 	}
 	

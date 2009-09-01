@@ -125,11 +125,18 @@
 
 	//prin_tr($_POST);
 
+	if(preg_match("/^(mailto:)?noko$/", $_POST['link']))  //hide noko
+	{
+		$datlink = "";
+	} else {
+		$datlink = $_POST['link'];
+	}
+
 	//Don't post if there's no files or body (mod stuff only)
 	if (strlen($_POST['body'])>1 || count($goodfiles)>0) 
 	{
 		$usethese=preptrip($_POST['nombre'],$_POST['tpass']);
-		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$_POST['link'],
+		$pnum=$db->putpost($usethese['nombre'],$usethese['trip'],$datlink,
 			$binfo['id'],(int)$_POST['thread'],$_POST['body'],ip2long($_SERVER['REMOTE_ADDR']),
 			$mod, $_POST['password']);
 		movefiles($goodfiles, $pnum, false, $binfo, $db);
@@ -155,18 +162,7 @@
 
 	// Initialize $location variable for HTTP redirects
 	$location = "drydock.php"; // Default
-	if ($_POST['todo']=="board")
-	{
-		if (THuserewrite) 
-		{ 
-			$location = THurl.$binfo['folder']; 
-		} 
-		else
-		{ 
-			$location = THurl."drydock.php?b=".$binfo['folder']; 
-		}
-	}
-	elseif ($_POST['todo']=="post") 
+	if (($_POST['todo']=="post") || (preg_match("/^(mailto:)?noko$/", $_POST['link']))) // noko check
 	{
 		// Retrieve the global IDs for both the thread and post number
 		$loc_arr = $db->getpostlocation($thread['id'], $pnum);
@@ -180,6 +176,17 @@
 			$location = THurl."drydock.php?b=".$binfo['folder']."&i=".$loc_arr['thread_loc']."#".$loc_arr['post_loc']; 
 		}
 	} 
+	elseif ($_POST['todo']=="board")
+	{
+		if (THuserewrite) 
+		{ 
+			$location = THurl.$binfo['folder']; 
+		} 
+		else
+		{ 
+			$location = THurl."drydock.php?b=".$binfo['folder']; 
+		}
+	}
 	
 	// Popup.tpl does redirects now
 	$sm=sminit("popup.tpl");

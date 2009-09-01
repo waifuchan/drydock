@@ -44,7 +44,8 @@ else
 	$offsetback = 0;
 	$offsetfwd = 0;
 	$count = 0;
-
+	$sm->debugging = true; // debug for now
+	$sm->debug_tpl = THpath."_Smarty/debug.tpl";
 	// We just append this to the end of all the SQL queries/links.  Makes things simpler because we only have to do it once.
 	if($board_folder != "" && $db->getboardnumber($board_folder) )
 	{
@@ -111,7 +112,7 @@ else
 	usort($posts, 'comp_post_ids'); // THIS SHOULD WORK?
 		
 	// Add images to each post
-	foreach($posts as $post)
+	foreach($posts as &$post)
 	{
 		$post['images'] = $db->getimgs($post['imgidx']);
 	}
@@ -121,9 +122,6 @@ else
 	$boards = $db->getboard(); // No parameters means everything gets fetched
 
 	$sm=sminit("adminrecentposts.tpl",null,"_admin",true); // Admin mode means NO caching. (and we provided a null id anyway)
-	
-	$sm->debugging = true; // debug for now
-	$sm->debug_tpl = THpath."_Smarty/debug.tpl";
 	
 	// These can be pretty big, so we're going to assign by reference.
 	$sm->assign_by_ref("posts",$posts);

@@ -432,7 +432,6 @@ class ThornModDBI extends ThornDBI
 			}
 			
 			$query = "update " . THboards_table . " set id=" . $board['id'] 
-				. ", globalid=" . $board['globalid'] 
 				. ", name='" . $this->escape_string($board['name'])
 				. "', folder='" . $this->escape_string($board['folder']) 
 				. "', about='" . $this->escape_string($board['about']) 
@@ -997,7 +996,7 @@ class ThornModDBI extends ThornDBI
 	function editstaticpage($id, $name, $title, $content, $publish)
 	{
 		$this->myquery("UPDATE ".THpages_table." SET name='".$this->clean($name)."',
-				title='".$this->clean($title)."', content='".$this->clean($content)."',
+				title='".$this->clean($title)."', content='".$this->escape_string($content)."',
 				publish=".intval($publish)." WHERE id=".intval($id));
 	}
 	

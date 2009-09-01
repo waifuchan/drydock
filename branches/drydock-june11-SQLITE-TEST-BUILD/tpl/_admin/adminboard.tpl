@@ -63,7 +63,7 @@ Edit this board now or continue to add more boards (and edit later)</td><td><inp
                     <table>
 <input type="hidden" name="boardselect" value="{$boardselect}" />
 <input type="hidden" name="id{$board.id}" value="{$board.id}" />
-<tr><td>Global thread index</td><td><input type="text" name="globalid{$board.id}" size="3" value="{$board.globalid}" /></td></tr>
+{*DON'T MESS WITH THIS <tr><td>Global thread index</td><td><input type="text" name="globalid{$board.id}" size="3" value="{$board.globalid}" /></td></tr> I'M SERIOUS, DON'T*}
 <tr><td>Board name</td><td><input type="text" name="name{$board.id}" size="60" value="{$board.name}" /></td></tr>
 <tr><td>Board folder</td><td><input type="text" name="folder{$board.id}" size="5" value="{$board.folder}" /></td></tr>
 <tr><td>Board description</td><td><input type="text" name="about{$board.id}" size="60" value="{$board.about}" /><br /> <i>Supports these HTML tags:

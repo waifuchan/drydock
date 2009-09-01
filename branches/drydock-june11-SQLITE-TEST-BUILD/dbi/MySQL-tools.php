@@ -167,7 +167,7 @@ class ThornToolsDBI extends ThornDBI
 				id ASC LIMIT ".intval($offset).", 40;";			
 		}
 		
-		echo $querystring;
+		//echo $querystring;
 		
 		return $this->mymultiarray($querystring);
 	}

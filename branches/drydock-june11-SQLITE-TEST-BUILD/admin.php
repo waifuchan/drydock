@@ -666,9 +666,9 @@
 	}
 	elseif ($_GET['t']=="b")  //edit boards
 	{
+		//echo '<pre>' . var_export($_POST,true).'</code></pre>';
 		if($_POST['boardselect'])
 		{
-			echo '<pre>' . var_export($_POST,true).'</code></pre>';
 			$boardnumber = $db->getboardnumber($_POST['boardselect']);
 			
 			if ($_POST['delete'.$boardnumber]==TRUE) //Delete images on that board; nuke it from db
@@ -694,7 +694,7 @@
 				$updated_board['oldid'] = $boardnumber;
 				$updated_board['id'] = $updated_board['oldid'];
 				$oldid = $updated_board['oldid'];
-				$updated_board['globalid'] = $_POST['globalid'.$oldid];
+				//$updated_board['globalid'] = $_POST['globalid'.$oldid];
 				
 				// Now that the ID stuff is set up, we can do some verification.
 				// Make sure we don't have a folder name conflict.

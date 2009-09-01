@@ -377,13 +377,13 @@ function rebuild_rss()
 		fwrite($sidelinks, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 		fwrite($sidelinks, "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n");
 		fwrite($sidelinks, "\t<channel>\n");
-		fwrite($sidelinks, '<atom:link href="' . THurl . 'rss.xml" rel="self" type="application/rss+xml" />' . "\n");
+		fwrite($sidelinks, "\t" . '<atom:link href="' . THurl . 'rss.xml" rel="self" type="application/rss+xml" />' . "\n");
 		fwrite($sidelinks, "\t\t<title>" . THname . "</title>\n");
 		fwrite($sidelinks, "\t\t<description>" . THname . " drydock RSS feeder - " . THurl . "</description>\n");
 		fwrite($sidelinks, "\t\t<language>en</language>\n");
 		fwrite($sidelinks, "\t\t<link>" . THurl . "</link>\n");
 		fwrite($sidelinks, "\t\t<generator>drydock rss feed generator</generator>\n");
-		fwrite($sidelinks, "\t\t<copyright>tyam/ordog/kchan devs - http://573chan.org</copyright>\n");
+		fwrite($sidelinks, "\t\t<copyright>tyam/ordog/kchan devs - http://573chan.org / http://drydock.googlecode.com/</copyright>\n");
 		
 		//pull everything from the news page
 		$db = new ThornToolsDBI();
