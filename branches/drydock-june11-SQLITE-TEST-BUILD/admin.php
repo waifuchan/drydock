@@ -97,9 +97,9 @@
 		if ($_GET['a']=="b")  //Board stuff
 		{
 			// We have to assign these to be able to set disabled attributes for the checkboxes for file formats
-			// (i.e., greying out the SVG file type box when THenableSVG is 0)
-			$sm->assign("THenableSVG",THenableSVG);
-			$sm->assign("THenableSWFmeta",THenableSWFmeta);
+			// (i.e., greying out the SVG file type box when THuseSVG is 0)
+			$sm->assign("THuseSVG",THuseSVG);
+			$sm->assign("THuseSWFmeta",THuseSWFmeta);
 			$sm->assign("THSVGthumbnailer", THSVGthumbnailer);
 			
 			//Assign other template sets
@@ -115,7 +115,7 @@
 			}
 			$sm->assign_by_ref("tplsets",$sets);
 
-			if ($_GET['boardselect'])
+			if (isset($_GET['boardselect']))
 			{
 				//Configure options for a specific board
 				$boardselect = $db->getboard(0, $_GET['boardselect']); // Should return an array of assoc-arrays (but with only one assoc-array)
@@ -151,7 +151,7 @@
 			}
 			
 			//Ban config		
-			if ($_GET['banselect'])
+			if (isset($_GET['banselect']))
 			{
 				//Edit a specific ban
 				$sm->assign("banselect",$_GET['banselect']);
@@ -468,7 +468,7 @@
 		}
 		elseif ($_GET['a']=="hkc") //housekeeping functions are actually called here
 		{
-			if ($_POST['fc'])
+			if (isset($_POST['fc']))
 			{
 				$sm->clear_all_cache();
 				$sm->clear_compiled_tpl();
@@ -476,14 +476,14 @@
 				rebuild_capcodes();
 				rebuild_spamlist();
 			}
-			if($_POST['rs']) { rebuild_rss(); }
-			if($_POST['ht']) { rebuild_htaccess(); }
-			if($_POST['sl']) { rebuild_hovermenu(); }
-			if($_POST['lb']) { rebuild_linkbars(); }
-			if($_POST['sp']) { rebuild_spamlist(); }
-			if($_POST['fl']) { rebuild_filters(); }
-			if($_POST['cp']) { rebuild_capcodes(); }
-			if($_POST['al']) {
+			if(isset($_POST['rs'])) { rebuild_rss(); }
+			if(isset($_POST['ht'])) { rebuild_htaccess(); }
+			if(isset($_POST['sl'])) { rebuild_hovermenu(); }
+			if(isset($_POST['lb'])) { rebuild_linkbars(); }
+			if(isset($_POST['sp'])) { rebuild_spamlist(); }
+			if(isset($_POST['fl'])) { rebuild_filters(); }
+			if(isset($_POST['cp'])) { rebuild_capcodes(); }
+			if(isset($_POST['al'])) {
 				//Do EVERYTHING
 				$sm->clear_all_cache();
 				$sm->clear_compiled_tpl();
@@ -553,9 +553,6 @@
 			$sm->assign("THprofile_maxpicsize", THprofile_maxpicsize);
 			$sm->assign("THprofile_regpolicy", THprofile_regpolicy);
 			$sm->assign("THprofile_viewuserpolicy", THprofile_viewuserpolicy);
-			$sm->assign("pend_regs",$pend_regs);
-			$sm->assign("pend_caps",$pend_caps);
-			$sm->assign("pend_pics",$pend_pics);
 			//Assign other template sets
 			$sets=array();
 			//Read template sets
@@ -667,11 +664,11 @@
 	elseif ($_GET['t']=="b")  //edit boards
 	{
 		//echo '<pre>' . var_export($_POST,true).'</code></pre>';
-		if($_POST['boardselect'])
+		if(isset($_POST['boardselect']))
 		{
 			$boardnumber = $db->getboardnumber($_POST['boardselect']);
 			
-			if ($_POST['delete'.$boardnumber]==TRUE) //Delete images on that board; nuke it from db
+			if (isset($_POST['delete'.$boardnumber]) && $_POST['delete'.$boardnumber]==TRUE) //Delete images on that board; nuke it from db
 			{	
 				// Remove associated images
 				delimgs($db->fragboard($boardnumber));
@@ -729,14 +726,46 @@
 				$updated_board['pixperpost'] = intval($_POST['pixperpost'.$oldid]);
 				
 				// Boolean values
-				$updated_board['forced_anon'] = ($_POST['forced_anon'.$oldid]=="on");
-				$updated_board['customcss'] = ($_POST['customcss'.$oldid]=="on");
-				$updated_board['allowvids'] = ($_POST['allowvids'.$oldid]=="on");
-				$updated_board['filter'] = ($_POST['filter'.$oldid]=="on");
-				$updated_board['requireregistration'] = ($_POST['requireregistration'.$oldid]=="on");
-				$updated_board['hidden'] = ($_POST['hidden'.$oldid]=="on");
-				$updated_board['tlock'] = ($_POST['tlock'.$oldid]=="on");
-				$updated_board['rlock'] = ($_POST['rlock'.$oldid]=="on");
+				if(isset($_POST['forced_anon'.$oldid])) {
+					$updated_board['forced_anon'] = ($_POST['forced_anon'.$oldid]=="on");
+				} else {
+					$updated_board['forced_anon'] = "";
+				}
+				if(isset($_POST['customcss'.$oldid])) {
+					$updated_board['customcss'] = ($_POST['customcss'.$oldid]=="on");
+				} else {
+					$updated_board['customcss'] = "";
+				}
+				if(isset($_POST['allowvids'.$oldid])) {
+					$updated_board['allowvids'] = ($_POST['allowvids'.$oldid]=="on");
+				} else {
+					$updated_board['allowvids'] = "";
+				}
+				if(isset($_POST['filter'.$oldid])) {
+					$updated_board['filter'] = ($_POST['filter'.$oldid]=="on");
+				} else {
+					$updated_board['filter'] = "";
+				}
+				if(isset($_POST['requireregistration'.$oldid])) {
+					$updated_board['requireregistration'] = ($_POST['requireregistration'.$oldid]=="on");
+				} else {
+					$updated_board['requireregistration'] = "";
+				}
+				if(isset($_POST['hidden'.$oldid])) {
+					$updated_board['hidden'] = ($_POST['hidden'.$oldid]=="on");
+				} else {
+					$updated_board['hidden'] = "";
+				}
+				if(isset($_POST['tlock'.$oldid])) {
+					$updated_board['tlock'] = ($_POST['tlock'.$oldid]=="on");
+				} else {
+					$updated_board['tlock'] = "";
+				}
+				if(isset($_POST['rlock'.$oldid])) {
+					$updated_board['rlock'] = ($_POST['rlock'.$oldid]=="on");
+				} else {
+					$updated_board['rlock'] = "";
+				}
 
 				// Add the assoc-array with the updated information into the array
 				$boards_to_update[] = $updated_board;

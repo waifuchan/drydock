@@ -23,7 +23,13 @@ else
 	$db=new ThornModDBI();	
 
 	// Init some stuff
-	$board_folder = trim($_GET['board']); //trim the board name from get
+
+	if(isset($_GET['board']))
+	{
+		$board_folder = trim($_GET['board']); //trim the board name from get
+	} else {
+		$board_folder = "";
+	}
 	$boardid = 0;
 	$reports = array();
 	$processed_reports = array();

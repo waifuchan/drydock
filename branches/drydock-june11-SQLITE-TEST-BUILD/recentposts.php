@@ -35,7 +35,12 @@ else
 	}
 
 	// Init some stuff
-	$board_folder = trim($_GET['board']); //trim the board name from get
+	if(isset($_GET['board']))
+	{
+		$board_folder = trim($_GET['board']); //trim the board name from get
+	} else {
+		$board_folder = "";
+	}
 	$isthread = true; // default to true
 	$showhidden = false; // default to false
 	$boardid = -1;
@@ -44,8 +49,7 @@ else
 	$offsetback = 0;
 	$offsetfwd = 0;
 	$count = 0;
-	$sm->debugging = true; // debug for now
-	$sm->debug_tpl = THpath."_Smarty/debug.tpl";
+
 	// We just append this to the end of all the SQL queries/links.  Makes things simpler because we only have to do it once.
 	if($board_folder != "" && $db->getboardnumber($board_folder) )
 	{
@@ -57,7 +61,7 @@ else
 		$board_folder = ""; // Clear $board if the getboardnumber call failed
 	}
 
-	if($_GET['type'] == "posts")
+	if(isset($_GET['type']) && $_GET['type'] == "posts")
 	{
 		$isthread = false;
 	}

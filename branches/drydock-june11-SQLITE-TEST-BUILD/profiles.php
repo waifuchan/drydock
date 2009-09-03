@@ -15,7 +15,7 @@
 require_once ("config.php");
 require_once ("common.php");
 session_start();
-if ($_POST['remember'])
+if (isset($_POST['remember']))
 {
 	setcookie(THcookieid . "-uname", $_SESSION['username'], time() + THprofile_cookietime, THprofile_cookiepath);
 	setcookie(THcookieid . "-id", $_SESSION['userid'], time() + THprofile_cookietime, THprofile_cookiepath);
@@ -34,7 +34,8 @@ if ($_POST['remember'])
 
 
 $db = new ThornProfileDBI();
-
+if(isset($_GET['action']))
+{
 if ($_GET['action'] == "login")
 {
 	// Three POST parameters:
@@ -323,6 +324,10 @@ else
 			else
 				if ($_GET['action'] == "edit")
 				{
+
+					$imgErrString = ""; // This only gets set if there is a problem
+					$passErrString = ""; // This only gets set if there is a problem with the password
+
 					if (!isset ($_GET['user']))
 					{
 						die("You must specify a user!");
@@ -408,8 +413,6 @@ else
 							$description = $user['description'];
 						}
 
-						$passErrString = ""; // This only gets set if there is a problem with the password
-
 						// Only users can edit their own passwords-while admins can edit just about anything else
 						if (isset ($_POST['password']) && $_SESSION['username'] == $username && isset ($_POST['changepass']))
 						{
@@ -439,8 +442,6 @@ else
 
 							$picture_ext = "";
 						}
-
-						$imgErrString = ""; // This only gets set if there is a problem 
 
 						$picture_pending = $user['pic_pending'];
 
@@ -1160,6 +1161,7 @@ elseif ($_GET['action'] == "remove")
 	echo "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"2; URL=" .
 	THurl . "profiles.php?action=memberlist" .
 	"\">User deleted, returning to member list...";
+}
 }
 else
 {

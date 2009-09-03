@@ -14,8 +14,6 @@
 	http://www.opensource.org/licenses/artistic-license-2.0.php
 */
 
-include("config.php"); // For THnewsboard
-
 class ThornToolsDBI extends ThornDBI
 {
 

@@ -14,8 +14,6 @@
 */
 
 define("THdblitefn", sqlite_open(THpath . "unlinked/drydock.sqlite", 0666, $sqliteerror));
-require_once ("config.php");
-require_once ("common.php");
 require_once ("ABSTRACT-dbi.php"); // abstract interface
 define("DDDEBUG",0); // Could break things if enabled
 

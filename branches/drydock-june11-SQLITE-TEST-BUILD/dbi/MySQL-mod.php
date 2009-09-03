@@ -457,7 +457,7 @@ class ThornModDBI extends ThornDBI
 				. "', rlock='" . $board['rlock'] 
 				. "' where id=".$board['oldid'];
 				
-			print_r($query);
+			//print_r($query);
 			$this->myquery($query);
 		}
 		

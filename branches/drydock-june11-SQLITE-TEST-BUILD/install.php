@@ -14,8 +14,8 @@
 	*/
 
 
-	function smsimple() {
-		require_once($configarray['THpath']."_Smarty/Smarty.class.php");
+	function smsimple($path) {
+		require_once($path."_Smarty/Smarty.class.php");
 		$sm=new Smarty;
 		//$sm->debugging=true;
 		return($sm);
@@ -168,7 +168,7 @@ p.centertext {
             Drydock Installation Script
         </div>
 	<br>
-<?php if($_GET['p']==NULL) { 
+<?php if(!isset($_GET['p'])) {
 	//Attempt to touch a file in the directories that need to be chmodded.
 	
 	$chmod=array();
@@ -237,7 +237,6 @@ Your image board URL:<br />
 
 <?php } elseif($_GET['p']==2) { 
 	//pass our current info on to the next page
-	$configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
 	$post = array('THurl' => $_POST['THurl'], 'THpath' => $_POST['THpath']);
 	$configarray = serialize($_POST);
 
@@ -264,7 +263,7 @@ Database type <select name="THdbtype">
 	}
 ?>
 	</select>
-<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
+<input type="hidden" name="configarray" value="<?php echo htmlspecialchars($configarray); ?>">
 <br />
 <input type="submit" value="Continue">
 </form>
@@ -287,6 +286,12 @@ Database prefix: <input type="text" name="THdbprefix" size="12" value="drydock_"
 	if($check['THdbtype']=="SQLite")
 	{
 	echo "Because you are using SQLite, you do not need to doing any further setup.  Everything should be automatic.<br />";
+echo '
+<input type="hidden" name="THdbserver" value="" />
+<input type="hidden" name="THdbbase" value="" />
+<input type="hidden" name="THdbuser" value="" />
+<input type="hidden" name="THdbpass" value="" />
+<input type="hidden" name="THdbpassver" value="" />';
 	} else {
 	echo '
 	Database server: <input type="text" name="THdbserver" size="12" /><br />
@@ -296,7 +301,7 @@ Database prefix: <input type="text" name="THdbprefix" size="12" value="drydock_"
 	Verify password: <input type="password" name="THdbpassver" size="12" /><br />';
 	}
 ?>
-	<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
+	<input type="hidden" name="configarray" value="<?php echo htmlspecialchars($configarray); ?>">
 <input type="submit" value="Continue">
 </form>
 
@@ -311,13 +316,12 @@ $check = unserialize($configarray);
 
 	if($check['THdbtype']=="MySQL")
 	{
-		if ($_POST['THdbpass'] == $_POST['THdbpassver'])
+		if(empty($_POST['THdbpass']))
 		{
-			if($_POST['THdbpassver'] == "")
-			{
-				die("Database password is not set.  If your database user does not have a password, you can not install this script without disabling this check.  This is extremely unsecure.");
-			}
-		} else {
+			die("Database password is not set.  If your database user does not have a password, you can not install this script without disabling this check.  This is extremely unsecure.");
+		}
+		if ($_POST['THdbpass'] != $_POST['THdbpassver'])
+		{
 			die("Passwords do not match.");
 		}
 		$link = @mysql_connect($_POST['THdbserver'], $_POST['THdbuser'],  $_POST['THdbpass']);
@@ -334,7 +338,7 @@ In order to access the admin panel and do various moderation related tasks, you 
 	Admin name: <input type="text" name="adminname" size="12" /><br />
 	Admin pass: <input type="password" name="adminpass" size="12" /><br />
 	Verify pass: <input type="password" name="adminpassver" size="12" /><br />
-	<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
+	<input type="hidden" name="configarray" value="<?php echo htmlspecialchars($configarray); ?>">
 <input type="submit" value="Continue">
 </form>
 <?php } elseif($_GET['p']==5) { 
@@ -364,7 +368,7 @@ Please see the documentation for more information about these settings.  If you'
 	Enable cURL support (for automated spam list filter) <input type="checkbox" name="THusecURL" checked><br />
 	Enable SWF metatag support (requires PEAR libraries) <input type="checkbox" name="THuseSWFmeta" ><br />
 	Enable SVG support (requires PEAR libraries and rsvg, ImageMagick, or other external library) <input type="checkbox" name="THuseSVG" ><br />
-	<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
+	<input type="hidden" name="configarray" value="<?php echo htmlspecialchars($configarray); ?>">
 <input type="submit" value="Continue">
 </form>
 <?php } elseif($_GET['p']==6) { 
@@ -401,10 +405,12 @@ If everything here looks good, go ahead and hit continue.<br><br>
 ?>
 <br>
 <form method="post" enctype="multipart/form-data" action="install.php?p=7">
-<input type="hidden" name="configarray" value=<?php echo $configarray; ?>>
+<input type="hidden" name="configarray" value="<?php echo htmlspecialchars($configarray); ?>">
 <input type="submit" value="Continue">
 </form>
 <?php } elseif($_GET['p']==7) {
+
+
 	//Time to finish up with everything.
 	$configarray = unserialize(str_replace('\"','"',$_POST['configarray']));
 	echo "The configuration file is being written now, as well as any database interaction that needs 
@@ -427,12 +433,12 @@ If everything here looks good, go ahead and hit continue.<br><br>
 		$cookieid = "dd".$seed;
 		$configarray['adminpass'] = md5($secret_salt.$configarray['adminpass']);
 		//Let's make the initial config file
-		$sm=smsimple();
+		$sm=smsimple($configarray['THpath']);
 		$sm->caching=0;
 		$sm->compile_dir=$path."compd/";
 		$sm->template_dir=$path."tpl/_admin/";
 		$sm->cache_lifetime=0;
-		$sm->assign("THtplurl",$url."tpl/_admin/");
+		$sm->assign("THtplurl",$configarray['THurl']."tpl/_admin/");
 		//let's write to config
 		if(touch($configarray['THpath']."config.php")==false) {
 			die($configarray['THpath']."config.php cannot be written");

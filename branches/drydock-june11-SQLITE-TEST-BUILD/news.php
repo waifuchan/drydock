@@ -81,5 +81,6 @@
 		$sm=sminit("staticpage.tpl",$cid,THtplset);
 		$sm->assign_by_ref("page",$pagedata);
 		$sm->display("staticpage.tpl",$cid);
+		$sm->display("bottombar.tpl", null);
 	}
 ?>

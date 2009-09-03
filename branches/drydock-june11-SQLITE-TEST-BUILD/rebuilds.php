@@ -94,22 +94,24 @@ function rebuild_config($configpost)
 	fwrite($config, "\n");
 
 	//Stuff that might have changed
-	fwrite($config, 'define("THthumbwidth",' . (int) abs($configpost['THthumbwidth']) . ');' . "\n");
-	fwrite($config, 'define("THthumbheight",' . (int) abs($configpost['THthumbheight']) . ');' . "\n");
 	$ppp = (int) abs($configpost['THjpegqual']);
 	if ($ppp > 100)
 	{
 		$ppp = 100;
 	} //yeah, let's upsample the jpegs >:[
 	fwrite($config, 'define("THjpegqual",' . $ppp . ');' . "\n");
+	if(!isset($configpost['THdupecheck'])) { $configpost['THdupecheck'] = NULL; }
 	fprintf($config, "define(\"THdupecheck\", %d);\n", ($configpost['THdupecheck'] == "on"));
 	fwrite($config, "\n");
 
 	//Template settings
+	if(!isset($configpost['THuserewrite'])) { $configpost['THuserewrite'] = NULL; }
 	fprintf($config, "define(\"THuserewrite\", %d);\n", ($configpost['THuserewrite'] == "on"));
+
 	//Default template set
 	$newtplset = str_replace('"', "", $configpost['THtplset']);
 	fwrite($config, 'define("THtplset","' . $newtplset . '");' . "\n");
+	if(!isset($configpost['THtpltest'])) { $configpost['THtpltest'] = NULL; }
 	fprintf($config, "define(\"THtpltest\", %d);\n", ($configpost['THtpltest'] == "on"));
 
 	// I think this code is for when we were restricted to only one template set for the boards.
@@ -122,7 +124,6 @@ function rebuild_config($configpost)
 	//}
 
 	fwrite($config, 'define("THvc",' . (int) $configpost['THvc'] . ');' . "\n");
-	fprintf($config, "define(\"THcaptest\", %d);\n", ($configpost['THcaptest'] == "on"));
 	fwrite($config, "\n");
 
 	//Time settings
@@ -140,10 +141,14 @@ function rebuild_config($configpost)
 
 	//Utility settings
 	fwrite($config, 'define("THpearpath","' . str_replace('"', "", $configpost['THpearpath']) . '");' . "\n");
+	if(!isset($configpost['THuseSVG'])) { $configpost['THuseSVG'] = NULL; }
 	fprintf($config, "define(\"THuseSVG\", %d);\n", ($configpost['THuseSVG'] == "on"));
 	fwrite($config, 'define("THSVGthumbnailer",' . (int) $configpost['THSVGthumbnailer'] . ');' . "\n");
+	if(!isset($configpost['THusePDF'])) { $configpost['THusePDF'] = NULL; }
 	fprintf($config, "define(\"THusePDF\", %d);\n", ($configpost['THusePDF'] == "on"));
+	if(!isset($configpost['THuseSWFmeta'])) { $configpost['THuseSWFmeta'] = NULL; }
 	fprintf($config, "define(\"THuseSWFmeta\", %d);\n", ($configpost['THuseSWFmeta'] == "on"));
+	if(!isset($configpost['THusecURL'])) { $configpost['THusecURL'] = NULL; }
 	fprintf($config, "define(\"THusecURL\", %d);\n", ($configpost['THusecURL'] == "on"));
 	fwrite($config, "\n");
 
@@ -156,7 +161,9 @@ function rebuild_config($configpost)
 	fwrite($config, 'define("THprofile_viewuserpolicy",' . (int) $configpost['THprofile_viewuserpolicy'] . ');' . "\n"); //1=logged in only, 2=anyone, 0=mods only
 	fwrite($config, 'define("THprofile_cookietime",' . ((int) $configpost['THprofile_cookietime'] * 3600) . ');' . "\n");
 	fwrite($config, 'define("THprofile_cookiepath","' . $configpost['THprofile_cookiepath'] . '");' . "\n"); //should be "/" probably
+	if(!isset($configpost['THprofile_emailwelcome'])) { $configpost['THprofile_emailwelcome'] = NULL; }
 	fprintf($config, "define(\"THprofile_emailwelcome\", %d);\n", ($configpost['THprofile_emailwelcome'] == "on")); //1=send
+	if(!isset($configpost['THprofile_lcnames'])) { $configpost['THprofile_lcnames'] = NULL; }
 	fprintf($config, "define(\"THprofile_lcnames\", %d);\n", ($configpost['THprofile_lcnames'] == "on")); //1 = names are converted to lowercase
 	fwrite($config, 'define("THprofile_maxpicsize",' . $configpost['THprofile_maxpicsize'] . ');' . "\n"); //in bytes
 	fwrite($config, '?>'); //some editors break colors here so <?
@@ -241,8 +248,8 @@ function rebuild_hovermenu()
 	} //count>0
 
 	//check for admin/mod cookie here
-	fwrite($sidelinks, '<?php if($_SESSION["admin"]){ echo "Administration Menu<br />"; } elseif($_SESSION["moderator"]) { echo "Moderator Menu<br />"; } ?>' . "\n");
-	fwrite($sidelinks, '<?php if($_SESSION["admin"]){ echo "' . "\n");
+	fwrite($sidelinks, '<?php if(isset($_SESSION["admin"])){ echo "Administration Menu<br />"; } elseif(isset($_SESSION["moderator"])) { echo "Moderator Menu<br />"; } ?>' . "\n");
+	fwrite($sidelinks, '<?php if(isset($_SESSION["admin"])){ echo "' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=g>Global Settings</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=b>Board Setup</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=bl>Blotter Posts</a><br />' . "\n");
@@ -257,7 +264,7 @@ function rebuild_hovermenu()
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=q>Recent Posts</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=r>Reports</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."admin.php?a=l>Lookup Tools</a><br /><br />";' . "\n");
-	fwrite($sidelinks, '} elseif($_SESSION["moderator"]){' . "\n");
+	fwrite($sidelinks, '} elseif(isset($_SESSION["moderator"])){' . "\n");
 	fwrite($sidelinks, 'echo "' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."recentpics.php>Recent Pics</a><br />' . "\n");
 	fwrite($sidelinks, '<a href=".THurl."recentposts.php>Recent Posts</a><br />' . "\n");
