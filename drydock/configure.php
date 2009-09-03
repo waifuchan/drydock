@@ -19,7 +19,8 @@
 		$url=str_replace("/configure.php", "", $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
 		echo "
 <html><head>
-<title>drydock ".THversion." installer<style type=\"text/css\">
+<title>drydock ".THversion." installer</title>
+<style type=\"text/css\">
 body {
 background-image:url('static/watermark.png');
 background-repeat: no-repeat;
