@@ -16,13 +16,14 @@
 	require_once("config.php");
 	require_once("dbi/MySQL-dbi.php");
 	
-	@header('Content-type: text/html; charset=utf-8');
+	// Considering what we're doing this really isn't necessary.
+	/*@header('Content-type: text/html; charset=utf-8');
 	if (function_exists("mb_internal_encoding")) {
 		//Unicode support :]
 		mb_internal_encoding("UTF-8");
 		mb_language("uni");
 		mb_http_output("UTF-8");
-	}
+	}*/
 
 	// Add post passwords. (Type 1)
 	function add_post_passwords()
@@ -274,9 +275,9 @@
 			publicreason='" . $dbi->clean($insert['publicreason']) . "', 
 			adminreason='" . $dbi->clean($insert['adminreason']) . "', 
 			postdata='" . $dbi->clean($insert['postdata']) . "', 
-			duration='" . $insert['duration'] . "', 
+			duration=" . $insert['duration'] . ", 
 			bantime=" . $insert['bantime'] . ", 
-			bannedby='" . $insert['bannedby'] . "'";
+			bannedby='" .$dbi->clean($insert['bannedby']) . "'";
 		
 			$result = $dbi->myquery($banquery);
 			
@@ -330,7 +331,7 @@ p.centertext {
 		function RequestUpgrade(type) 
 		{ 
 			var oXMLHttpRequest = new XMLHttpRequest; 
-			oXMLHttpRequest.open("GET", "upgrade_install.php?type="$type, true); 
+			oXMLHttpRequest.open("GET", "upgrade_install.php?type="+type, true); 
 			oXMLHttpRequest.onreadystatechange = function() 
 			{ 
 				if (this.readyState == XMLHttpRequest.DONE) 
