@@ -58,7 +58,7 @@
 			else
 			{
 				// Since that worked, alter the users table	
-				$query = "ALTER TABLE `".THposts_table."` CHANGE `mod_array` `mod_array` TEXT;";
+				$query = "ALTER TABLE `".THusers_table."` CHANGE `mod_array` `mod_array` TEXT;";
 				$result = $dbi->myquery($query);
 				
 				if($result === null)
