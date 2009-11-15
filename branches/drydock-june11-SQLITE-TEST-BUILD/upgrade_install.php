@@ -15,6 +15,7 @@
 	
 	require_once("config.php");
 	require_once("dbi/MySQL-dbi.php");
+	require_once("version.php");
 	
 	// Considering what we're doing this really isn't necessary.
 	/*@header('Content-type: text/html; charset=utf-8');
@@ -31,7 +32,7 @@
 		$dbi = new ThornDBI();
 		
 		// First verify if the table is already upgraded.
-		$result = $dbi->myresult("SHOW COLUMNS FROM `".THposts_table."` LIKE 'password'");
+		$result = $dbi->myquery("SHOW COLUMNS FROM `".THreplies_table."` LIKE 'password'");
 		if( mysql_num_rows($result) > 0 )
 		{
 			die("Database has already been modified!");
@@ -48,7 +49,7 @@
 		else
 		{
 			// Since that worked, alter the posts table	
-			$query = "ALTER TABLE `".THposts_table."` ADD `password` varchar(32) default NULL;";
+			$query = "ALTER TABLE `".THreplies_table."` ADD `password` varchar(32) default NULL;";
 			$result = $dbi->myquery($query);
 			
 			if($result === null)
@@ -77,7 +78,14 @@
 	function add_new_tables()
 	{
 		$dbi = new ThornDBI();
-	
+
+		// First verify if the table is already upgraded.
+		$result = $dbi->myquery("SHOW COLUMNS FROM `".THdbprefix."banhistory`");
+		if( mysql_num_rows($result) > 0 )
+		{
+			die("Database has already been modified!");
+		}
+
 		// Add banhistory table (use THdbprefix)
 		$query = "CREATE TABLE IF NOT EXISTS `".THdbprefix."banhistory` 
 		( 
@@ -92,7 +100,6 @@
 		`postdata` longtext  NOT NULL, 
 		`duration` int(11) NOT NULL default '-1', 
 		`bantime` int(11) unsigned NOT NULL, 
-		`bannedby` varchar(100)  NOT NULL, 
 		`bannedby` varchar(100)  NOT NULL, 
 		`unbaninfo` text NOT NULL,
 		PRIMARY KEY  (`id`) 
@@ -163,7 +170,7 @@
 		?>';
 		
 		// We want to append the two new table names to config.php, so this will do for now (it'll look nicer after the next config.php rebuild, whenever that happens)
-		file_put_contents(THpath."config.php", $addition, (FILE_TEXT | FILE_APPEND))
+		file_put_contents(THpath."/config.php", $addition, (FILE_TEXT | FILE_APPEND))
 			or die("Could not open config.php for writing.");
 		
 		echo "Success!";
@@ -175,17 +182,17 @@
 		$dbi = new ThornDBI();
 		
 		// First verify if the table is already upgraded.
-		$result = $dbi->myresult("SHOW COLUMNS FROM `".THbans_table."` LIKE 'ip_octet3'");
+		$result = $dbi->myquery("SHOW COLUMNS FROM `".THbans_table."` LIKE 'ip_octet3'");
 		if( mysql_num_rows($result) > 0 )
 		{
 			die("Database has already been modified!");
 		}
-				
+
 		// Get all of the old bans from the DB
 		$bans = $dbi->mymultiarray("SELECT * FROM `".THbans_table."` WHERE 1"); // This could take a while.
 		
 		// Store them in a temp file
-		file_put_contents(THpath."upgrade_install_temp.php", var_export($bans, true), FILE_TEXT)
+		file_put_contents(THpath."/upgrade_install_temp.php", var_export($bans, true), FILE_TEXT)
 			or die("Could not open upgrade_install_temp.php for writing.");
 				
 		// Convert to a new type
@@ -299,8 +306,9 @@
 		if( $successful == 1 )
 		{
 			echo "Success!";
-			unlink("upgrade_install.php.temp");
+			unlink("upgrade_install_temp.php");
 		}
+
 	}
 	
 // Only output the full HTML page if we're not trying to do something with AJAX.
