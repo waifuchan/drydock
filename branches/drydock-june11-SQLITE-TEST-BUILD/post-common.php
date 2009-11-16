@@ -230,7 +230,7 @@
                 }//filesize
             }//dis
         }//for perpost
-        if (THdupecheck && $db->dupecheck($hashes)>0)
+        if (THdupecheck && $db->dupecheck($hashes, $binfo['id'])>0)
         {
             THdie("POdupeimg");
         } 

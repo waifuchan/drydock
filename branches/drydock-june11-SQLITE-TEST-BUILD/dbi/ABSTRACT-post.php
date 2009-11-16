@@ -118,13 +118,15 @@ interface absThornPostDBI
 
 	/**
 	 * A function to check to see if any of the SHA-1 hashes in $hashes are
-	 * already in the images database.
+	 * already in the images database.  Note that this will only check within
+	 * the given board ID.
 	 * 
 	 * @param array $hashes A one-dimensional string array of hashes
+	 * @param int $boardid The ID of the board to check on.
 	 * 
 	 * @return int The number of found hashes
 	 */
-	function dupecheck($hashes);
+	function dupecheck($hashes, $boardid);
 
 	/**
 	 * This function gets a new global ID for the specified board.  It will

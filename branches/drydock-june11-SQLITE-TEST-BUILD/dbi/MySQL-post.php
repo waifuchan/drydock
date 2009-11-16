@@ -149,38 +149,6 @@ class ThornPostDBI extends ThornDBI
 		foreach ($files as $file)
 		{
 			$values[] = "(" . $id . ",'" . $file['hash'] . "','" . $this->clean($file['name']) . "'," . $file['width'] . "," . $file['height'] . ",'" . $this->clean($file['tname']) . "'," . $file['twidth'] . "," . $file['theight'] . "," . $file['fsize'] . "," . (int) $file['anim'] . "," . (int) $file['extra_info'] . ")";
-			/*
-				fputs($fp,"id:\t");
-				fputs($fp,$id);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[hash]:\t");
-				fputs($fp,$file['hash']);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[name]:\t");
-				fputs($fp,$file['name']);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[width]:\t");
-				fputs($fp,$file['width']);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[height]:\t");
-				fputs($fp,$file['height']);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[tname]:\t");
-				fputs($fp,$file['tname']);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[twidth]:\t");
-				fputs($fp,$file['twidth']);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[theight]:\t");
-				fputs($fp,$file['theight']);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[fsize]:\t");
-				fputs($fp,$file['fsize']);
-				fputs($fp,"\n"); 
-				fputs($fp,"file[anim]:\t");
-				fputs($fp,$file['anim']);
-				fputs($fp,"\n"); 
-			*/
 		}
 		$this->myquery("insert into " . THimages_table . " values " . implode(",", $values));
 		if ($isthread)
@@ -282,7 +250,21 @@ class ThornPostDBI extends ThornDBI
 	{
 		if (count($hashes) > 0)
 		{
-			return ($this->myresult("select count(*) from " . THimages_table . " where hash in ('" . implode("','", $hashes) . "')"));
+			$boardid = intval($boardid);
+			
+			// Check threads
+			$count = $this->myresult("SELECT COUNT(*) FROM " . THimages_table . 
+				" INNER JOIN ".THthreads_table." ON ".THthreads_table.".board = ".$boardid.
+				" WHERE " . THimages_table .".hash IN ('" . implode("','", $hashes) . "') AND "
+				.THthreads_table.".imgidx = " . THimages_table .".id" );
+				
+			// Then replies			
+			$count += $this->myresult("SELECT COUNT(*) FROM " . THimages_table . 
+				" INNER JOIN ".THreplies_table." ON ".THreplies_table.".board = ".$boardid.
+				" WHERE " . THimages_table .".hash IN ('" . implode("','", $hashes) . "') AND "
+				.THreplies_table.".imgidx = " . THimages_table .".id" );
+				
+			return $count;
 		}
 		else
 		{
