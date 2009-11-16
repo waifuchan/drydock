@@ -26,6 +26,16 @@
 		mb_http_output("UTF-8");
 	}*/
 
+
+	//Swiped from install.php
+	if(@!file_exists($path."_Smarty/Smarty.class.php"))
+	{
+		die("Smarty templating engine is either not present, or is in the wrong place.<br />
+			Please download the latest version of Smarty from <a href=\"http://smarty.net\" target=\"_blank\">the Smarty homepage</a>.<br/>
+			Place the contents of smarty.zip/lib into ".$path."_Smarty/ (so you have something like _Smarty/Smarty.class.php and _Smarty/Smarty_Compiler.class.php) and try again.");
+	}
+
+
 	// Add post passwords. (Type 1)
 	function add_post_passwords()
 	{
@@ -85,6 +95,20 @@
 		{
 			die("Database has already been modified!");
 		}
+
+		//To prevent bricking, I moved this.
+
+		// Rewrite config.php (just a simple append, but I guess it will do for now)
+		$addition = 
+		'<?php 
+		define("THbanhistory_table","'.THdbprefix.'banhistory");
+		define("THreports_table","'.THdbprefix.'reports");
+		define("THpages_table","'.THdbprefix.'pages");
+		?>';
+		
+		// We want to append the two new table names to config.php, so this will do for now (it'll look nicer after the next config.php rebuild, whenever that happens)
+		file_put_contents(THpath."config.php", $addition, (FILE_TEXT | FILE_APPEND))
+			or die("Could not open config.php for writing.");
 
 		// Add banhistory table (use THdbprefix)
 		$query = "CREATE TABLE IF NOT EXISTS `".THdbprefix."banhistory` 
@@ -158,20 +182,6 @@
 		{
 			die ("INSERT Error ".mysql_errno($dbi->cxn) . ": " . mysql_error($dbi->cxn) . "\n");
 		}
-
-		
-
-		// Rewrite config.php (just a simple append, but I guess it will do for now)
-		$addition = 
-		'<?php 
-		define("THbanhistory_table","'.THdbprefix.'banhistory");
-		define("THreports_table","'.THdbprefix.'reports");
-		define("THpages_table","'.THdbprefix.'pages");
-		?>';
-		
-		// We want to append the two new table names to config.php, so this will do for now (it'll look nicer after the next config.php rebuild, whenever that happens)
-		file_put_contents(THpath."/config.php", $addition, (FILE_TEXT | FILE_APPEND))
-			or die("Could not open config.php for writing.");
 		
 		echo "Success!";
 	}
@@ -192,7 +202,7 @@
 		$bans = $dbi->mymultiarray("SELECT * FROM `".THbans_table."` WHERE 1"); // This could take a while.
 		
 		// Store them in a temp file
-		file_put_contents(THpath."/upgrade_install_temp.php", var_export($bans, true), FILE_TEXT)
+		file_put_contents(THpath."upgrade_install_temp.php", var_export($bans, true), FILE_TEXT)
 			or die("Could not open upgrade_install_temp.php for writing.");
 				
 		// Convert to a new type
@@ -342,7 +352,7 @@ p.centertext {
 			oXMLHttpRequest.open("GET", "upgrade_install.php?type="+type, true); 
 			oXMLHttpRequest.onreadystatechange = function() 
 			{ 
-				if (this.readyState == XMLHttpRequest.DONE) 
+				if (this.readyState ==4) 
 				{
 					// Change the pane corresponding with this message.
 					document.getElementById("action_"+type).style.display = "block"; // unhide
@@ -352,7 +362,7 @@ p.centertext {
 					if( this.responseText == "Success!"
 					||  this.responseText == "Database has already been modified!")
 					{
-						document.getElementById("link_"+type).style.display = "hidden";
+						document.getElementById("link_"+type).style.display = "none";
 					}
 					else
 					{
@@ -363,7 +373,7 @@ p.centertext {
 			} 
 			
 			document.getElementById("link_"+type).innerHTML = "Upgrading...";
-			document.getElementById("action_"+type).style.display = "hidden"; // hide
+			document.getElementById("action_"+type).style.display = "none"; // hide
 			document.getElementById("action_"+type).innerHTML = ""; // clear
 			oXMLHttpRequest.send(null); 
 		}
@@ -374,24 +384,26 @@ p.centertext {
 <div id="main">
     <div class="box">
         <div class="pgtitle">
-            Drydock Upgrade Script
+            drydock Upgrade Script
         </div>
 	<br>
 This script will attempt to perform the necessary database changes.  Make sure that THdbprefix is defined
-in your current config.php script before executing this, or it may not work properly.  We strongly
-advise that you have a backup of your current database in the event of an error.
+in your current config.php script before executing this script.  Probably this will work:
+<pre>define("THdbprefix","drydock_");</pre>
+If you do not do this, it may not work properly.  We strongly advise that you have a backup of your current
+database in the event of an error.
 <hr>
 <!-- ACTION 1: Add password field to replies/threads tables -->
 This upgrade will attempt to add a password field to the replies and threads tables for user-initiated
 post deletion.
 <div id="link_1"><a href="#" onclick="javascript:RequestUpgrade('1');">Perform upgrade</a></div>
-<div id="action_1" style="display: hidden;"></div>
+<div id="action_1" style="display: none;"></div>
 <hr>
 <!-- ACTION 2: Add new tables - ban history, report, and static page tables -->
 This upgrade will attempt to add the ban history, report, and static page tables to the database.  Config.php will
 be edited as a result.
 <div id="link_2"><a href="#" onclick="javascript:RequestUpgrade('2');">Perform upgrade</a></div>
-<div id="action_2" style="display: hidden;"></div>
+<div id="action_2" style="display: none;"></div>
 <hr>
 <!-- ACTION 3: Upgrade bans table -->
 This upgrade will attempt to upgrade the bans table to a more flexible version.   In the process,
@@ -399,7 +411,7 @@ the file "upgrade_install_temp.php" will be created as part of the intermediate 
 ensure that the script will be able to do this, or this step will fail. It is provided for backup purposes 
 in the event of an error, and contains all the old bans (as returned from the database in assoc form).
 <div id="link_3"><a href="#" onclick="javascript:RequestUpgrade('3');">Perform upgrade</a></div>
-<div id="action_3" style="display: hidden;"></div>
+<div id="action_3" style="display: none;"></div>
 <hr>
 
 	</div>
