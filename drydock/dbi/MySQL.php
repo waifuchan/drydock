@@ -571,7 +571,7 @@ class ThornPostDBI extends ThornDBI
 			threads and replies.
 		*/
 		$sql = "select globalid from ".THboards_table." where id=".$board;
-		$this->myresult($sql,0,"globalid");
+		$globalid = $this->myresult($sql,0,"globalid");
 		$globalid++;
 		$newsql = "update ".THboards_table." set globalid=".$globalid." where id=".$board;
 		$this->myquery($newsql);
