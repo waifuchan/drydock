@@ -35,6 +35,19 @@
      */
     function checkvc()
     {
+		require_once('recaptchalib.php');
+
+		$resp = recaptcha_check_answer (reCAPTCHAPrivate,
+			$_SERVER["REMOTE_ADDR"],
+			$_POST["recaptcha_challenge_field"],
+			$_POST["recaptcha_response_field"]);
+		if (!$resp->is_valid) {
+		// What happens when the CAPTCHA was entered incorrectly
+		THdie ("The reCAPTCHA wasn't entered correctly. Go back and try it again." .
+         "(reCAPTCHA said: " . $resp->error . ")");
+} 
+
+/*
         //Disabling VCs at code level - probably need to do this from inside config :[[[
         //return(true);
         //Check the verification code.
@@ -56,7 +69,7 @@
             session_destroy();
         }
     }
-   
+ */  
  	/**
  	 * Validate things from $_FILES and add them into an array if they meet our
  	 * basic requirements (file format, file size, not duplicates, etc).  Note

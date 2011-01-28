@@ -37,14 +37,11 @@
 					<td class="postblock">Link</td>
 					<td><input type="text" name="link" size="40" maxlength="40"/>
 		{if $THvc==1}
-                    <script type="text/javascript"><!--
-                    document.write('<input type="button" value="Submit" id="subbtn" onclick="vctest()" />');
-                    // /--></script></td>
+					</td>
 				</tr>
 				<tr>
-					<td class="postblock">Verification Code</td>
-					<td><img src="{$THurl}captcha.php" alt="Verification Code" /> <input type="text" name="vc" size="6" id="vc" /></td>
-
+					<td class="postblock">Verification Code!!!</td>
+					<td>{include_php file='captcha.php'}</td>
 		{elseif $THvc==2}
 						<input type="submit" value="Submit" id="subbtn" /></td>
 				</tr>
