@@ -34,7 +34,6 @@
 	function unlink_placeholders($path) {
 		//don't report errors here, it's confusing
 		@unlink($path."cache/placeholder.txt");
-		@unlink($path."catchas/placeholder.txt");
 		@unlink($path."compd/placeholder.txt");
 		@unlink($path."images/profiles/placeholder.txt");
 		@unlink($path."unlinked/placeholder.txt");

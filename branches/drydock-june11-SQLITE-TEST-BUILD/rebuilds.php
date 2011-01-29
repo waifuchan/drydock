@@ -66,6 +66,7 @@ function rebuild_config($configpost)
 	$config = fopen(THpath . "config.php", 'w');
 	fwrite($config, '<?php' . "\n");
 	//Stuff that doesn't change
+	fwrite($config, 'define("ddversion","' . THversion . '");' . "\n");  //we can check against this later, in the upgrade script
 	fwrite($config, 'define("THpath","' . THpath . '");' . "\n");
 	fwrite($config, 'define("THurl","' . THurl . '");' . "\n");
 	fwrite($config, 'define("THcookieid","' . THcookieid . '");' . "\n"); //cookie seed.
@@ -91,8 +92,11 @@ function rebuild_config($configpost)
 	fwrite($config, 'define("THreports_table","' . THreports_table . '");' . "\n");
 	fwrite($config, 'define("THthreads_table","' . THthreads_table . '");' . "\n");
 	fwrite($config, 'define("THusers_table","' . THusers_table . '");' . "\n");
-	fwrite($config, "\n");
+	//CAPTCHA, not editable yet.  Soon!
+	fwrite($config, 'define("reCAPTCHAPublic","' . reCAPTCHAPublic . '");' . "\n");
+	fwrite($config, 'define("reCAPTCHAPrivate","' . reCAPTCHAPrivate . '");' . "\n");
 
+	fwrite($config, "\n");
 	//Stuff that might have changed
 	$ppp = (int) abs($configpost['THjpegqual']);
 	if ($ppp > 100)
