@@ -18,9 +18,9 @@
 </div>
 
 <div class="postarea">
-	<table>
-		<tbody>
-			<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
+	<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
+		<table>
+			<tbody>
 {				if $binfo.forced_anon!=1} {* begin forced_anon *}
 				<tr>
 					<td class="postblock">Name</td>
@@ -36,14 +36,14 @@
 				<tr>
 					<td class="postblock">Link</td>
 					<td><input type="text" name="link" size="40" maxlength="40"/>
+						<input type="submit" value="Submit" id="subbtn" /></td>
 		{if $THvc==1}
 					</td>
 				</tr>
 				<tr>
-					<td class="postblock">Verification Code!!!</td>
-					<td>{include_php file='captcha.php'}</td>
+					<td class="postblock">Verification Code</td>
+					<td>{$captcha}</td>
 		{elseif $THvc==2}
-						<input type="submit" value="Submit" id="subbtn" /></td>
 				</tr>
 				<tr>
 					<td class="postblock">LEAVE BLANK IF HUMAN</td>
@@ -108,7 +108,7 @@
 </div></td>
 </tr>
 {/if}
-			</form>
-		</tbody>
-	</table>
+			</tbody>
+		</table>
+	</form>
 </div>

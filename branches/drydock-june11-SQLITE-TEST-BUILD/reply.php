@@ -9,7 +9,10 @@
 		Artistic License 2.0:
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
-	
+
+	require_once("common.php");
+	require_once("post-common.php");
+
 	/*
 		THINGS THAT WE EXPECT TO COME IN:
 	
@@ -28,17 +31,18 @@
 	
 	*/
 	
-	require_once("common.php");
-	require_once("post-common.php");
-	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
 
+	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
 	//var_dump($_POST);
+	//This should be for CAPTCHA
+	if(THvc==1) {
+		checkvc();
+	}
 	$db=new ThornPostDBI();
 	if ($db->checkban())
 	{
 		THdie("PObanned");
 	}
-	
 	// Get thread and board info
 	$thread=$db->gettinfo($_POST['thread']);
 	$binfo=$db->getbinfo($db->getboardnumber($_POST['board']));
@@ -67,11 +71,6 @@
 			$_POST['body'] = str_replace($spamblacklist, "xxxxx", $_POST['body']);
 			$_POST['link'] = str_replace($spamblacklist, "xxxxx", $_POST['link']);
 			$_POST['name'] = str_replace($spamblacklist, "xxxxx", $_POST['name']);
-		}
-		
-		//This should be for CAPTCHA
-		if(THvc==1) {
-			checkvc();
 		}
 		
 		// The "email" field will have a big "IF YOU ARE HUMAN DO NOT FILL THIS IN" next to it.  Bots might get tricked.

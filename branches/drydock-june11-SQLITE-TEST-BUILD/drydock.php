@@ -10,7 +10,15 @@
 			{				// Caching ID format: t<board>-tlist-<template>				$cid="t".$boardid."-tlist";				$sm=sminit("threadlist.tpl",$cid,$template,false);				$db=new ThornBoardDBI($boardid,$page,$on);
 				$sm->register_object("it",$db,array("getallthreads","binfo"));
 				$sm->display("threadlist.tpl",$cid);
-				$sm->display("bottombar.tpl", null);				die();			}			elseif (isset($_GET['g'])==true)			{				//This page of the board...				$page=abs((int)$_GET['g']);			} 			else 			{				$page=0;			}			$tpl="board.tpl";			// Caching ID format: b<board>-<page>-<template>			$cid="b".$boardid."-".$page."-".$template;			$modvar = is_in_csl($boardid, $_SESSION['mod_array']); // individual board moderator						$sm=sminit($tpl,$cid,$template,false,$modvar);			//var_dump($obj);			$db=new ThornBoardDBI($boardid,$page,$on);													$sm->register_object("it",$db,array("getallthreads","getsthreads","getindex","binfo","page","allthreadscalmerge","blotterentries"));			$sm->assign('template', $template);			//here we go with a bunch of retarded variables that later we can turn into an array  (looks like i kopiped this)            $sm->assign('username',$_SESSION['username']);           			$sm->assign('comingfrom',"board");			if (isset($ogd)==true)			{				$sm->assign("on",$ogd);			}
+				$sm->display("bottombar.tpl", null);				die();			}			elseif (isset($_GET['g'])==true)			{				//This page of the board...				$page=abs((int)$_GET['g']);			} 			else 			{				$page=0;			}			$tpl="board.tpl";			// Caching ID format: b<board>-<page>-<template>			$cid="b".$boardid."-".$page."-".$template;			$modvar = is_in_csl($boardid, $_SESSION['mod_array']); // individual board moderator						$sm=sminit($tpl,$cid,$template,false,$modvar);			//var_dump($obj);			$db=new ThornBoardDBI($boardid,$page,$on);													$sm->register_object("it",$db,array("getallthreads","getsthreads","getindex","binfo","page","allthreadscalmerge","blotterentries"));			$sm->assign('template', $template);			//here we go with a bunch of retarded variables that later we can turn into an array  (looks like i kopiped this)            $sm->assign('username',$_SESSION['username']);
+
+			//Are we using reCAPTCHA?
+			if(THvc==1)
+			{
+				require_once('recaptchalib.php');
+				$sm->assign('captcha', recaptcha_get_html(reCAPTCHAPublic));
+			}
+			$sm->assign('comingfrom',"board");			if (isset($ogd)==true)			{				$sm->assign("on",$ogd);			}
 
 			$sm->display($tpl,$cid);			// Display mod-specific stuff
 			if(($_SESSION['admin'] == 1) || ($_SESSION['moderator'] == 1) || ($modvar)) 			{ 				$sm->display("modscript.tpl",null); 			}

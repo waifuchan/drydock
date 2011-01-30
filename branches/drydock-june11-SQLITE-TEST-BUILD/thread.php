@@ -12,6 +12,7 @@
 	
 	require_once("common.php");
 	require_once("post-common.php");
+
 	/*
 		THINGS THAT WE EXPECT TO COME IN:
 	
@@ -42,12 +43,15 @@
 */
 	$mod=($_SESSION['moderator'] || $_SESSION['admin']);  //quick fix
 	//var_dump($_POST);
+	//This should be for CAPTCHA
+	if(THvc==1) {
+		checkvc();
+	}
 	$db=new ThornPostDBI;
 	if ($db->checkban()) 
 	{
 		THdie("PObanned");
 	}
-
 	$binfo=$db->getbinfo($db->getboardnumber($_POST['board']));
 
 	// Die if the board doesn't exist.
@@ -73,11 +77,6 @@
 			$_POST['body'] = str_replace($spamblacklist, "xxxxx", $_POST['body']);
 			$_POST['link'] = str_replace($spamblacklist, "xxxxx", $_POST['link']);
 			$_POST['name'] = str_replace($spamblacklist, "xxxxx", $_POST['name']);
-		}
-		
-		//This should be for CAPTCHA
-		if(THvc==1) {
-			checkvc();
 		}
 		
 		// The "email" field will have a big "IF YOU ARE HUMAN DO NOT FILL THIS IN" next to it.  Bots might get tricked.
