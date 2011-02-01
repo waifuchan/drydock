@@ -172,7 +172,7 @@ p.centertext {
 	
 	$chmod=array();
 	//List of places that must be writable at least by the server
-	$paths=array($path,$path."compd/",$path."cache/",$path."captchas/",$path."images/",$path."unlinked/");
+	$paths=array($path,$path."compd/",$path."cache/",$path."images/",$path."unlinked/");
 	foreach ($paths as $pith) {
 		if (@touch($pith."test")==false){
 			$chmod[]=$pith;
