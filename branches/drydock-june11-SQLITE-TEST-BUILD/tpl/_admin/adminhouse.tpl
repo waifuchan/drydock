@@ -28,7 +28,6 @@ Housekeeping Functions
 {if THnewsboard!=0}<td><input type="submit" name="rs" style="width:20em;" value="Rebuild news page RSS feed"></td>{/if}
 			</tr><tr>
 				<td><input type="submit" name="al" style="width:20em;" value="Rebuild EVERYTHING"></td>
-				<td><input type="submit" name="secret" style="width:20em;" value="What does it do?"></td>
             </tr></table>
 			</form>
 {*  //we need to support dumping of both dbis here

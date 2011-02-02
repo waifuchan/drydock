@@ -127,9 +127,18 @@ function rebuild_config($configpost)
 	//$sm->clear_compiled_tpl();
 	//}
 
-	fwrite($config, 'define("THvc",' . (int) $configpost['THvc'] . ');' . "\n");
-	fwrite($config, "\n");
+	//We need to handle this differently now.  If they turn on reCAPTCHA without the lib, the pages just won't load and won't produce an error.  So let's fix that by causing an error.
+	if((int) $configpost['THvc']==1 && !file_exists($path."recaptchalib.php"))  //Did they get the file?
+	{
+		fwrite($config, 'define("THvc",' . THvc.');' . "\n");  //NO CHANGE ALLOWED!
+		$recaptchaerror = "You need to get recaptchalib.php from <a href='http://google.com/recaptcha/'>Google</a>!<br>"
+			."All settings were saved except anti-spam.<br><br>"
+			.'<a href="'.$path.'admin.php?a=g">continue</a>';
+	} else {  //Allow the change
+			fwrite($config, 'define("THvc",' . (int) $configpost['THvc'] . ');' . "\n");
+	}
 
+	fwrite($config, "\n");
 	//Time settings
 	fwrite($config, 'define("THtimeoffset",' . (int) $configpost['THtimeoffset'] . ');' . "\n");
 	fwrite($config, 'define("THdatetimestring","' . str_replace('"', "", $configpost['THdatetimestring']) . '");' . "\n");
@@ -172,6 +181,13 @@ function rebuild_config($configpost)
 	fwrite($config, 'define("THprofile_maxpicsize",' . $configpost['THprofile_maxpicsize'] . ');' . "\n"); //in bytes
 	fwrite($config, '?>'); //some editors break colors here so <?
 	fclose($config); //file's closed, fwrites, etc
+
+	//Let's take care of that error.
+	if($recaptchaerror)
+	{
+		THdie($recaptchaerror);
+	}
+
 }
 
 /**

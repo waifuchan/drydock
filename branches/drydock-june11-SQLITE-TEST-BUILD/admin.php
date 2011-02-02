@@ -496,14 +496,6 @@
 				rebuild_spamlist();  //save this for last just in case
 			}
 
-			if(DDDEBUG==1 && isset($_POST['secret']))  
-			{
-THdie("Secret");
-			//	require_once("nuke.php");
-			//	testing();
-			}
-
-
 			$actionstring = "Housekeeping";
 			writelog($actionstring,"admin");		
 			header("Location: ".THurl."admin.php?a=hk");
