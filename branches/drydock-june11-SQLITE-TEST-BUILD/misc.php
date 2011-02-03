@@ -22,6 +22,10 @@
 					- string $_GET['action'] = "report"
 					- string $_GET['board'] - board folder
 					- int $_GET['postid'] - post globalid			
+			-quicker mod
+				Delete a post:
+					- string $_GET['quickb'] - board folder
+					- int $_GET['quickp'] - post globalid			
 								
 		Things that take $_POST:
 			- delete (delete posts)
@@ -504,6 +508,109 @@
 							$message = $message . "<br><i><b>Post deletion failed (insufficient access)</i></b>";
 						}
 					}					
+				}	
+			}
+		}
+		
+		$sm=sminit("popup.tpl");
+		$sm->assign("text",$message);
+		$sm->assign("timeout", 5); // 5s
+		$sm->assign("title", "Moderation action");
+		$sm->display("popup.tpl");
+		die();	
+	}
+	elseif( $_GET['quicker']==1 )
+	{
+		// First check if we even have the params we need
+		if (!isset ($_GET['board']) || !isset ($_GET['post']))
+		{
+			$message = "No post and/or board parameter, nothing to do!";
+		}
+		else
+		{
+			$db = new ThornModDBI();
+			
+			if ($db->checkban())
+			{
+				THdie("ADbanned");
+			} 
+			
+			// Get the board name.
+			$board_folder = trim($_GET['board']);
+			
+			// Check for local mod access or global mod/admin access.
+			if ((is_in_csl($board_folder, $_SESSION['mod_array']) != 1) 
+			&& ($_SESSION['admin'] != 1) && ($_SESSION['mod_global'] != 1))
+			{
+				$message = "You are not permitted to moderate posts on this board";
+			}
+			else
+			{
+				// Set some stuff up.
+				$board_id = $db->getboardnumber($board_folder);
+
+				// Make sure we retrieved a valid board folder
+				if ($board_folder == null)
+				{
+					$message = "That board does not exist!";
+				}
+				else
+				{
+					$postid = intval($_GET['post']); // SQL injection protection :]
+					$postarray = $db->getsinglepost($postid, $board_id);
+					
+					// Make sure it exists
+					if ($postarray == null)
+					{
+						$message = "Post with global ID of " . $postid . " and board /" . $board_folder . "/ does not exist.";
+					}
+					else // It exists and we can mod it.  GO HOG WILD
+					{		
+					
+						$message = "Moderation actions on post ".$postid." in /".$board_folder."/ performed:";
+						
+						// Let's ban.  This is quicker mod, so we ban with default reason
+						$reason = "USER WAS BANNED FOR THIS POST";
+						$duration = 0; // perma
+							
+						$isthread = ($postarray['thread'] == 0); // thread of 0 means it's a thread
+						
+						$db->banipfrompost($postarray['id'], $isthread, 0, $reason, "", $reason, $duration, 
+							$_SESSION['username'] . " via mod panel");
+							
+						$message = $message . "<br>Banning";
+
+						// Delete, if they're an admin
+						if($_SESSION['admin'] == 1)
+						{
+							// Let's assume this is a thread and only change if necessary
+							$thread = $postarray['globalid']; // thread global ID for cache wiping
+							$targetisthread = true;
+							$targetid = $postarray['id']; // unique ID for post deletion
+							
+							if ($postarray['thread'] != 0) // Reply, so we have to look all of this up
+							{
+								$postdbi = new ThornPostDBI();
+								$fetched_thread = $postdbi->gettinfo($postarray['thread']);
+								
+								$thread = $fetched_thread['globalid'];						
+								$targetisthread = false;
+							}
+
+							smclearcache($board_folder, -1, $thread); // clear the associated cache for this thread
+							smclearcache($board_folder, -1, -1); // AND the board
+							delimgs($db->delpost($targetid, $targetisthread));				
+									
+							// Write to the log
+							writelog("delete\tt:" . $postarray['globalid'] . "\tb:" . $postarray['board'], "moderator");
+							
+							$message = $message . "<br>Post deletion";
+						}
+						else // hrmph :[
+						{
+							$message = $message . "<br><i><b>Post deletion failed (insufficient access)</i></b>";
+						}
+					}
 				}	
 			}
 		}

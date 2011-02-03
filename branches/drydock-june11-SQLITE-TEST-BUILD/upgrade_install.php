@@ -31,7 +31,7 @@
 	if(@!file_exists($path."_Smarty/Smarty.class.php"))
 	{
 		die("Smarty templating engine is either not present, or is in the wrong place.<br />
-			Please download the latest version of Smarty from <a href=\"http://smarty.net\" target=\"_blank\">the Smarty homepage</a>.<br/>
+			Please download the latest version of Smarty 2 from <a href=\"http://smarty.net\" target=\"_blank\">the Smarty homepage</a>.<br/>
 			Place the contents of smarty.zip/lib into ".$path."_Smarty/ (so you have something like _Smarty/Smarty.class.php and _Smarty/Smarty_Compiler.class.php) and try again.");
 	}
 

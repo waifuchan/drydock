@@ -87,6 +87,9 @@ Filter by board: <select name="board">
 							<input type="submit" name="quickmod" value="quickmod">
 					</span>
 					</form>
+
+					{* Show quicker-mod panel *}
+					[<a href="misc.php?quicker=1&board={$boardz}&post={$thisimage.reply_globalid}">X</a>]
 					
 				{else} {* No board found.  Weird. *}
 					No board (UID {$thisimage.reply_id})

@@ -144,6 +144,11 @@
 					<input type="submit" name="quickmod" value="quickmod">
 			</span>
 			</form>
+
+			{* Show quicker-mod panel *}
+			
+			<form target="_blank" action="misc.php" method="POST">
+			[<a href="misc.php?quicker=1&board={$boardz}&post={$post.globalid}">X</a>]
 			
 			{* Mark if a post has already been moderated *}
 			{if $post.unvisibletime != 0}
