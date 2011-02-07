@@ -18,10 +18,9 @@
 </div>
 
 <div class="postarea">
-	<table>
-		<tbody>
-
-			<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
+	<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
+		<table>
+			<tbody>
 {				if $binfo.forced_anon != "1"} {* begin forced_anon *}
 {					if $binfo.requireregistration != "1"}
 					<tr>
@@ -114,7 +113,7 @@
 </div></td>
 </tr>
 {/if}
-			</form>
-		</tbody>
-	</table>
+			</tbody>
+		</table>
+	</form>
 </div>

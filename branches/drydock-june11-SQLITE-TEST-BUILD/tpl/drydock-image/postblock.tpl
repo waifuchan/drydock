@@ -37,20 +37,19 @@
 					<td class="postblock">Link</td>
 					<td><input type="text" name="link" size="40" maxlength="40"/>
 						<input type="submit" value="Submit" id="subbtn" /></td>
-		{if $THvc==1}
-					</td>
 				</tr>
+		{if $THvc==1}
 				<tr>
 					<td class="postblock">Verification Code</td>
-					<td>{$captcha}</td>
-		{elseif $THvc==2}
+					<td>
+						<script type="text/javascript">var RecaptchaOptions = { theme : 'clean' };</script>
+						{$captcha}
+					</td>
 				</tr>
+		{elseif $THvc==2}
 				<tr>
 					<td class="postblock">LEAVE BLANK IF HUMAN</td>
 					<td><input type=text" name="email" />
-				</tr>
-		{else}
-						<input type="submit" value="Submit" id="subbtn" /></td>
 				</tr>
 		{/if}
 				<tr>
