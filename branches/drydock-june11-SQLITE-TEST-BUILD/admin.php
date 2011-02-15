@@ -554,6 +554,9 @@
 			$sm->assign("THprofile_maxpicsize", THprofile_maxpicsize);
 			$sm->assign("THprofile_regpolicy", THprofile_regpolicy);
 			$sm->assign("THprofile_viewuserpolicy", THprofile_viewuserpolicy);
+			$sm->assign("DDDEBUG", DDDEBUG);
+			$sm->assign("reCAPTCHAPrivate", reCAPTCHAPrivate);
+			$sm->assign("reCAPTCHAPublic", reCAPTCHAPublic);
 			//Assign other template sets
 			$sets=array();
 			//Read template sets

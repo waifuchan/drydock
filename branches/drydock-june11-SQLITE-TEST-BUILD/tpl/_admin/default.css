@@ -75,3 +75,5 @@ float:left; text-align:center; background-color:#EFEFEF; border-style:solid; bor
 left:8px; top:50px; width:155px; }
 #photobox A { color:#0066FF; text-decoration:none; margin:1px; border:0;}
 #photobox img { border:0; }
+
+.indent { margin:15px; }

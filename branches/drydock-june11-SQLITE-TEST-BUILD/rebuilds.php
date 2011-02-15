@@ -92,10 +92,6 @@ function rebuild_config($configpost)
 	fwrite($config, 'define("THreports_table","' . THreports_table . '");' . "\n");
 	fwrite($config, 'define("THthreads_table","' . THthreads_table . '");' . "\n");
 	fwrite($config, 'define("THusers_table","' . THusers_table . '");' . "\n");
-	//CAPTCHA, not editable yet.  Soon!
-	fwrite($config, 'define("reCAPTCHAPublic","' . reCAPTCHAPublic . '");' . "\n");
-	fwrite($config, 'define("reCAPTCHAPrivate","' . reCAPTCHAPrivate . '");' . "\n");
-
 	fwrite($config, "\n");
 	//Stuff that might have changed
 	$ppp = (int) abs($configpost['THjpegqual']);
@@ -134,11 +130,22 @@ function rebuild_config($configpost)
 		$recaptchaerror = "You need to get recaptchalib.php from <a href='http://google.com/recaptcha/'>Google</a>!<br>"
 			."All settings were saved except anti-spam.<br><br>"
 			.'<a href="'.$path.'admin.php?a=g">continue</a>';
-	} else {  //Allow the change
+	} else {  //Allow the change... unless the keys aren't set!
+		if($configpost['reCAPTCHAPublic'] == NULL || $configpost['reCAPTCHAPrivate'] == NULL)
+		{
+			fwrite($config, 'define("reCAPTCHAPublic","' . reCAPTCHAPublic . '");' . "\n");
+			fwrite($config, 'define("reCAPTCHAPrivate","' . reCAPTCHAPrivate . '");' . "\n");
+			$recaptchaerror = "reCAPTCHA keys must be set to use it.  You can get keys from <a href='http://google.com/recaptcha/'>Google</a>!<br>"
+				."All settings were saved except anti-spam.<br><br>"
+				.'<a href="'.$path.'admin.php?a=g">continue</a>';
+		} else {  //Sounds good, chief.
 			fwrite($config, 'define("THvc",' . (int) $configpost['THvc'] . ');' . "\n");
+			fwrite($config, 'define("reCAPTCHAPublic","' . $configpost['reCAPTCHAPublic'] . '");' . "\n");
+			fwrite($config, 'define("reCAPTCHAPrivate","' . $configpost['reCAPTCHAPrivate'] . '");' . "\n");
+		}
 	}
-
 	fwrite($config, "\n");
+
 	//Time settings
 	fwrite($config, 'define("THtimeoffset",' . (int) $configpost['THtimeoffset'] . ');' . "\n");
 	fwrite($config, 'define("THdatetimestring","' . str_replace('"', "", $configpost['THdatetimestring']) . '");' . "\n");
@@ -163,6 +170,8 @@ function rebuild_config($configpost)
 	fprintf($config, "define(\"THuseSWFmeta\", %d);\n", ($configpost['THuseSWFmeta'] == "on"));
 	if(!isset($configpost['THusecURL'])) { $configpost['THusecURL'] = NULL; }
 	fprintf($config, "define(\"THusecURL\", %d);\n", ($configpost['THusecURL'] == "on"));
+	if(!isset($configpost['DDDEBUG'])) { $configpost['DDDEBUG'] = NULL; }
+	fprintf($config, "define(\"DDDEBUG\", %d);\n", ($configpost['DDDEBUG'] == "on"));
 	fwrite($config, "\n");
 
 	//Profile settings
