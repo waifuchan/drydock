@@ -40,24 +40,20 @@
 				<tr>
 					<td class="postblock">Link</td>
 					<td><input type="text" name="link" size="40" maxlength="40"/>
-		{if $THvc==1}
-                    <script type="text/javascript"><!--
-                    document.write('<input type="button" value="Post" id="subbtn" onclick="vctest()" />');
-                    // /--></script></td>
+						<input type="submit" value="Submit" id="subbtn" /></td>
 				</tr>
+		{if $THvc==1}
 				<tr>
 					<td class="postblock">Verification Code</td>
-					<td><img src="{$THurl}captcha.php" alt="Verification Code" /> <input type="text" name="vc" size="6" id="vc" /></td>
-
-		{elseif $THvc==2}
-						<input type="submit" value="Submit" id="subbtn" /></td>
+					<td>
+						{literal}<script type="text/javascript">var RecaptchaOptions = { theme : 'clean' };</script>{/literal}
+						{$captcha}
+					</td>
 				</tr>
+		{elseif $THvc==2}
 				<tr>
 					<td class="postblock">LEAVE BLANK IF HUMAN</td>
-					<td><input type=text" name="email" />
-				</tr>
-		{else}
-						<input type="submit" value="Submit" id="subbtn" /></td>
+					<td><input type=text" name="email" /></td>
 				</tr>
 		{/if}
 				<tr>
