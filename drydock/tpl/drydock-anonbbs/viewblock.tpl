@@ -5,14 +5,14 @@
 		<img src="{$THurl}static/sticky.png" alt="HOLY CRAP STICKY">
 {/if}
 {if $thread.lawk}
-		<img src="{$THurl}static/lock.png" alt="LOCKED">
+		<img src="{$THurl}static/locked.png" alt="LOCKED">
 {/if}
 {if $thread.permasage}
 		<img src="{$THurl}static/permasage.png" alt="THIS THREAD SUCKS">
 {/if}
 
 <a href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">
-{if $binfo.forced_anon == "0"}
+{if $binfo.forced_anon != 1}
 {$thread.title|escape:'html':'UTF-8'|default:"No Subject"}
 {else}
 No Subject
@@ -24,8 +24,7 @@ No Subject
     </div>
     <div><span class="medtitle">{$thread.globalid}</span> 
 
-
-{		if $binfo.forced_anon == "0"} {* begin forced_anon *}
+{		if $binfo.forced_anon!=1} {* begin forced_anon *}
 
  Name: 
 {			if $thread.link}<a href="{$thread.link}">{/if}
@@ -48,6 +47,11 @@ No Subject
 :
 		<span class="timedate">{$thread.time|date_format:$THdatetimestring}</span>
 {			if $thread.link}</a>{/if}
+
+[<a href="misc.php?action=report&board={$binfo.folder}&postid={$thread.globalid}" target="_blank">Report</a>]
+
+<a name="jsmod" style="display:none;">{$binfo.folder},{$thread.globalid}</a>
+
     </div>
 {if $thread.images}
 <table>
@@ -58,7 +62,7 @@ No Subject
 			<div class="filesize">File: <a href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">{$it.name|filetrunc}</a></div>
 			<a class="info" href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">
 				<img src="{$THurl}images/{$thread.imgidx}/{$it.tname}" width="{$it.twidth}" height="{$it.theight}" alt="{$it.name}" class="thumb" />
-				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.extra_info|extra_info}</span>
+				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.exif_text}</span>
 			</a>
 		</td>
 {		if ($imgcount mod 4 == 3)}</tr><tr>{/if}{* tyam - let's avoid more template breaking *}
@@ -69,7 +73,7 @@ No Subject
 {/if}
     <div class="postbody"><blockquote>
         {assign value=$thread.body|THtrunc:2000 var=bodey}
-{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
+{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter!=1}
 {		$bodey.text|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {	else}
 {		$bodey.text|filters_new|wrapper|quotereply:"$binfo":"$post":"$thread"}
@@ -90,7 +94,8 @@ No Subject
 {	/if}
 {foreach from=$location item=post}
     <div class="sslarge"><span class="medtitle">{$post.globalid}</span> 
-{		if $binfo.forced_anon == "0"} {* begin forced_anon *}
+ 
+{		if $binfo.forced_anon != 1} {* begin forced_anon *}
  Name: 
 {			if $post.link}<a href="{$post.link}">{/if}
 {			if $post.name == "CAPCODE"}
@@ -112,12 +117,17 @@ No Subject
 :
 		<span class="timedate">{$post.time|date_format:$THdatetimestring}</span>
 {			if $post.link}</a>{/if}
+
+[<a href="misc.php?action=report&board={$binfo.folder}&postid={$post.globalid}" target="_blank">Report</a>]
+
+<a name="jsmod" style="display:none;">{$binfo.folder},{$post.globalid}</a>
+
     </div>
     <div class="postbody">
 	<blockquote>
         {assign value=$post.body|THtrunc:2000 var=bodey}
 
-{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
+{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter!=1}
 {		$bodey.text|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {	else}
 {		$bodey.text|filters_new|wrapper|quotereply:"$binfo":"$post":"$thread"}

@@ -1,4 +1,5 @@
 <div class="theader">
+
 {if $comingfrom=="board"}
 	{if $binfo.tlock}
 		(Board is locked, no more posts allowed)
@@ -17,17 +18,20 @@
 </div>
 
 <div class="postarea">
-	<table>
-		<tbody>
-
-			<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
-{				if $binfo.forced_anon == "0"} {* begin forced_anon *}
-				<tr>
-					<td class="postblock">Name</td>
-					<td><input type="text" name="nombre" size="40" maxlength="40"/><span style="font-size:x-small;"><input type="checkbox" name="mem" style="font-size:x-small;" value="on" />Remember</span></td>
-				</tr>
+	<form id="postform" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" method="post" enctype="multipart/form-data">
+		<table>
+			<tbody>
+{				if $binfo.forced_anon != "1"} {* begin forced_anon *}
+{					if $binfo.requireregistration != "1"}
+					<tr>
+						<td class="postblock">Name</td>
+						<td><input type="text" name="nombre" size="40" maxlength="40"/><span style="font-size:x-small;"><input type="checkbox" name="mem" style="font-size:x-small;" value="on" />Remember</span></td>
+					</tr>
+{					else}
+						<input type="hidden" name="nombre" value="{$username}"/>
+{					/if} {* end registration *}
 {				/if} {* end forced_anon *}
-{				if $binfo.forced_anon=="0" and $comingfrom=="board"} {* begin forced_anon / boardorthread check*}
+{				if $binfo.forced_anon!="1" and $comingfrom=="board"} {* begin forced_anon / boardorthread check*}
 				<tr>
 					<td class="postblock">Subject</td>
 					<td><input type="text" name="subj" size="40" maxlength="40"/></td>
@@ -36,24 +40,20 @@
 				<tr>
 					<td class="postblock">Link</td>
 					<td><input type="text" name="link" size="40" maxlength="40"/>
-		{if $THvc==1}
-                    <script type="text/javascript"><!--
-                    document.write('<input type="button" value="Post" id="subbtn" onclick="vctest()" />');
-                    // /--></script></td>
+						<input type="submit" value="Submit" id="subbtn" /></td>
 				</tr>
+		{if $THvc==1}
 				<tr>
 					<td class="postblock">Verification Code</td>
-					<td><img src="{$THurl}captcha.php" alt="Verification Code" /> <input type="text" name="vc" size="6" id="vc" /></td>
-
-		{elseif $THvc==2}
-						<input type="submit" value="Submit" id="subbtn" /></td>
+					<td>
+						{literal}<script type="text/javascript">var RecaptchaOptions = { theme : 'clean' };</script>{/literal}
+						{$captcha}
+					</td>
 				</tr>
+		{elseif $THvc==2}
 				<tr>
 					<td class="postblock">LEAVE BLANK IF HUMAN</td>
-					<td><input type=text" name="email" />
-				</tr>
-		{else}
-						<input type="submit" value="Submit" id="subbtn" /></td>
+					<td><input type=text" name="email" /></td>
 				</tr>
 		{/if}
 				<tr>
@@ -81,6 +81,10 @@
 				</tr>
 			{/if} {* if pix>0*}
 				<tr>
+					<td class="postblock">Password</td>
+					<td><input type="password" name="password" size="8" /> (for post deletion)</td>{* New password field for deletion *}
+				</tr>
+				<tr>
 					<td class="postblock">Then</td>
 					<td>
 						<select name="todo">
@@ -93,7 +97,8 @@
 					<td class="postblock">Rules</td>
 					<td><div class="rules">{include file=rules.tpl}</div></td>
 				</tr>
-{if $comingfrom == "board"}<input type="hidden" name="board" value="{$binfo.id}" />{else if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.id}" />{/if}
+<input type="hidden" name="board" value="{$binfo.folder}" />
+{if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.id}" />{/if}
 {if $blotter}
 <tr>
 <td class="postblock">Blotter</td>
@@ -104,7 +109,7 @@
 </div></td>
 </tr>
 {/if}
-			</form>
-		</tbody>
-	</table>
+			</tbody>
+		</table>
+	</form>
 </div>

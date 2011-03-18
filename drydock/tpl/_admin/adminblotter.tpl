@@ -41,7 +41,7 @@
 								{$blotter.time|date_format:$THdatetimestring}
                             </td>
                             <td>
-                                <input type="text" name="post{$blotter.id}" value='{$blotter.text}' />
+                                <input type="text" name="post{$blotter.id}" value='{$blotter.entry}' />
                             </td>
                             <td>
 								<select name="postto{$blotter.id}">

@@ -1,4 +1,4 @@
-sdgshdfgndfdsd{it->head assign="thread"}
+{it->head assign="thread"}
 {$thread}
 {it->getreplies assign="posts"}
 {$posts}

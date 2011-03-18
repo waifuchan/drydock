@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0">
+	<channel>
+	<atom:link href="/rss.xml" rel="self" type="application/rss+xml" />		
+		<title>drydock image board</title>
+		<description>drydock image board drydock RSS feeder</description>
+		<language>en</language>
+		<link>/</link>
+		<generator>drydock rss feed generator</generator>
+		<copyright>tyam/ordog/kchan devs - http://573chan.org / http://drydock.googlecode.com/</copyright>
+	</channel>
+</rss>

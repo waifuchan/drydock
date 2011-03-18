@@ -2,11 +2,11 @@
 {if $comingfrom=="board"}
 <tr><td>
 <a name="{$thread.globalid}" href="{$THurl}{if $THuserewrite}{$binfo.folder}/thread/{else}drydock.php?b={$binfo.folder}&i={/if}{$thread.globalid}">
-{		if $binfo.forced_anon == "0"} {* begin forced_anon *}
+{		if $binfo.forced_anon != "1"} {* begin forced_anon *}
 {			if !$thread.title}
-		No subject
+		<span class="filetitle">No subject</span>
 {			else}
-		<span class="filetitle">{$thread.title|escape:'html':'UTF-8'}</span>
+		<span class="filetitle">{$thread.title}</span>
 {			/if} {* if no title *}
 </a>
 {if $thread.pin}
@@ -20,6 +20,7 @@
 {/if}
 	
 		</td><td>
+
 {*<a href="{$THurl}profiles.php?action=viewprofile&user={$thread.name|escape:'html':'UTF-8'}">*}{*this should only be used on forced-reg boards, so it's untested*}
 {				if !$thread.trip}
 {					if !$thread.name}
@@ -40,12 +41,15 @@
 <div class="damnopera">
 	<a name="{$thread.globalid}"></a>
 	<label>
-{		if $binfo.forced_anon == "0"} {* begin forced_anon *}
+{		if $binfo.forced_anon != "1"} {* begin forced_anon *}
 {			if !$thread.title}
 		&nbsp;&nbsp;
 {			else}
-		<span class="filetitle">{$thread.title|escape:'html':'UTF-8'}</span>
+		<span class="filetitle">{$thread.title}</span>
 {			/if} {* if no title *}
+
+<input type="checkbox" name="chkpost{$thread.globalid}" value="1"> {* Deletion/reporting checkbox *}
+
 {			if $thread.link}<a href="{$thread.link}">{/if}
 {			if $thread.name == "CAPCODE"}
 		<span class="postername">{$thread.trip|capcode}</span>
@@ -72,13 +76,10 @@
 		<img src="{$THurl}static/sticky.png" alt="HOLY CRAP STICKY">
 {/if}
 {if $thread.lawk}
-		<img src="{$THurl}static/lock.png" alt="LOCKED">
+		<img src="{$THurl}static/locked.png" alt="LOCKED">
 {/if}
 {if $thread.permasage}
 		<img src="{$THurl}static/permasage.png" alt="THIS THREAD SUCKS">
-{/if}
-{if $thread.visible==0}
-		<img src="{$THurl}static/notvisible.gif" alt="INVISIBLE">
 {/if}
 	</label>
 </div>
@@ -91,7 +92,7 @@
 			<div class="filesize">File: <a href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">{$it.name|filetrunc}</a></div>
 			<a class="info" href="{$THurl}images/{$thread.imgidx}/{$it.name}" target="_blank">
 				<img src="{$THurl}images/{$thread.imgidx}/{$it.tname}" width="{$it.twidth}" height="{$it.theight}" alt="{$it.name}" class="thumb" />
-				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.extra_info|extra_info}</span>
+				<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.exif_text}</span>
 			</a>
 		</td>
 {		if ($imgcount mod 4 == 3)}</tr><tr>{/if}{* tyam - let's avoid more template breaking *}
@@ -107,7 +108,7 @@
 {if $comingfrom=="board"}{assign value=$thread.body|THtrunc:2000 var=bodeycheck}
 <blockquote>
 {assign value=$bodeycheck.text var=bodey}{else}{assign value=$thread.body var=bodey}{/if}
-{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
+{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter!="1"}
 {		if $binfo.allowvids == 1} 
 {			$bodey|vids|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {		else}
@@ -145,6 +146,9 @@
 			<td class="reply" id="{$post.globalid}">
 				<a name="{$post.globalid}"></a>
 				<label>&nbsp;&nbsp;
+	
+<input type="checkbox" name="chkpost{$post.globalid}" value="1"> {* Deletion/reporting checkbox *}
+				
 {	if $post.link}<a href="{$post.link}">{/if}
 {	if $post.name == "CAPCODE"}
 				<span class="postername">{$post.trip|capcode}</span>
@@ -173,7 +177,7 @@
 							<div class="filesize">File: <a href="{$THurl}images/{$post.imgidx}/{$it.name}" target="_blank">{$it.name|filetrunc}</a><br /></div>
 							<a class="info" href="{$THurl}images/{$post.imgidx}/{$it.name}" target="_blank">
 								<img src="{$THurl}images/{$post.imgidx}/{$it.tname}" width="{$it.twidth}" height="{$it.theight}" alt="{$it.name}" class="thumb" />
-								<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.extra_info|extra_info}</span>
+								<span>{$it.fsize} K, {$it.width}x{$it.height}{if $it.anim}, animated{/if}<br />{$it.exif_text}</span>
 							</a>
 						</td>
 {if ($imgcount == 3)}</tr><tr>{/if} {* tyam - let's avoid more template breaking *}
@@ -189,7 +193,7 @@
 {else}
 {if $comingfrom=="board"}{assign value=$post.body|THtrunc:1000 var=bodeycheck}
 {assign value=$bodeycheck.text var=bodey}{else}{assign value=$post.body var=bodey}{/if}
-{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter=="0"}
+{	if $binfo.id == THnewsboard or $binfo.id == THmodboard or $binfo.filter!="1"}
 {		if $binfo.allowvids == 1} 
 {			$bodey|vids|nl2br|wrapper|quotereply:"$binfo":"$post":"$thread"}
 {		else}
