@@ -24,20 +24,12 @@
 	{
 		require_once("config.php");
 	} 
-	else 
-	{
-//		die("Please run the configuration utility.");
-	}
 	//error_reporting(E_ALL);
 
-	// This line could be expanded to support different templates for different useragents, but right now
-	// we only have one template to worry about.
-	$template = "drydock-image";
-	
 	//Find DB code
 	if (THdbtype!=null)
 	{
-		$findpath=THpath."dbi/".THdbtype.".php";
+		$findpath=THpath."dbi/".THdbtype."-dbi.php";
 		if (file_exists($findpath))
 		{
 			require_once($findpath);
@@ -48,26 +40,30 @@
 		}
 	}
 	require_once("rebuilds.php");  //frown
+	
+	define("THbcw_blotter", 1);
+	define("THbcw_capcode", 2);
+	define("THbcw_filter", 3);
+	
+	/**
+	 * Generate an error page for whatever reason.  If $err is
+	 * equal to "ADbanned" or "PObanned" it looks up the ban data
+	 * and displays that.  Otherwise it uses the standard error
+	 * Smarty template.
+	 * 
+	 * @param string $err The kind of error that occurred
+	 */
 	function THdie($err)
 	{
 		//die($err);
 		if($err=="ADbanned" || $err =="PObanned") // THIS USED TO READ $err="ADbanned", which meant that whenever THdie was called it would tell someone they're banned, gg
 		{
 			$db=new ThornDBI();
-			$haship=ip2long($_SERVER['REMOTE_ADDR']);
-			$sub=ipsub($haship);
-			$banquery = "select * from ".THbans_table." where ip=".$haship;
-			$queryresult =$db->myassoc($banquery);
-			if(!$queryresult)
-			{
-				$banquery = "select * from ".THbans_table." where ip=".$sub." && subnet=1";
-				$queryresult = $db->myassoc($banquery);
-			}
-			$ip=explode(".",long2ip($queryresult['ip']));
-			if ($queryresult['subnet'])
-			{
-				$ip[3]="*";
-			}
+
+			// Get bans associated with an IP (there could be multiple bans)
+			$bans = $db->getban();
+			$unbanned = 1; // boolean to indicate whether they've been unbanned or not, gets changed in the foreach loop if appropriate
+			
 			echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 			echo '<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">';
 			echo '<head>';
@@ -79,103 +75,113 @@
 			echo '<body>';
 			echo '<div align="center">You have been banned.<br /></div>';
 
-			if($queryresult['subnet'] == 0)
+			foreach( $bans as $singleban )
 			{
-				echo 'Your IP: '.$ip[0].".".$ip[1].".".$ip[2].".".$ip[3].'<br />';
-			} 
-			else 
-			{
-				echo 'Your subnet: '.$ip[0].".".$ip[1].".".$ip[2].".".$ip[3].'<br />';
-			}
-
-			//did they get banned from a post?
-			if($queryresult['postdata'])
-			{
-				echo 'You were banned for making this post:<br />'.$queryresult['postdata'].'<br /><br />';
-			}
+				// Display wildcards as appropriate.
+				printf("Associated IP: %d.%d.%s.%s<br>\n",
+				$singleban['ip_octet1'],
+				$singleban['ip_octet2'],
+				(($singleban['ip_octet3'] == -1) ? "*" : $singleban['ip_octet3']),
+				(($singleban['ip_octet4'] == -1) ? "*" : $singleban['ip_octet4']));
 			
-			if(!$queryresult['privatereason'])
-			{
-				$reason=$queryresult['publicreason'];
-			} 
-			else 
-			{
-				$reason=$queryresult['privatereason'];
-			}
-			
-			if(!$reason)
-			{
-				$reason='No reason given';
-			}
-			else
-			{
-				echo 'Reason given: '.$reason.'<br /><br />';
-			}
-			
-			//we'll need to know the difference between the ban time and the duration for actually expiring the bans
-			$offset = THtimeoffset*60;
-			$now = time()+$offset;
-			$banoffset = $queryresult['duration']*3600;
-			$expiremath = $banoffset+$queryresult['bantime'];
-			//check duration
-			if($queryresult['duration']=="0")
-			{
-				echo 'This is only a warning.  After viewing this page your ban record will be deleted.  Keep in mind however that if you are warned multiple times you may be permabanned.  Click the link below to continue.<br /><br />';
-			}
-			elseif ($queryresult['duration']=="-1")
-			{
-				echo 'This ban will not expire.<br /><br />';
-			} 
-			else 
-			{
-				if($now>$expiremath)
+				if( $singleban['postdata'] )
 				{
-					echo 'Your ban has expired.  Keep in mind that you may be rebanned at any time.<br /><br />';
+					$fixbody = str_replace("&gt;",">",$singleban['postdata']);
+					$fixbody = str_replace("&amp;gt;",">",$fixbody);
+					$fixbody = str_replace("&lt;","<",$fixbody);
+					$fixbody = str_replace("&amp;lt;","<",$fixbody);
+					echo 'Associated post:<br />'.nl2br($fixbody).'<br /><br />';
+				}
+				
+				$reason = "";
+				if(!$singleban['privatereason'])
+				{
+					$reason=$singleban['publicreason'];
 				} 
 				else 
 				{
-					echo 'Your ban duration was set to '.$queryresult['duration'].' hours.  The ban will expire '.date("l, m.d.Y: H:i:s",$expiremath).'<br /><br />';
+					$reason=$singleban['privatereason'];
 				}
+				
+				if(!$reason)
+				{
+					$reason='No reason given';
+				}
+				else
+				{
+					echo 'Reason given: '.$reason.'<br /><br />';
+				}
+				
+				if( $singleban['duration'] == 0 )
+				{
+					echo 'This is only a warning and will be removed from the active bans list. Keep in mind however that if you are warned multiple times you may be permabanned.';
+				}
+				else if( $singleban['duration'] == -1 )
+				{
+					echo 'This ban will not expire.<br /><br />';
+					$unbanned = 0; // still banned
+				}
+				else // Neither permanent nor a warning
+				{
+					//we'll need to know the difference between the ban time and the duration for actually expiring the bans
+					$offset = THtimeoffset*60;
+					$now = time()+$offset;
+					$banoffset = $singleban['duration']*3600; // convert to hours
+					$expiremath = $banoffset+$singleban['bantime'];
+				
+					if($now>$expiremath)
+					{
+						echo 'This ban has expired.  Keep in mind that you may be rebanned at any time.<br /><br />';
+					} 
+					else 
+					{
+						echo 'This ban duration was set to '.$singleban['duration'].' hours.  The ban will expire on '.
+							strftime(THdatetimestring,$expiremath).'<br /><br />';
+						$unbanned = 0; // still banned
+					}
+				}
+				
 			}
-			//display results of banning
-			if($queryresult['duration']=="0")
+	
+			if($unbanned == 1)
 			{
-				$unbanquery = "delete from ".THbans_table." where ip=".$haship;
-				$db->myquery($unbanquery);
-				echo '<a href="'.THurl.'">Continue to the main index</a>';
+				echo '<div align="center"><a href="'.THurl.'">Continue to the main index</a></div>';
 			} 
 			else 
-			{	
-				if($now>$expiremath)
-				{
-					$unbanquery = "delete from ".THbans_table." where ip=".$haship;
-					$db->myquery($unbanquery);
-					echo '<a href="'.THurl.'">Continue to the main index</a>';
-				} 
-				else 
-				{
-					echo "If you feel this ban is in error, please email an administrator.";
-				}
+			{
+				echo "If you feel this ban is in error, please email an administrator.";
 			}
-			echo '</body>
-			</html>';
+			
+			echo '</body></html>';
 		} 
 		else 
 		{
-			$sm=sminit("error",$err);
+			$sm=sminit("error.tpl",$err);
 			$sm->assign_by_ref("error",$err);
-			$sm->display("error.tpl",$err);
+			$sm->display("error.tpl",null);
 			die();
 		}
 	}//THdie
 	//Below are functions that are used in various places throughout Thorn.
 	
+	/**
+	 * Take an incoming IP and strip the last octet in it, replacing with 0
+	 * 
+	 * @param int $ip The incoming IP in long-int form
+	 * 
+	 * @return int The incoming IP but with the last octet replaced with 0
+	 */
 	function ipsub($ip)
 	{
 		$sub=explode(".",long2ip($ip));
 		return(ip2long(implode(".",array($sub[0],$sub[1],$sub[2],0))));
 	}
-	
+
+	/**
+ 	* Initialize a new Smarty object.
+ 	* 
+ 	* @return object A new instance of the Smarty class
+ 	*/	
 	function smsimple()
 	{
 		require_once("_Smarty/Smarty.class.php");
@@ -184,7 +190,22 @@
 		return($sm);
 	}
 	
-	function sminit($tpl,$id=null,$template=THtplset,$admin=false)
+	/**
+	 * Initialize a new Smarty object with certain parameters set, including
+	 * the cache directory, the caching mode, the template directory, the ID
+	 * used for caching, and with certain common variables, such as THurl,
+	 * intialized
+	 * 
+	 * @param string $tpl The template file to use (make sure to include the .tpl)
+	 * @param string $id The ID to use for caching (will perform a lookup and may
+	 * even potentially result in a cached version being used if there is a match).
+	 * Defaults to null.
+	 * @param string $template The template set to use.  Defaults to THtplset.
+	 * @param bool $admin Whether this is considered an "administrator" page, in
+	 * which case the template set is overridden to "_admin" and caching is
+	 * always disabled.
+	 */
+	function sminit($tpl,$id=null,$template=THtplset,$admin=false,$modvar=false)
 	{
 		$smarty=smsimple();
 		$sm->cache_dir=THpath."cache/";
@@ -197,9 +218,9 @@
 			$smarty->assign("THtplurl",THurl."tpl/_admin/");
 
 		}
-		elseif (THtpltest || $tpl=="error.tpl" || $tpl=="preview.tpl")
+		elseif (THtpltest || $tpl=="error.tpl" || $tpl=="preview.tpl" || $tpl=="popup.tpl")
 		{
-			//We don't want to cache error pages or post previews
+			//We don't want to cache error pages, post previews, or popups
 			$smarty->caching=0;
 			$smarty->force_compile=true;
 			$smarty->template_dir=THpath."tpl/".$template."/";
@@ -232,7 +253,6 @@
 		$smarty->assign("THvc",THvc);
 		$smarty->assign("THnewsboard",THnewsboard);
 		$smarty->assign("THmodboard",THmodboard);
-		$smarty->assign("THmaxfilesize",THmaxfilesize);
 		$smarty->assign("THdefaulttext",THdefaulttext);
 		$smarty->assign("THdefaultname",THdefaultname);
 		$smarty->assign("THdatetimestring",THdatetimestring);
@@ -243,6 +263,22 @@
 		return($smarty);
 	}
 	
+	/**
+	 * Get a count of elements in an array. Since Smarty doesn't have an integrated
+	 * array counting function, this serves as a wrapper for PHP's. $p is an array 
+	 * which has various values used for the produced output:
+	 * 
+	 * $p['array'] contains the array whose elements will be counted.
+	 * 
+	 * If $p['assign'] is set and true, the function will change $p['assign']
+	 * to be the array count
+	 * 
+	 * @param array $p The array containing the previously mentioned values.
+	 * @param reference $sm A reference to a Smarty object
+	 * 
+	 * @return mixed Nothing is returned if $p['assign'] is true- in all other instances,
+	 * however, the elements count is returned
+	 */
 	function smcount($p,&$sm)
 	{
 		//Sweet mother, why didn't I think of this sooner?!
@@ -250,11 +286,23 @@
 		if (isset($p['assign'])==true)
 		{
 			$sm->assign($p['assign'],count($p['array']));
-		} else {
+		} 
+		else 
+		{
 			return(count($p['array']));
 		}
 	}
 	
+	/**
+	 * Clear the cache for a thread, page, and/or entire board
+	 * 
+	 * @param int $board The affected board ID
+	 * @param int $page The affected page (if any). Defaults to -1, meaning no page
+	 * @param int $thread The affected thread ID (unique, not globalid). Defaults to -1,
+	 * meaning no thread
+	 * @param bool $delete_everything Deletes the board cache AND ALL thread caches for a
+	 * particular board (meant for use ONLY in fragboard)
+	 */
 	function smclearcache($board, $page=-1, $thread=-1, $delete_everything=false)
 	{
 		// Oh, we're actually clearing the cache for a thread
@@ -281,57 +329,74 @@
 			unlink($deletion);
 		}
 	}
+	
+	/**
+	 * Delete a cache for a static page, given its ID.
+	 * 
+	 * @param int $pageid The ID of the static page
+	 */
+	function smclearpagecache($pageid)
+	{
+		@unlink(THpath."cache/p".$pageid);
+	}
 
+	/**
+	 * Delete images from the images folder.  The 
+	 * directories to clear out are provided in the
+	 * incoming array of imgidxes
+	 * 
+	 * @param array $badimgs The array of imgidxes whose corresponding
+	 * directories will be cleared out
+	 */
 	function delimgs($badimgs)
 	{
-		//Delete these images
-		foreach ($badimgs as $bad)
+		if($badimgs != null)
 		{
-			$bad=(int)$bad;
-			if($bad!=0)
+			//Delete these images
+			foreach ($badimgs as $bad)
 			{
-				$pyath=THpath."images/".$bad."/";
-				$it=opendir($pyath);
-				while (($img=readdir($it))!==false)
+				$bad=(int)$bad;
+				if($bad!=0)
 				{
-					if ($img{0}!=".")
+					$pyath=THpath."images/".$bad."/";
+					$it=opendir($pyath);
+					while (($img=readdir($it))!==false)
 					{
-						unlink($pyath.$img);
+						// Skip over the directory items
+						if ($img == "." || $img == ".." )
+						{
+							continue;	
+						}
+						
+						if( unlink($pyath.$img) == false )
+						{
+							// Handle error and write to rmfailures log
+							$error = error_get_last();
+							$errorstring = "file: ".$pyath.$img."\tmsg: ".$error['message'];
+							writelog($errorstring, "rmfailures");
+						}
+					}
+					
+					if( rmdir($pyath) == false )
+					{
+						// Handle error and write to rmfailures log
+						$error = error_get_last();
+						$errorstring = "dir: ".$pyath."\tmsg: ".$error['message'];
+						writelog($errorstring, "rmfailures");
 					}
 				}
-				rmdir($pyath);
 			}
 		}
 	}
 
-	//<Ordog163> that does the name lookup from a board number
-	//<Ordog163> stick it in common.php and use that for like thornlight and stuff?
-	function getboardname($number)
-	{
-		$db=new ThornDBI();
-		$boardquery = "SELECT folder FROM ".THboards_table." WHERE id =".$number;
-		$name = $db->myresult($boardquery);
-		if($name != null)
-		{ 
-			return $name;
-		} else { 
-			return false;
-		}
-	}
-	//works backwards from above
-	function getboardnumber($name)
-	{
-		$db=new ThornDBI();
-		$boardquery = "SELECT id FROM ".THboards_table." WHERE folder ='".$name."'";
-		$number = $db->myresult($boardquery);
-		if($number != null)
-		{ 
-			return $number;
-		} else { 
-			return false;
-		}
-	}
-
+	/**
+	 * Convert an incoming file extension into its corresponding
+	 * bit, or 0 if there was no match
+	 * 
+	 * @param string $ext The extension
+	 * 
+	 * @return int The bit value, or 0 if there was no match
+	 */
 	function bitlookup($ext)
 	{
 		// OH YEAH BITFLAGS
@@ -358,14 +423,54 @@
 		return 0;
 	}
 	
+	/**
+	 * Find if an item is in an array whose elements are stored as a comma-separated
+	 * list (hence the CSL) which is represented as a string
+	 * 
+	 * @param string $item The item to search for
+	 * @param string $csl The string which represents the comma-separated list
+	 * 
+	 * @return bool If $item was found
+	 */
 	function is_in_csl($item, $csl)
-	// CSL stands for comma separated list.  It's not
-	// very complicated.
 	{
-		$items = explode(",",$csl);
-		return in_array($item, $items);
+		return in_array($item, explode(",",$csl));
 	}
-	//minor annoyance
+	
+	/**
+	 * Compare two posts and determine which is earlier based
+	 * on the "time" element of each
+	 * 
+	 * @param array $a An assoc-array containing post data
+	 * @param array $b An assoc-array containing post data
+	 * 
+	 * @return int 1 if $a comes before $b, 
+	 * -1 if $b comes before $a,
+	 * 0 if the two are equal
+	 */
+	function comp_post_times($a, $b)
+	{
+		$first=$a['time'];
+		$second=$b['time'];
+		if ($first == $second) 
+		{ //Unlikely, but possible
+			return 0;
+		}
+
+		return ($first < $second) ? 1 : -1;
+	}
+	
+	/**
+	* This function takes a string or array and
+	* replaces every instance of < and > with their HTML-encoded
+	* equivalent, so it doesn't mess up our HTML forms
+	* if we use it as a value attribute or something like that.
+	*
+	* @param mixed $filter A string or array or whatever, see how 
+	* the PHP function str_replace works for the $subject param
+	*
+	* @return mixed Whatever was passed in but with the substitution performed
+	*/
 	function replacewedge($input)
 	{
 		$output = str_replace("<", "&lt;", $input);
@@ -373,17 +478,63 @@
 		return $output;
 	}
 	
-	//profile related functions follow
+	/**
+	* This function takes a string or array and
+	* replaces every instance of ' with its HTML-encoded
+	* equivalent, so it doesn't mess up our HTML forms
+	* if we use it as a value attribute or something like that.
+	*
+	* @param mixed $filter A string or array or whatever, see how 
+	* the PHP function str_replace works for the $subject param
+	*
+	* @return mixed Whatever was passed in but with the substitution performed
+	*/
+	function replacequote($filter)
+	{
+		// ~simple and clean is the way that you're making me feel tonight~
+		// ^-- imagine tyam singing this while wearing a dress...
+		return str_replace("\'", "&#039;", $filter);
+		// ...or a tank top
+
+		//oh hello i found this comment thanks diff ~tyam
+	}
+	
+	/**
+	* This function takes a string or array and
+	* replaces every instance of " with its HTML-encoded
+	* equivalent, so it doesn't mess up our HTML forms
+	* if we use it as a value attribute or something like that.
+	*
+	* @param mixed $filter A string or array or whatever, see how 
+	* the PHP function str_replace works for the $subject param
+	*
+	* @return mixed Whatever was passed in but with the substitution performed
+	*/
+	function replacedouble($filter)
+	{
+		return str_replace('"', "&#034;", $filter);
+	}
+	
+	/**
+	 * Generate a random ID. 16^32 possible values SHOULD
+	 * decrease the chances of hash collisions. ;)
+	 * 
+	 * @return string A 32-character hex string (an MD5 hash)
+	 */
 	function generateRandID()
 	
 	{
 		return md5(generateRandStr(16));
 	}
-	/*
-		generateRandStr - Generates a string made up of randomized
-		letters (lower and upper case) and digits, the length
-		is a specified parameter.
-	*/
+	
+	/**
+	 * Generate a random string made up of randomized letters
+	 * (lower and upper case) and digits, with a certain length
+	 * 
+	 * @param int $length How long a string to make
+	 * 
+	 * @return string The generated string with length $length
+	 */
 	function generateRandStr($length)
 	{
 		$randstr = "";
@@ -403,29 +554,17 @@
 		}
 		return $randstr;
 	}
-	function canEditProfile($user)
-	{
-		if(!isset($_SESSION['username']))
-		{
-			return false;
-		}
-		if($_SESSION['username'] == $user)
-		{
-			return true;
-		}
-		if(!$_SESSION['admin'])
-		{
-			return false;
-		}
-		$db=new ThornDBI();
-		// We assume $user is a valid username, so any functions should make that check beforehand
-		$userlevel = $db->myresult("SELECT userlevel FROM ".THusers_table." WHERE username='".escape_string($user)."'");
-		if($userlevel >= $_SESSION['userlevel'] || $userlevel==null)
-		{
-			return false;
-		}
-		return true;
-	}
+
+	/**
+	 * Send an email welcoming a new user
+	 * 
+	 * @param string $user The user's name
+	 * @param string $email Destination email
+	 * @param string $pass The password for this new account
+	 * 
+	 * @return bool True if the mail was accepted for delivery (see the workings
+	 * of the PHP mail function for more explanation)
+	 */
 	function sendWelcome($user, $email, $pass)
 	{
 		$from = "From: ".THprofile_emailname." <".THprofile_emailaddr.">";
@@ -443,6 +582,18 @@
 			."- ".THname." Automailer";
 		return mail($email,$subject,$body,$from);
 	}
+
+	/**
+	 * Send an email containing a newly-reset password to a user
+	 * 
+	 * @param string $user The user's name
+	 * @param string $email Destination email
+	 * @param string $pass The new password
+	 * @param string $ip The IP requesting the email change
+	 * 
+	 * @return bool True if the mail was accepted for delivery (see the workings
+	 * of the PHP mail function for more explanation)
+	 */	
 	function sendNewPass($user, $email, $pass, $ip)
 	{
 		$from = "From: ".THprofile_emailname." <".THprofile_emailaddr.">";
@@ -462,7 +613,17 @@
 			."- ".THname." Automailer";
 		return mail($email,$subject,$body,$from);
 	}
-	function sendFuckOff($user, $email)
+	
+	/**
+	 * Send an email notifying a user that their approval status was denied.
+	 * 
+	 * @param string $user The user's name
+	 * @param string $pass The password for this new account
+	 * 
+	 * @return bool True if the mail was accepted for delivery (see the workings
+	 * of the PHP mail function for more explanation)
+	 */
+	function sendDenial($user, $email)
 	{
 		$from = "From: ".THprofile_emailname." <".THprofile_emailaddr.">";
 		$subject = THname." : pending registration";
@@ -476,26 +637,33 @@
 		return mail($email,$subject,$body,$from);
 	}
 
-	function replacequote($filter)
-	//fuck html!
-	{
-		// ~simple and clean is the way that you're making me feel tonight~
-		// ^-- imagine tyam singing this while wearing a dress...
-		return str_replace("'", "&#039;", $filter);
-		// ...or a tank top
-
-		//oh hello i found this comment thanks diff ~tyam
-	}
-	
+	/**
+	 * Record a particular (significant) action in a log file
+	 * 
+	 * @param string $actionstring What's going down
+	 * @param string $type The kind of log file to write to
+	 */	
 	function writelog($actionstring,$type)
 	{
 		$logfile = fopen("unlinked/".$type.".log", "a") or error_log("Could not write ".$type." log: ".$actionstring."\n",3,"error.log");
 		
-		fwrite($logfile, strftime("%m/%d/%y %H:%M:%S",time()+(THtimeoffset*60)).": ".$_SESSION['username']."\t".$_SERVER['REMOTE_ADDR']."\t");
+		$username = "(none)";
+		
+		if(isset($_SESSION['username'])) 
+		{
+			$username = $_SESSION['username'];
+		}
+		
+		fwrite($logfile, strftime("%m/%d/%y %H:%M:%S",time()+(THtimeoffset*60)).": ".$username."\t".$_SERVER['REMOTE_ADDR']."\t");
 		fwrite($logfile, $actionstring."\n");
 		fclose($logfile);
 	}
-	
+
+	/**
+	 * Check if the current session has administrator status
+	 * 
+	 * @return bool Is the user an admin?
+	 */	
 	function checkadmin()  //quick, simple, to the point, this is how I like it
 	{
 		if($_SESSION['admin']!=true)
@@ -503,19 +671,25 @@
 			THdie("You are not logged in as an administrator!");
 		}
 	}
-	
+
+	/**
+	 * Check the user's login status based on certain stored cookie values
+	 * and the state of their $_SESSION variables.  Sets their session vars
+	 * as appropriate (if it's an invalid login state, their session data
+	 * is reset, but if they're logged in correctly with no session data,
+	 * that is rectified as well) 
+	 */		
 	function checklogin() //look for cookies, set session variables if needed
 	{
 		if(isset($_COOKIE[THcookieid."-uname"]) && isset($_COOKIE[THcookieid."-id"]))
 		{
-			$db=new ThornDBI();
-			$query = "SELECT approved FROM ".THusers_table.
-				" WHERE username='".escape_string($_COOKIE[THcookieid."-uname"]).
-				"' AND userid='".escape_string($_COOKIE[THcookieid."-id"])."'";
-			$userresult = $db->myresult($query);
+			// verify login information
+			$db=new ThornProfileDBI();
+			$userdata  = $db->getuserdata_cookielogin($_COOKIE[THcookieid."-uname"], $_COOKIE[THcookieid."-id"]);
 			
-			if($userresult != 1)
+			if($userdata == null)
 			{
+				// No dice.
 				setcookie(THcookieid."-uname", "", time()-THprofile_cookietime, THprofile_cookiepath);
 				setcookie(THcookieid."-id",   "", time()-THprofile_cookietime, THprofile_cookiepath);
 
@@ -527,31 +701,47 @@
 				unset($_SESSION['moderator']);
 				unset($_SESSION['mod_array']);
 				
-				$db->myquery("UPDATE ".THusers_table.
-					" SET userid=NULL WHERE username='".escape_string($_COOKIE[THcookieid."-uname"])."'");
 			}
-			else if( !isset($_SESSION['username']) )
+			elseif( !isset($_SESSION['username']) )
 			{
 				// Okay, they have a valid ID for a login, but no session data.  Let's rectify that.
-				$query = "SELECT * FROM ".THusers_table.
-				" WHERE username='".escape_string($_COOKIE[THcookieid."-uname"]).
-				"' AND userid='".escape_string($_COOKIE[THcookieid."-id"])."'";
-				$userresult = $db->myquery($query);
-				$userdata=mysql_fetch_assoc($userresult);
-
-				if($userdata != NULL)
-				{
-					$_SESSION['username'] 	= $userdata['username'];
-					$_SESSION['userlevel'] 	= $userdata['userlevel'];
-					$_SESSION['admin'] 		= $userdata['mod_admin'];
-					$_SESSION['mod_array'] 	= $userdata['mod_array'];
-					$_SESSION['mod_global'] = $userdata['mod_global'];
-				}
+				$_SESSION['username'] 	= $userdata['username'];
+				$_SESSION['userlevel'] 	= $userdata['userlevel'];
+				$_SESSION['admin'] 		= $userdata['mod_admin'];
+				$_SESSION['mod_array'] 	= $userdata['mod_array'];
+				$_SESSION['mod_global'] = $userdata['mod_global'];
+					
 				if ($userdata['mod_global'] || $userdata['mod_array'])
 				{
 					$_SESSION['moderator']=true;
-				}			
-			}
+				}
+			}			
 		}
+//		elseif (isset($_SESSION['username']))
+//		{
+//			/* Unset PHP session variables */
+//			unset($_SESSION['username']);
+//			unset($_SESSION['userid']);
+//			unset($_SESSION['userlevel']);
+//			unset($_SESSION['admin']);
+//			unset($_SESSION['moderator']);
+//			unset($_SESSION['mod_array']);
+//		}
 	}
+	
+	/***
+	 * Check if an email address is valid or not
+	 * 
+	 * @param string $email The address to validate
+	 * 
+	 * @return bool True if the provided string is a valid email address
+	 */
+	function validateemail($email)
+	{
+		// based on the discussion at http://php.net/preg_match
+		
+		return preg_match('/^([a-z0-9])(([-a-z0-9._])*([a-z0-9]))*\@([a-z0-9])' .
+		'(([a-z0-9-])*([a-z0-9]))+' . '(\.([a-z0-9])([-a-z0-9_-])?([a-z0-9])+)+$/i', $email);
+	}
+	
 ?>

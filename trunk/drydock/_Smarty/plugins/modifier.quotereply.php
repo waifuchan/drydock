@@ -24,100 +24,97 @@
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
 
+/**
+ * Look up a quotereply link, and convert it to the necessary anchor
+ * tag equivalent if necessary.
+ * 
+ * @param int $bid The board ID
+ * @param string $bfold The board folder name
+ * @param int $threadid The (unique) ID for this thread
+ * @param int $threadglob The global ID for this thread
+ * @param int $pulledvalue The parsed value (i.e. would be 2 for ">>2")
+ * 
+ * @return string The anchor link (or just "&gt;&gt;$pulledvalue" if it was invalid)
+ */
 function lookup_qr_link($bid, $bfold, $threadid, $threadglob, $pulledvalue)
 {
-
-	$string ="SELECT COUNT(*) FROM ".THreplies_table." where thread=".$threadid." and globalid=".$pulledvalue." and board=".$bid;
-	$query = mysql_query($string);
-	$count = mysql_result($query,0);	
-
-	if ($count != 0)
+	$db = new ThornPostDBI();
+	
+	// Default to not finding anything of use.
+	$link = $link = "&gt;&gt;".$pulledvalue;
+	
+	// This abstracts so much stuff for us.
+	$postinfo = $db->getsinglepost($pulledvalue, $bid);
+	
+	if( $postinfo != null )
 	{
-		//this is a reply, let's link to the reply		
-		if(THuserewrite)
+		if( $postinfo['thread'] == 0) // This is a thread
 		{
-			$link = "<a href=\"".THurl.$bfold."/thread/".$threadglob."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
-		}
-		else
-		{
-			$link = "<a href=\"".THurl.'drydock.php?b='.$bfold.'&i='.$threadglob."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
-		}
-	}
-	else if ($pulledvalue == $threadglob)
-	{
-		//assume we found the OP and don't link a post.  this also provides if somehow something glitches we still link to the thread OP	
-		if(THuserewrite)
-		{	
-			$link = "<a href=\"".THurl.$bfold."/thread/".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
-		}
-		else
-		{
-			$link = "<a href=\"".THurl.'drydock.php?b='.$bfold.'&i='.$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
-		}
-	}
-	else
-	{
-		//now we check other threads
-		//mysql_result("SELECT thread FROM posts where thread=".$grabid." and board=".$bid,0);
-		$newstring ="SELECT COUNT(*) FROM ".THthreads_table." where globalid=".$pulledvalue." and board=".$bid;
-		$newquery = mysql_query($newstring);
-		$newcount = mysql_result($newquery,0);
-		if ($newcount != 0)
-		{
-			//grab an OP that isn't us
-			$shit = "SELECT id FROM ".THthreads_table." where globalid=".$pulledvalue." and board=".$bid;
-			$grabid = mysql_result(mysql_query($shit),0);
-			$fuck = "SELECT globalid FROM ".THthreads_table." where id=".$grabid." and board=".$bid;
-			$threadop = mysql_result(mysql_query($fuck),0);
-			
+			// Just add an anchor tag and go
 			if(THuserewrite)
-			{
-				$link = "<a href=\"".THurl.$bfold."/thread/".$threadop."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
+			{	
+				$link = '<a href="'.THurl.$bfold."/thread/".$pulledvalue.'#'.$pulledvalue.'">&gt;&gt;'.$pulledvalue."</a>";
 			}
 			else
 			{
-				$link = "<a href=\"".THurl.'drydock.php?b='.$bfold.'&i='.$threadop."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
+				$link = '<a href="'.THurl.'drydock.php?b='.$bfold.'&i='.$pulledvalue.'#'.$pulledvalue.'">&gt;&gt;'.$pulledvalue."</a>";
 			}
 		}
-		else
+		else // This is a reply
 		{
-			//it's a reply in an op that isnt us maybe?
-			$newerstring ="SELECT COUNT(*) FROM ".THreplies_table." where globalid=".$pulledvalue." and board=".$bid;
-			$newerquery = mysql_query($newerstring);
-			$newercount = mysql_result($newerquery,0);
-			if ($newercount != 0)
+			if( $postinfo['thread'] == $threadid ) // Reply in this thread
 			{
-				$shit = "SELECT thread FROM ".THreplies_table." where globalid=".$pulledvalue." and board=".$bid;
-				$grabid = mysql_result(mysql_query($shit),0);
-				$fuck = "SELECT globalid FROM ".THthreads_table." where id=".$grabid." and board=".$bid;
-				$threadop = mysql_result(mysql_query($fuck),0);				
-				
 				if(THuserewrite)
 				{
-					$link = "<a href=\"".THurl.$bfold."/thread/".$threadop."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
+					$link = "<a href=\"".THurl.$bfold."/thread/".$threadglob."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
 				}
 				else
 				{
-					$link = "<a href=\"".THurl.'drydock.php?b='.$bfold.'&i='.$threadop."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
-				}
+					$link = "<a href=\"".THurl.'drydock.php?b='.$bfold.'&i='.$threadglob."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
+				}			
 			}
-			else
-			{	
-				//we failed to find any match  :[
-				$link = "&gt;&gt;".$pulledvalue;
+			else // Cross-thread reply
+			{
+				// We need to look up the global ID.
+				$threadinfo = $db->gettinfo($postinfo['thread']);
+				
+				// Was it a valid lookup?
+				if( $threadinfo != null )
+				{
+					$threadop = $threadinfo['globalid'];
+					
+					if(THuserewrite)
+					{
+						$link = "<a href=\"".THurl.$bfold."/thread/".$threadop."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
+					}
+					else
+					{
+						$link = "<a href=\"".THurl.'drydock.php?b='.$bfold.'&i='.$threadop."#".$pulledvalue."\">&gt;&gt;".$pulledvalue."</a>";
+					}
+				}
 			}
 		}
 	}
-	
+
 	return $link;
 }
 
+/**
+ * Quotereply! (i.e. turn >>573 into a link to post 573)
+ * 
+ * @param string $text The text to modify
+ * @param array $binfo The board information
+ * @param array $post The post information
+ * @param array $thread The thread information
+ * 
+ * @return string The modified post
+ */
 function smarty_modifier_quotereply($text, $binfo, $post, $thread)
 {
 	$search = '/&gt;&gt;\040?([0-9]{1,6})/e';
-	return preg_replace($search, "lookup_qr_link( ".$binfo['id'].",".$binfo['folder']." ,".$thread['id'].",".$thread['globalid'].",'\\1')", $text); // FUCK YOU PHP
+	return preg_replace($search, "lookup_qr_link( ".$binfo['id'].",".$binfo['folder']." ,".$thread['id'].",".$thread['globalid'].",'\\1')", $text);
+	//return preg_replace($search, "lookup_qr_link( ".$binfo['id'].",".$binfo['folder']." ,".$thread['id'].",".$thread['globalid'].",'\\1')", $text);
 	
-	//ONE MORE TIME FOR THE LADIES: FUCK PHP
 }
 
 ?>

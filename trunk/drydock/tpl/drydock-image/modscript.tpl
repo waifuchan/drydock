@@ -1,4 +1,4 @@
-{if $mod_thisboard =="1" or $mod_global =="1" or $mod_admin =="1"}
+<!-- mod -->
 {literal}
 <script type="text/javascript">
 	// oh god I hate you javascript this took way too long to debug
@@ -17,4 +17,3 @@
 	}
 </script>
 {/literal}
-{/if}

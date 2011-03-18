@@ -39,7 +39,8 @@ hr { border-style: solid none none none; border-width: 1px; border-color: #0088A
 .c { TEXT-ALIGN: center; }
 .r { TEXT-ALIGN: right; }
 /*Thorn's addition*/
-#modblock { display:none; }
+.modblock { display:none; border:1px solid #FF6600; background-color:#EEEEEE; color:#333333; z-index:24;text-decoration:none }
+.quickmodblock  { position:absolute; top:2em; left:2em; width:15em; border:1px solid #FF6600; background-color:#EEEEEE; color:#333333; z-index:24;text-decoration:none  }
 .imgbox { white-space:nowrap; overflow:hidden; text-align:left; float:left; margin-left:1px; margin-top:1px; padding:3px; width:150px; }
 /*from heady.tpl - why was it there?*/
 body { margin: 0; padding: 8px; margin-bottom: auto; }
@@ -74,3 +75,5 @@ float:left; text-align:center; background-color:#EFEFEF; border-style:solid; bor
 left:8px; top:50px; width:155px; }
 #photobox A { color:#0066FF; text-decoration:none; margin:1px; border:0;}
 #photobox img { border:0; }
+
+.indent { margin:15px; }

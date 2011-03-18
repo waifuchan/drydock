@@ -9,9 +9,58 @@
 		Artistic License 2.0:
 		http://www.opensource.org/licenses/artistic-license-2.0.php
 	*/
+	
+	/**
+	 * $_GET['a'] is typically used for displaying information as opposed
+	 * to form submission.
+	 * 
+	 * THE BIG LIST OF $_GET['a'] POSSIBILITIES:
+	 * 
+	 * "b" - Board info (optionally a $_GET['boardselect'] option as well)
+	 * "x" - Ban info (optionally a $_GET['banselect'] option as well)
+	 * "t" - Thornlight (recent pics)
+	 * "q" - Thornquasilight (recent posts)
+	 * "r" - Reports (redirect)
+	 * "l" - Lookups (redirect)
+	 * "c" - Capcode options
+	 * "w" - Wordfilter options
+	 * "p" - Profile options
+	 * "g" - General options
+	 * "bl" - Blotter posts
+	 * "mp" - Manager post
+	 * "hk" - Housekeeping options
+	 * "hkc" - Housekeeping options submissions
+	 * "sp" - Static pages list
+	 * "spe" - Edit particular static page
+	 * "lv" - Log viewer (redirect)
+	 * 
+	 * $_GET['t'] is typically used for receiving form submissions.
+	 * 
+	 * THE LIST OF $_GET['t'] POSSIBILITIES:
+	 * 
+	 * "au" - Add user
+	 * "aw" - Add wordfilter
+	 * "ew" - Edit wordfilters
+	 * "ac" - Add capcode
+	 * "rc" - Edit capcodes
+	 * "ax" - Add ban
+	 * "ux" - Remove ban
+	 * "lx" - Lookup ban (redirect to $_GET['a'] with $_GET['banselect'] set)
+	 * "b" - Edit boards
+	 * "g" - Rebuild config (gen. options edit)
+	 * "bl" - Add blotter post
+	 * "ble" - Edit blotter
+	 * "spa" - Add static page
+	 * "spx" - Delete static page
+	 * "spe" - Edit static page (receiver)
+ 	 */
+	
 	require_once("config.php");
 	require_once("common.php");
+	require_once("rebuilds.php");
+	
 	checkadmin(); //make sure the person trying to access this file is allowed to
+	//var_dump($_POST);
 	$db=new ThornModDBI();
 	if(isset($_GET['rebuild']))
 	{
@@ -39,17 +88,18 @@
 			else { die(); }
 			readfile('./unlinked/'.$_GET['filename']);
 		}
+		
+		die(); // we're done here
 	}
 	$sm=sminit(null,null,null,true);
-	//Admin Smarty setup; no caching (we probably broke this from Thorn :[ ~tyam)
 	if (isset($_GET['a']))
 	{
 		if ($_GET['a']=="b")  //Board stuff
 		{
 			// We have to assign these to be able to set disabled attributes for the checkboxes for file formats
-			// (i.e., greying out the SVG file type box when THenableSVG is 0)
-			$sm->assign("THenableSVG",THenableSVG);
-			$sm->assign("THenableSWFmeta",THenableSWFmeta);
+			// (i.e., greying out the SVG file type box when THuseSVG is 0)
+			$sm->assign("THuseSVG",THuseSVG);
+			$sm->assign("THuseSWFmeta",THuseSWFmeta);
 			$sm->assign("THSVGthumbnailer", THSVGthumbnailer);
 			
 			//Assign other template sets
@@ -64,11 +114,20 @@
 				}
 			}
 			$sm->assign_by_ref("tplsets",$sets);
-			if ($_GET['boardselect'])
+
+			if (isset($_GET['boardselect']))
 			{
 				//Configure options for a specific board
-				$sm->assign("boardselect",$_GET['boardselect']);
-				$sm->assign("board",mysql_fetch_array($db->myquery("select * from ".THboards_table." where id=".intval($_GET['boardselect']))),$sm);
+				$boardselect = $db->getboard(0, $_GET['boardselect']); // Should return an array of assoc-arrays (but with only one assoc-array)
+				if($boardselect)
+				{
+					$sm->assign("boardselect",$db->escape_string($_GET['boardselect']));
+					$sm->assign("board",$boardselect[0],$sm);
+				}
+				else
+				{
+					THdie("Invalid board ID provided.");
+				}
 			}
 			else
 			{
@@ -78,72 +137,97 @@
 					//Can't access this unless the database is set up.
 					THdie("ADdbfirst");
 				}
-				$sm->assign("boards",$db->getindex(array('full'=>true),$sm));
+				$brds = $db->getindex(array('full'=>true),$sm);
+				$sm->assign("boards",$brds);
 			}
 			$sm->display("adminboard.tpl");
 		}
 		elseif ($_GET['a']=="x")
 		{
+			if (THdbtype==null)
+			{
+				//Can't access this unless the database is set up.
+				THdie("ADdbfirst");
+			}
+			
 			//Ban config		
-			if ($_GET['banselect'])
+			if (isset($_GET['banselect']))
 			{
 				//Edit a specific ban
 				$sm->assign("banselect",$_GET['banselect']);
-				$sm->assign("ban",mysql_fetch_array($db->myquery("select * from ".THbans_table." where ip=".intval($_GET['banselect']))),$sm);
-				$ippull = $_GET['banselect'];
-				$ipdata = explode(".",long2ip($ippull));
-				$subnet = mysql_fetch_row($db->myquery("select subnet from ".THbans_table." where ip=".$_GET['banselect']));
-				//this should be commented out right now because this code is a big hack job and i dont know what i am doing because it is 4:15am but it isnt so okay ~tyam
-				if ($subnet[0])
+				
+				// Get the individual ban in question
+				$single_ban_assoc = $db->getbanfromid($_GET['banselect']);
+				$sm->assign("ban",$single_ban_assoc,$sm);
+				
+				// Next we fetch all history for the ban.
+				
+				// Substitute in 0 for the subnets
+				$ip3 = 0;
+				if( $single_ban_assoc['ip_octet3'] > -1 )
 				{
-					$ipdata[3]="*";
+					$ip3 = $single_ban_assoc['ip_octet3'];
 				}
-				$ipdata[]=array(
-					"ip1"=>$ipdata[0],
-					"ip2"=>$ipdata[1],
-					"ip3"=>$ipdata[2],
-					"ip4"=>$ipdata[3],
-					"longip"=>$ippull
-					);
-				//ugh why isnt this working.  okay let's be retarded about it
-				$sm->assign("ip1",$ipdata[0],$sm);
-				$sm->assign("ip2",$ipdata[1],$sm);
-				$sm->assign("ip3",$ipdata[2],$sm);
-				$sm->assign("ip4",$ipdata[3],$sm);
-				$sm->assign("longip",$ippull,$sm);
+				
+				$ip4 = 0;
+				if( $single_ban_assoc['ip_octet4'] > -1 )
+				{
+					$ip4 = $single_ban_assoc['ip_octet4'];
+				}
+								
+				$ip=ip2long($single_ban_assoc['ip_octet1'].".".$single_ban_assoc['ip_octet2'].".".$ip3.".".$ip4);
+				
+				// Get history for the IP
+				$rawhist=$db->getiphistory($ip);
+				if ($rawhist!=null)
+				{
+					$banhistory=array();
+					foreach ($rawhist as $hist)
+					{
+						$banhistory[]=array(
+							"ip1"=>$hist['ip_octet1'],
+							"ip2"=>$hist['ip_octet2'],
+							"ip3"=>$hist['ip_octet3'],
+							"ip4"=>$hist['ip_octet4'],
+							"id"=>$hist['id'],
+							"publicreason"=>$hist['publicreason'],
+							"privatereason"=>$hist['privatereason'],
+							"adminreason"=>$hist['adminreason'],
+							"postdata"=>$hist['postdata'],
+							"duration"=>$hist['duration'],
+							"bantime"=>$hist['bantime'],
+							"bannedby"=>$hist['bannedby'],
+							"unbaninfo"=>$hist['unbaninfo']
+						);
+					}
+				}
+				else
+				{
+					$banhistory=null;
+				}
+				$sm->assign("banhistory",$banhistory);
 			}
 			else
 			{
-				if (THdbtype==null)
-				{
-					//Can't access this unless the database is set up.
-					THdie("ADdbfirst");
-				}
 				$rawbans=$db->getallbans();
 				if ($rawbans!=null)
 				{
 					$bans=array();
 					foreach ($rawbans as $ban)
 					{
-						$ip=explode(".",long2ip($ban['ip']));
-						if ($ban['subnet'])
-						{
-							$ip[3]="*";
-						}
 						$bans[]=array(
-							"ip1"=>$ip[0],
-							"ip2"=>$ip[1],
-							"ip3"=>$ip[2],
-							"ip4"=>$ip[3],
-							"longip"=>$ban['ip'],
-							"subnet"=>$ban['subnet'],
+							"ip1"=>$ban['ip_octet1'],
+							"ip2"=>$ban['ip_octet2'],
+							"ip3"=>$ban['ip_octet3'],
+							"ip4"=>$ban['ip_octet4'],
+							"id"=>$ban['id'],
 							"publicreason"=>$ban['publicreason'],
 							"privatereason"=>$ban['privatereason'],
 							"adminreason"=>$ban['adminreason'],
 							"postdata"=>$ban['postdata'],
 							"duration"=>$ban['duration'],
 							"bantime"=>$ban['bantime'],
-							"bannedby"=>$ban['bannedby'],
+							"bannedby"=>$ban['bannedby']
 							);
 					}
 				}
@@ -156,7 +240,7 @@
 			$sm->display("adminban.tpl");
 		}
 
-		//are tbese next two really needed?
+		//are these next two really needed?
 		elseif ($_GET['a']=="t") //let's put thornlight here
 		{
 			include("recentpics.php");
@@ -165,27 +249,43 @@
 		{
 			include("recentposts.php");
 		}
+		elseif ($_GET['a']=="r") //oh hello reports
+		{
+			include("reports.php");
+		}
+		elseif ($_GET['a']=="l") // Lookups
+		{
+			include("lookups.php");
+		}
+		elseif ($_GET['a']=="lv") // Logviewer
+		{
+			include("logviewer.php");
+		}
 		elseif ($_GET['a']=="c") //Capcodes
 		{
 			if (THdbtype==null) //Can't access this unless the database is set up.
 			{
 				THdie("ADdbfirst");
 			}
-			$queryresult = $db->myquery("SELECT * FROM ".THcapcodes_table);
-			if ($queryresult!=null)
+			
+			// Retrieve capcodes
+			$capcodes = array();
+			$capcodes = $db->fetchBCW(THbcw_capcode);
+			
+			if(count($capcodes) > 0)
 			{
-				$capcodes=array();
-				while ($capcode=mysql_fetch_assoc($queryresult))
+				foreach ($capcodes as $capcode)
 				{
-					$capcodes[]=$capcode;
+					$capcode = replacequote($capcode);
 				}
 			}
 			else
 			{
-				$capcodes=null;
+				$capcodes = null;
 			}
+			
 			//print_r($capcodes);
-			rebuild_capcodes();
+			//rebuild_capcodes();
 			$sm->assign("capcodes",$capcodes);
 			$sm->display("admincapcodes.tpl");
 		}
@@ -196,21 +296,22 @@
 			{
 				THdie("ADdbfirst");
 			}
-			$queryresult = $db->myquery("SELECT * FROM ".THfilters_table);
-			if ($queryresult!=null)
+
+			// Retrieve wordfilters
+			$filters = array();
+			$filters = $db->fetchBCW(THbcw_filter);
+			if(count($filters) > 0)
 			{
-				$filters=array();
-				while ($filter=mysql_fetch_assoc($queryresult))
+				foreach( $filters as $filter )
 				{
-					$filters[]=replacequote($filter);
+					$filter = replacequote($filter);
 				}
 			}
 			else
 			{
-				$filters=null;
+				$filters = null;
 			}
-			//print_r($filters);
-			rebuild_filters();
+
 			$sm->assign("filters",$filters);
 			$sm->display("adminfilters.tpl");
 		}
@@ -220,78 +321,60 @@
 			{
 				THdie("ADdbfirst");
 			}
+			
+			// Use the functions provided to us by this class
+			$profile_dbi = new ThornProfileDBI();
+			
 			//move this over to t=p eventually - tyam
 			if((isset($_GET['action']) && $_GET['action']=="regyes") && isset($_GET['username']))
 			{
-				$db->myquery("UPDATE ".THusers_table.
-					" SET approved=1 WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				// Approving an account
+						
+				// Use the approvalaction function	
+				$profile_dbi->approvalaction($_GET['username'], "account", true);
+				
 				if(THprofile_emailwelcome)
 				{
-					$email = $db->myresult("SELECT email FROM ".
-					THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
-					sendWelcome($username, $email);
+					$email = $profile_dbi->getemail($_GET['username']);
+					sendWelcome($_GET['username'], $email);
 				}
 			}
 
 			if((isset($_GET['action']) && $_GET['action']=="regno") && isset($_GET['username']))
 			{
-				$query = "UPDATE ".THusers_table.
-				" SET approved='-1' WHERE username='".mysql_real_escape_string($_GET['username'])."'";
-				$db->myquery($query);
+				// Denying an account
+				
+				// Use the approvalaction function	
+				$profile_dbi->approvalaction($_GET['username'], "account", false);
+				
 				if(THprofile_emailwelcome)
 				{
-					$email = $db->myresult("SELECT email FROM ".
-					THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
-					sendFuckOff($username, $email);
+					$email = $profile_dbi->getemail($_GET['username']);
+					sendDenial($_GET['username'], $email);
 				}
 			}
 			if((isset($_GET['action']) && $_GET['action']=="capyes") && isset($_GET['username']))
 			{
-				//update or insert capcode
-				/*
-					check capcode table for match of existing capcode
-					if match found, use update query, else, insert query
-				*/
-				$new_capcode = $db->myresult("SELECT proposed_capcode FROM ".
-				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				// Approve a proposed capcode
 				
-				$user_hash = $db->myresult("SELECT capcode FROM ".
-				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
-				
-				$already_there = $db->myresult("SELECT capcode_to FROM ".THcapcodes_table.
-				" WHERE capcode_from='".mysql_real_escape_string($user_hash)."'");
-				
-				if($already_there != null)
-				{
-					$db->myquery("UPDATE ".THcapcodes_table.
-					" SET proposed_capcode='".mysql_real_escape_string($new_capcode).
-					"' WHERE username='".mysql_real_escape_string($_GET['username'])."'");
-				}
-				else
-				{
-					$db->myquery("INSERT INTO ".THcapcodes_table.
-					" (capcode_from, capcode_to) VALUES('".mysql_real_escape_string($user_hash)."','".mysql_real_escape_string($new_capcode)."')");
-				}
-				// We don't need this anymore since it's no longer proposed
-				$db->myquery("UPDATE ".THusers_table.
-				" SET proposed_capcode=\"\" WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				// This abstracts the rest of the DB queries for us
+				$profile_dbi->approvalaction($_GET['username'], "capcode", true);
 			}
 			if((isset($_GET['action']) && $_GET['action']=="capno") && isset($_GET['username']))
 			{
 				//this capcode isn't going to work for whatever reason, deny it
 				
-				$db->myquery("UPDATE ".THusers_table.
-				" SET proposed_capcode='' WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				$profile_dbi->approvalaction($_GET['username'], "capcode", false);
 			}
 			if((isset($_GET['action']) && $_GET['action']=="picyes") && isset($_GET['username']))
 			{
-				// Get the file extension of the wanted picture
-				$desired_picture = $db->myresult("SELECT pic_pending FROM ".
-				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				// Approving a requested picture
 				
 				// Get the file extension of the current picture (if any)
-				$old_picture = $db->myresult("SELECT has_picture FROM ".
-				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				$old_picture = $profile_dbi->getuserimage($_GET['username']);
+				
+				// Get the file extension of the wanted picture
+				$desired_picture = $profile_dbi->getpendinguserimage($_GET['username']);
 				
 				// Delete the old picture, if there is one
 				if($old_picture)
@@ -301,33 +384,30 @@
 				rename(THpath.'unlinked/'.$_GET['username'].'.'.$desired_picture, THpath.'images/profiles/'.$_GET['username'].'.'.$desired_picture);
 				
 				// Update the db to reflect this
-				$db->myquery("UPDATE ".THusers_table.
-				" SET pic_pending='', has_picture='".mysql_real_escape_string($desired_picture).
-				"' WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				$profile_dbi->approvalaction($_GET['username'], "picture", true);
 			}
 			
 			if((isset($_GET['action']) && $_GET['action']=="picno") && isset($_GET['username']))
 			{
-				// Get the file extension
-				$desired_picture = $db->myresult("SELECT pic_pending FROM ".
-				THusers_table." WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				// Denying a requested picture
+				
+				// Get the file extension of the wanted picture
+				$desired_picture = $profile_dbi->getpendinguserimage($_GET['username']);
 				
 				// Delete the file
 				unlink(THpath.'unlinked/'.$_GET['username'].'.'.$desired_picture);
 				
 				// Clear the db record
-				$db->myquery("UPDATE ".THusers_table.
-				" SET pic_pending='' WHERE username='".mysql_real_escape_string($_GET['username'])."'");
+				$profile_dbi->approvalaction($_GET['username'], "picture", false);
 			}
 						
-			$queryresult = $db->myquery("SELECT * FROM ".THusers_table.
-				" WHERE pic_pending IS NOT NULL OR proposed_capcode IS NOT NULL OR approved=0");
-			if ($queryresult!=null)
+			$users = $profile_dbi->getprofilemodqueue();
+			if ($users!=null)
 			{
 				$pend_regs=array();
 				$pend_caps=array();
 				$pend_pics=array();
-				while ($user=mysql_fetch_assoc($queryresult))
+				foreach($users as $user)
 				{
 					if($user['approved'] == 0)
 					{
@@ -346,7 +426,6 @@
 						$pend_pics[]=array("username" => $user['username'],
 									   "pic_pending" => $user['pic_pending']);
 					}
-					
 				}
 			}
 			else
@@ -355,16 +434,21 @@
 				$pend_pics=null;
 				$pend_regs=null;
 			}
+			$sm->assign('pend_regs',$pend_regs);
+			$sm->assign('pend_caps',$pend_caps);
+			$sm->assign('pend_pics',$pend_pics);
 			$sm->display("adminprofile.tpl");
 		}
 		elseif ($_GET['a']=="mp") // Manager post function
 		{
 			if ($_GET['board'])
 			{
-				$boardarray = mysql_fetch_array($db->myquery("select * from ".THboards_table." where id=".intval($_GET['board'])));
+				// Should return an array of assoc-arrays
+				$boardarray = $db->getboard(0, $_GET['board']);
+				//var_dump($boardarray);
 				if($boardarray)
 				{
-					$sm->assign("binfo",$boardarray,$sm);
+					$sm->assign("binfo",$boardarray[0],$sm);
 					$sm->display("adminpost.tpl");
 				}
 				else
@@ -384,7 +468,7 @@
 		}
 		elseif ($_GET['a']=="hkc") //housekeeping functions are actually called here
 		{
-			if ($_POST['fc'])
+			if (isset($_POST['fc']))
 			{
 				$sm->clear_all_cache();
 				$sm->clear_compiled_tpl();
@@ -392,13 +476,26 @@
 				rebuild_capcodes();
 				rebuild_spamlist();
 			}
-			if($_POST['rs']) { rebuild_rss(); }
-			if($_POST['ht']) { rebuild_htaccess(); }
-			if($_POST['sl']) { rebuild_hovermenu(); }
-			if($_POST['lb']) { rebuild_linkbars(); }
-			if($_POST['sp']) { rebuild_spamlist(); }
-			if($_POST['fl']) { rebuild_filters(); }
-			if($_POST['cp']) { rebuild_capcodes(); }
+			if(isset($_POST['rs'])) { rebuild_rss(); }
+			if(isset($_POST['ht'])) { rebuild_htaccess(); }
+			if(isset($_POST['sl'])) { rebuild_hovermenu(); }
+			if(isset($_POST['lb'])) { rebuild_linkbars(); }
+			if(isset($_POST['sp'])) { rebuild_spamlist(); }
+			if(isset($_POST['fl'])) { rebuild_filters(); }
+			if(isset($_POST['cp'])) { rebuild_capcodes(); }
+			if(isset($_POST['al'])) {
+				//Do EVERYTHING
+				$sm->clear_all_cache();
+				$sm->clear_compiled_tpl();
+				rebuild_rss();
+				rebuild_htaccess();
+				rebuild_hovermenu();
+				rebuild_linkbars();
+				rebuild_filters();
+				rebuild_capcodes();				
+				rebuild_spamlist();  //save this for last just in case
+			}
+
 			$actionstring = "Housekeeping";
 			writelog($actionstring,"admin");		
 			header("Location: ".THurl."admin.php?a=hk");
@@ -409,20 +506,15 @@
 			{
 				THdie("ADdbfirst");
 			}
-			$queryresult = $db->myquery("SELECT * FROM ".THblotter_table);
-			if ($queryresult!=null)
+			
+			$blotter = $db->fetchBCW(THbcw_blotter);
+			
+			// Perform replacequote on the blotter entries
+			foreach ($blotter as $blot)
 			{
-				$blotter=array();
-				while ($blot=mysql_fetch_assoc($queryresult))
-				{
-					$blotter[]=replacequote($blot);
-				}
+				$blot = replacequote($blot);
 			}
-			else
-			{
-				$blotter=null;
-			}
-			//print_r($filters);
+
 			$sm->assign("blots",$blotter);
 			
 			$sm->assign("boards",$db->getindex(array('full'=>true),$sm));
@@ -462,9 +554,9 @@
 			$sm->assign("THprofile_maxpicsize", THprofile_maxpicsize);
 			$sm->assign("THprofile_regpolicy", THprofile_regpolicy);
 			$sm->assign("THprofile_viewuserpolicy", THprofile_viewuserpolicy);
-			$sm->assign("pend_regs",$pend_regs);
-			$sm->assign("pend_caps",$pend_caps);
-			$sm->assign("pend_pics",$pend_pics);
+			$sm->assign("DDDEBUG", DDDEBUG);
+			$sm->assign("reCAPTCHAPrivate", reCAPTCHAPrivate);
+			$sm->assign("reCAPTCHAPublic", reCAPTCHAPublic);
 			//Assign other template sets
 			$sets=array();
 			//Read template sets
@@ -472,7 +564,7 @@
 			while (($set=readdir($it))!==false)
 			{
 				//echo($set);
-				if (in_array($set,array(".","..","_admin","_compd"))==false && is_dir(THpath."tpl/".$set)) //Should mebbe do a better test here... versions, etc
+				if (in_array($set,array(".","..",".svn","_admin","_compd"))==false && is_dir(THpath."tpl/".$set)) //Should mebbe do a better test here... versions, etc
 				{
 					$sets[]=$set;
 				}
@@ -480,6 +572,43 @@
 			$sm->assign_by_ref("tplsets",$sets);
 			$sm->assign("boards",$db->getindex(array('full'=>true),$sm));
 			$sm->display("admingen.tpl");
+		}
+		elseif ($_GET['a'] == "sp") // Static pages list
+		{
+			$static_pages = $db->getstaticpages();
+			$single_page = null;
+			$sm->assign_by_ref("pages",$static_pages);
+			$sm->assign("single_page", $single_page);
+			$sm->display("adminstatic.tpl");
+		}
+		elseif ($_GET['a'] == "spe") // Edit specific static page
+		{
+			if(!isset($_GET['id']))
+			{
+				THdie("No static page ID specified!");
+			}
+			
+			$static_pages = $db->getstaticpages();
+			$single_page = null;
+			
+			// Search through looking for a specific page
+			foreach($static_pages as $static_page)
+			{
+				if( $static_page['id'] == $_GET['id'] )
+				{
+					$single_page = $static_page;
+					break;
+				}
+			}
+			
+			if( $single_page == null )
+			{
+				THdie("Invalid static page ID specified!");
+			}
+			
+			$sm->assign_by_ref("pages",$static_pages);
+			$sm->assign("single_page", $single_page);
+			$sm->display("adminstatic.tpl");
 		}
 		else
 		{
@@ -500,187 +629,279 @@
 		header("Location: ".THurl."admin.php?a=g");
 		die();
 	}
-	elseif ($_GET['t']=="bl") //Update blotter
-	{
-		$entry = mysql_real_escape_string($_POST['post']);
-		$board = intval($_POST['postto']);
-		$time = (THtimeoffset*60) + time();
-		$query = 'INSERT INTO '.THblotter_table.' SET entry="'.$entry.'",board="'.$board.'",time="'.$time.'"';
-		$db->myquery($query);
+	elseif ($_GET['t']=="bl") //Update (add) blotter
+	{		
+		$db->insertBCW(THbcw_blotter, $_POST['post'], $_POST['postto'] );
+		
 		$actionstring = "Blotter post";
 		writelog($actionstring,"admin");
+		
 		header("Location: ".THurl."admin.php?a=bl");
 	}
 	elseif ($_GET['t']=="ble") //Edit blotter
 	{
-		$queryresult = $db->myquery("SELECT * FROM ".THblotter_table);
-		if ($queryresult!=null)
+		$blotter = $db->fetchBCW(THbcw_blotter);
+		
+		foreach ($blotter as $blot)
 		{
-			$blotter=array();
-			while ($blot=mysql_fetch_assoc($queryresult))
+			if ($_POST['del'.$blot['id']])
 			{
-				$blotter[]=$blot;
-			}
-			foreach ($blotter as $blot)
-			{
-				if ($_POST['del'.$blot['id']])
-				{
-					$db->myquery("delete from ".THblotter_table." where id=".$blot['id']);
-					$actionstring = "Blotter delete\tid:".$blot['id'];
-					writelog($actionstring,"admin");
-				} 
-				else 
-				{
-					$blotter_entry=array(
-						'id'=>(int)$_POST['id'.$blot['id']],
-						'text'=>mysql_real_escape_string($_POST['post'.$blot['id']]),
-						'board'=>mysql_real_escape_string($_POST['postto'.$blot['id']])
-					);
-					//print_r($filter);
-					$query='update '.THblotter_table.' set entry="'.$blotter_entry['text'].'", board="'.$blotter_entry['board'].
-						'" where id='.$blotter_entry['id'];
-					$db->myquery($query);
-				}
-			}
-		}
-		header("Location: ".THurl."admin.php?a=bl");
-	}
-	elseif ($_GET['t']=="b")  //edit boards
-	{
-		if($_POST['boardselect'])
-		{
-			if ($_POST['delete'.$_POST['boardselect']]==true) //Delete images on that board; nuke it from db
-			{
-				delimgs($db->fragboard($_POST['boardselect']));
-				$db->myquery("DELETE from ".THboards_table." WHERE id=".intval($_POST['boardselect']));
-				$actionstring = "Board delete\tid:".$id;
+				$db->deleteBCW(THbcw_blotter, $blot['id']);
+				
+				$actionstring = "Blotter delete\tid:".$blot['id'];
 				writelog($actionstring,"admin");
 			} 
 			else 
 			{
-				$oldid=intval($_POST['boardselect']);
-				$id=intval($_POST['id'.$oldid]);
-				$globalid=intval($_POST['globalid'.$oldid]);
-				$name=$_POST['name'.$oldid];
-				$folder=$_POST['folder'.$oldid];
-				$about=strip_tags($_POST['about'.$oldid], '<i><b><u><strike><p><br><font><a><ul><ol><li><marquee>');
-				$rules=$_POST['rules'.$oldid];
-				$perpg=intval($_POST['perpg'.$oldid]);
-				$perth=intval($_POST['perth'.$oldid]);
-				$hidden=($_POST['hidden'.$oldid]=="on");
-				$allowedformats=intval($_POST['allowedformats'.$oldid]);
-				$forced_anon=($_POST['forced_anon'.$oldid]=="on");
-				$maxfilesize=intval($_POST['maxfilesize'.$oldid]);
-				$thumbres=intval($_POST['thumbres'.$oldid]);
-				$maxres=intval($_POST['maxres'.$oldid]);
-				$pixperpost=intval($_POST['pixperpost'.$oldid]);
-				$allowvids=($_POST['allowvids'.$oldid]=="on");
-				$customcss=($_POST['customcss'.$oldid]=="on");
-				$filter=($_POST['filter'.$oldid]=="on");
-				$boardlayout=$_POST['boardlayout'.$oldid];
-				$requireregistration=($_POST['requireregistration'.$oldid]=="on");
-				$tlock=($_POST['tlock'.$oldid]=="on");
-				$rlock=($_POST['rlock'.$oldid]=="on");
-				$tpix=intval($_POST['tpix'.$oldid]);
-				$rpix=intval($_POST['rpix'.$oldid]);
-				$tmax=intval($_POST['tmax'.$oldid]);
-				$updatequery = "UPDATE ".THboards_table." set id=".$db->clean($id).",globalid=".$db->clean($globalid).",name='".$db->clean($name)."',folder='".$db->clean($folder)."',about='".$about."',rules='".$db->clean($rules)."',perpg='".$perpg."',perth='".$perth."',hidden='".$hidden."',allowedformats='".$db->clean($allowedformats)."',forced_anon='".$forced_anon."',maxfilesize='".$db->clean($maxfilesize)."',allowvids='".$allowvids."',customcss='".$customcss."',boardlayout='".$boardlayout."',requireregistration='".$requireregistration."',filter='".$filter."',rlock='".$rlock."',tlock='".$tlock."',tpix='".$tpix."',rpix='".$rpix."',tmax='".$tmax."', maxres ='".$maxres."', thumbres ='".$thumbres."', pixperpost ='".$pixperpost."' WHERE id=".$oldid;
-				//print_r($updatequery);
-				$db->myquery($updatequery);
+				$blotter_entry=array(
+					'id'=>(int)$_POST['id'.$blot['id']],
+					'text'=>$db->escape_string($_POST['post'.$blot['id']]),
+					'board'=>$db->escape_string($_POST['postto'.$blot['id']])
+				);
 				
-				$actionstring = "Board edit\tid:".$id;
+				$db->updateBCW(THbcw_blotter, $blotter_entry['id'], $blotter_entry['text'], $blotter_entry['board']);
+			}
+		}
+		
+		header("Location: ".THurl."admin.php?a=bl");
+	}
+	elseif ($_GET['t']=="b")  //edit boards
+	{
+		//echo '<pre>' . var_export($_POST,true).'</code></pre>';
+		if(isset($_POST['boardselect']))
+		{
+			$boardnumber = $db->getboardnumber($_POST['boardselect']);
+			
+			if (isset($_POST['delete'.$boardnumber]) && $_POST['delete'.$boardnumber]==TRUE) //Delete images on that board; nuke it from db
+			{	
+				// Remove associated images
+				delimgs($db->fragboard($boardnumber));
+				
+				// Remove the DB board entry
+				$db->removeboard($boardnumber);
+				
+				$actionstring = "Board delete\tid:".$boardnumber;
 				writelog($actionstring,"admin");
+				$location=THurl."admin.php?a=b";
+			} 
+			else 
+			{		
+				// We're going to make an array of boards to update (with size 1) containing
+				// assoc-arrays with board information
+				$boards_to_update = array();
+				$updated_board = array();
+				
+				// Get ID stuff set up
+				$updated_board['oldid'] = $boardnumber;
+				$updated_board['id'] = $updated_board['oldid'];
+				$oldid = $updated_board['oldid'];
+				//$updated_board['globalid'] = $_POST['globalid'.$oldid];
+				
+				// Now that the ID stuff is set up, we can do some verification.
+				// Make sure we don't have a folder name conflict.
+				$folder = trim($_POST['folder'.$oldid]);
+				$folder_id = $db->getboardnumber($folder);
+				// If we return a number on $folder_id it means there's already an id of that folder name being used, so don't let them collide
+				if($_POST['boardselect']!=$folder)  //hm...
+				{
+					if( $folder_id )
+					{
+						THdie("An existing board already has a folder named \"".$folder."\"!");
+					}
+				}
+				// String values
+				$updated_board['name'] = replacequote($_POST['name'.$oldid]);
+				$updated_board['folder'] = replacequote($folder); // we already did the stuff above
+				$updated_board['about'] = strip_tags(replacequote($_POST['about'.$oldid]), 
+					'<i><b><u><strike><p><br><font><a><ul><ol><li><marquee>');
+				$updated_board['rules'] = replacequote($_POST['rules'.$oldid]);
+				$updated_board['boardlayout'] =$_POST['boardlayout'.$oldid];			
+					
+				// Integer values
+				$updated_board['perpg'] = intval($_POST['perpg'.$oldid]);
+				$updated_board['perth'] = intval($_POST['perth'.$oldid]);
+				$updated_board['allowedformats'] = intval($_POST['allowedformats'.$oldid]);
+				$updated_board['tpix'] = intval($_POST['tpix'.$oldid]);
+				$updated_board['rpix'] = intval($_POST['rpix'.$oldid]);		
+				$updated_board['tmax'] = intval($_POST['tmax'.$oldid]);
+				$updated_board['thumbres'] = intval($_POST['thumbres'.$oldid]);
+				$updated_board['maxfilesize'] = intval($_POST['maxfilesize'.$oldid]);
+				$updated_board['maxres'] = intval($_POST['maxres'.$oldid]);
+				$updated_board['pixperpost'] = intval($_POST['pixperpost'.$oldid]);
+				
+				// Boolean values
+				if(isset($_POST['forced_anon'.$oldid])) {
+					$updated_board['forced_anon'] = ($_POST['forced_anon'.$oldid]=="on");
+				} else {
+					$updated_board['forced_anon'] = "";
+				}
+				if(isset($_POST['customcss'.$oldid])) {
+					$updated_board['customcss'] = ($_POST['customcss'.$oldid]=="on");
+				} else {
+					$updated_board['customcss'] = "";
+				}
+				if(isset($_POST['allowvids'.$oldid])) {
+					$updated_board['allowvids'] = ($_POST['allowvids'.$oldid]=="on");
+				} else {
+					$updated_board['allowvids'] = "";
+				}
+				if(isset($_POST['filter'.$oldid])) {
+					$updated_board['filter'] = ($_POST['filter'.$oldid]=="on");
+				} else {
+					$updated_board['filter'] = "";
+				}
+				if(isset($_POST['requireregistration'.$oldid])) {
+					$updated_board['requireregistration'] = ($_POST['requireregistration'.$oldid]=="on");
+				} else {
+					$updated_board['requireregistration'] = "";
+				}
+				if(isset($_POST['hidden'.$oldid])) {
+					$updated_board['hidden'] = ($_POST['hidden'.$oldid]=="on");
+				} else {
+					$updated_board['hidden'] = "";
+				}
+				if(isset($_POST['tlock'.$oldid])) {
+					$updated_board['tlock'] = ($_POST['tlock'.$oldid]=="on");
+				} else {
+					$updated_board['tlock'] = "";
+				}
+				if(isset($_POST['rlock'.$oldid])) {
+					$updated_board['rlock'] = ($_POST['rlock'.$oldid]=="on");
+				} else {
+					$updated_board['rlock'] = "";
+				}
+
+				// Add the assoc-array with the updated information into the array
+				$boards_to_update[] = $updated_board;
+								//var_dump($updated_board);echo "<hr>";
+								//var_dump($boards_to_update);
+				$db->updateboards($boards_to_update);
+				//var_dump($boards_to_update); die();
+				$actionstring = "Board edit\tid:".$boardnumber;
+				writelog($actionstring,"admin");
+				$location=THurl."admin.php?a=b&boardselect=".$folder;
 			}
 		}
 		else
 		{
 			if ($_POST['namenew']!=null)  //Adding a new board
 			{
-				$id=(int)$_POST['idnew'];
-				$globalid=0;
-				$name=$_POST['namenew'];
-				$folder=$_POST['foldernew'];
+				$name=trim($_POST['namenew']);
+				$folder=trim($_POST['foldernew']);
+				
+				if( $name == "")
+				{
+					THdie("You must provide a valid board name!");
+				}
+				
+				if( $folder == "")
+				{
+					THdie("You must provide a valid folder name!");
+				}
+								
+				// Make sure we don't have a folder name conflict
+				$folder_exists = $db->getboardnumber($folder);
+				
+				if( $folder_exists != null)
+				{
+					THdie("An existing board already has a folder named \"".$folder."\"!");
+				}
+				
 				$about=$_POST['aboutnew'];
 				$rules=$_POST['rulesnew'];
-				$perpg=20;
-				$perth=4;
-				$hidden=1;
-				$allowedformats=7;
-				$forced_anon=0;
-				$filter=1;
-				$maxfilesize=2097152;
-				$allowvids=0;
-				$customcss=0;
-				$requireregistration=0;
-				$boardlayout="drydock-image";
-				$tlock=1;
-				$rlock=1;
-				$tpix=1;
-				$rpix=1;
-				$pixperpost=8;
-				$maxres=3000;
-				$thumbres=150;
-				$tmax=100;
-
-$query = "INSERT INTO ".THboards_table." ( id , globalid , name , folder , about , rules , perpg , perth , hidden , allowedformats , forced_anon , maxfilesize ,
- maxres , thumbres , pixperpost , customcss , allowvids , filter , boardlayout , requireregistration , tlock , rlock , tpix , rpix , tmax , lasttime )
-VALUES (
-".$db->clean($id).",".$globalid.",'".$db->clean($name)."','".$db->clean($folder)."','".$db->clean($about)."','".$db->clean($rules)."','".$perpg."','".$perth."','"
-.$hidden."','".$allowedformats."','".$forced_anon."','".$maxfilesize."','".$maxres."','".$thumbres."','".$pixperpost."','".$customcss."','".$allowvids."','"
-.$filter."','".$boardlayout."','".$requireregistration."','".$tlock."','".$rlock."','".$tpix."','".$rpix."','".$tmax."', 0 );";
-				$db->myquery($query);
+				
+				// This will return the last insert ID.
+				$id = $db->makeboard($name, $folder, $_POST['aboutnew'], $_POST['rulesnew']);
+				
 				$actionstring = "Board add\tid:".$id;
 				writelog($actionstring,"admin");
-				//print_r($query);
+				
+				if($_POST['nextaction']=="edit")
+				{
+					$location=THurl."admin.php?a=b&boardselect=".$folder;
+				} 
+				else 
+				{
+					$location=THurl."admin.php?a=b";
+				}
 			}
 		}
 		//print_r($boards);
 		$sm->clear_all_cache();
 		$sm->clear_compiled_tpl();
+		rebuild_filters();
+		rebuild_capcodes();
 		rebuild_htaccess();
 		rebuild_linkbars();
 		rebuild_hovermenu();
-		header("Location: ".THurl."admin.php?a=b");
+		header("Location: ".$location);
 		die();
 	}
 	elseif ($_GET['t']=="ax") //Add ban
 	{
-		if ($_POST['ip4']=="")
+		// Regular subnet ban (ipsub value of 1)
+		$ip4 = "0";
+		if ($_POST['ipsub'] < 1)
 		{
-			$ip4="0";
+			$ip4=$_POST['ip4'];
 		}
-		else
+		
+		// Class C subnet ban (ipsub value of 2)
+		$ip3 = "0";
+		if ($_POST['ipsub'] < 2)
 		{
-			if ($_POST['ipsub'])
-			{
-				$ip4="0";
-			}
-			else
-			{
-				$ip4=$_POST['ip4'];
-			}
+			$ip3=$_POST['ip3'];
 		}
-		$ip=ip2long($_POST['ip1'].".".$_POST['ip2'].".".$_POST['ip3'].".".$ip4);
+		
+		$ip=ip2long($_POST['ip1'].".".$_POST['ip2'].".".$ip3.".".$ip4);
 		if ($ip==-1 || $ip==false)
 		{
 			THdie("ADbanbadip");
 		}
 		$banreason = 'This is an admin ban, you were not banned for a specific post.';
-		$postdata = $_SESSION['username']." via admin ban panel";
-		$db->banip($ip,($_POST['ipsub']=="on"),$_POST['adminreason'],'admin ban',$_POST['adminreason'],$postdata,$_POST['duration'],$bannedby);
+		$bannedby = $_SESSION['username']." via admin ban panel";
+		$db->banip($ip,($_POST['ipsub']=="on"),$banreason,'admin ban',$_POST['adminreason'],"",$_POST['duration'],$bannedby);
 		header("Location: ".THurl."admin.php?a=x");
 	}
 	elseif ($_GET['t']=="ux") //Remove ban
 	{
-		$ips=$db->getallbans();
-		foreach ($ips as $ip)
+		$reason = $_SESSION['username']." via admin ban panel";
+		if( isset($_GET['reason']) )
 		{
-			if ($_POST['del'.$ip['ip']])
+			$reason = $_GET['reason'];
+		}
+		
+		$bans=$db->getallbans();
+		foreach ($bans as $ban)
+		{
+			if ($_POST['del'.$ban['id']])
 			{
-				$db->delban($ip['ip']);
+				$db->delban($ban['id'], $reason);
 			}
 		}
 		header("Location: ".THurl."admin.php?a=x");
+	}
+	elseif ($_GET['t']=="lx") // Lookup ban
+	{
+		if( isset($_POST['ip']) )
+		{
+			$ban_info = $db->getban($_POST['ip']);
+			
+			// Did we find at least one ban?
+			// If so, redirect to the ban ID of the first element in the array.
+			if(count($ban_info) > 0)
+			{
+				header("Location: ".THurl."admin.php?a=x&banselect=".$ban_info[0]['id']);
+			}
+			else
+			{
+				header("Location: ".THurl."admin.php?a=x"); // failure
+			}
+		}
+		else
+		{
+			header("Location: ".THurl."admin.php?a=x"); // even worse failure
+		}	
 	}
 	elseif ($_GET['t']=="ac") //Add capcode
 	{
@@ -688,40 +909,43 @@ VALUES (
 		{
 			THdie('Invalid field provided.'); // don't know if this is right
 		}
-		$query = 'INSERT INTO '.THcapcodes_table.' SET capcodefrom="'.mysql_real_escape_string($_POST['capcodefrom']).'",capcodeto="'.mysql_real_escape_string($_POST['capcodeto']).'",notes="'.mysql_real_escape_string($_POST['notes']).'"';
-		$db->myquery($query);
+		
+		// insertBCW takes care of the rest.
+		$db->insertBCW(THbcw_capcode, $_POST['capcodefrom'], $_POST['capcodeto'], $_POST['notes']);
+
+		rebuild_capcodes();
+		
+		$actionstring = "CP add\tfrom:".$_POST['capcodefrom']."\tto:".$_POST['capcodeto'];
+		writelog($actionstring,"admin");
+		
 		header("Location: ".THurl."admin.php?a=c");
 	}
 	elseif ($_GET['t']=="rc") //Edit capcode
 	{
-		$queryresult = $db->myquery("SELECT * FROM ".THcapcodes_table);
-		if ($queryresult!=null)
+		$capcodes = $db->fetchBCW(THbcw_capcode);
+		
+		foreach ($capcodes as $cap)
 		{
-			$capcodes=array();
-			while ($capcode=mysql_fetch_assoc($queryresult))
-			{
-				$capcodes[]=$capcode;
+			if ($_POST['del'.$cap['id']])
+			{			
+				$db->deleteBCW(THbcw_capcode, $cap['id']);
+				
+				$actionstring = "CP delete\tid:".$cap['id'];
+				writelog($actionstring,"admin");
 			}
-			foreach ($capcodes as $cap)
+			else
 			{
-				if ($_POST['del'.$cap['id']])
-				{
-					$db->myquery("delete from ".THcapcodes_table." where id=".$cap['id']);
-				}
-				else
-				{
-					$capcode=array(
-						'id'=>(int)$_POST['id'.$cap['id']],
-						'from'=>mysql_real_escape_string($_POST['from'.$cap['id']]),
-						'to'=>mysql_real_escape_string($_POST['to'.$cap['id']]),
-						'notes'=>mysql_real_escape_string($_POST['notes'.$cap['id']])
-					);
-					//print_r($capcode);
-					$query='update '.THcapcodes_table.' set capcodefrom="'.$capcode['from'].'", capcodeto="'.$capcode['to'].'", notes="'.$capcode['notes'].'" where id='.$capcode['id'];
-					$db->myquery($query);
-				}
+				$capcode=array(
+					'id'=>(int)$_POST['id'.$cap['id']],
+					'from'=>$db->escape_string($_POST['from'.$cap['id']]),
+					'to'=>$db->escape_string($_POST['to'.$cap['id']]),
+					'notes'=>$db->escape_string($_POST['notes'.$cap['id']])
+				);
+
+				$db->updateBCW(THbcw_capcode, $capcode['id'], $capcode['from'], $capcode['to'], $capcode['notes']);
 			}
 		}
+
 		header("Location: ".THurl."admin.php?a=c");
 	}
 	elseif ($_GET['t']=="aw") //Add wordfilter
@@ -730,44 +954,45 @@ VALUES (
 		{
 			THdie('Invalid field provided.'); // don't know if this is right
 		}
-		$query = 'INSERT INTO '.THfilters_table.' SET filterfrom="'.mysql_real_escape_string($_POST['filterfrom']).'",filterto="'.mysql_real_escape_string($_POST['filterto']).'",notes="'.mysql_real_escape_string($_POST['notes']).'"';
-		$db->myquery($query);
+		
+		// insertBCW takes care of the rest.
+		$db->insertBCW(THbcw_filter, $_POST['filterfrom'], $_POST['filterto'], $_POST['notes']);
+		
+		rebuild_filters();
+		
 		$actionstring = "WF add\tfrom:".$_POST['filterfrom']."\tto:".$_POST['filterto'];
 		writelog($actionstring,"admin");
+		
 		header("Location: ".THurl."admin.php?a=w");
 	}
 	elseif ($_GET['t']=="ew") //Edit filter
 	{
-		$queryresult = $db->myquery("SELECT * FROM ".THfilters_table);
-		if ($queryresult!=null)
+		$filters = $db->fetchBCW(THbcw_filter);
+		
+		foreach ($filters as $filt)
 		{
-			$filters=array();
-			while ($filter=mysql_fetch_assoc($queryresult))
+			if ($_POST['del'.$filt['id']])
 			{
-				$filters[]=$filter;
+				$db->deleteBCW(THbcw_filter, $filt['id']);
+				
+				$actionstring = "WF delete\tid:".$filt['id'];
+				writelog($actionstring,"admin");
 			}
-			foreach ($filters as $filt)
+			else
 			{
-				if ($_POST['del'.$filt['id']])
-				{
-					$db->myquery("delete from ".THfilters_table." where id=".$filt['id']);
-					$actionstring = "WF delete\tid:".$filt['id'];
-					writelog($actionstring,"admin");
-				}
-				else
-				{
-					$filter=array(
-						'id'=>(int)$_POST['id'.$filt['id']],
-						'from'=>mysql_real_escape_string($_POST['from'.$filt['id']]),
-						'to'=>mysql_real_escape_string($_POST['to'.$filt['id']]),
-						'notes'=>mysql_real_escape_string($_POST['notes'.$filt['id']])
-					);
-					//print_r($filter);
-					$query='update '.THfilters_table.' set filterfrom="'.$filter['from'].'", filterto="'.$filter['to'].'", notes="'.$filter['notes'].'" where id='.$filter['id'];
-					$db->myquery($query);
-				}
+				$filter=array(
+					'id'=>(int)$_POST['id'.$filt['id']],
+					'from'=>$db->escape_string($_POST['from'.$filt['id']]),
+					'to'=>$db->escape_string($_POST['to'.$filt['id']]),
+					'notes'=>$db->escape_string($_POST['notes'.$filt['id']])
+				);
+				
+				$db->updateBCW(THbcw_filter, $filter['id'], $filter['from'], $filter['to'], $filter['notes']);
 			}
 		}
+		
+		rebuild_filters();
+		
 		header("Location: ".THurl."admin.php?a=w");
 	}
 	elseif ($_GET['t']=="au") // Manually add user
@@ -775,18 +1000,24 @@ VALUES (
 		$errorstring = "";
 		if(isset($_POST['user']))
 		{	
+			$profile_dbi = new ThornProfileDBI(); // This encapsulates the DB queries we need
+			
 			$username = trim($_POST['user']);
 			$password = trim($_POST['password']);
 			$email = trim($_POST['email']);
-			$nameexists = $db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE username='".mysql_real_escape_string($username)."'");
-			if($nameexists)
+			
+			// Name validation
+			// Check if the account exists
+			if($profile_dbi->userexists($username) == true)
 			{
 			$errorstring .= "Sorry, an account with this name already exists.<br>\n";
 			}
-			if(!eregi("^([0-9a-z\.-_])+$", $username))
+			if(!preg_match('/^([\w\.])+$/i', $username))
 			{
 	        $errorstring .= "Sorry, your name must be alphanumeric and contain no spaces.<br>\n";
 	        }
+			
+			// Password validation
 			if($password)
 			{
 				$passlength = strlen($password);
@@ -799,14 +1030,17 @@ VALUES (
 			{
 				$errorstring .= "You must provide a password!<br>\n";
 			}
+			
+			// Email validation
 			if(isset($_POST['email']) && strlen($email))
 			{
 		         /* Check if valid email address */
-				if(!eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email))
+				if( !validateemail($email) ) // Provided in common.php
 				{
 					$errorstring .= "You must provide a valid email address!<br>\n";
 				}
-				if($db->myresult("SELECT COUNT(*) FROM ".THusers_table." WHERE email='".mysql_real_escape_string($email)."'"))
+				// Check if it exists already
+				if($profile_dbi->emailexists($email) == true)
 				{
 					$errorstring .= "That email has already been used to register an account!<br>\n";
 				}
@@ -815,22 +1049,126 @@ VALUES (
 			{
 				$errorstring .= "You must provide an email address!<br>\n";
 			}
-			if($errorstring == "") 
-			{ // No errors encountered so far, attempt to register
-				$pass_md5 = md5(THsecret_salt.$password);
 			
-				$insertquery = "INSERT INTO ".THusers_table.
-				" (username, password, userlevel, email, approved) VALUES ('".
-				mysql_real_escape_string($username)."','".mysql_real_escape_string($pass_md5)."',".THprofile_userlevel.
-				",'".mysql_real_escape_string($email)."',1)";
-				$db->myquery($insertquery);
+			// No errors encountered so far, attempt to register
+			if($errorstring == "") 
+			{ 	
+				// Insert them, with approval from the beginning (hence the 1 at the end)
+				$profile_dbi->registeruser($username, $password, THprofile_userlevel, $email, 1);
+				
 				$actionstring = "Add user\tname:".$username;
 				writelog($actionstring,"admin");
-				header("Location: ".THurl."admin.php?a=p");
+				//header("Location: ".THurl."admin.php?a=p");
+				//Forward them to the newly created profile - this will hopefully get rid of confusion on whether or not the profile was created.
+				header("Location: ".THurl."profiles.php?action=viewprofile&user=".$username);
 			}
 			// <chopperdave> UHHHHHH OOOOOOHHHHHH </chopperdave>
 			THdie($errorstring);
 		}
 			THdie("Username field must not be blank.");
+	}
+	elseif( $_GET['t'] == "spa") // Add static page
+	{
+		// verify parameters
+		if( !isset($_POST['name']) || !isset($_POST['title']))
+		{
+			THdie("Name and/or title parameter not specified!");
+		}
+		
+		$name = trim($_POST['name']);
+		$title = trim($_POST['title']);
+		
+		if( $title == "" || $name == "")
+		{
+			THdie("Invalid name and/or title parameter provided.");
+		}
+		
+		// Now we check if it exists
+		if( $db->checkstaticpagename($name) == true )
+		{
+			THdie("Another static page already has name '".$name."'.");
+		}
+		
+		// I guess this is OK. Add it.
+		$pageid = $db->addstaticpage($name, $title);
+		
+		// Redirect!
+		header("Location: ".THurl."admin.php?a=spe&id=".$pageid);
+	}
+	elseif( $_GET['t'] == "spx") // Delete static page
+	{
+		// verify parameters
+		if( !isset($_GET['id']) )
+		{
+			THdie("ID parameter not specified!");
+		}
+		
+		$id = intval($_GET['id']);
+		
+		// Clear the cache
+		smclearpagecache($id);
+		// Delete it from the DB
+		$db->delstaticpage($id);
+		
+		// Redirect to the static pages list
+		header("Location: ".THurl."admin.php?a=sp");
+	}
+	elseif( $_GET['t'] == "spe") // Edit static page (POST receiver)
+	{
+		// Verify parameters
+		if( !isset($_POST['id']) )
+		{
+			THdie("ID parameter not specified!");
+		}
+		
+		if( !isset($_POST['name']) || !isset($_POST['title']))
+		{
+			THdie("Name and/or title parameter not specified!");
+		}
+
+		if( !isset($_POST['publish']) || !isset($_POST['content']))
+		{
+			THdie("Publish and/or content parameter not specified!");
+		}		
+		
+		// Don't bother checking if the id actually
+		// refers to something that exists - the way our SQL
+		// queries work, it won't make a difference because in
+		// that case there will be nothing matching the "WHERE ID=___"
+		// clause.
+		
+		// Clean up the incoming parameters
+		$id = intval($_POST['id']);
+		$name = trim($_POST['name']);
+		$title = trim($_POST['title']);
+		$content = $_POST['content'];
+		$publish = intval($_POST['publish']);
+		
+		// Check name/title aren't empty
+		if( $name == "" || $title == "")
+		{
+			THdie("Invalid name and/or title parameter provided.");
+		}
+		
+		// Now we check if it exists (we check with ID because we don't
+		// want to match the current page we're editing)
+		if( $db->checkstaticpagename($name, $id) == true )
+		{
+			THdie("Another static page already has name '".$name."'.");
+		}
+		
+		// Check publish parameter
+		if( $publish < 0 || $publish > 3)
+		{
+			THdie("Invalid publish option specified!");
+		}
+		
+		// Everything checked out, so let's clear the cache and update
+		// the info
+		smclearpagecache($id);
+		$db->editstaticpage($id, $name, $title, $content, $publish);
+		
+		// Redirect!
+		header("Location: ".THurl."admin.php?a=spe&id=".$id);
 	}
 ?>

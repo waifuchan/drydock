@@ -13,11 +13,11 @@
  * Name:     wordwrap_new<br>
  * Purpose:  wrap a string of text at a given length, hopefully in a way that doesn't break things!  Call this before nl2br.
  * @author   ordog (lol)
- * @param string
- * @param integer
- * @param string
- * @param boolean
- * @return string
+ * @param string $string The source string
+ * @param integer $length The length to wrap to, defaults to 80
+ * @param string $break The string to break up lines by, defaults to " "
+ * @param boolean $cut If $cut is true, the string is always wrapped at the specified width
+ * @return string The wordwrapped string
  */
 function smarty_modifier_wordwrap_new($string,$length=80,$break=" ",$cut=false)
 {
@@ -30,10 +30,11 @@ function smarty_modifier_wordwrap_new($string,$length=80,$break=" ",$cut=false)
 /**
 * wordwrap for utf8 encoded strings
 *
-* @param string $str
-* @param integer $len
-* @param string $what
-* @return string
+* @param string $str The source string
+* @param integer $len The length to wrap to, defaults to 80
+* @param string $what The string to break up lines by, defaults to " "
+* @param boolean $cut If $cut is true, the string is always wrapped at the specified width
+* @return string The wordwrapped string
 * @author Milian Wolff <mail@milianw.de>
 */
 function utf8_wordwrap($str, $width, $break,$cut = false)

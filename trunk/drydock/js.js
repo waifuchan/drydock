@@ -13,10 +13,6 @@ function readCookie(name)
 }
 
 function vctest() {
-    if (document.getElementById("mpass").value!="") {
-        document.getElementById("postform").submit();
-        return(null);
-        }
     it=getit();
     if (it) {
         vcf=document.getElementById("vc");
@@ -118,5 +114,17 @@ function ToggleMenu(name, duration, path)
 		document.cookie = name+"-menu="+value+expires+"; path="+path;
 		document.getElementById("idxmenuitem").style.display="none";
 		document.getElementById("main").style.marginRight="0px";
+	}
+}
+
+function ToggItem(item)
+{
+	if( item.style.display == "block" )
+	{
+		item.style.display = "none";
+	}
+	else
+	{
+		item.style.display = "block";
 	}
 }

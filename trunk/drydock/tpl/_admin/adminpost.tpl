@@ -4,7 +4,7 @@
 <div id="main">
     <div class="box">
         <div class="pgtitle">
-            Board Settings
+            Manager Post
         </div>
 <form name="postform" id="postform" action="{$THurl}thread.php" method="post" enctype="multipart/form-data">
 <table>
@@ -27,19 +27,21 @@
 				<td colspan="2"><textarea name="body" cols="48" rows="4" id="cont"></textarea></td>
 			</tr>
 				<tr><td class="postblock">Files</td><td colspan="2">
+{*
 				<script type="text/javascript">
 					<!--
 						document.write('\
 {section name=filelist loop=$binfo.pixperpost}
-<div id="file{$smarty.section.filelist.index}"{if $smarty.section.filelist.index!=0} style="display:none;"{/if}><input type="file" name="file{$smarty.section.filelist.index}" onchange="visfile({$smarty.section.filelist.index})" /><br /></div>
+<div id="file{$smarty.section.filelist.index}"{if $smarty.section.filelist.index!=0} style="display:none;"{/if}><input type="file" name="file{$smarty.section.filelist.index}" onchange="visfile({$smarty.section.filelist.index})" /><br /></div>\
 {/section}');
 					// /-->
 				</script>
 				<noscript>
+*}
 {section name=filelistnojs loop=$binfo.pixperpost}
 <div id="file{$smarty.section.filelistnojs.index}"><input type="file" name="file{$smarty.section.filelistnojs.index}" /><br /></div>
 {/section}
-				</noscript>     
+{*				</noscript>     *}
 				</td></tr>
 			<tr><td class="postblock">Then</td><td colspan="2"><select name="todo">
 				<option value="thread">Go to the new thread</option>
@@ -53,6 +55,6 @@
 		</tr>
 	</tbody>
 </table>
-<input type="hidden" name="board" value="{$binfo.id}" />
+<input type="hidden" name="board" value="{$binfo.folder}" />
 </form>
 {include file=admin-foot.tpl}

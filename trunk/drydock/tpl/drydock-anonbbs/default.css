@@ -90,4 +90,4 @@ blockquote p { margin: 0; padding: 0; }
     clear:both;
     }
 
-.ban { color:red; }
+.ban { color:red; font-weight: bold; }

@@ -5,7 +5,7 @@
 		Description:	If for some reason you need drydock to not be index.php,
 						then you can just use this file as an example of how we handle it.
 					For whatever reason if you need to embed drydock, this is where you should start.
-																									~tyam
+																	~tyam
 		
 		Unless otherwise stated, this code is copyright 2008 
 		by the drydock developers and is released under the

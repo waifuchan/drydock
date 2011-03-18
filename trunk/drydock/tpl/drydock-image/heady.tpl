@@ -13,7 +13,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 {* tyam - load per-board stylesheets *}
 {if $binfo.customcss}
-<link rel="stylesheet" type="text/css" href="{$THtplurl}{$binfo.folder}.css" title="{$binfo.folder} theme" />
+<link rel="stylesheet" type="text/css" href="{$THpath}tpl/{$binfo.folder}.css" title="{$binfo.folder} theme" />
 <link rel="alternate stylesheet" type="text/css" href="{$THtplurl}futaba.css" title="Futaba-ish Stylesheet" />
 {else}
 <link rel="stylesheet" type="text/css" href="{$THtplurl}futaba.css" title="Futaba-ish Stylesheet" />
