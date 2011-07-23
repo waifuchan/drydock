@@ -16,16 +16,18 @@
         <div id="showit" class="sslarge">
 			<form method="post" enctype="multipart/form-data" action="{$THurl}{if $comingfrom=="thread"}reply{else if $comingfrom == "board"}thread{/if}.php" id="postform">
                 <div>
-                    {if $comingfrom == "board"}Subject: <input type="text" name="subj" size="45" /><br />{/if}
-                    Name: <input type="text" name="nombre" size="20" /> Link: <input type="text" name="link" size="20" /><br />
+                    {if $comingfrom == "board" && $binfo.forced_anon!=1} {* begin forced_anon *}
+Subject: <input type="text" name="subj" size="45" /><br />
+{				/if} {* end forced_anon *}
+{				if $binfo.forced_anon!=1} {* begin forced_anon *}
+                    Name: <input type="text" name="nombre" size="20" /> {/if}{* end forced_anon *}Link: <input type="text" name="link" size="20" /><br />
                     {if $THvc==1}
 						Verification Code:
-						<script type="text/javascript">var RecaptchaOptions = { theme : 'clean' };</script>
+						{literal}<script type="text/javascript">var RecaptchaOptions = { theme : 'clean' };</script>{/literal}
 						{$captcha}
                     {elseif $THvc==2}
-						LEAVE BLANK IF HUMAN: <input type=text" name="email" />
+						LEAVE BLANK IF HUMAN: <input type=text" name="email" /><br />
                     {/if}
-               	    <input type="submit" value="Post" />
                     <textarea name="body" cols="51" rows="8" id="cont"></textarea><br />
 {			if (($binfo.tpix > 0 and $comingfrom == "board") or ($binfo.rpix > 0 and $comingfrom == "thread"))} {* are there images? *}
 <table><tr><td class="postblock">File</td><td>
@@ -44,13 +46,10 @@
 				</noscript>
 </td></tr></table>        
 			{/if} {* if pix>0*}
-Password: <input type="password" name="password" size="8" /><br> {* New password field for deletion *}
-                    After submission, go to the:
-                    <select name="todo">
-                        <option value="board">Return to board</option>
-                        <option value="thread">Go to the new thread</option>
-                    </select>
-
+Password: <input type="password" name="password" size="8" /> {* New password field for deletion *} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;<input type="submit" value="Post" /><br> 
 <input type="hidden" name="board" value="{$binfo.folder}" />
 {if $comingfrom == "thread"}<input type="hidden" name="thread" value="{$thread.id}" />{/if}
                 </div>
