@@ -272,20 +272,11 @@
 			$capcodes = array();
 			$capcodes = $db->fetchBCW(THbcw_capcode);
 			
-			if(count($capcodes) > 0)
-			{
-				foreach ($capcodes as $capcode)
-				{
-					$capcode = replacequote($capcode);
-				}
-			}
-			else
+			if(count($capcodes) <= 0)
 			{
 				$capcodes = null;
 			}
 			
-			//print_r($capcodes);
-			//rebuild_capcodes();
 			$sm->assign("capcodes",$capcodes);
 			$sm->display("admincapcodes.tpl");
 		}
@@ -300,14 +291,7 @@
 			// Retrieve wordfilters
 			$filters = array();
 			$filters = $db->fetchBCW(THbcw_filter);
-			if(count($filters) > 0)
-			{
-				foreach( $filters as $filter )
-				{
-					$filter = replacequote($filter);
-				}
-			}
-			else
+			if(count($filters) <= 0)
 			{
 				$filters = null;
 			}
@@ -937,9 +921,9 @@
 			{
 				$capcode=array(
 					'id'=>(int)$_POST['id'.$cap['id']],
-					'from'=>$db->escape_string($_POST['from'.$cap['id']]),
-					'to'=>$db->escape_string($_POST['to'.$cap['id']]),
-					'notes'=>$db->escape_string($_POST['notes'.$cap['id']])
+					'from'=>$_POST['from'.$cap['id']],
+					'to'=>$_POST['to'.$cap['id']],
+					'notes'=>$_POST['notes'.$cap['id']]
 				);
 
 				$db->updateBCW(THbcw_capcode, $capcode['id'], $capcode['from'], $capcode['to'], $capcode['notes']);
@@ -982,9 +966,9 @@
 			{
 				$filter=array(
 					'id'=>(int)$_POST['id'.$filt['id']],
-					'from'=>$db->escape_string($_POST['from'.$filt['id']]),
-					'to'=>$db->escape_string($_POST['to'.$filt['id']]),
-					'notes'=>$db->escape_string($_POST['notes'.$filt['id']])
+					'from'=>$_POST['from'.$filt['id']],
+					'to'=>$_POST['to'.$filt['id']],
+					'notes'=>$_POST['notes'.$filt['id']]
 				);
 				
 				$db->updateBCW(THbcw_filter, $filter['id'], $filter['from'], $filter['to'], $filter['notes']);
